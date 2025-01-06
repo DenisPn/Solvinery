@@ -1,0 +1,18 @@
+{
+	"imageId" : "65432146334",
+	"compiled" : "true",
+	"message" : "",
+	"variables" : ["variable 1", "variable 2"], 
+	"variablesInvolvedSets" : [["set 11", "set 12"]  , ["set 21","set22"]],
+	"variablesInvolvedParams" : [["param11", "param12"]  , ["param21","param22"]],
+	"constraints" : ["Constraint1", "Constraint2"], 
+	"constraintsInvolvedSets" : [["Set 11", "Set 12"]  , ["Set 21","Set22"]],
+	"constraintsInvolvedParams" : [["param11", "param12"]  , ["param21","param22"]],
+	"preferences" : ["Preference1", "Preference2" ], 
+	"preferencesInvolvedSets" : [["Set 11", "Set 12"]  , ["Set 21","Set22"]],
+	"preferencesInvolvedParams" : [["param11", "param12"]  , ["param21","param22"]],
+	"types" : { 
+				"sets" : [{ "set11" : "undefined" } , {"set12" : "<Text , Real>"}],
+				"params" :  [{ "param11" : "Text" } , {"param12" : "undefined"}]
+			}
+}

@@ -1,53 +1,43 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { UploadContext } from '../context/UploadContext';
 import './UploadZPLPage.css';
+import mockResponse from '../mock/mockResponse.json';
 
 const UploadZPLPage = () => {
     const [file, setFile] = useState(null);
-    const [message, setMessage] = useState('');
-    const navigate = useNavigate(); // Hook for navigation
+    const { setUploadedFile } = useContext(UploadContext);
+    const navigate = useNavigate();
 
-    const handleFileChange = (event) => {
-        setFile(event.target.files[0]);
-        setMessage('');
+    // Handle file change
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
     };
 
-    const handleUpload = async () => {
+    // Simulate upload and navigation
+    const handleUpload = () => {
         if (!file) {
-            setMessage('Please select a file before uploading.');
+            alert('Please upload a file!');
             return;
         }
 
-        const formData = new FormData();
-        formData.append('file', file);
+        // Save the uploaded file in global state
+        setUploadedFile(file);
 
-        try {
-           /* await axios.post('/Images', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            */
-            setMessage('File uploaded successfully!');
-            navigate('/configure-variables'); // Redirect to Configure Variables Page
-            
-        } catch (error) {
-            setMessage('Failed to upload file. Please try again.');
-        }
+        // Simulate a delay for file processing
+        setTimeout(() => {
+            console.log('Mock JSON Response:', mockResponse);
+            navigate('/configure-variables', { state: { data: mockResponse } });
+        }, 1000);
     };
 
     return (
         <div className="upload-zpl-page">
-            <h1 className="page-title">Upload ZPL File</h1>
-            <div className="file-input-container">
-                
-                <input type="file" onChange={handleFileChange} />
-                <button className="upload-button" onClick={handleUpload}>
-                    Upload
-                </button>
+            <h1>Upload ZPL File</h1>
+            <div className="upload-container">
+                <input type="file" onChange={handleFileChange} className="file-input" />
+                <button onClick={handleUpload} className="upload-button">Upload</button>
             </div>
-            {message && <p className="upload-message">{message}</p>}
         </div>
     );
 };

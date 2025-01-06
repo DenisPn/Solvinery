@@ -1,67 +1,48 @@
-/* ConfigureVariablesPage.css */
-
 .configure-variables-page {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px;
-}
-
-.page-title {
-    font-size: 36px;
-    font-weight: bold;
-    margin-bottom: 30px;
-}
-
-.config-section {
-    margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
     background-color: #f9f9f9;
+    min-height: 100vh;
 }
 
-.checkbox-item {
+.configure-variables-page h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.variables-container {
     display: flex;
-    align-items: center;
+    justify-content: space-between;
+    width: 80%;
+}
+
+.left-column,
+.right-column {
+    width: 45%;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.left-column h2,
+.right-column h2 {
+    font-size: 24px;
     margin-bottom: 10px;
 }
 
-.checkbox-item label {
-    margin-left: 10px;
-    font-size: 16px;
+ul {
+    list-style-type: none;
+    padding: 0;
 }
 
-.continue-button {
-    margin-top: 20px;
-    padding: 15px 30px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background-color: #ffffff;
-    cursor: pointer;
-    transition: background-color 0.3s;
+li {
+    margin-bottom: 10px;
+    font-size: 18px;
 }
 
-.continue-button:hover {
-    background-color: #e0e0e0;
-}
-
-.back-button {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    padding: 10px 20px;
-    font-size: 14px;
-    text-decoration: none;
-    color: #000;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background-color: #ffffff;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.back-button:hover {
-    background-color: #e0e0e0;
+input[type="checkbox"] {
+    margin-right: 10px;
 }
