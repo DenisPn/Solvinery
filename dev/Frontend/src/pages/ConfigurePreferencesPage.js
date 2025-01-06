@@ -1,78 +1,92 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { UploadContext } from '../context/UploadContext';
 import './ConfigurePreferencesPage.css';
 
 const ConfigurePreferencesPage = () => {
-    // State for preferences
-    const [preferences, setPreferences] = useState([
-        { name: 'My Preference 1', checked: true },
-        { name: 'My Preference 2', checked: true },
-    ]);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { uploadedFile } = useContext(UploadContext);
 
-    const [preferenceDescription, setPreferenceDescription] = useState('');
-    const [adjustableBar, setAdjustableBar] = useState(50); // For the adjustable bar
+    const data = location.state?.data;
 
-    const navigate = useNavigate(); // Initialize the navigation function
+    // State to track the selected preference index
+    const [selectedPreferenceIndex, setSelectedPreferenceIndex] = useState(0);
 
-    // Handle checkbox change
-    const handleCheckboxChange = (index) => {
-        const updatedPreferences = [...preferences];
-        updatedPreferences[index].checked = !updatedPreferences[index].checked;
-        setPreferences(updatedPreferences);
+    // Handle radio button selection
+    const handlePreferenceSelection = (index) => {
+        setSelectedPreferenceIndex(index);
     };
 
-    // Handle adding a new preference
-    const handleAddPreference = () => {
-        setPreferences([...preferences, { name: `My Preference ${preferences.length + 1}`, checked: false }]);
+    // Handle Continue button click
+    const handleContinue = () => {
+        navigate('/solution-preview', { state: { data } });
     };
 
     return (
         <div className="configure-preferences-page">
-            <h1 className="page-title">Configure High-Level Preferences</h1>
+            <h1>Configure High-Level Preferences</h1>
+            {uploadedFile && <p>Uploaded File: {uploadedFile.name}</p>}
 
-            <div className="preferences-list">
-                <h2>Preference Names</h2>
-                {preferences.map((preference, index) => (
-                    <div key={index} className="checkbox-item">
-                        <input
-                            type="checkbox"
-                            checked={preference.checked}
-                            onChange={() => handleCheckboxChange(index)}
-                        />
-                        <label>{preference.name}</label>
+            {data ? (
+                <div className="preferences-container">
+                    {/* Left Column: Involved Sets and Params */}
+                    <div className="left-column">
+                        <h2>Involved Sets</h2>
+                        <ul>
+                            {data.preferencesInvolvedSets[selectedPreferenceIndex]?.map((set, index) => (
+                                <li key={index}>
+                                    <input type="checkbox" id={`set-${index}`} />
+                                    <label htmlFor={`set-${index}`}>
+                                        {set} <span className="type-label">(Set Type)</span>
+                                    </label>
+                                </li>
+                            ))}
+                        </ul>
+                        <h2>Involved Params</h2>
+                        <ul>
+                            {data.preferencesInvolvedParams[selectedPreferenceIndex]?.map((param, index) => (
+                                <li key={index}>
+                                    <input type="checkbox" id={`param-${index}`} />
+                                    <label htmlFor={`param-${index}`}>
+                                        {param} <span className="type-label">(Param Type)</span>
+                                    </label>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
-                ))}
-            </div>
 
-            <div className="preference-details">
-                <h2>Preference Description</h2>
-                <textarea
-                    value={preferenceDescription}
-                    onChange={(e) => setPreferenceDescription(e.target.value)}
-                    placeholder="Enter preference description here..."
-                />
-            </div>
+                    {/* Right Column: Parsed Preferences */}
+                    <div className="right-column">
+                        <h2>Parsed Preferences</h2>
+                        <ul>
+                            {data.preferences.map((preference, index) => (
+                                <li key={index}>
+                                    <input
+                                        type="radio"
+                                        name="parsed-preference"
+                                        id={`preference-radio-${index}`}
+                                        checked={selectedPreferenceIndex === index}
+                                        onChange={() => handlePreferenceSelection(index)}
+                                    />
+                                    <input
+                                        type="checkbox"
+                                        id={`preference-checkbox-${index}`}
+                                    />
+                                    <label htmlFor={`preference-radio-${index}`}>{preference}</label>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            ) : (
+                <p>No data received.</p>
+            )}
 
-            <h2>Adjustable Bar</h2>
-            <input
-                type="range"
-                min="0"
-                max="100"
-                value={adjustableBar}
-                onChange={(e) => setAdjustableBar(e.target.value)}
-            />
-            <p>Value: {adjustableBar}</p>
-
-            <button className="add-button" onClick={handleAddPreference}>
-                Add Preference
-            </button>
-
-            {/* "Continue" Button to Navigate to Solution Preview Page */}
-            <button className="continue-button" onClick={() => navigate('/solution-preview')}>
+            {/* Continue Button */}
+            <button className="continue-button" onClick={handleContinue}>
                 Continue
             </button>
-
-            <Link to="/" className="back-button">Back</Link>
         </div>
     );
 };
