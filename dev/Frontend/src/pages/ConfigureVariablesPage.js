@@ -1,26 +1,33 @@
 import React, { useContext, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useLocation, useNavigate } from 'react-router-dom';
 import { UploadContext } from '../context/UploadContext';
 import './ConfigureVariablesPage.css';
 
 const ConfigureVariablesPage = () => {
     const location = useLocation();
-    const navigate = useNavigate(); // Initialize navigate
-    const { uploadedFile } = useContext(UploadContext);
+    const navigate = useNavigate();
+    const { uploadedFile, checkboxValues, setCheckboxValues } = useContext(UploadContext);
 
     const data = location.state?.data;
 
-    // State to track the selected variable index
     const [selectedVariableIndex, setSelectedVariableIndex] = useState(0);
 
-    // Handle radio button selection
     const handleVariableSelection = (index) => {
         setSelectedVariableIndex(index);
     };
 
-    // Handle Continue button click
+    const handleCheckboxChange = (variable) => {
+        setCheckboxValues((prevValues) => ({
+            ...prevValues,
+            variables: {
+                ...prevValues.variables,
+                [variable]: !prevValues.variables[variable]
+            }
+        }));
+    };
+
     const handleContinue = () => {
-        navigate('/configure-constraints', { state: { data } }); // Pass data to the next page
+        navigate('/configure-constraints', { state: { data } });
     };
 
     return (
@@ -30,39 +37,27 @@ const ConfigureVariablesPage = () => {
 
             {data ? (
                 <div className="variables-container">
-                    {/* Left Column: Involved Sets and Params */}
                     <div className="left-column">
                         <h2>Involved Sets</h2>
                         <ul>
-                            {data.variablesInvolvedSets[selectedVariableIndex]?.map((set, index) => {
-                                const type = data.types.sets.find((s) => s[set])?.[set] || 'undefined';
-                                return (
-                                    <li key={index}>
-                                        <input type="checkbox" id={`set-${index}`} />
-                                        <label htmlFor={`set-${index}`}>
-                                            {set} <span className="type-label">({type})</span>
-                                        </label>
-                                    </li>
-                                );
-                            })}
+                            {data.variablesInvolvedSets[selectedVariableIndex]?.map((set, index) => (
+                                <li key={index}>
+                                    <input type="checkbox" id={`set-${index}`} />
+                                    <label htmlFor={`set-${index}`}>{set}</label>
+                                </li>
+                            ))}
                         </ul>
                         <h2>Involved Params</h2>
                         <ul>
-                            {data.variablesInvolvedParams[selectedVariableIndex]?.map((param, index) => {
-                                const type = data.types.params.find((p) => p[param])?.[param] || 'undefined';
-                                return (
-                                    <li key={index}>
-                                        <input type="checkbox" id={`param-${index}`} />
-                                        <label htmlFor={`param-${index}`}>
-                                            {param} <span className="type-label">({type})</span>
-                                        </label>
-                                    </li>
-                                );
-                            })}
+                            {data.variablesInvolvedParams[selectedVariableIndex]?.map((param, index) => (
+                                <li key={index}>
+                                    <input type="checkbox" id={`param-${index}`} />
+                                    <label htmlFor={`param-${index}`}>{param}</label>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
-                    {/* Right Column: Parsed Variables */}
                     <div className="right-column">
                         <h2>Parsed Variables</h2>
                         <ul>
@@ -78,6 +73,8 @@ const ConfigureVariablesPage = () => {
                                     <input
                                         type="checkbox"
                                         id={`variable-checkbox-${index}`}
+                                        checked={checkboxValues.variables[variable] || false}
+                                        onChange={() => handleCheckboxChange(variable)}
                                     />
                                     <label htmlFor={`variable-radio-${index}`}>{variable}</label>
                                 </li>
@@ -89,7 +86,6 @@ const ConfigureVariablesPage = () => {
                 <p>No data received.</p>
             )}
 
-            {/* Continue Button */}
             <button className="continue-button" onClick={handleContinue}>
                 Continue
             </button>
