@@ -1,55 +1,92 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import React, { useContext, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { UploadContext } from '../context/UploadContext';
 import './ConfigureConstraintsPage.css';
 
 const ConfigureConstraintsPage = () => {
-    const [constraints, setConstraints] = useState([
-        { name: 'drisha 1', checked: true },
-        { name: 'drisha 2', checked: true },
-    ]);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { uploadedFile } = useContext(UploadContext);
 
-    const navigate = useNavigate(); // Initialize navigate function
+    const data = location.state?.data;
 
-    // Handle checkbox change
-    const handleCheckboxChange = (index) => {
-        const updatedConstraints = [...constraints];
-        updatedConstraints[index].checked = !updatedConstraints[index].checked;
-        setConstraints(updatedConstraints);
+    // State to track the selected constraint index
+    const [selectedConstraintIndex, setSelectedConstraintIndex] = useState(0);
+
+    // Handle radio button selection
+    const handleConstraintSelection = (index) => {
+        setSelectedConstraintIndex(index);
     };
 
-    // Handle adding a new constraint
-    const handleAddConstraint = () => {
-        setConstraints([...constraints, { name: `drisha ${constraints.length + 1}`, checked: false }]);
+    // Handle Continue button click
+    const handleContinue = () => {
+        navigate('/configure-preferences', { state: { data } });
     };
 
     return (
         <div className="configure-constraints-page">
-            <h1 className="page-title">Configure High-Level Constraints</h1>
+            <h1>Configure High-Level Constraints</h1>
+            {uploadedFile && <p>Uploaded File: {uploadedFile.name}</p>}
 
-            <div className="constraints-list">
-                <h2>Constraint Names</h2>
-                {constraints.map((constraint, index) => (
-                    <div key={index} className="checkbox-item">
-                        <input
-                            type="checkbox"
-                            checked={constraint.checked}
-                            onChange={() => handleCheckboxChange(index)}
-                        />
-                        <label>{constraint.name}</label>
+            {data ? (
+                <div className="constraints-container">
+                    {/* Left Column: Involved Sets and Params */}
+                    <div className="left-column">
+                        <h2>Involved Sets</h2>
+                        <ul>
+                            {data.constraintsInvolvedSets[selectedConstraintIndex]?.map((set, index) => (
+                                <li key={index}>
+                                    <input type="checkbox" id={`set-${index}`} />
+                                    <label htmlFor={`set-${index}`}>
+                                        {set} <span className="type-label">(Set Type)</span>
+                                    </label>
+                                </li>
+                            ))}
+                        </ul>
+                        <h2>Involved Params</h2>
+                        <ul>
+                            {data.constraintsInvolvedParams[selectedConstraintIndex]?.map((param, index) => (
+                                <li key={index}>
+                                    <input type="checkbox" id={`param-${index}`} />
+                                    <label htmlFor={`param-${index}`}>
+                                        {param} <span className="type-label">(Param Type)</span>
+                                    </label>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
-                ))}
-            </div>
 
-            <button className="add-button" onClick={handleAddConstraint}>
-                Add Constraint
-            </button>
+                    {/* Right Column: Parsed Constraints */}
+                    <div className="right-column">
+                        <h2>Parsed Constraints</h2>
+                        <ul>
+                            {data.constraints.map((constraint, index) => (
+                                <li key={index}>
+                                    <input
+                                        type="radio"
+                                        name="parsed-constraint"
+                                        id={`constraint-radio-${index}`}
+                                        checked={selectedConstraintIndex === index}
+                                        onChange={() => handleConstraintSelection(index)}
+                                    />
+                                    <input
+                                        type="checkbox"
+                                        id={`constraint-checkbox-${index}`}
+                                    />
+                                    <label htmlFor={`constraint-radio-${index}`}>{constraint}</label>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            ) : (
+                <p>No data received.</p>
+            )}
 
-            {/* "Continue" Button */}
-            <button className="continue-button" onClick={() => navigate('/configure-preferences')}>
+            {/* Continue Button */}
+            <button className="continue-button" onClick={handleContinue}>
                 Continue
             </button>
-
-            <Link to="/" className="back-button">Back</Link>
         </div>
     );
 };

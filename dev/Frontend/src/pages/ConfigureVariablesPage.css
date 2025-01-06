@@ -41,8 +41,32 @@ ul {
 li {
     margin-bottom: 10px;
     font-size: 18px;
+    display: flex;
+    align-items: center;
 }
 
+input[type="radio"],
 input[type="checkbox"] {
     margin-right: 10px;
+}
+
+.type-label {
+    font-size: 14px;
+    color: #555;
+}
+
+.continue-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 18px;
+    color: #000000;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.continue-button:hover {
+    background-color: #0056b3;
 }
