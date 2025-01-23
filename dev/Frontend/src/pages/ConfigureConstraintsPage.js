@@ -10,7 +10,7 @@ const ITEM_TYPE = 'CONSTRAINT';
 const ConstraintItem = ({ constraint }) => {
     const [{ isDragging }, drag] = useDrag(() => ({
         type: ITEM_TYPE,
-        item: { constraint },
+        item: { identifier: constraint.identifier },
         collect: (monitor) => ({
             isDragging: monitor.isDragging(),
         }),
@@ -24,15 +24,17 @@ const ConstraintItem = ({ constraint }) => {
 };
 
 const ConfigureConstraintsPage = () => {
-    const { constraints } = useZPL();
+    const { constraints: initialConstraints } = useZPL();
     const navigate = useNavigate();
 
     const [constraintModules, setConstraintModules] = useState([]);
     const [moduleName, setModuleName] = useState('');
+    const [availableConstraints, setAvailableConstraints] = useState(initialConstraints);
+    const [selectedModuleIndex, setSelectedModuleIndex] = useState(null);
 
     const addConstraintModule = () => {
         if (moduleName.trim() !== '') {
-            setConstraintModules([...constraintModules, { name: moduleName, constraints: [] }]);
+            setConstraintModules((prevModules) => [...prevModules, { name: moduleName, constraints: [] }]);
             setModuleName('');
         }
     };
@@ -40,14 +42,22 @@ const ConfigureConstraintsPage = () => {
     const [{ isOver }, drop] = useDrop(() => ({
         accept: ITEM_TYPE,
         drop: (item) => {
-            setConstraintModules((prevModules) => {
-                if (prevModules.length > 0) {
-                    const newModules = [...prevModules];
-                    newModules[newModules.length - 1].constraints.push(item.constraint);
+            if (selectedModuleIndex !== null) {
+                setConstraintModules((prevModules) => {
+                    const newModules = prevModules.map((module, index) => {
+                        if (index === selectedModuleIndex) {
+                            return { ...module, constraints: [...module.constraints, item] };
+                        }
+                        return module;
+                    });
                     return newModules;
-                }
-                return prevModules;
-            });
+                });
+
+                // Remove constraint from available constraints
+                setAvailableConstraints((prevConstraints) =>
+                    prevConstraints.filter((c) => c.identifier !== item.identifier)
+                );
+            }
         },
         collect: (monitor) => ({
             isOver: monitor.isOver(),
@@ -72,7 +82,10 @@ const ConfigureConstraintsPage = () => {
                         <button onClick={addConstraintModule}>Add Constraint Module</button>
                         <ul>
                             {constraintModules.map((module, index) => (
-                                <li key={index}>{module.name}</li>
+                                <li key={index}>
+                                    {module.name} 
+                                    <button onClick={() => setSelectedModuleIndex(index)}>Select</button>
+                                </li>
                             ))}
                         </ul>
                     </div>
@@ -80,23 +93,30 @@ const ConfigureConstraintsPage = () => {
                     {/* Define Constraint Module */}
                     <div className="define-constraint-module" ref={drop} style={{ backgroundColor: isOver ? '#e6ffe6' : '#f0f0f0' }}>
                         <h2>Define Constraint Module</h2>
-                        <p>Drag constraints here to define a module</p>
-                        <div className="module-drop-area">
-                            {constraintModules.length > 0 && constraintModules[constraintModules.length - 1].constraints.length > 0 ? (
-                                constraintModules[constraintModules.length - 1].constraints.map((c, i) => (
-                                    <div key={i} className="dropped-constraint">{c.identifier}</div>
-                                ))
-                            ) : (
-                                <p>No constraints added</p>
-                            )}
-                        </div>
+                        {selectedModuleIndex === null ? (
+                            <p>Select a module</p>
+                        ) : (
+                            <>
+                                <h3>{constraintModules[selectedModuleIndex].name}</h3>
+                                <p>Drag constraints here to define a module</p>
+                                <div className="module-drop-area">
+                                    {constraintModules[selectedModuleIndex].constraints.length > 0 ? (
+                                        constraintModules[selectedModuleIndex].constraints.map((c, i) => (
+                                            <div key={i} className="dropped-constraint">{c.identifier}</div>
+                                        ))
+                                    ) : (
+                                        <p>No constraints added</p>
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {/* Available Constraints */}
                     <div className="available-constraints">
                         <h2>Available Constraints</h2>
-                        {constraints && constraints.length > 0 ? (
-                            constraints.map((constraint, index) => (
+                        {availableConstraints && availableConstraints.length > 0 ? (
+                            availableConstraints.map((constraint, index) => (
                                 <ConstraintItem key={index} constraint={constraint} />
                             ))
                         ) : (
