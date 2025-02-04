@@ -3,7 +3,7 @@ package Model;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 
-
+import Model.ModelInput.StructureBlock;
 import parser.*;
 import parser.FormulationBaseVisitor;
 import parser.FormulationLexer;
@@ -15,6 +15,8 @@ import parser.FormulationParser.SetDefExprContext;
 import parser.FormulationParser.SetDescStackContext;
 import parser.FormulationParser.SetExprContext;
 import parser.FormulationParser.SetExprStackContext;
+import parser.FormulationParser.TupleContext;
+import parser.FormulationParser.UExprContext;
 
 import java.io.*;
 import java.nio.file.*;
@@ -123,7 +125,7 @@ public class Model implements ModelInterface {
             parseSource();
         }
     }
-   
+    //TODO: make toggling (commenting out) work for preferences too!
     public void toggleFunctionality(ModelFunctionality mf, boolean turnOn) {
         if (!turnOn) {
             toggledOffFunctionalities.add(mf.getIdentifier());
@@ -263,10 +265,21 @@ public class Model implements ModelInterface {
 
         @Override
         public Void visitObjective(FormulationParser.ObjectiveContext ctx) {
-            String preferenceName = extractName(ctx.name.getText());
-            TypeVisitor visitor = new TypeVisitor();
-            visitor.visit(ctx);
-            preferences.put(preferenceName, new ModelPreference(preferenceName,visitor.getBasicSets(),visitor.getBasicParams()));
+            List<UExprContext> components = findComponentContexts(ctx.nExpr());
+    
+            for (UExprContext expressionComponent : components) {
+                // Create a parse tree for the specific component
+                //ParseTree componentParseTree = parseComponentExpression(expressionComponent);
+                TypeVisitor visitor = new TypeVisitor();
+                visitor.visit(expressionComponent);
+                
+                preferences.put(expressionComponent.getText(), 
+                    new ModelPreference(expressionComponent.getText(), 
+                                        visitor.getBasicSets(), 
+                                        visitor.getBasicParams())
+                );
+            }
+            
             return super.visitObjective(ctx);
         }
         
@@ -274,7 +287,11 @@ public class Model implements ModelInterface {
             String varName = extractName(ctx.sqRef().getText());
             TypeVisitor visitor = new TypeVisitor();
             visitor.visit(ctx);
-            variables.put(varName, new ModelVariable(varName, visitor.getBasicSets(), visitor.getBasicParams()));
+            boolean isComplex = true;
+            if(ctx.sqRef() instanceof FormulationParser.SqRefCsvContext){
+                isComplex = ((FormulationParser.SqRefCsvContext)(ctx.sqRef())).csv() == null ? false : true;
+            }
+            variables.put(varName, new ModelVariable(varName, visitor.getBasicSets(), visitor.getBasicParams(),isComplex));
             return super.visitVariable(ctx);
         }
 
@@ -282,6 +299,85 @@ public class Model implements ModelInterface {
             // Handle indexed sets by taking the base name
             int bracketIndex = sqRef.indexOf('[');
             return bracketIndex == -1 ? sqRef : sqRef.substring(0, bracketIndex);
+        }
+        
+        private List<FormulationParser.UExprContext> findComponentContexts(FormulationParser.NExprContext ctx) {
+            List<FormulationParser.UExprContext> components = new ArrayList<>();
+            findComponentContextsRecursive(ctx.uExpr(), components);
+            return components;
+        }
+        
+        private void findComponentContextsRecursive(FormulationParser.UExprContext ctx, List<FormulationParser.UExprContext> components) {
+            if(ctx == null)
+                return;
+            // if(ctx.basicExpr() != null){
+            //     components.add(ctx);
+            //     return;
+            // }
+            // findComponentContextsRecursive(ctx.uExpr(0), components);
+            // findComponentContextsRecursive(ctx.uExpr(1), components);
+            if (components.size() == 0 && ctx.uExpr() != null && ctx.uExpr(1) != null) {
+                String a = ctx.uExpr(1).getText();
+                components.add(ctx.uExpr(1));
+            } else if (components.size() == 0){
+                components.add(ctx);
+            }
+            String b = ctx.getText();
+            if (ctx.uExpr(0) != null && ctx.uExpr(0).uExpr(1) != null) {
+                String c = ctx.uExpr(0).uExpr(1).getText();
+                if(ctx.uExpr(0).uExpr(0).basicExpr() != null){
+                    components.add(ctx.uExpr(0));    
+                    return;
+                }
+                else
+                    components.add(ctx.uExpr(0).uExpr(1));
+            } else if(ctx.uExpr(0) != null){
+                components.add(ctx.uExpr(0));
+            } else {
+                components.add(ctx);
+            }
+            
+            findComponentContextsRecursive(ctx.uExpr(0), components);
+        }
+        @Deprecated
+        private ParseTree parseComponentExpression(String component) {
+            
+            CharStream input = CharStreams.fromString(component);
+            FormulationLexer lexer = new FormulationLexer(input);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            FormulationParser parser = new FormulationParser(tokens);
+            
+            // Parse as a numerical expression
+            return parser.nExpr().uExpr();
+        }
+        @Deprecated
+        private List<String> splitExpression(String expr) {
+            List<String> components = new ArrayList<>();
+            int parenthesesLevel = 0;
+            StringBuilder currentComponent = new StringBuilder();
+            
+            for (char c : expr.toCharArray()) {
+                if (c == '(') {
+                    parenthesesLevel++;
+                } else if (c == ')') {
+                    parenthesesLevel--;
+                }
+                
+                if ((c == '+' || c == '-') && parenthesesLevel == 0) {
+                    if (currentComponent.length() > 0) {
+                        components.add(currentComponent.toString().trim());
+                        currentComponent = new StringBuilder();
+                    }
+                }
+                
+                currentComponent.append(c);
+            }
+            
+            if (currentComponent.length() > 0) {
+                components.add(currentComponent.toString().trim());
+            }
+            
+            return components;
         }
         
         private java.util.List<String> parseSetElements(FormulationParser.SetExprContext ctx) {
@@ -727,7 +823,7 @@ public class Model implements ModelInterface {
             visit(ctx.sqRef());
             return null;
         }
-
+        
         @Override
         public Void visitConstraint(FormulationParser.ConstraintContext ctx){
             
@@ -861,6 +957,48 @@ public class Model implements ModelInterface {
             else if(ctx.csv() != null){
                 visit(ctx.csv());
             }
+            return null;
+        }
+
+        @Override
+        public Void visitProjFunc(FormulationParser.ProjFuncContext ctx) {
+            TypeVisitor visitor = new TypeVisitor();
+            visitor.visit(ctx.setExpr());
+            ModelType customType = new Tuple();
+            List<Integer> pointersToSetComp = new LinkedList<>();
+            String structureTuple = ctx.tuple().csv().getText();
+            String[] d = structureTuple.split(",");
+            for(String tctx : structureTuple.split(",")){
+                pointersToSetComp.add(Integer.parseInt(tctx));
+            }
+            
+            int count = 0;
+            for(ModelSet s : visitor.basicSets){
+                count += s.getStructure().length;
+            }
+            StructureBlock[] totalStructure = new StructureBlock[count];
+            count = 0;
+            for(ModelSet s : visitor.basicSets){
+                int i = 1;
+                for(StructureBlock sb : s.getStructure()){
+                    totalStructure[count] = new StructureBlock(s, sb == null && s.identifier.equals("anonymous_set") ? i : sb.position);
+                    count++;
+                    i++;
+                }   
+            }
+
+            StructureBlock[] resultingStructure = new StructureBlock[pointersToSetComp.size()];
+            count = 0;
+            for(Integer p : pointersToSetComp){
+                resultingStructure[count++] = totalStructure[p-1];
+            }
+            ModelSet newSet = new ModelSet("anonymous_set",visitor.getBasicSets(),visitor.getBasicParams(),resultingStructure);
+            basicSets.add(newSet);
+            if(type == null || type == ModelPrimitives.UNKNOWN)
+                type = newSet.getType();
+            else if(type instanceof Tuple)
+                ((Tuple)type).append(newSet.getType());
+
             return null;
         }
         
