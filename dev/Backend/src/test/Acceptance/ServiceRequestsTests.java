@@ -89,17 +89,20 @@ public class ServiceRequestsTests {
                     Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of("mySet"), Set.of("x")))),
                     Set.of(new PreferenceDTO("myObjective", new DependenciesDTO(Set.of(), Set.of()))),
                     Set.of(new VariableDTO("myVar", new DependenciesDTO(Set.of("mySet"), Set.of()))),
-                    Map.of(
-                            "mySet", "INT",
-                            "x", "INT"
-                    )
+                    Map.of("mySet", List.of("INT")),
+                    Map.of("x", "INT"),
+                    Map.of()
             ));
             assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertNotNull(response.getBody());
             assertNotNull(response.getBody().imageId());
             assertEquals(response.getBody().model().constraints(), expected.model().constraints());
             assertEquals(response.getBody().model().preferences(), expected.model().preferences());
             assertEquals(response.getBody().model().variables(), expected.model().variables());
-            assertEquals(response.getBody().model().types(), expected.model().types());
+            assertEquals(response.getBody().model().setTypes(), expected.model().setTypes());
+            assertEquals(response.getBody().model().paramTypes(), expected.model().paramTypes());
+            assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
+
             /**
              * TEST
              */

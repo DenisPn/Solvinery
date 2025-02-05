@@ -109,7 +109,7 @@ public class RecordFactory {
                 dependencies.add(block.dependency.getIdentifier());
             }
         }
-        return new SetDefinitionDTO(set.getIdentifier(), dependencies, set.getType().toString());
+        return new SetDefinitionDTO(set.getIdentifier(), dependencies, set.getType().typeList());
     }
 
     public static Collection<SetDefinitionDTO> makeDTO(Collection<ModelSet> sets){
@@ -192,8 +192,11 @@ public class RecordFactory {
     private static ModelDTO makeDTO(ModelInterface modelInterface) {
         Set<ConstraintDTO> constraints = new HashSet<>();
         Set<PreferenceDTO> preferences = new HashSet<>();
+        //TODO: Variables.
         Set<VariableDTO> variables = new HashSet<>();
-        Map<String,String> types = new HashMap<>();
+        Map<String,List<String>> setTypes = new HashMap<>();
+        Map<String,String> paramTypes = new HashMap<>();
+        Map<String,String> varTypes = new HashMap<>();
         for(ModelConstraint constraint : modelInterface.getConstraints()){
             HashSet<ModelSet> primitiveSets = new HashSet<>();
             HashSet<ModelParameter> primitiveParameters = new HashSet<>();
@@ -201,9 +204,9 @@ public class RecordFactory {
             constraint.getPrimitiveParameters(primitiveParameters);
             constraints.add(makeDTO(constraint));
             for(ModelSet set : primitiveSets)
-                types.put(set.getIdentifier(),set.getType().toString());
+                setTypes.putIfAbsent(set.getIdentifier(),set.getType().typeList());
             for(ModelParameter parameter : primitiveParameters)
-                types.put(parameter.getIdentifier(),parameter.getType().toString());
+                paramTypes.putIfAbsent(parameter.getIdentifier(),parameter.getType().toString());
         }
         for(ModelPreference preference : modelInterface.getPreferences()){
             preferences.add(makeDTO(preference));
@@ -212,9 +215,9 @@ public class RecordFactory {
             preference.getPrimitiveSets(primitiveSets);
             preference.getPrimitiveParameters(primitiveParameters);
             for(ModelSet set : primitiveSets)
-                types.put(set.getIdentifier(),set.getType().toString());
+                setTypes.putIfAbsent(set.getIdentifier(),set.getType().typeList());
             for(ModelParameter parameter : primitiveParameters)
-                types.put(parameter.getIdentifier(),parameter.getType().toString());
+                paramTypes.putIfAbsent(parameter.getIdentifier(),parameter.getType().toString());
         }
         for(ModelVariable variable : modelInterface.getVariables()){
             variables.add(makeDTO(variable));
@@ -223,11 +226,11 @@ public class RecordFactory {
             variable.getPrimitiveSets(primitiveSets);
             variable.getPrimitiveParameters(primitiveParameters);
             for(ModelSet set : primitiveSets)
-                types.put(set.getIdentifier(),set.getType().toString());
+                setTypes.putIfAbsent(set.getIdentifier(),set.getType().typeList());
             for(ModelParameter parameter : primitiveParameters)
-                types.put(parameter.getIdentifier(),parameter.getType().toString());
+                paramTypes.putIfAbsent(parameter.getIdentifier(),parameter.getType().toString());
         }
-        return new ModelDTO(constraints, preferences, variables, types);
+        return new ModelDTO(constraints, preferences, variables, setTypes,paramTypes,varTypes);
     }
     public static DependenciesDTO makeDTO(Set<ModelSet> sets, Set<ModelParameter> parameters){
         Set<String> resS = new HashSet<>();

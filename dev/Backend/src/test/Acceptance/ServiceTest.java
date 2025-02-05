@@ -83,18 +83,18 @@ public class ServiceTest {
               Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of("mySet"),Set.of("x")))),
                 Set.of(new PreferenceDTO("1", new DependenciesDTO(Set.of(),Set.of()))),
                 Set.of(new VariableDTO("myVar", new DependenciesDTO(Set.of("mySet"),Set.of()))),
-              Map.of(
-                "mySet","INT",
-                "x","INT"
-                )
-            ));
+                Map.of("mySet",List.of("INT")),
+                Map.of("9x","INT"),
+                Map.of()));
         
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody().imageId());
         assertEquals(response.getBody().model().constraints(), expected.model().constraints());
         assertEquals(response.getBody().model().preferences(), expected.model().preferences());
         assertEquals(response.getBody().model().variables(), expected.model().variables());
-        assertEquals(response.getBody().model().types(), expected.model().types());
+        assertEquals(response.getBody().model().setTypes(), expected.model().setTypes());
+        assertEquals(response.getBody().model().paramTypes(), expected.model().paramTypes());
+        assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
     }
     
     @Test
@@ -121,17 +121,18 @@ public class ServiceTest {
                 Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of("mySet"),Set.of("x")))),
                 Set.of(new PreferenceDTO("1", new DependenciesDTO(Set.of(),Set.of()))),
                 Set.of(new VariableDTO("myVar", new DependenciesDTO(Set.of("mySet"),Set.of()))),
-                Map.of(
-                        "mySet","INT",
-                        "x","INT"
-                )
+                Map.of("mySet",List.of("INT")),
+                Map.of("9x","INT"),
+                Map.of()
         ));
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody().imageId());
         assertEquals(response.getBody().model().constraints(), expected.model().constraints());
         assertEquals(response.getBody().model().preferences(), expected.model().preferences());
         assertEquals(response.getBody().model().variables(), expected.model().variables());
-        assertEquals(response.getBody().model().types(), expected.model().types());
+        assertEquals(response.getBody().model().setTypes(), expected.model().setTypes());
+        assertEquals(response.getBody().model().paramTypes(), expected.model().paramTypes());
+        assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
         /**
          * TEST
          */
@@ -197,22 +198,22 @@ public class ServiceTest {
                 Set.of(new VariableDTO("Shibutsim", new DependenciesDTO(Set.of("People","Emdot"),Set.of("shiftTime"))),
                         new VariableDTO("TotalMishmarot", new DependenciesDTO(Set.of("People"),Set.of()))),
               Map.of(
-                "People","TEXT",
-                "Emdot","TEXT",
-                "shiftTime","INT",
+                "People",List.of("TEXT"),
+                "Emdot",List.of("TEXT"),
+                      "Shibutsim", List.of("TEXT", "TEXT", "INT")),
+                Map.of("shiftTime","INT",
                 "restHours","INT",
-                // adding the type of variables is a new concept! we didnt use to do it before
-                "Shibutsim", "<TEXT,TEXT,INT>",
-                "TotalMishmarot", "TEXT"
-                )
-            ));
+                "TotalMishmarot", "TEXT"),
+                      Map.of()));
         
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody().imageId());
         assertEquals(response.getBody().model().constraints(), expected.model().constraints());
         assertEquals(response.getBody().model().preferences(), expected.model().preferences());
         assertEquals(response.getBody().model().variables(), expected.model().variables());
-        assertEquals(response.getBody().model().types(), expected.model().types());
+        assertEquals(response.getBody().model().setTypes(), expected.model().setTypes());
+        assertEquals(response.getBody().model().paramTypes(), expected.model().paramTypes());
+        assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
     }
     
 }

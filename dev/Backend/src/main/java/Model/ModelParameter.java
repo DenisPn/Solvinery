@@ -17,6 +17,10 @@ public class ModelParameter extends ModelInput {
             List<ModelParameter> basicParams) {
         super(paramName, type, basicSets, basicParams);
     }
+    @Override
+    public boolean isPrimitive(){
+        return this.setDependencies.isEmpty() && this.paramDependencies.isEmpty();
+    }
 
 
     public String getValue() {

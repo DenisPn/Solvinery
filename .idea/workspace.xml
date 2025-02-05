@@ -7,17 +7,12 @@
     <list default="true" id="3057c127-864d-4028-bf48-8c39040ca4eb" name="Changes" comment="pulling from main">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Factories/RecordFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Factories/RecordFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelData/InputDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelData/InputDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelData/SetDefinitionDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelData/SetDefinitionDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelDefinition/DependenciesDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelDefinition/DependenciesDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelDefinition/ModelDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelDefinition/ModelDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Image/Image.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Image/Image.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Image/Modules/VariableModule.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Image/Modules/VariableModule.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelInput.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelInput.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/Solution.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/Solution.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/groupId/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/groupId/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelParameter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelParameter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelPrimitives.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelPrimitives.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelType.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/Tuple.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/Tuple.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dev/Backend/src/test/Acceptance/ServiceRequestsTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/test/Acceptance/ServiceRequestsTests.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/test/Intergration/ImageToModelTests/ConstraintModuleDTOTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/test/Intergration/ImageToModelTests/ConstraintModuleDTOTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/test/Acceptance/ServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/test/Acceptance/ServiceTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,17 +28,17 @@
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="Security Analysis" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JUnit.ConstraintModuleDTOTests.executor": "Run",
-    "JUnit.ServiceRequestsTests.testSolve_Simple.executor": "Run",
-    "JUnit.ServiceTest.GivenFile_WhenCreateImage_ImageIsCorrect.executor": "Run",
-    "JUnit.ServiceTest.executor": "Debug",
-    "git-widget-placeholder": "API-Impl",
-    "node.js.selected.package.tslint": "(autodetect)"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JUnit.ConstraintModuleDTOTests.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ServiceRequestsTests.testSolve_Simple.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ServiceTest.GivenFile_WhenCreateImage_ImageIsCorrect.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ServiceTest.executor&quot;: &quot;Debug&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;API-Impl&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;
   }
-}]]></component>
-  <component name="RunManager" selected="JUnit.ServiceRequestsTests.testSolve_Simple">
+}</component>
+  <component name="RunManager" selected="JUnit.ServiceTest.testCreateImage">
     <configuration name="ConstraintModuleDTOTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="artifactid" />
       <extension name="coverage">
@@ -55,6 +50,21 @@
       <option name="PACKAGE_NAME" value="Intergration.ImageToModelTests" />
       <option name="MAIN_CLASS_NAME" value="Intergration.ImageToModelTests.ConstraintModuleDTOTests" />
       <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ServiceRequestsTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="artifactid" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Acceptance.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="Acceptance" />
+      <option name="MAIN_CLASS_NAME" value="Acceptance.ServiceRequestsTests" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -91,7 +101,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ServiceTest.GivenFile_WhenCreateImage_ImageIsCorrect" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ServiceTest.testCreateImage" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="artifactid" />
       <extension name="coverage">
         <pattern>
@@ -101,24 +111,26 @@
       </extension>
       <option name="PACKAGE_NAME" value="Acceptance" />
       <option name="MAIN_CLASS_NAME" value="Acceptance.ServiceTest" />
-      <option name="METHOD_NAME" value="GivenFile_WhenCreateImage_ImageIsCorrect" />
+      <option name="METHOD_NAME" value="testCreateImage" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <list>
+      <item itemvalue="JUnit.ServiceRequestsTests" />
       <item itemvalue="JUnit.ServiceRequestsTests.testSolve_Simple" />
+      <item itemvalue="JUnit.ServiceTest.testCreateImage" />
       <item itemvalue="JUnit.ConstraintModuleDTOTests" />
-      <item itemvalue="JUnit.ServiceTest.GivenFile_WhenCreateImage_ImageIsCorrect" />
       <item itemvalue="JUnit.ServiceTest" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.ServiceRequestsTests.testSolve_Simple" />
+        <item itemvalue="JUnit.ServiceTest.testCreateImage" />
         <item itemvalue="JUnit.ConstraintModuleDTOTests" />
         <item itemvalue="JUnit.ServiceTest" />
-        <item itemvalue="JUnit.ServiceTest.GivenFile_WhenCreateImage_ImageIsCorrect" />
+        <item itemvalue="JUnit.ServiceRequestsTests" />
+        <item itemvalue="JUnit.ServiceRequestsTests.testSolve_Simple" />
       </list>
     </recent_temporary>
   </component>
@@ -150,6 +162,29 @@
     <option name="localTasksCounter" value="4" />
     <servers />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/backend_skeleton" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="misc" />
     <MESSAGE value="updated exception handling, should be more informative" />
@@ -164,11 +199,6 @@
           <url>file://$PROJECT_DIR$/dev/Backend/src/main/java/Image/Modules/ConstraintModule.java</url>
           <line>40</line>
           <option name="timeStamp" value="15" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/dev/Backend/src/test/Acceptance/ServiceTest.java</url>
-          <line>93</line>
-          <option name="timeStamp" value="22" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/dev/Backend/src/main/java/Model/Solution.java</url>
