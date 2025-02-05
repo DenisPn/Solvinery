@@ -19,7 +19,7 @@ public class Image {
     private final HashMap<String,PreferenceModule> preferenceModules;
     private final VariableModule variables;
     private final ModelInterface model;
-
+    private final int defaultTimeout = 60;
     public Image(ModelInterface model) {
         constraintsModules = new HashMap<>();
         preferenceModules = new HashMap<>();
@@ -126,13 +126,31 @@ public class Image {
     public void ToggleConstraint(String name){
             Objects.requireNonNull(name,"Null value during Toggle Constraint in Image");
             constraintsModules.get(name).ToggleModule();
-    } */
+    }*/
     public SolutionDTO solve(InputDTO input){
-        return null;
-//            for(String constraint:input.constraintsToggledOff()){
-//
-//            }
+        Objects.requireNonNull(input,"Input is null in solve method in image");
+        for(String constraint:input.constraintsToggledOff()){
+            toggleOffConstraint(constraint);
+        }
+        for(String preference:input.preferencesToggledOff()){
+            toggleOffPreference(preference);
+        }
+        return RecordFactory.makeDTO(model.solve(defaultTimeout));
     }
+
+    private void toggleOffConstraint(String name){
+        Objects.requireNonNull(name,"Null value during Toggle Preference in Image");
+        ModelConstraint constraint=model.getConstraint(name);
+        Objects.requireNonNull(constraint,"Invalid constraint name in Toggle Constraint in Image");
+        model.toggleFunctionality(constraint, false);
+    }
+    private void toggleOffPreference(String name){
+        Objects.requireNonNull(name,"Null value during Toggle Preference in Image");
+        ModelPreference preference=model.getPreference(name);
+        Objects.requireNonNull(preference,"Invalid preference name in Toggle Preference in Image");
+        model.toggleFunctionality(preference, false);
+    }
+
     public ModelInterface getModel() {
         return this.model;
     }
