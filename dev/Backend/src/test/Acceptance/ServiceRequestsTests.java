@@ -86,8 +86,8 @@ public class ServiceRequestsTests {
 
             CreateImageResponseDTO expected = new CreateImageResponseDTO(
                     "some id", new ModelDTO(
-                    Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of("mySet"), Set.of("x")))),
-                    Set.of(new PreferenceDTO("myObjective", new DependenciesDTO(Set.of(), Set.of()))),
+                    Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of(), Set.of("x")))),
+                    Set.of(new PreferenceDTO("myVar[3]", new DependenciesDTO(Set.of(), Set.of()))),
                     Set.of(new VariableDTO("myVar", new DependenciesDTO(Set.of("mySet"), Set.of()))),
                     Map.of("mySet", List.of("INT")),
                     Map.of("x", "INT"),
@@ -108,10 +108,10 @@ public class ServiceRequestsTests {
              */
             Set<ConstraintModuleDTO> constraintModuleDTOs = Set.of(
                     new ConstraintModuleDTO("Test module", "PeanutButter",
-                            Set.of("sampleConstraint"), Set.of("mySet"), Set.of("x")));
+                            Set.of("sampleConstraint"), Set.of(), Set.of("x")));
             Set<PreferenceModuleDTO> preferenceModuleDTOs = Set.of(
                     new PreferenceModuleDTO("Test module", "PeanutButter",
-                            Set.of("myObjective"), Set.of(), Set.of()));
+                            Set.of("myVar[3]"), Set.of(), Set.of()));
             VariableModuleDTO variableModuleDTO = new VariableModuleDTO(Set.of("myVar"), Set.of("mySet"), Set.of());
             ImageDTO imageDTO = new ImageDTO(variableModuleDTO, constraintModuleDTOs, preferenceModuleDTOs);
             ImageConfigDTO configDTO= new ImageConfigDTO(response.getBody().imageId(),imageDTO);

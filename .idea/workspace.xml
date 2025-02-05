@@ -4,14 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3057c127-864d-4028-bf48-8c39040ca4eb" name="Changes" comment="pulling from main">
+    <list default="true" id="3057c127-864d-4028-bf48-8c39040ca4eb" name="Changes" comment="fixed bugs in tests">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Factories/RecordFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Factories/RecordFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelParameter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelParameter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelPrimitives.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelPrimitives.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelType.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/Tuple.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/Tuple.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/test/Acceptance/ServiceRequestsTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/test/Acceptance/ServiceRequestsTests.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dev/Backend/src/test/Acceptance/ServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/test/Acceptance/ServiceTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -28,17 +22,22 @@
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="Security Analysis" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;JUnit.ConstraintModuleDTOTests.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ServiceRequestsTests.testSolve_Simple.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ServiceTest.GivenFile_WhenCreateImage_ImageIsCorrect.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ServiceTest.executor&quot;: &quot;Debug&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;API-Impl&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JUnit.ConstraintModuleDTOTests.executor": "Run",
+    "JUnit.ServiceRequestsTests.GivenImageDTO_WhenConfigImage_ImageIsCorrect.executor": "Run",
+    "JUnit.ServiceRequestsTests.executor": "Debug",
+    "JUnit.ServiceRequestsTests.testSolve_Simple.executor": "Run",
+    "JUnit.ServiceTest.GivenFile_WhenCreateImage_ImageIsCorrect.executor": "Run",
+    "JUnit.ServiceTest.executor": "Debug",
+    "JUnit.ServiceTest.testCreateImage.executor": "Run",
+    "JUnit.Unit in artifactid.executor": "Run",
+    "JUnit.test in artifactid.executor": "Run",
+    "git-widget-placeholder": "API-Impl",
+    "node.js.selected.package.tslint": "(autodetect)"
   }
-}</component>
-  <component name="RunManager" selected="JUnit.ServiceTest.testCreateImage">
+}]]></component>
+  <component name="RunManager" selected="JUnit.ServiceTest">
     <configuration name="ConstraintModuleDTOTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="artifactid" />
       <extension name="coverage">
@@ -49,13 +48,12 @@
       </extension>
       <option name="PACKAGE_NAME" value="Intergration.ImageToModelTests" />
       <option name="MAIN_CLASS_NAME" value="Intergration.ImageToModelTests.ConstraintModuleDTOTests" />
-      <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ServiceRequestsTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ServiceRequestsTests.GivenImageDTO_WhenConfigImage_ImageIsCorrect" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="artifactid" />
       <extension name="coverage">
         <pattern>
@@ -65,22 +63,7 @@
       </extension>
       <option name="PACKAGE_NAME" value="Acceptance" />
       <option name="MAIN_CLASS_NAME" value="Acceptance.ServiceRequestsTests" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ServiceRequestsTests.testSolve_Simple" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="artifactid" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="Acceptance.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="Acceptance" />
-      <option name="MAIN_CLASS_NAME" value="Acceptance.ServiceRequestsTests" />
-      <option name="METHOD_NAME" value="testSolve_Simple" />
+      <option name="METHOD_NAME" value="GivenImageDTO_WhenConfigImage_ImageIsCorrect" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -101,36 +84,36 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ServiceTest.testCreateImage" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="Unit in artifactid" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="artifactid" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="Acceptance.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="Acceptance" />
-      <option name="MAIN_CLASS_NAME" value="Acceptance.ServiceTest" />
-      <option name="METHOD_NAME" value="testCreateImage" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="TEST_OBJECT" value="directory" />
+      <dir value="$PROJECT_DIR$/dev/Backend/src/test/Unit" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test in artifactid" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="artifactid" />
+      <option name="TEST_OBJECT" value="directory" />
+      <dir value="$PROJECT_DIR$/dev/Backend/src/test" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <list>
-      <item itemvalue="JUnit.ServiceRequestsTests" />
-      <item itemvalue="JUnit.ServiceRequestsTests.testSolve_Simple" />
-      <item itemvalue="JUnit.ServiceTest.testCreateImage" />
+      <item itemvalue="JUnit.ServiceRequestsTests.GivenImageDTO_WhenConfigImage_ImageIsCorrect" />
+      <item itemvalue="JUnit.Unit in artifactid" />
+      <item itemvalue="JUnit.test in artifactid" />
       <item itemvalue="JUnit.ConstraintModuleDTOTests" />
       <item itemvalue="JUnit.ServiceTest" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.ServiceTest.testCreateImage" />
-        <item itemvalue="JUnit.ConstraintModuleDTOTests" />
         <item itemvalue="JUnit.ServiceTest" />
-        <item itemvalue="JUnit.ServiceRequestsTests" />
-        <item itemvalue="JUnit.ServiceRequestsTests.testSolve_Simple" />
+        <item itemvalue="JUnit.ConstraintModuleDTOTests" />
+        <item itemvalue="JUnit.Unit in artifactid" />
+        <item itemvalue="JUnit.test in artifactid" />
+        <item itemvalue="JUnit.ServiceRequestsTests.GivenImageDTO_WhenConfigImage_ImageIsCorrect" />
       </list>
     </recent_temporary>
   </component>
@@ -159,7 +142,23 @@
       <option name="project" value="LOCAL" />
       <updated>1738757345946</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Added separation in types in ModelDTO, fixed all comp bugs but tests don't pass">
+      <option name="closed" value="true" />
+      <created>1738775944494</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1738775944494</updated>
+    </task>
+    <task id="LOCAL-00005" summary="fixed bugs in tests">
+      <option name="closed" value="true" />
+      <created>1738776825800</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1738776825800</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -190,20 +189,22 @@
     <MESSAGE value="updated exception handling, should be more informative" />
     <MESSAGE value="started implementing fetching only primitive sets/params as dependencies, for not broken untill isPrimitive is fixed" />
     <MESSAGE value="pulling from main" />
-    <option name="LAST_COMMIT_MESSAGE" value="pulling from main" />
+    <MESSAGE value="Added separation in types in ModelDTO, fixed all comp bugs but tests don't pass" />
+    <MESSAGE value="fixed bugs in tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed bugs in tests" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/dev/Backend/src/main/java/Image/Modules/ConstraintModule.java</url>
-          <line>40</line>
-          <option name="timeStamp" value="15" />
+          <url>file://$PROJECT_DIR$/dev/Backend/src/test/Acceptance/ServiceRequestsTests.java</url>
+          <line>122</line>
+          <option name="timeStamp" value="47" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/dev/Backend/src/main/java/Model/Solution.java</url>
-          <line>110</line>
-          <option name="timeStamp" value="36" />
+          <url>file://$PROJECT_DIR$/dev/Backend/src/test/Acceptance/ServiceTest.java</url>
+          <line>212</line>
+          <option name="timeStamp" value="48" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

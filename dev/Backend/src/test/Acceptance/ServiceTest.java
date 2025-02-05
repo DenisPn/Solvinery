@@ -84,7 +84,7 @@ public class ServiceTest {
                 Set.of(new PreferenceDTO("1", new DependenciesDTO(Set.of(),Set.of()))),
                 Set.of(new VariableDTO("myVar", new DependenciesDTO(Set.of("mySet"),Set.of()))),
                 Map.of("mySet",List.of("INT")),
-                Map.of("9x","INT"),
+                Map.of("x","INT"),
                 Map.of()));
         
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -122,7 +122,7 @@ public class ServiceTest {
                 Set.of(new PreferenceDTO("1", new DependenciesDTO(Set.of(),Set.of()))),
                 Set.of(new VariableDTO("myVar", new DependenciesDTO(Set.of("mySet"),Set.of()))),
                 Map.of("mySet",List.of("INT")),
-                Map.of("9x","INT"),
+                Map.of("x","INT"),
                 Map.of()
         ));
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -199,11 +199,9 @@ public class ServiceTest {
                         new VariableDTO("TotalMishmarot", new DependenciesDTO(Set.of("People"),Set.of()))),
               Map.of(
                 "People",List.of("TEXT"),
-                "Emdot",List.of("TEXT"),
-                      "Shibutsim", List.of("TEXT", "TEXT", "INT")),
+                "Emdot",List.of("TEXT")),
                 Map.of("shiftTime","INT",
-                "restHours","INT",
-                "TotalMishmarot", "TEXT"),
+                "restHours","INT"),
                       Map.of()));
         
         assertEquals(HttpStatus.OK, response.getStatusCode());
