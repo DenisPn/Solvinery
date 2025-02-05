@@ -82,9 +82,9 @@ public class ServiceRequestsTests {
 
             CreateImageResponseDTO expected = new CreateImageResponseDTO(
                     "some id", new ModelDTO(
-                    Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(List.of("mySet"), List.of("x")))),
-                    Set.of(new PreferenceDTO("myObjective", new DependenciesDTO(List.of(), List.of()))),
-                    Set.of(new VariableDTO("myVar", new DependenciesDTO(List.of("mySet"), List.of()))),
+                    Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of("mySet"), Set.of("x")))),
+                    Set.of(new PreferenceDTO("myObjective", new DependenciesDTO(Set.of(), Set.of()))),
+                    Set.of(new VariableDTO("myVar", new DependenciesDTO(Set.of("mySet"), Set.of()))),
                     Map.of(
                             "mySet", "INT",
                             "x", "INT"

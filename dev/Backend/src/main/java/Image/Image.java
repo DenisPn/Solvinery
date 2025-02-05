@@ -2,6 +2,7 @@ package Image;
 
 import DTO.Factories.RecordFactory;
 import DTO.Records.Image.SolutionDTO;
+import DTO.Records.Model.ModelData.InputDTO;
 import DTO.Records.Model.ModelDefinition.ConstraintDTO;
 import DTO.Records.Model.ModelDefinition.PreferenceDTO;
 import Image.Modules.*;
@@ -116,23 +117,28 @@ public class Image {
         for(ModelVariable variable: model.getVariables()){
             addVariable(variable);
         }
-    }*/
-    /*public void TogglePreference(String name){
+    } */
+    /*
+    public void TogglePreference(String name){
             Objects.requireNonNull(name,"Null value during Toggle Preference in Image");
-            preferenceModules.get(name).ToggleModule();
+            model.toggleFunctionality();
     }
     public void ToggleConstraint(String name){
             Objects.requireNonNull(name,"Null value during Toggle Constraint in Image");
             constraintsModules.get(name).ToggleModule();
-    }*/
-    public SolutionDTO solve(int timeout){
-            return RecordFactory.makeDTO(model.solve(timeout));
+    } */
+    public SolutionDTO solve(InputDTO input){
+        return null;
+//            for(String constraint:input.constraintsToggledOff()){
+//
+//            }
     }
     public ModelInterface getModel() {
         return this.model;
     }
+    @Deprecated
     public String getId() {
-        // TODO Auto-generated method stub
+        // Do not use this! ID stored in controller, image not aware of its own ID.
         throw new UnsupportedOperationException("Unimplemented method 'getId'");
     }
     public void reset(Map<String,ModelVariable> variables, Collection<String> sets, Collection<String> params) {

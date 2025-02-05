@@ -21,7 +21,7 @@ public class ConstraintModuleDTOTests {
 
     @Mock
     ModelInterface model;
-    static String sourcePath = "src/test/Utilities/Stubs/ExampleZimplProgram.zpl";
+    static String sourcePath = "src/test/Utilities/ZimplExamples/ExampleZimplProgram.zpl";
     static Path tmpDirPath;
     @BeforeAll
     public static void setup(){

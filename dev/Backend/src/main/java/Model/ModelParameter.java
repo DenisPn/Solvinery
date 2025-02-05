@@ -38,11 +38,7 @@ public class ModelParameter extends ModelInput {
         this.value = null;
     }
 
-    public boolean isPrimitive(){
-        if(this.setDependencies.size() == 0 && this.paramDependencies.size() == 0)
-            return true;
-        return false;
-    }
+
 
     
 }
