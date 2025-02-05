@@ -4,10 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3057c127-864d-4028-bf48-8c39040ca4eb" name="Changes" comment="started implementing fetching only primitive sets/params as dependencies, for not broken untill isPrimitive is fixed">
+    <list default="true" id="3057c127-864d-4028-bf48-8c39040ca4eb" name="Changes" comment="pulling from main">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Factories/RecordFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Factories/RecordFactory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelData/InputDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelData/InputDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelData/SetDefinitionDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelData/SetDefinitionDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelDefinition/DependenciesDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelDefinition/DependenciesDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelDefinition/ModelDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Records/Model/ModelDefinition/ModelDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Image/Image.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Image/Image.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Image/Modules/VariableModule.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Image/Modules/VariableModule.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelInput.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/ModelInput.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/Solution.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Model/Solution.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/groupId/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/groupId/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/test/Acceptance/ServiceRequestsTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/test/Acceptance/ServiceRequestsTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/test/Intergration/ImageToModelTests/ConstraintModuleDTOTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/test/Intergration/ImageToModelTests/ConstraintModuleDTOTests.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,7 +25,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Merge.Settings">
-    <option name="BRANCH" value="origin/backend_skeleton" />
+    <option name="BRANCH" value="origin/main" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -26,13 +36,14 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "JUnit.ConstraintModuleDTOTests.executor": "Run",
+    "JUnit.ServiceRequestsTests.testSolve_Simple.executor": "Run",
     "JUnit.ServiceTest.GivenFile_WhenCreateImage_ImageIsCorrect.executor": "Run",
     "JUnit.ServiceTest.executor": "Debug",
     "git-widget-placeholder": "API-Impl",
     "node.js.selected.package.tslint": "(autodetect)"
   }
 }]]></component>
-  <component name="RunManager" selected="JUnit.ConstraintModuleDTOTests">
+  <component name="RunManager" selected="JUnit.ServiceRequestsTests.testSolve_Simple">
     <configuration name="ConstraintModuleDTOTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="artifactid" />
       <extension name="coverage">
@@ -45,6 +56,22 @@
       <option name="MAIN_CLASS_NAME" value="Intergration.ImageToModelTests.ConstraintModuleDTOTests" />
       <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ServiceRequestsTests.testSolve_Simple" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="artifactid" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Acceptance.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="Acceptance" />
+      <option name="MAIN_CLASS_NAME" value="Acceptance.ServiceRequestsTests" />
+      <option name="METHOD_NAME" value="testSolve_Simple" />
+      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -81,12 +108,14 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="JUnit.ServiceRequestsTests.testSolve_Simple" />
       <item itemvalue="JUnit.ConstraintModuleDTOTests" />
       <item itemvalue="JUnit.ServiceTest.GivenFile_WhenCreateImage_ImageIsCorrect" />
       <item itemvalue="JUnit.ServiceTest" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.ServiceRequestsTests.testSolve_Simple" />
         <item itemvalue="JUnit.ConstraintModuleDTOTests" />
         <item itemvalue="JUnit.ServiceTest" />
         <item itemvalue="JUnit.ServiceTest.GivenFile_WhenCreateImage_ImageIsCorrect" />
@@ -110,14 +139,23 @@
       <option name="project" value="LOCAL" />
       <updated>1738756132110</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="pulling from main">
+      <option name="closed" value="true" />
+      <created>1738757345945</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1738757345946</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="misc" />
     <MESSAGE value="updated exception handling, should be more informative" />
     <MESSAGE value="started implementing fetching only primitive sets/params as dependencies, for not broken untill isPrimitive is fixed" />
-    <option name="LAST_COMMIT_MESSAGE" value="started implementing fetching only primitive sets/params as dependencies, for not broken untill isPrimitive is fixed" />
+    <MESSAGE value="pulling from main" />
+    <option name="LAST_COMMIT_MESSAGE" value="pulling from main" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -132,11 +170,17 @@
           <line>93</line>
           <option name="timeStamp" value="22" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/dev/Backend/src/main/java/Model/Solution.java</url>
+          <line>110</line>
+          <option name="timeStamp" value="36" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <pin-to-top-manager>
       <pinned-members>
         <PinnedItemInfo parentTag="DTO.Records.Requests.Responses.CreateImageResponseDTO" memberName="model" />
+        <PinnedItemInfo parentTag="DTO.Records.Image.SolutionVariable" memberName="solutions" />
       </pinned-members>
     </pin-to-top-manager>
   </component>

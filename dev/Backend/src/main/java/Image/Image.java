@@ -25,14 +25,12 @@ public class Image {
         preferenceModules = new HashMap<>();
         variables = new VariableModule();
         this.model = model;
-        //fetchVariables();
     }
     public Image(String path) throws IOException {
         constraintsModules = new HashMap<>();
         preferenceModules = new HashMap<>();
         variables = new VariableModule();
         this.model = new Model(path);
-        //fetchVariables();
     }
     //will probably have to use an adapter layer, or change types to DTOs
     public void addConstraintModule(ConstraintModule module) {
@@ -113,11 +111,10 @@ public class Image {
     public void removeVariable(String name) {
         variables.remove(name);
     }
+    /*
+     */
     public void fetchVariables(){
-        for(ModelVariable variable: model.getVariables()){
-            addVariable(variable);
-        }
-    } */
+    }
     /*
     public void TogglePreference(String name){
             Objects.requireNonNull(name,"Null value during Toggle Preference in Image");
@@ -127,15 +124,22 @@ public class Image {
             Objects.requireNonNull(name,"Null value during Toggle Constraint in Image");
             constraintsModules.get(name).ToggleModule();
     }*/
-    public SolutionDTO solve(InputDTO input){
-        Objects.requireNonNull(input,"Input is null in solve method in image");
+    public SolutionDTO solve(int timeout){
+        Solution solution=model.solve(timeout);
+        try {
+            solution.parseSolution(model, variables.getIdentifiers());
+        } catch (IOException e) {
+            throw new RuntimeException("IO exception while parsing solution file, message: "+ e);
+        }
+        return RecordFactory.makeDTO(solution);
+        /*Objects.requireNonNull(input,"Input is null in solve method in image");
         for(String constraint:input.constraintsToggledOff()){
             toggleOffConstraint(constraint);
         }
         for(String preference:input.preferencesToggledOff()){
             toggleOffPreference(preference);
         }
-        return RecordFactory.makeDTO(model.solve(defaultTimeout));
+        return RecordFactory.makeDTO(model.solve(defaultTimeout));*/
     }
 
     private void toggleOffConstraint(String name){
