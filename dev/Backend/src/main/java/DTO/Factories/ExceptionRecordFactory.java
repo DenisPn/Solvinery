@@ -23,17 +23,18 @@ public class ExceptionRecordFactory {
         //TODO: LOG
         return new ExceptionDTO("An unknown error occurred, see log for details, or contract the developer");
     }
+    public static ExceptionDTO makeDTO(BadRequestException exception) {
+        Objects.requireNonNull(exception,ohNo);
+        //TODO: LOG
+        return new ExceptionDTO("Bad HTTP request: " +exception.getMessage()+" See log for details, or contract the developer");
+    }
     public static ExceptionDTO makeDTO(RuntimeException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO("An unexpected fatal error occurred. See log for details, or contract the developer");
     }
-    public static ExceptionDTO makeException(BadRequestException exception) {
-        Objects.requireNonNull(exception,ohNo);
-        //TODO: LOG
-        return new ExceptionDTO("Bad HTTP request. See log for details, or contract the developer");
-    }
-    public static ExceptionDTO makeException(IOException exception) {
+
+    public static ExceptionDTO makeDTO(IOException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO("An error occurred while trying to access the file system.\n" +

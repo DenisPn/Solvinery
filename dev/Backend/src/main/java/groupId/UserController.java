@@ -3,16 +3,13 @@ package groupId;
 import DTO.Factories.RecordFactory;
 import DTO.Records.Image.ConstraintModuleDTO;
 import DTO.Records.Image.PreferenceModuleDTO;
-import DTO.Records.Model.ModelDefinition.VariableDTO;
 import DTO.Records.Requests.Commands.ImageConfigDTO;
 import DTO.Records.Requests.Commands.SolveCommandDTO;
 import DTO.Records.Image.ImageDTO;
 import DTO.Records.Image.SolutionDTO;
 import DTO.Records.Requests.Responses.CreateImageResponseDTO;
-import DTO.Records.Requests.Responses.ImageResponseDTO;
+import Exceptions.InternalErrors.BadRequestException;
 import Image.Image;
-import Model.Model;
-import Model.ModelConstraint;
 import Model.ModelInput;
 import Model.ModelInterface;
 import Model.ModelVariable;
@@ -25,7 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class UserController {
@@ -50,6 +46,7 @@ private final Map<UUID,Image> images;
 
     public SolutionDTO solve(SolveCommandDTO command) throws Exception {
         Image image = images.get(UUID.fromString(command.imageId()));
+        requireNonNull(image,"Image with supplied ID not found.");
         ModelInterface model = image.getModel();
         for (Map.Entry<String,List<List<String>>> set : command.input().setsToValues().entrySet()){
             List<String> setElements = new LinkedList<>();
@@ -98,5 +95,15 @@ private final Map<UUID,Image> images;
     }
     public Image getImage(String id) {
         return images.get(UUID.fromString(id));
+    }
+
+    /**
+     * @param obj     obj to check if null
+     * @param message message to attach to the exception should be one that can be revealed to the user!
+     */
+    public static <T> void requireNonNull(T obj, String message) {
+        if (obj == null) {
+            throw new BadRequestException(message);
+        }
     }
 }
