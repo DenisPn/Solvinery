@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="69cd5a63-68fc-437b-8317-2b8096dc636e" name="Changes" comment="updated gitignore, hopefully I didn't screw stuff up like before...">
+    <list default="true" id="69cd5a63-68fc-437b-8317-2b8096dc636e" name="Changes" comment="Nothing seems to work for now, cool beans">
+      <change beforePath="$PROJECT_DIR$/.idea/remote-targets.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/remote-targets.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Factories/ExceptionRecordFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Factories/ExceptionRecordFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/groupId/Service.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/groupId/Service.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/groupId/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/groupId/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Factories/RecordFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/DTO/Factories/RecordFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/Backend/src/main/java/Image/Image.java" beforeDir="false" afterPath="$PROJECT_DIR$/dev/Backend/src/main/java/Image/Image.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,55 +85,47 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "HTTP Request.All in rest-api_2.executor": "Run",
-    "HTTP Request.rest-api_3 | #1.executor": "Run",
-    "JUnit.Acceptance in artifactid.executor": "Run",
-    "JUnit.DTOTests.GivenSolution_WhenCreatingSolutionDTO_StructureIsCorrect.executor": "Run",
-    "JUnit.ServiceRequestsTests.GivenEmptyZimplFIle_WhenCreatingIMageFrom_CreateEmptyImage.executor": "Debug",
-    "JUnit.ServiceRequestsTests.GivenImageDTO_WhenConfigImage_ImageIsCorrect.executor": "Run",
-    "JUnit.ServiceRequestsTests.executor": "Run",
-    "JUnit.ServiceTest.GivenImageDTO_WhenConfigImage_ImageIsCorrect.executor": "Run",
-    "JUnit.ServiceTest.executor": "Run",
-    "JUnit.ServiceTest.testCreateImage.executor": "Debug",
-    "JUnit.test in artifactid.executor": "Run",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "Spring Boot.Main.executor": "Run",
-    "git-widget-placeholder": "API-Impl",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Nadav/Documents/GitHub/Plan-A",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "reference.settings.project.maven.repository.indices",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;HTTP Request.All in rest-api_2.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.rest-api_3 | #1.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Acceptance in artifactid.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.DTOTests.GivenSolution_WhenCreatingSolutionDTO_StructureIsCorrect.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ServiceRequestsTests.GivenEmptyZimplFIle_WhenCreatingIMageFrom_CreateEmptyImage.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.ServiceRequestsTests.GivenImageDTO_WhenConfigImage_ImageIsCorrect.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ServiceRequestsTests.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ServiceTest.GivenImageDTO_WhenConfigImage_ImageIsCorrect.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ServiceTest.testCreateImage.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.test in artifactid.executor&quot;: &quot;Run&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.Main.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;API-Impl&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Nadav/Documents/GitHub/Plan-A&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.repository.indices&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/dev/Backend/src/test/Utilities/Stubs/ZimplExamples" />
     </key>
   </component>
-  <component name="RunManager" selected="Spring Boot.Main">
-    <configuration name="Acceptance in artifactid" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="artifactid" />
-      <option name="TEST_OBJECT" value="directory" />
-      <dir value="$PROJECT_DIR$/dev/Backend/src/test/Acceptance" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="JUnit.ServiceRequestsTests">
     <configuration name="DTOTests.GivenSolution_WhenCreatingSolutionDTO_StructureIsCorrect" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="artifactid" />
       <extension name="coverage">
@@ -146,6 +138,21 @@
       <option name="MAIN_CLASS_NAME" value="Unit.DTO.DTOTests" />
       <option name="METHOD_NAME" value="GivenSolution_WhenCreatingSolutionDTO_StructureIsCorrect" />
       <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ServiceRequestsTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="artifactid" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Acceptance.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="Acceptance" />
+      <option name="MAIN_CLASS_NAME" value="Acceptance.ServiceRequestsTests" />
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -205,7 +212,7 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="JUnit.Acceptance in artifactid" />
+      <item itemvalue="JUnit.ServiceRequestsTests" />
       <item itemvalue="JUnit.DTOTests.GivenSolution_WhenCreatingSolutionDTO_StructureIsCorrect" />
       <item itemvalue="JUnit.ServiceTest" />
       <item itemvalue="JUnit.test in artifactid" />
@@ -214,11 +221,11 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.DTOTests.GivenSolution_WhenCreatingSolutionDTO_StructureIsCorrect" />
-        <item itemvalue="JUnit.test in artifactid" />
-        <item itemvalue="JUnit.Acceptance in artifactid" />
-        <item itemvalue="JUnit.ServiceTest" />
+        <item itemvalue="JUnit.ServiceRequestsTests" />
         <item itemvalue="JUnit.ServiceTest.GivenImageDTO_WhenConfigImage_ImageIsCorrect" />
+        <item itemvalue="JUnit.test in artifactid" />
+        <item itemvalue="JUnit.ServiceTest" />
+        <item itemvalue="JUnit.DTOTests.GivenSolution_WhenCreatingSolutionDTO_StructureIsCorrect" />
       </list>
     </recent_temporary>
   </component>
@@ -296,7 +303,8 @@
     <MESSAGE value="refactored Image" />
     <MESSAGE value="git ignore" />
     <MESSAGE value="updated gitignore, hopefully I didn't screw stuff up like before..." />
-    <option name="LAST_COMMIT_MESSAGE" value="updated gitignore, hopefully I didn't screw stuff up like before..." />
+    <MESSAGE value="Nothing seems to work for now, cool beans" />
+    <option name="LAST_COMMIT_MESSAGE" value="Nothing seems to work for now, cool beans" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -311,17 +319,13 @@
           <line>32</line>
           <option name="timeStamp" value="46" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/dev/Backend/src/main/java/groupId/Service.java</url>
-          <line>56</line>
-          <option name="timeStamp" value="47" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/dev/Backend/src/main/java/groupId/UserController.java</url>
-          <line>47</line>
-          <option name="timeStamp" value="49" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="DTO.Records.Requests.Responses.CreateImageResponseDTO" memberName="model" />
+        <PinnedItemInfo parentTag="DTO.Records.Image.SolutionVariable" memberName="solutions" />
+      </pinned-members>
+    </pin-to-top-manager>
   </component>
 </project>

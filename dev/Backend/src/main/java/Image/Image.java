@@ -127,7 +127,7 @@ public class Image {
     public SolutionDTO solve(int timeout){
         Solution solution=model.solve(timeout);
         try {
-            solution.parseSolution(model, variables.getIdentifiers());
+            solution.parseSolution(model, variables.getIdentifiers(),variables.getAliases());
         } catch (IOException e) {
             throw new RuntimeException("IO exception while parsing solution file, message: "+ e);
         }
@@ -154,7 +154,9 @@ public class Image {
         Objects.requireNonNull(preference,"Invalid preference name in Toggle Preference in Image");
         model.toggleFunctionality(preference, false);
     }
-
+    public VariableModule getVariableModule() {
+        return variables;
+    }
     public ModelInterface getModel() {
         return this.model;
     }
@@ -163,9 +165,9 @@ public class Image {
         // Do not use this! ID stored in controller, image not aware of its own ID.
         throw new UnsupportedOperationException("Unimplemented method 'getId'");
     }
-    public void reset(Map<String,ModelVariable> variables, Collection<String> sets, Collection<String> params) {
+    public void reset(Map<String,ModelVariable> variables, Collection<String> sets, Collection<String> params,Map<String,List<String>> aliases) {
         constraintsModules.clear();
         preferenceModules.clear();
-        this.variables.override(variables,sets,params);
+        this.variables.override(variables,sets,params,aliases);
     }
 }

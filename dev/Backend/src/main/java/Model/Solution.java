@@ -54,7 +54,7 @@ public class Solution {
     }
 
     //Implement as lazy call or run during initialization?
-    public void parseSolution(ModelInterface model, Set<String> varsToParse) throws IOException {
+    public void parseSolution(ModelInterface model, Set<String> varsToParse,Map<String,List<String>> aliases) throws IOException {
         variables = model.getVariables(varsToParse);
         for (ModelVariable variable : variables) {
             if (varsToParse.contains(variable.getIdentifier())) {
@@ -66,7 +66,6 @@ public class Solution {
                     variableTypes.get(variable.getIdentifier()).add(modelSet.getType().toString());
                     for (ModelInput.StructureBlock block : modelSet.getStructure()) {
                         variableStructure.get(variable.getIdentifier()).add(block.dependency.identifier);
-
                     }
                 }
             }

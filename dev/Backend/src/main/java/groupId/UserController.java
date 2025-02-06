@@ -83,7 +83,7 @@ private final Map<UUID,Image> images;
             Objects.requireNonNull(modelVariable,"Invalid variable name in config/override image");
             variables.put(variable,modelVariable);
         }
-        image.reset(variables, imageDTO.variablesModule().variablesConfigurableSets(),imageDTO.variablesModule().variablesConfigurableParams());
+        image.reset(variables, imageDTO.variablesModule().variablesConfigurableSets(),imageDTO.variablesModule().variablesConfigurableParams(),imageDTO.variablesModule().variableAliases());
         for(ConstraintModuleDTO constraintModule:imageDTO.constraintModules()){
             image.addConstraintModule(constraintModule.moduleName(),constraintModule.description(),
                     constraintModule.constraints(),constraintModule.inputSets(),constraintModule.inputParams());

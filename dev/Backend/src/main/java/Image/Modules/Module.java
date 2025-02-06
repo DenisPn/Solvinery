@@ -34,12 +34,8 @@ public abstract class Module {
     private String description;
    // private boolean isActive;
 
-    /**
-     * Changed to be part of ModuleDTO, no longer image's responsibility to get
-     */
-    @Deprecated
+
     public abstract Set<ModelSet> getInvolvedSets();
-    @Deprecated
     public abstract Set<ModelParameter> getInvolvedParameters();
     public String getName() {
         return name;
