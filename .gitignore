@@ -1,5 +1,5 @@
 .vscode
 .devcontainer
 ./User/Models
-./.idea/*
-./.idea/
+.idea/*
+.idea/workspace.xml
