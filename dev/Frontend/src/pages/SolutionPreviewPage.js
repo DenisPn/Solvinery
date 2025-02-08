@@ -161,21 +161,23 @@ const handleSolve = async () => {
   // Construct the PATCH request body
   const patchRequestBody = {
       imageId,
-      variablesModule, // Assumed to be available in context
-      constraintModules: modules.map(module => ({
-          moduleName: module.name,
-          constraints: module.constraints.map(c => c.identifier),
-          inputSets: module.involvedSets,
-          inputParams: module.involvedParams,
-          moduleDescription: module.description
-      })),
-      preferenceModules: preferenceModules.map(module => ({
-          moduleName: module.name,
-          preferences: module.preferences.map(p => p.identifier),
-          inputSets: module.involvedSets,
-          inputParams: module.involvedParams,
-          moduleDescription: module.description
-      }))
+      image: { // Wrap everything under "image"
+          variablesModule, // Assumed to be available in context
+          constraintModules: modules.map(module => ({
+              moduleName: module.name,
+              constraints: module.constraints.map(c => c.identifier),
+              inputSets: module.involvedSets,
+              inputParams: module.involvedParams,
+              moduleDescription: module.description
+          })),
+          preferenceModules: preferenceModules.map(module => ({
+              moduleName: module.name,
+              preferences: module.preferences.map(p => p.identifier),
+              inputSets: module.involvedSets,
+              inputParams: module.involvedParams,
+              moduleDescription: module.description
+          }))
+      }
   };
 
   console.log("Sending PATCH request:", JSON.stringify(patchRequestBody, null, 2));
@@ -234,15 +236,16 @@ const handleSolve = async () => {
           console.error("Server returned an error:", responseText);
           throw new Error(`HTTP Error! Status: ${response.status} - ${responseText}`);
       }
-      setSolutionResponse(responseText);
+
       const data = JSON.parse(responseText);
-      
+      setSolutionResponse(data);
       navigate("/solution-results");
   } catch (error) {
       console.error("Error solving problem:", error);
       setErrorMessage(`Failed to solve. ${error.message}`);
   }
 };
+
 
   const [responseData, setResponseData] = useState(null);
   const [showModal, setShowModal] = useState(false);
