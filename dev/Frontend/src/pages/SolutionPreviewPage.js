@@ -237,7 +237,11 @@ const handleSolve = async () => {
           throw new Error(`HTTP Error! Status: ${response.status} - ${responseText}`);
       }
 
+
       const data = JSON.parse(responseText);
+      console.log("Data :",data);
+      console.log("Response : ",response);
+      console.log("Response Text :",responseText);
       setSolutionResponse(data);
       navigate("/solution-results");
   } catch (error) {
@@ -307,6 +311,7 @@ const handleSolve = async () => {
     },
   };
   const handleFakeResponse = () => {
+    console.log("Fake solution : ",fakeResponse);
     setSolutionResponse(fakeResponse); // ✅ Store the fake response in context
     navigate("/solution-results"); // ✅ Redirect to the next screen
   };

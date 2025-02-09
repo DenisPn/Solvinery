@@ -31,6 +31,7 @@ RUN cd /Plan-A/dev/Frontend && npm install
 RUN cd /Plan-A/dev/Backend && mvn compile
 RUN cd /Plan-A/dev/Backend && mvn generate-sources
 
+RUN chmod +x ./scripts/containerEntryScript.sh
 ENTRYPOINT ["./scripts/containerEntryScript.sh"]
 
 EXPOSE 3000 4000
