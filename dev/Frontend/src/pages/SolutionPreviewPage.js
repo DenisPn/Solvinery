@@ -102,16 +102,76 @@ const SolutionPreviewPage = () => {
           : [...prev, preferenceName] // Add if not exists
     );
   };
-/*
-  const handleSolve = async () => {
-    setErrorMessage(null); // Reset previous error
-    setResponseData(null); // Clear local response
 
+  const handleSolve = async () => {
+    setErrorMessage(null);
+    setResponseData(null);
+
+    // Construct the PATCH request body
+    const patchRequestBody = {
+      imageId,
+      image: {
+        // Wrap everything under "image"
+        variablesModule, // Assumed to be available in context
+        constraintModules: modules.map((module) => ({
+          moduleName: module.name,
+          constraints: module.constraints.map((c) => c.identifier),
+          inputSets: module.involvedSets,
+          inputParams: module.involvedParams,
+          description: module.description, // 🔹 Renamed from "moduleDescription"
+        })),
+        preferenceModules: preferenceModules.map((module) => ({
+          moduleName: module.name,
+          preferences: module.preferences.map((p) => p.identifier),
+          inputSets: module.involvedSets,
+          inputParams: module.involvedParams,
+          description: module.description, // 🔹 Renamed from "moduleDescription"
+        })),
+      },
+    };
+
+    console.log(
+      "Sending PATCH request:",
+      JSON.stringify(patchRequestBody, null, 2)
+    );
+
+    try {
+      // PATCH request to /Images
+      const patchResponse = await fetch("/images", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patchRequestBody),
+      });
+
+      if (!patchResponse.ok) {
+        throw new Error(
+          `PATCH request failed! Status: ${patchResponse.status}`
+        );
+      }
+
+      console.log("✅ PATCH request successful!");
+    } catch (error) {
+      console.error("Error sending PATCH request:", error);
+      setErrorMessage(`Failed to update image metadata: ${error.message}`);
+      return; // Stop execution if PATCH fails
+    }
+
+    // Extract only the **names** of toggled-off constraints
+    const constraintsToggledOffNames = modules
+      .filter((module) => constraintsToggledOff.includes(module.name))
+      .flatMap((module) => module.constraints.map((c) => c.identifier));
+
+    // Extract only the **names** of toggled-off preferences
+    const preferencesToggledOffNames = preferenceModules
+      .filter((module) => preferencesToggledOff.includes(module.name))
+      .flatMap((module) => module.preferences.map((p) => p.identifier));
+
+    // Construct the POST request body for solving
     const transformedParamValues = Object.fromEntries(
       Object.entries(paramValues).map(([key, value]) => [
         key,
         [parseFloat(value) || 0],
-      ]) // Ensures values are arrays of numbers
+      ])
     );
 
     const requestBody = {
@@ -119,13 +179,13 @@ const SolutionPreviewPage = () => {
       input: {
         setsToValues: variableValues,
         paramsToValues: transformedParamValues,
-        constraintsToggledOff: [],
-        preferencesToggledOff: [],
+        constraintsToggledOff: constraintsToggledOffNames,
+        preferencesToggledOff: preferencesToggledOffNames,
       },
       timeout: 30,
     };
 
-    console.log("Sending request:", JSON.stringify(requestBody, null, 2));
+    console.log("Sending POST request:", JSON.stringify(requestBody, null, 2));
 
     try {
       const response = await fetch("/solve", {
@@ -134,7 +194,7 @@ const SolutionPreviewPage = () => {
         body: JSON.stringify(requestBody),
       });
 
-      const responseText = await response.text(); // Read response as text (for error handling)
+      const responseText = await response.text();
 
       if (!response.ok) {
         console.error("Server returned an error:", responseText);
@@ -143,113 +203,17 @@ const SolutionPreviewPage = () => {
         );
       }
 
-      const data = JSON.parse(responseText); // Parse response if it's valid JSON
-      setSolutionResponse(data); // Store response in context
-
-      navigate("/solution-results"); // Redirect user to the results page
+      const data = JSON.parse(responseText);
+      console.log("Data :", data);
+      console.log("Response : ", response);
+      console.log("Response Text :", responseText);
+      setSolutionResponse(data);
+      navigate("/solution-results");
     } catch (error) {
       console.error("Error solving problem:", error);
       setErrorMessage(`Failed to solve. ${error.message}`);
     }
   };
-*/
-
-const handleSolve = async () => {
-  setErrorMessage(null);
-  setResponseData(null);
-
-  // Construct the PATCH request body
-  const patchRequestBody = {
-      imageId,
-      image: { // Wrap everything under "image"
-          variablesModule, // Assumed to be available in context
-          constraintModules: modules.map(module => ({
-              moduleName: module.name,
-              constraints: module.constraints.map(c => c.identifier),
-              inputSets: module.involvedSets,
-              inputParams: module.involvedParams,
-              moduleDescription: module.description
-          })),
-          preferenceModules: preferenceModules.map(module => ({
-              moduleName: module.name,
-              preferences: module.preferences.map(p => p.identifier),
-              inputSets: module.involvedSets,
-              inputParams: module.involvedParams,
-              moduleDescription: module.description
-          }))
-      }
-  };
-
-  console.log("Sending PATCH request:", JSON.stringify(patchRequestBody, null, 2));
-
-  try {
-      // PATCH request to /Images
-      const patchResponse = await fetch("/images", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(patchRequestBody)
-      });
-
-      if (!patchResponse.ok) {
-          throw new Error(`PATCH request failed! Status: ${patchResponse.status}`);
-      }
-
-      console.log("✅ PATCH request successful!");
-
-  } catch (error) {
-      console.error("Error sending PATCH request:", error);
-      setErrorMessage(`Failed to update image metadata: ${error.message}`);
-      return; // Stop execution if PATCH fails
-  }
-
-  // Construct the POST request body for solving
-  const transformedParamValues = Object.fromEntries(
-      Object.entries(paramValues).map(([key, value]) => [
-          key,
-          [parseFloat(value) || 0]
-      ])
-  );
-
-  const requestBody = {
-      imageId,
-      input: {
-          setsToValues: variableValues,
-          paramsToValues: transformedParamValues,
-          constraintsToggledOff: constraintsToggledOff,
-          preferencesToggledOff: preferencesToggledOff
-      },
-      timeout: 30
-  };
-
-  console.log("Sending POST request:", JSON.stringify(requestBody, null, 2));
-
-  try {
-      const response = await fetch("/solve", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(requestBody)
-      });
-
-      const responseText = await response.text();
-
-      if (!response.ok) {
-          console.error("Server returned an error:", responseText);
-          throw new Error(`HTTP Error! Status: ${response.status} - ${responseText}`);
-      }
-
-
-      const data = JSON.parse(responseText);
-      console.log("Data :",data);
-      console.log("Response : ",response);
-      console.log("Response Text :",responseText);
-      setSolutionResponse(data);
-      navigate("/solution-results");
-  } catch (error) {
-      console.error("Error solving problem:", error);
-      setErrorMessage(`Failed to solve. ${error.message}`);
-  }
-};
-
 
   const [responseData, setResponseData] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -311,7 +275,7 @@ const handleSolve = async () => {
     },
   };
   const handleFakeResponse = () => {
-    console.log("Fake solution : ",fakeResponse);
+    console.log("Fake solution : ", fakeResponse);
     setSolutionResponse(fakeResponse); // ✅ Store the fake response in context
     navigate("/solution-results"); // ✅ Redirect to the next screen
   };
