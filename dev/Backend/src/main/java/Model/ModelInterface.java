@@ -1,8 +1,9 @@
 package Model;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
+
+import Exceptions.InternalErrors.BadRequestException;
 
 /**
  * Interface defining the public API for interacting with a mathematical optimization model.
@@ -45,6 +46,13 @@ public interface ModelInterface {
      */
     void setInput(ModelSet identifier, String[] values) throws Exception;
 
+    // Get last committed input from zpl file
+    String[] getInput(ModelParameter parameter) throws Exception;
+
+    // Get last committed input from zpl file
+    List<String[]> getInput(ModelSet set) throws Exception;
+
+    
     /**
      * Toggles a model functionality on or off.
      * 
@@ -59,7 +67,7 @@ public interface ModelInterface {
      * @param timeout Maximum time in seconds to wait for compilation
      * @return true if compilation succeeds, false otherwise
      */
-    boolean isCompiling(float timeout);
+    boolean isCompiling(float timeout) throws BadRequestException;
 
     /**
      * Solves the model and returns the solution.
@@ -67,7 +75,7 @@ public interface ModelInterface {
      * @param timeout Maximum time in seconds to wait for solving
      * @return Solution object if solving succeeds, null otherwise
      */
-    Solution solve(float timeout);
+    Solution solve(float timeout, String solutionFileSufix) throws BadRequestException;
 
     /**
      * Retrieves a set by its identifier.
@@ -125,6 +133,6 @@ public interface ModelInterface {
 
     public Collection<ModelSet> getSets();
 
-    public Collection<ModelParameter> getParameters() ;
+    public Collection<ModelParameter> getParameters();
 
 }
