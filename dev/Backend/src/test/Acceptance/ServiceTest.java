@@ -78,8 +78,8 @@ public class ServiceTest {
         //Expected response
         CreateImageResponseDTO expected = new CreateImageResponseDTO(
             "some imageId", new ModelDTO(
-              Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of("mySet"),Set.of("x")))),
-                Set.of(new PreferenceDTO("1", new DependenciesDTO(Set.of(),Set.of()))),
+              Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of(),Set.of("x")))),
+                Set.of(new PreferenceDTO("myVar[3]", new DependenciesDTO(Set.of(),Set.of()))),
                 Set.of(new VariableDTO("myVar", new DependenciesDTO(Set.of("mySet"),Set.of()))),
                 Map.of("mySet",List.of("INT")),
                 Map.of("x","INT"),
@@ -116,8 +116,8 @@ public class ServiceTest {
         //Expected response
         CreateImageResponseDTO expected = new CreateImageResponseDTO(
                 "some imageId", new ModelDTO(
-                Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of("mySet"),Set.of("x")))),
-                Set.of(new PreferenceDTO("1", new DependenciesDTO(Set.of(),Set.of()))),
+                Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of(),Set.of("x")))),
+                Set.of(new PreferenceDTO("myVar[3]", new DependenciesDTO(Set.of(),Set.of()))),
                 Set.of(new VariableDTO("myVar", new DependenciesDTO(Set.of("mySet"),Set.of()))),
                 Map.of("mySet",List.of("INT")),
                 Map.of("x","INT"),
@@ -140,7 +140,7 @@ public class ServiceTest {
                         Set.of("sampleConstraint"),Set.of("mySet"),Set.of("x")));
         Set<PreferenceModuleDTO> preferenceModuleDTOs=Set.of(
                 new PreferenceModuleDTO("Test module","PeanutButter",
-                        Set.of("1"),Set.of(),Set.of()));
+                        Set.of("myVar[3]"),Set.of(),Set.of()));
         VariableModuleDTO variableModuleDTO= new VariableModuleDTO(Set.of("myVar"),Set.of("mySet"),Set.of());
         ImageDTO imageDTO= new ImageDTO(variableModuleDTO,constraintModuleDTOs,preferenceModuleDTOs);
         ImageConfigDTO configDTO= new ImageConfigDTO(response.getBody().imageId(),imageDTO);
