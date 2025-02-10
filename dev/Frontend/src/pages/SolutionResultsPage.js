@@ -18,7 +18,7 @@ const SolutionResultsPage = () => {
 
   const variableData = solutionResponse.solution[selectedVariable];
   const { setStructure, solutions } = variableData;
-
+  console.log(solutionResponse);
   // Check if all objective values are binary (0 or 1)
   const isBinary = solutions.every(
     (sol) => sol.objectiveValue === 0 || sol.objectiveValue === 1
