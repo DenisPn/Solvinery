@@ -33,12 +33,13 @@ public class Image {
         this.model = new Model(path);
     }
 
-    //TODO: implement deep copy!
+    //TODO: implement deep copy
     public Image(Image image) {
-        this.constraintsModules = null;
-        this.preferenceModules = null;
-        this.variables = null;
-        this.model = null;
+        this.constraintsModules = new HashMap<>();
+        this.preferenceModules = new HashMap<>();
+        this.variables = new VariableModule();
+        this.model = image.model;
+        //Removed nulls to remove warnings, will implement post alpha.
     }
 
     //will probably have to use an adapter layer, or change types to DTOs
@@ -108,6 +109,9 @@ public class Image {
     public Map<String,ModelVariable> getVariables() {
         return variables.getVariables();
     }
+    public Map<String,List<String>> getAliases(){
+        return variables.getAliases();
+    }
     public ModelVariable getVariable(String name) {
         return variables.get(name);
     }
@@ -136,7 +140,7 @@ public class Image {
     public SolutionDTO solve(int timeout){
         Solution solution=model.solve(timeout, "SOLUTION");
         try {
-            solution.parseSolution(model, variables.getIdentifiers());
+            solution.parseSolution(model, variables.getIdentifiers(),variables.getAliases());
         } catch (IOException e) {
             throw new RuntimeException("IO exception while parsing solution file, message: "+ e);
         }
@@ -172,9 +176,9 @@ public class Image {
         // Do not use this! ID stored in controller, image not aware of its own ID.
         throw new UnsupportedOperationException("Unimplemented method 'getId'");
     }
-    public void reset(Map<String,ModelVariable> variables, Collection<String> sets, Collection<String> params) {
+    public void reset(Map<String,ModelVariable> variables, Collection<String> sets, Collection<String> params,Map<String,List<String>> aliases) {
         constraintsModules.clear();
         preferenceModules.clear();
-        this.variables.override(variables,sets,params);
+        this.variables.override(variables,sets,params,aliases);
     }
 }

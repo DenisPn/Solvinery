@@ -19,14 +19,12 @@ public abstract class Module {
     public Module(String name, String description) {
         this.name = name;
         this.description = description;
-     //   isActive=true;
         inputSets = new HashSet<>();
         inputParams = new HashSet<>();
     }
     public Module(String name, String description, Collection<String> inputSets, Collection<String> inputParams) {
         this.name = name;
         this.description = description;
-        //   isActive=true;
        this.inputSets = new HashSet<>(inputSets);
        this.inputParams = new HashSet<>(inputParams);
     }

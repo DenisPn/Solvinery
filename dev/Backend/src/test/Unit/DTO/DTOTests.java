@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,7 +51,7 @@ class DTOTests {
             Solution solution = new Solution(solutionPath);
             HashSet<String> vars = new HashSet<>();
             vars.add("Soldier_Shift");
-            solution.parseSolution(model, vars);
+            solution.parseSolution(model, vars, Map.of());
             SolutionDTO solutionDTO = RecordFactory.makeDTO(solution);
 
             //Tests

@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.*;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -126,7 +127,7 @@ public class ConstraintModuleDTOTests {
         Solution solution= model.solve(1000,"SOLUTION");
         Set<String> vars= model.getVariables().stream().map(ModelVariable -> ModelVariable.getIdentifier()).collect(Collectors.toSet());
         try {
-            solution.parseSolution(model,vars);
+            solution.parseSolution(model,vars, Map.of());
         }
         catch (IOException e){
             fail(e.getMessage());
