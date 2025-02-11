@@ -152,7 +152,7 @@ public class ServiceTest {
         Set<PreferenceModuleDTO> preferenceModuleDTOs=Set.of(
                 new PreferenceModuleDTO("Test module","PeanutButter",
                         Set.of("myVar[3]"),Set.of(),Set.of()));
-        VariableModuleDTO variableModuleDTO= new VariableModuleDTO(Set.of("myVar"),Set.of("mySet"),Set.of());
+        VariableModuleDTO variableModuleDTO= new VariableModuleDTO(Set.of("myVar"),Set.of("mySet"),Set.of(),Map.of());
         ImageDTO imageDTO= new ImageDTO(variableModuleDTO,constraintModuleDTOs,preferenceModuleDTOs);
         ImageConfigDTO configDTO= new ImageConfigDTO(response.getBody().imageId(),imageDTO);
         HttpEntity<ImageConfigDTO> request2 = new HttpEntity<>(configDTO, headers);
@@ -268,7 +268,7 @@ public class ServiceTest {
             /**
              *  CONFIG IMAGE TO DISPLAY myVar
              */
-            ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Set.of(),Set.of()),Set.of(),Set.of());
+            ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Set.of(),Set.of(),Map.of("myVar",List.of("test_alias"))),Set.of(),Set.of());
             ImageConfigDTO config= new ImageConfigDTO(response.getBody().imageId(),imageDTO);
             HttpEntity<ImageConfigDTO> request2 = new HttpEntity<>(config, headers);
             // Send PATCH request with body
@@ -297,6 +297,8 @@ public class ServiceTest {
             );
             assertEquals(HttpStatus.OK, response3.getStatusCode());
             assertNotNull(response3.getBody());
+            assertEquals(List.of("test_alias"),response3.getBody().solution().get("myVar").setStructure());
+
             assertEquals(Set.of(new SolutionValueDTO(List.of("3"),10)),response3.getBody().solution().get("myVar").solutions());
         } catch (Exception e) {
             fail(e.getMessage());

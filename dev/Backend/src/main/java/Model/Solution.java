@@ -54,24 +54,32 @@ public class Solution {
     }
 
     //Implement as lazy call or run during initialization?
-    public void parseSolution(ModelInterface model, Set<String> varsToParse) throws IOException {
+    public void parseSolution(ModelInterface model, Set<String> varsToParse,Map<String,List<String>> aliases) throws IOException {
         variables = model.getVariables(varsToParse);
         for (ModelVariable variable : variables) {
             if (varsToParse.contains(variable.getIdentifier())) {
                 variableSolution.put(variable.getIdentifier(), new ArrayList<>());
-                variableStructure.put(variable.getIdentifier(), new ArrayList<>());
-                variableTypes.put(variable.getIdentifier(), new ArrayList<>());
-                //below lines are not solution dependent but problem dependent, will be more efficient to maintain them inside the image
-                for (ModelSet modelSet : variable.getSetDependencies()) {
-                    variableTypes.get(variable.getIdentifier()).add(modelSet.getType().toString());
-                    for (ModelInput.StructureBlock block : modelSet.getStructure()) {
-                        //TODO: Bug at block.dependency.identifier!
-                        //When var depends on anonymous primitive set, it's structure it an array of null blocks
-                        //therefore block.dependency is an invalid access
-                        //example: var varForTest1[CxS *{"A","a"} * S * {1 .. 5}];
-                        if(block.dependency!=null) //fix?
-                            variableStructure.get(variable.getIdentifier()).add(block.dependency.identifier);
-
+                if(aliases.containsKey(variable.getIdentifier())) {
+                    variableStructure.put(variable.getIdentifier(), aliases.get(variable.getIdentifier()));
+                    variableTypes.put(variable.getIdentifier(), new ArrayList<>());
+                    for (ModelSet modelSet : variable.getSetDependencies()) {
+                        variableTypes.get(variable.getIdentifier()).add(modelSet.getType().toString());
+                    }
+                }
+                else {
+                    variableStructure.put(variable.getIdentifier(), new ArrayList<>());
+                    variableTypes.put(variable.getIdentifier(), new ArrayList<>());
+                    //below lines are not solution dependent but problem dependent, will be more efficient to maintain them inside the image
+                    for (ModelSet modelSet : variable.getSetDependencies()) {
+                        variableTypes.get(variable.getIdentifier()).add(modelSet.getType().toString());
+                        for (ModelInput.StructureBlock block : modelSet.getStructure()) {
+                            //TODO: Bug at block.dependency.identifier!
+                            //When var depends on anonymous primitive set, it's structure it an array of null blocks
+                            //therefore block.dependency is an invalid access
+                            //example: var varForTest1[CxS *{"A","a"} * S * {1 .. 5}];
+                            if (block.dependency != null) //fix?
+                                variableStructure.get(variable.getIdentifier()).add(block.dependency.identifier);
+                        }
                     }
                 }
             }
