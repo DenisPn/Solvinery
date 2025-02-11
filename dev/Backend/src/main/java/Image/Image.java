@@ -1,17 +1,28 @@
 package Image;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
 import DTO.Factories.RecordFactory;
 import DTO.Records.Image.SolutionDTO;
 import DTO.Records.Model.ModelData.InputDTO;
 import DTO.Records.Model.ModelDefinition.ConstraintDTO;
 import DTO.Records.Model.ModelDefinition.PreferenceDTO;
-import Image.Modules.*;
-import Model.*;
+import Image.Modules.ConstraintModule;
+import Image.Modules.PreferenceModule;
+import Image.Modules.VariableModule;
+import Model.Model;
+import Model.ModelConstraint;
 import Model.ModelInterface;
+import Model.ModelPreference;
 import Model.ModelVariable;
-
-import java.io.IOException;
-import java.util.*;
+import Model.Solution;
 
 public class Image {
     // Note: this implies module names must be unique between user constraints/preferences.
@@ -167,14 +178,65 @@ public class Image {
     public ModelInterface getModel() {
         return this.model;
     }
+
     @Deprecated
     public String getId() {
         // Do not use this! ID stored in controller, image not aware of its own ID.
         throw new UnsupportedOperationException("Unimplemented method 'getId'");
     }
+
     public void reset(Map<String,ModelVariable> variables, Collection<String> sets, Collection<String> params) {
         constraintsModules.clear();
         preferenceModules.clear();
         this.variables.override(variables,sets,params);
+    }
+
+    public Set<String> getAllInvolvedSets() {
+        Set<String> allSets = new HashSet<>();
+
+        // Add inputSets from each constraint module
+        for (ConstraintModule constraintModule : constraintsModules.values()) {
+            allSets.addAll(constraintModule.getInputSets());
+        }
+
+        // Add inputSets from each preference module
+        for (PreferenceModule preferenceModule : preferenceModules.values()) {
+            allSets.addAll(preferenceModule.getInputSets());
+        }
+
+        return allSets;
+    }
+
+    public Set<String> getAllInvolvedParams() {
+        Set<String> allParams = new HashSet<>();
+
+        // Add inputParams from each constraint module
+        for (ConstraintModule constraintModule : constraintsModules.values()) {
+            allParams.addAll(constraintModule.getInputParams());
+        }
+
+        // Add inputParams from each preference module
+        for (PreferenceModule preferenceModule : preferenceModules.values()) {
+            allParams.addAll(preferenceModule.getInputParams());
+        }
+
+        return allParams;
+    }
+
+    
+
+    public InputDTO getInput() throws Exception {
+        Set<String> relevantParams = getAllInvolvedParams();
+        Set<String> relevantSets = getAllInvolvedSets();
+        
+        for (String param : relevantParams.toArray(new String[0])) {
+            String[] atoms = model.getInput(model.getParameter(param));
+        }
+
+        for (String set : relevantSets.toArray(new String[0])) {
+            List<String[]> atomsOfElements = model.getInput(model.getSet(set));
+        }
+
+        throw new Exception("Unimplemented method");
     }
 }

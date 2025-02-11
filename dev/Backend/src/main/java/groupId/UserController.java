@@ -1,29 +1,35 @@
 package groupId;
 
-import DTO.Factories.RecordFactory;
-import DTO.Records.Image.ConstraintModuleDTO;
-import DTO.Records.Image.PreferenceModuleDTO;
-import DTO.Records.Requests.Commands.ImageConfigDTO;
-import DTO.Records.Requests.Commands.SolveCommandDTO;
-import DTO.Records.Image.ImageDTO;
-import DTO.Records.Image.SolutionDTO;
-import DTO.Records.Requests.Responses.CreateImageResponseDTO;
-import Exceptions.InternalErrors.BadRequestException;
-import Image.Image;
-import Model.ModelInterface;
-import Model.ModelType;
-import Model.ModelVariable;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import DTO.Factories.RecordFactory;
+import DTO.Records.Image.ConstraintModuleDTO;
+import DTO.Records.Image.ImageDTO;
+import DTO.Records.Image.PreferenceModuleDTO;
+import DTO.Records.Image.SolutionDTO;
+import DTO.Records.Model.ModelData.InputDTO;
+import DTO.Records.Requests.Commands.ImageConfigDTO;
+import DTO.Records.Requests.Commands.SolveCommandDTO;
+import DTO.Records.Requests.Responses.CreateImageResponseDTO;
+import Exceptions.InternalErrors.BadRequestException;
+import Image.Image;
+import Model.ModelInterface;
+import Model.ModelType;
+import Model.ModelVariable;
 
 @Service
 public class UserController {
@@ -72,7 +78,6 @@ private String storageDir;
         return RecordFactory.makeDTO(id, image.getModel());
     }
 
-    
 
     public SolutionDTO solve(SolveCommandDTO command) throws Exception {
         Image image = images.get(UUID.fromString(command.imageId()));
@@ -130,5 +135,8 @@ private String storageDir;
         return images.get(UUID.fromString(id));
     }
 
+    public InputDTO loadLastInput(String imageId) throws Exception {
+        return images.get(UUID.fromString(imageId)).getInput();
+    }
 
 }

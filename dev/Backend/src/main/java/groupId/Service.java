@@ -1,6 +1,7 @@
 package groupId;
 
 import java.io.IOException;
+import java.util.List;
 
 import DTO.Records.Requests.Commands.CreateImageFromFileDTO;
 import DTO.Records.Requests.Commands.CreateImageFromPathDTO;
@@ -8,6 +9,7 @@ import DTO.Records.Requests.Commands.ImageConfigDTO;
 import DTO.Records.Requests.Commands.SolveCommandDTO;
 import DTO.Records.Image.ImageDTO;
 import DTO.Records.Image.SolutionDTO;
+import DTO.Records.Model.ModelData.InputDTO;
 import DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import DTO.Records.Requests.Responses.ImageResponseDTO;
 
@@ -56,6 +58,12 @@ public class Service implements ServiceInterface {
     @PostMapping("/solve")
     public ResponseEntity<SolutionDTO> solve(@Valid @RequestBody SolveCommandDTO input) throws Exception {
         SolutionDTO res = controller.solve(input);
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("images/{id}/inputs")
+    public ResponseEntity<InputDTO> getImageInput(@PathVariable("id") String imageId) throws Exception {
+        InputDTO res = controller.loadLastInput(imageId);
         return ResponseEntity.ok(res);
     }
 }
