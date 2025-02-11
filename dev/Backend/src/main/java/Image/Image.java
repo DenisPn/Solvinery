@@ -1,9 +1,12 @@
 package Image;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -203,6 +206,8 @@ public class Image {
         for (PreferenceModule preferenceModule : preferenceModules.values()) {
             allSets.addAll(preferenceModule.getInputSets());
         }
+            
+        allSets.addAll(variables.getInputSets());
 
         return allSets;
     }
@@ -220,6 +225,8 @@ public class Image {
             allParams.addAll(preferenceModule.getInputParams());
         }
 
+        allParams.addAll(variables.getInputParams());
+
         return allParams;
     }
 
@@ -228,15 +235,25 @@ public class Image {
     public InputDTO getInput() throws Exception {
         Set<String> relevantParams = getAllInvolvedParams();
         Set<String> relevantSets = getAllInvolvedSets();
-        
+        Map<String, List<List<String>>> setsToValues = new HashMap<>();
+        Map<String,List<String>> paramsToValues = new HashMap<>();
+
         for (String param : relevantParams.toArray(new String[0])) {
             String[] atoms = model.getInput(model.getParameter(param));
+            paramsToValues.put(param, List.of(atoms));
         }
 
         for (String set : relevantSets.toArray(new String[0])) {
             List<String[]> atomsOfElements = model.getInput(model.getSet(set));
+            List<List<String>> convertedList = new ArrayList<>();
+            for (String[] array : atomsOfElements) {
+                convertedList.add(Arrays.asList(array)); // Convert String[] to List<String>
+        
+            }
+
+            setsToValues.put(set, convertedList);
         }
 
-        throw new Exception("Unimplemented method");
+        return new InputDTO(setsToValues,paramsToValues,new LinkedList<>(), new LinkedList<>());
     }
 }
