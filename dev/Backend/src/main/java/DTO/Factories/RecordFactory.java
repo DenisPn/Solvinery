@@ -156,7 +156,7 @@ public class RecordFactory {
             throw new NullPointerException("Null image in DTO mapping");
         Set< ConstraintModuleDTO> constraints = new HashSet<>();
         Set<PreferenceModuleDTO> preferences = new HashSet<>();
-        VariableModuleDTO variables = makeDTO(image.getVariables().values().stream().toList());
+        VariableModuleDTO variables = makeDTO(image.getVariables().values().stream().toList(),image.getAliases());
                 for(ConstraintModule module: image.getConstraintsModules().values()){
                     constraints.add(makeDTO(module));
                 }
@@ -166,7 +166,7 @@ public class RecordFactory {
                 
                 return new ImageDTO(variables, constraints, preferences);
             }
-        private static VariableModuleDTO makeDTO(List<ModelVariable> values) {
+        private static VariableModuleDTO makeDTO(List<ModelVariable> values,Map<String,List<String>> aliases) {
             Set<String> intr = new HashSet<>();
             Set<String> params = new HashSet<>();
             Set<String> sets = new HashSet<>();
@@ -179,7 +179,7 @@ public class RecordFactory {
                     params.add(param.getIdentifier());
                 }
             }
-            return new VariableModuleDTO(intr, sets, params);
+            return new VariableModuleDTO(intr, sets, params,aliases);
         }
             public static ImageResponseDTO makeDTO(UUID id, Image image){
         return new ImageResponseDTO(id.toString(),makeDTO(image));

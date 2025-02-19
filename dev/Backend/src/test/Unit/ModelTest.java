@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -229,7 +230,7 @@ public class ModelTest {
         Set<String> stringVariables = m.getVariables().stream()
             .map(ModelVariable::getIdentifier)
             .collect(Collectors.toSet());
-        sol.parseSolution(m, stringVariables);
+        sol.parseSolution(m, stringVariables, Map.of());
         assertTrue(sol.isSolved());
         assertEquals(sol.getObjectiveValue() , 1187);
         } catch(Exception e){assertTrue(false);}

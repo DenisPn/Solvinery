@@ -1,17 +1,31 @@
 package Image;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
 import DTO.Factories.RecordFactory;
 import DTO.Records.Image.SolutionDTO;
 import DTO.Records.Model.ModelData.InputDTO;
 import DTO.Records.Model.ModelDefinition.ConstraintDTO;
 import DTO.Records.Model.ModelDefinition.PreferenceDTO;
-import Image.Modules.*;
-import Model.*;
+import Image.Modules.ConstraintModule;
+import Image.Modules.PreferenceModule;
+import Image.Modules.VariableModule;
+import Model.Model;
+import Model.ModelConstraint;
 import Model.ModelInterface;
+import Model.ModelPreference;
 import Model.ModelVariable;
-
-import java.io.IOException;
-import java.util.*;
+import Model.Solution;
 
 public class Image {
     // Note: this implies module names must be unique between user constraints/preferences.
@@ -33,12 +47,13 @@ public class Image {
         this.model = new Model(path);
     }
 
-    //TODO: implement deep copy!
+    //TODO: implement deep copy
     public Image(Image image) {
-        this.constraintsModules = null;
-        this.preferenceModules = null;
-        this.variables = null;
-        this.model = null;
+        this.constraintsModules = new HashMap<>();
+        this.preferenceModules = new HashMap<>();
+        this.variables = new VariableModule();
+        this.model = image.model;
+        //Removed nulls to remove warnings, will implement post alpha.
     }
 
     //will probably have to use an adapter layer, or change types to DTOs
@@ -136,7 +151,7 @@ public class Image {
     public SolutionDTO solve(int timeout){
         Solution solution=model.solve(timeout, "SOLUTION");
         try {
-            solution.parseSolution(model, variables.getIdentifiers());
+            solution.parseSolution(model, variables.getIdentifiers(),variables.getAliases());
         } catch (IOException e) {
             throw new RuntimeException("IO exception while parsing solution file, message: "+ e);
         }
@@ -172,9 +187,73 @@ public class Image {
         // Do not use this! ID stored in controller, image not aware of its own ID.
         throw new UnsupportedOperationException("Unimplemented method 'getId'");
     }
-    public void reset(Map<String,ModelVariable> variables, Collection<String> sets, Collection<String> params) {
+
+    public void reset(Map<String,ModelVariable> variables, Collection<String> sets, Collection<String> params,Map<String,List<String>> aliases) {
         constraintsModules.clear();
         preferenceModules.clear();
-        this.variables.override(variables,sets,params);
+        this.variables.override(variables,sets,params,aliases);
+    }
+
+    public Set<String> getAllInvolvedSets() {
+        Set<String> allSets = new HashSet<>();
+
+        // Add inputSets from each constraint module
+        for (ConstraintModule constraintModule : constraintsModules.values()) {
+            allSets.addAll(constraintModule.getInputSets());
+        }
+
+        // Add inputSets from each preference module
+        for (PreferenceModule preferenceModule : preferenceModules.values()) {
+            allSets.addAll(preferenceModule.getInputSets());
+        }
+
+        allSets.addAll(variables.getInputSets());
+
+        return allSets;
+    }
+
+    public Set<String> getAllInvolvedParams() {
+        Set<String> allParams = new HashSet<>();
+
+        // Add inputParams from each constraint module
+        for (ConstraintModule constraintModule : constraintsModules.values()) {
+            allParams.addAll(constraintModule.getInputParams());
+        }
+
+        // Add inputParams from each preference module
+        for (PreferenceModule preferenceModule : preferenceModules.values()) {
+            allParams.addAll(preferenceModule.getInputParams());
+        }
+
+        allParams.addAll(variables.getInputParams());
+
+        return allParams;
+    }
+
+
+
+    public InputDTO getInput() throws Exception {
+        Set<String> relevantParams = getAllInvolvedParams();
+        Set<String> relevantSets = getAllInvolvedSets();
+        Map<String, List<List<String>>> setsToValues = new HashMap<>();
+        Map<String,List<String>> paramsToValues = new HashMap<>();
+
+        for (String param : relevantParams.toArray(new String[0])) {
+            String[] atoms = model.getInput(model.getParameter(param));
+            paramsToValues.put(param, List.of(atoms));
+        }
+
+        for (String set : relevantSets.toArray(new String[0])) {
+            List<String[]> atomsOfElements = model.getInput(model.getSet(set));
+            List<List<String>> convertedList = new ArrayList<>();
+            for (String[] array : atomsOfElements) {
+                convertedList.add(Arrays.asList(array)); // Convert String[] to List<String>
+
+            }
+
+            setsToValues.put(set, convertedList);
+        }
+
+        return new InputDTO(setsToValues,paramsToValues,new LinkedList<>(), new LinkedList<>());
     }
 }

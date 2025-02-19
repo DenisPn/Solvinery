@@ -112,7 +112,7 @@ public class ServiceRequestsTests {
             Set<PreferenceModuleDTO> preferenceModuleDTOs = Set.of(
                     new PreferenceModuleDTO("Test module", "PeanutButter",
                             Set.of("myVar[3]"), Set.of(), Set.of()));
-            VariableModuleDTO variableModuleDTO = new VariableModuleDTO(Set.of("myVar"), Set.of("mySet"), Set.of());
+            VariableModuleDTO variableModuleDTO = new VariableModuleDTO(Set.of("myVar"), Set.of("mySet"), Set.of(),Map.of("myVar",List.of("test_alias")));
             ImageDTO imageDTO = new ImageDTO(variableModuleDTO, constraintModuleDTOs, preferenceModuleDTOs);
             ImageConfigDTO configDTO= new ImageConfigDTO(response.getBody().imageId(),imageDTO);
             ResponseEntity<Void> response2= service.configureImage(configDTO);
@@ -135,11 +135,13 @@ public class ServiceRequestsTests {
                     Map.of("x",List.of("10")),
                     List.of(),List.of());
             SolveCommandDTO solveCommandDTO=new SolveCommandDTO(responseDTO.imageId(),input,600);
-            ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Set.of(),Set.of()),Set.of(),Set.of());
+            ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Set.of(),Set.of(),Map.of("myVar",List.of("test_alias"))),Set.of(),Set.of());
             ImageConfigDTO config= new ImageConfigDTO(responseDTO.imageId(),imageDTO);
             userController.overrideImage(config);
             SolutionDTO solution=userController.solve(solveCommandDTO);
             assertEquals(Set.of(new SolutionValueDTO(List.of("3"),10)),solution.solution().get("myVar").solutions());
+            assertEquals(List.of("test_alias"),solution.solution().get("myVar").setStructure());
+
         } catch (Exception e) {
             fail(e.getMessage());
         }
