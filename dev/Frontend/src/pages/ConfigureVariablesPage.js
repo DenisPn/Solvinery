@@ -12,8 +12,6 @@ const ConfigureVariablesPage = () => {
     const [selectedParams, setSelectedParams] = useState([]); // Stores selected params
     const [displaySets, setDisplaySets] = useState([]);    // Stores sets that should be displayed
     const [displayParams, setDisplayParams] = useState([]); // Stores params that should be displayed
-
-    // State for storing aliases for each selected set
     const [setAliases, setSetAliases] = useState({});
 
     // Function to update displayed sets & params when variables are selected
@@ -75,18 +73,27 @@ const ConfigureVariablesPage = () => {
         }));
     };
 
-    // Save selected variables, sets, parameters, and aliases in context when navigating
     const handleContinue = () => {
         const variablesOfInterest = selectedVars.map(v => v.identifier);
     
-        // Create a map where each variable is mapped to an array of corresponding set aliases
+        // ✅ Ensure all selected sets have a value in setAliases (default to set name if empty)
+        const updatedSetAliases = { ...setAliases };
+    
+        selectedSets.forEach(set => {
+            if (!updatedSetAliases[set] || updatedSetAliases[set].trim() === "") {
+                updatedSetAliases[set] = set; // ✅ Default to the set name
+            }
+        });
+    
+        // ✅ Create a map where each variable is mapped to an array of corresponding set aliases
         const variableAliases = Object.fromEntries(
             selectedVars.map(variable => [
                 variable.identifier,
-                (variable.dep?.setDependencies ?? []).map(set => setAliases[set] || set) // Use alias or fallback to set name
+                (variable.dep?.setDependencies ?? []).map(set => updatedSetAliases[set]) // ✅ Now guaranteed to exist
             ])
         );
     
+        // ✅ Store updated data in the context
         setVariablesModule({
             variablesOfInterest,
             variablesConfigurableSets: selectedSets,
@@ -94,9 +101,20 @@ const ConfigureVariablesPage = () => {
             variableAliases,
         });
     
-        setSetAliases(setAliases); // Ensure the latest aliases are saved globally
+        setSetAliases(updatedSetAliases); // ✅ Ensure latest aliases are saved globally
+    
+        // ✅ Use useEffect to log setAliases AFTER it updates
+        console.log("Updated Set Aliases 1:", updatedSetAliases);
     };
     
+    // ✅ Watch `setAliases` updates
+    useEffect(() => {
+        console.log("✅ Context SetAliases Updated:", setAliases);
+    }, [setAliases]);
+    
+    
+    
+        
     
 
     return (

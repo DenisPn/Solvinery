@@ -418,14 +418,17 @@ const SolutionPreviewPage = () => {
           )}
         </div>
 
-        {/* Variable Sets Section */}
-        {/* Variable Sets Section */}
+    
+       {/* Variable Sets Section */}
 <div className="module-section">
   <h2 className="section-title">Variable Sets</h2>
   {Array.from(new Set(Object.keys(setTypes)))
     .filter((set) => variablesModule?.variablesConfigurableSets.includes(set))
     .map((set, index) => {
-      // Fetch type from setTypes
+      // ✅ Fetch the correct alias from setAliases
+      const alias = setAliases?.[set] || set; // Default to the set name if alias is missing
+
+      // ✅ Fetch type from setTypes
       const typeList = setTypes[set]
         ? Array.isArray(setTypes[set])
           ? setTypes[set]
@@ -434,8 +437,8 @@ const SolutionPreviewPage = () => {
 
       return (
         <div key={index} className="module-box">
-          {/* Display Variable Name */}
-          <h3 className="module-title">{set}</h3>
+          {/* Display Set Alias Instead of Name */}
+          <h3 className="module-title">{alias}</h3>
 
           {/* Display Type from setTypes */}
           <p className="variable-type">
@@ -479,6 +482,8 @@ const SolutionPreviewPage = () => {
       );
     })}
 </div>
+
+
 
         {/* Variable Parameters Section */}
          {/* Parameters Section */}
