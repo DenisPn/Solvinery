@@ -18,6 +18,7 @@ const SolutionPreviewPage = () => {
     paramTypes,
     setSolutionData,
     variablesModule,
+    setAliases,
   } = useZPL();
 
   const allSets = variables.flatMap(
