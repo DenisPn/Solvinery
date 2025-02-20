@@ -13,6 +13,9 @@ const ConfigureVariablesPage = () => {
     const [displaySets, setDisplaySets] = useState([]);    // Stores sets that should be displayed
     const [displayParams, setDisplayParams] = useState([]); // Stores params that should be displayed
 
+    // State for storing aliases for each selected set
+    const [setAliases, setSetAliases] = useState({});
+
     // Function to update displayed sets & params when variables are selected
     const updateDisplayedSetsAndParams = () => {
         const newDisplaySets = selectedVars
@@ -64,16 +67,23 @@ const ConfigureVariablesPage = () => {
         });
     };
 
-    // Save selected variables, sets, and parameters in context when navigating
+    // Handles alias input change
+    const handleAliasChange = (set, value) => {
+        setSetAliases(prevAliases => ({
+            ...prevAliases,
+            [set]: value
+        }));
+    };
+
+    // Save selected variables, sets, parameters, and aliases in context when navigating
     const handleContinue = () => {
         const variablesOfInterest = selectedVars.map(v => v.identifier);
     
-        // Create a map where each variable is mapped to an array of placeholder strings
-        // The length of each array is determined by the number of setDependencies of the variable
+        // Create a map where each variable is mapped to an array of corresponding set aliases
         const variableAliases = Object.fromEntries(
             selectedVars.map(variable => [
                 variable.identifier,
-                new Array(variable.dep?.setDependencies?.length || 0).fill("placeholder")
+                (variable.dep?.setDependencies ?? []).map(set => setAliases[set] || "default_alias") // Get alias or default
             ])
         );
     
@@ -81,10 +91,11 @@ const ConfigureVariablesPage = () => {
             variablesOfInterest,
             variablesConfigurableSets: selectedSets,
             variablesConfigurableParams: selectedParams,
-            variableAliases
+            variableAliases,
         });
-    };
     
+        setSetAliases(setAliases); // Ensure the latest aliases are saved globally
+    };
     
 
     return (
@@ -114,12 +125,20 @@ const ConfigureVariablesPage = () => {
                     <h2>Involved Sets</h2>
                     {displaySets.length > 0 ? (
                         displaySets.map((set, index) => (
-                            <Checkbox
-                                key={index}
-                                label={set}
-                                checked={selectedSets.includes(set)}
-                                onChange={() => handleSetCheckboxChange(set)}
-                            />
+                            <div key={index} className="set-item">
+                                <Checkbox
+                                    label={set}
+                                    checked={selectedSets.includes(set)}
+                                    onChange={() => handleSetCheckboxChange(set)}
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="alias"
+                                    value={setAliases[set] || ""}
+                                    onChange={(e) => handleAliasChange(set, e.target.value)}
+                                    className="alias-input"
+                                />
+                            </div>
                         ))
                     ) : (
                         <p>No sets available.</p>
