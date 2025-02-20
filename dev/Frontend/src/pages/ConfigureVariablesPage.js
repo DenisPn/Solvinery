@@ -83,7 +83,7 @@ const ConfigureVariablesPage = () => {
         const variableAliases = Object.fromEntries(
             selectedVars.map(variable => [
                 variable.identifier,
-                (variable.dep?.setDependencies ?? []).map(set => setAliases[set] || "default_alias") // Get alias or default
+                (variable.dep?.setDependencies ?? []).map(set => setAliases[set] || set) // Use alias or fallback to set name
             ])
         );
     
@@ -96,6 +96,7 @@ const ConfigureVariablesPage = () => {
     
         setSetAliases(setAliases); // Ensure the latest aliases are saved globally
     };
+    
     
 
     return (
