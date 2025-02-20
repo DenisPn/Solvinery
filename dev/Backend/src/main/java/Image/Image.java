@@ -193,7 +193,9 @@ public class Image {
         preferenceModules.clear();
         this.variables.override(variables,sets,params,aliases);
     }
-
+    public Map<String,List<String>> getAliases() {
+        return variables.getAliases();
+    }
     public Set<String> getAllInvolvedSets() {
         Set<String> allSets = new HashSet<>();
 
