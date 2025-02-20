@@ -66,12 +66,26 @@ const ConfigureVariablesPage = () => {
 
     // Save selected variables, sets, and parameters in context when navigating
     const handleContinue = () => {
+        const variablesOfInterest = selectedVars.map(v => v.identifier);
+    
+        // Create a map where each variable is mapped to an array of placeholder strings
+        // The length of each array is determined by the number of setDependencies of the variable
+        const variableAliases = Object.fromEntries(
+            selectedVars.map(variable => [
+                variable.identifier,
+                new Array(variable.dep?.setDependencies?.length || 0).fill("placeholder")
+            ])
+        );
+    
         setVariablesModule({
-            variablesOfInterest: selectedVars.map(v => v.identifier),
+            variablesOfInterest,
             variablesConfigurableSets: selectedSets,
-            variablesConfigurableParams: selectedParams
+            variablesConfigurableParams: selectedParams,
+            variableAliases
         });
     };
+    
+    
 
     return (
         <div className="configure-variables-page">
