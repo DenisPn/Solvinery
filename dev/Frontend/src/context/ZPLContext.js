@@ -1,8 +1,11 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState,useEffect } from "react";
+console.log("🔄 ZPLContext.js is re-rendering!");
 
 const ZPLContext = createContext();
 
 export const ZPLProvider = ({ children }) => {
+    console.log("🔄 ZPLContext.js is re-rendering!");
+
     const [constraints, setConstraints] = useState([]);
     const [preferences, setPreferences] = useState([]);
     const [modules, setModules] = useState([]);
@@ -18,6 +21,11 @@ export const ZPLProvider = ({ children }) => {
         variablesConfigurableParams: []
     });
     const [setAliases, setSetAliases] = useState({}); 
+
+
+    useEffect(() => {
+        console.log("🔍 Context Updated !!! : setAliases =", setAliases);
+    }, [setAliases]);
 
     return (
         <ZPLContext.Provider value={{

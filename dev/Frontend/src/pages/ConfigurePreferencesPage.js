@@ -5,9 +5,11 @@ import './ConfigureConstraintsPage.css';
 
 const ConfigurePreferencesPage = () => {
     const navigate = useNavigate();
-
+    
     // Fetch preferences & modules from ZPL context
-    const { preferences: jsonPreferences = [], preferenceModules = [], setPreferenceModules = () => {} } = useZPL();
+    const { preferences: jsonPreferences = [], preferenceModules = [], setPreferenceModules = () => {}} = useZPL();
+
+
 
     // Local states
     const [availablePreferences, setAvailablePreferences] = useState([]);

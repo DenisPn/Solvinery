@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useZPL } from "../context/ZPLContext";
 import "./SolutionPreviewPage.css";
@@ -27,6 +27,11 @@ const SolutionPreviewPage = () => {
   const [variableValues, setVariableValues] = useState({});
   const [paramValues, setParamValues] = useState({});
   const [constraintsToggledOff, setConstraintsToggledOff] = useState([]);
+
+
+      useEffect(() => {
+        console.log("🛠️ SPP Reads setAliases:", setAliases);
+    }, [setAliases]);
 
   const navigate = useNavigate(); // Initialize navigation
   const handleAddValue = (setName) => {

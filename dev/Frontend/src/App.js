@@ -14,6 +14,7 @@ import SolutionResultsPage from "./pages/SolutionResultsPage";
 
 function App() {
     return (
+
         <Router>
             <DndProvider backend={HTML5Backend}>
                 <Routes>
@@ -28,6 +29,8 @@ function App() {
                 </Routes>
             </DndProvider>
         </Router>
+
+
     );
 }
 

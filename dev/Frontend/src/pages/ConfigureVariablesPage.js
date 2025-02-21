@@ -72,7 +72,7 @@ const ConfigureVariablesPage = () => {
             [set]: value
         }));
     };
-
+/*
     const handleContinue = () => {
         const variablesOfInterest = selectedVars.map(v => v.identifier);
     
@@ -101,10 +101,52 @@ const ConfigureVariablesPage = () => {
             variableAliases,
         });
     
+        console.log("📌 BEFORE setSetAliases: ", updatedSetAliases);
         setSetAliases(updatedSetAliases); // ✅ Ensure latest aliases are saved globally
+        setTimeout(() => {
+            console.log("⏳ After State Update: setAliases =", setAliases);
+        }, 100);
+        console.log("📌 AFTER setSetAliases (should be same!): ", setAliases);
     
         // ✅ Use useEffect to log setAliases AFTER it updates
         console.log("Updated Set Aliases 1:", updatedSetAliases);
+    };
+  */
+ 
+    const handleContinue = () => {
+        const variablesOfInterest = selectedVars.map(v => v.identifier);
+    
+        // Ensure all selected sets have an alias (default to set name if empty)
+        const updatedSetAliases = { ...setAliases };
+        selectedSets.forEach(set => {
+            if (!updatedSetAliases[set]) {
+                updatedSetAliases[set] = set;
+            }
+        });
+    
+        // Create variableAliases map
+        const variableAliases = Object.fromEntries(
+            selectedVars.map(variable => [
+                variable.identifier,
+                (variable.dep?.setDependencies ?? []).map(set => updatedSetAliases[set])
+            ])
+        );
+    
+        console.log("📌 BEFORE NAVIGATION: setAliases =", updatedSetAliases);
+    
+        // ✅ Update context **AND** navigate only after ensuring the state is set
+        setSetAliases(updatedSetAliases);
+        setVariablesModule({
+            variablesOfInterest,
+            variablesConfigurableSets: selectedSets,
+            variablesConfigurableParams: selectedParams,
+            variableAliases,
+        });
+    
+        // ✅ Delay navigation slightly to ensure updates propagate
+        setTimeout(() => {
+            console.log("📌 AFTER NAVIGATION: setAliases =", setAliases);
+        }, 100);
     };
     
     // ✅ Watch `setAliases` updates
