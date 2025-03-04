@@ -1,6 +1,7 @@
 package groupId;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,8 +50,13 @@ private String storageDir;
         this.storageDir = path;
     }
 
-
-    public CreateImageResponseDTO createImageFromFile(String code) throws Exception {
+    /**
+     * @param code string of zimpl code. has to be valid and compile
+     * @return a new DTO of the new image
+     * @throws IOException in case any IO errors happen during execution
+     * @see CreateImageResponseDTO
+     */
+    public CreateImageResponseDTO createImageFromFile(String code) throws IOException {
         UUID id = UUID.randomUUID();
         String name = id.toString();
 
@@ -78,45 +84,62 @@ private String storageDir;
         return RecordFactory.makeDTO(id, image.getModel());
     }
 
+    /**
+     * @param command solve command DTO object
+     * @return A DTO object with the parsed solution in its fields
+     * @see SolutionDTO
+     */
+    public SolutionDTO solve(SolveCommandDTO command)  {
+        //encapsulated in try-catch, since having a method throw Exception is bad practice.
+        try {
+            Image image = images.get(UUID.fromString(command.imageId()));
+            ModelInterface model = image.getModel();
+            for (Map.Entry<String, List<List<String>>> set : command.input().setsToValues().entrySet()) {
+                List<String> setElements = new LinkedList<>();
+                for (List<String> element : set.getValue()) {
+                    String tuple = ModelType.convertArrayOfAtoms((element.toArray(new String[0])), model.getSet(set.getKey()).getType());
+                    setElements.add(tuple);
+                }
 
-    public SolutionDTO solve(SolveCommandDTO command) throws Exception {
-        Image image = images.get(UUID.fromString(command.imageId()));
-        ModelInterface model = image.getModel();
-        for (Map.Entry<String,List<List<String>>> set : command.input().setsToValues().entrySet()){
-            List<String> setElements = new LinkedList<>();
-            for(List<String> element : set.getValue()){
-                String tuple = ModelType.convertArrayOfAtoms((element.toArray(new String[0])),model.getSet(set.getKey()).getType());
-                setElements.add(tuple);
+                model.setInput(model.getSet(set.getKey()), setElements.toArray(new String[0]));
+
+
             }
-            model.setInput(model.getSet(set.getKey()), setElements.toArray(new String[0]));
-        }
 
-        for (Map.Entry<String,List<String>> parameter : command.input().paramsToValues().entrySet()){
-            model.setInput(model.getParameter(parameter.getKey()), ModelType.convertArrayOfAtoms(parameter.getValue().toArray(new String[0]), model.getParameter(parameter.getKey()).getType()));
-        }
+            for (Map.Entry<String, List<String>> parameter : command.input().paramsToValues().entrySet()) {
+                model.setInput(model.getParameter(parameter.getKey()), ModelType.convertArrayOfAtoms(parameter.getValue().toArray(new String[0]), model.getParameter(parameter.getKey()).getType()));
 
-        for (String constraint : command.input().constraintsToggledOff()){
-            model.toggleFunctionality(model.getConstraint(constraint), false);
-        }
 
-        for (String preference : command.input().preferencesToggledOff()){
-            model.toggleFunctionality(model.getPreference(preference), false);
-        }
+            }
 
-        return image.solve(command.timeout());
+            for (String constraint : command.input().constraintsToggledOff()) {
+                model.toggleFunctionality(model.getConstraint(constraint), false);
+            }
+
+            for (String preference : command.input().preferencesToggledOff()) {
+                model.toggleFunctionality(model.getPreference(preference), false);
+            }
+
+            return image.solve(command.timeout());
+        }
+        //encapsulated in try-catch, since having a method throw Exception is bad practice.
+        catch (Exception e) {
+            throw new BadRequestException("Error while solving: "+e.getMessage());
+        }
     }
 
-    public void overrideImage(ImageConfigDTO imgConfig) {
+    /**
+     * Given DTO object representing an image and an id, overrides the image with the associated ID with the image.
+     * @param imgConfig DTO object parsed from HTTP JSON request.
+     * @throws BadRequestException Throws exception if image ID does not exist in the server.
+     */
+    public void overrideImage(ImageConfigDTO imgConfig) throws BadRequestException {
         ImageDTO imageDTO= imgConfig.image();
         Image image=images.get(UUID.fromString(imgConfig.imageId()));
-        Objects.requireNonNull(image,"Invalid imageId in image config/override image");
+        BadRequestException.requireNotNull(image, "Invalid image ID during override image");
         Map<String, ModelVariable> variables = new HashMap<>();
         ModelInterface model= image.getModel();
         for(String variable:imageDTO.variablesModule().variablesOfInterest()){
-            BadRequestException.requireNotNull(imgConfig.image().variablesModule().variablesOfInterest(),"Bad DTO during image config, field in variables in image is null");
-            BadRequestException.requireNotNull(imgConfig.image().variablesModule().variablesConfigurableParams(),"Bad DTO during image config, field in variables in image is null");
-            BadRequestException.requireNotNull(imgConfig.image().variablesModule().variablesConfigurableSets(),"Bad DTO during image config, field in variables in image is null");
-
             ModelVariable modelVariable=model.getVariable(variable);
             Objects.requireNonNull(modelVariable,"Invalid variable name in config/override image");
             variables.put(variable,modelVariable);
@@ -131,10 +154,20 @@ private String storageDir;
                     preferenceModule.preferences(),preferenceModule.inputSets(),preferenceModule.inputParams());
         }
     }
+
+    /**
+     * Given ID, returns the image associated with it.
+     * Implemented for testing, and should not be used outside that scope.
+     * @param id image id
+     * @return Image object
+     */
     public Image getImage(String id) {
         return images.get(UUID.fromString(id));
     }
 
+    /**
+     * @see InputDTO
+     */
     public InputDTO loadLastInput(String imageId) throws Exception {
         return images.get(UUID.fromString(imageId)).getInput();
     }

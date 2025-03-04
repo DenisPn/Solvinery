@@ -3,10 +3,9 @@ package DTO.Records.Model.ModelData;
 import java.util.Map;
 
 /**
- *
- * @param setValues
- * @param result
+ * @deprecated unused as of now - remove this and implement docs otherwise.
  */
+@Deprecated
 public record SolutionDetail(
         Map<String, String> setValues,
         String result
