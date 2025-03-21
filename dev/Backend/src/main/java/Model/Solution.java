@@ -73,10 +73,6 @@ public class Solution {
                     for (ModelSet modelSet : variable.getSetDependencies()) {
                         variableTypes.get(variable.getIdentifier()).add(modelSet.getType().toString());
                         for (ModelInput.StructureBlock block : modelSet.getStructure()) {
-                            //TODO: Bug at block.dependency.identifier!
-                            //When var depends on anonymous primitive set, it's structure it an array of null blocks
-                            //therefore block.dependency is an invalid access
-                            //example: var varForTest1[CxS *{"A","a"} * S * {1 .. 5}];
                             if (block.dependency != null) //fix?
                                 variableStructure.get(variable.getIdentifier()).add(block.dependency.identifier);
                         }

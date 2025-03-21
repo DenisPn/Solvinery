@@ -12,11 +12,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import DTO.Factories.RecordFactory;
-import DTO.Records.Image.SolutionDTO;
-import DTO.Records.Model.ModelData.InputDTO;
-import DTO.Records.Model.ModelDefinition.ConstraintDTO;
-import DTO.Records.Model.ModelDefinition.PreferenceDTO;
+import groupId.DTO.Factories.RecordFactory;
+import groupId.DTO.Records.Image.SolutionDTO;
+import groupId.DTO.Records.Model.ModelData.InputDTO;
+import groupId.DTO.Records.Model.ModelDefinition.ConstraintDTO;
+import groupId.DTO.Records.Model.ModelDefinition.PreferenceDTO;
 import Image.Modules.ConstraintModule;
 import Image.Modules.PreferenceModule;
 import Image.Modules.VariableModule;

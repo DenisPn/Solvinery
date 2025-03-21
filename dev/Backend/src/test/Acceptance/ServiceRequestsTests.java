@@ -1,25 +1,21 @@
 package Acceptance;
-import DTO.Factories.RecordFactory;
-import DTO.Records.Image.*;
-import DTO.Records.Model.ModelData.InputDTO;
-import DTO.Records.Model.ModelDefinition.*;
-import DTO.Records.Requests.Commands.CreateImageFromFileDTO;
-import DTO.Records.Requests.Commands.ImageConfigDTO;
-import DTO.Records.Requests.Commands.SolveCommandDTO;
-import DTO.Records.Requests.Responses.CreateImageResponseDTO;
-import DTO.Records.Requests.Responses.ImageResponseDTO;
+import groupId.DTO.Factories.RecordFactory;
+import groupId.DTO.Records.Image.*;
+import groupId.DTO.Records.Model.ModelData.InputDTO;
+import groupId.DTO.Records.Model.ModelDefinition.*;
+import groupId.DTO.Records.Requests.Commands.CreateImageFromFileDTO;
+import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
+import groupId.DTO.Records.Requests.Commands.SolveCommandDTO;
+import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import Image.Image;
-import Model.Solution;
 import groupId.Service;
 import groupId.UserController;
 import org.junit.jupiter.api.*;
 
-import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.http.*;
 

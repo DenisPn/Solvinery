@@ -1,29 +1,18 @@
 package Model;
 
 import Exceptions.InternalErrors.BadRequestException;
-import Exceptions.UserErrors.ZimplCompileError;
-
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 
 import Model.ModelInput.StructureBlock;
-import parser.*;
 import parser.FormulationBaseVisitor;
 import parser.FormulationLexer;
 import parser.FormulationParser;
 import parser.FormulationParser.ExprContext;
-import parser.FormulationParser.ParamDeclContext;
-import parser.FormulationParser.SetDeclContext;
-import parser.FormulationParser.SetDefExprContext;
-import parser.FormulationParser.SetDescStackContext;
-import parser.FormulationParser.SetExprContext;
-import parser.FormulationParser.SetExprStackContext;
-import parser.FormulationParser.TupleContext;
 import parser.FormulationParser.UExprContext;
 
 import java.io.*;
 import java.nio.file.*;
-import java.security.Policy;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,9 +20,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
-
-import org.antlr.runtime.tree.TreeWizard;
-
 public class Model implements ModelInterface {
     private final String sourceFilePath;
     ParseTree tree;
@@ -44,7 +30,7 @@ public class Model implements ModelInterface {
     private final Map<String,ModelPreference> preferences = new HashMap<>();
     private final Map<String,ModelVariable> variables = new HashMap<>();
     private final Set<String> toggledOffFunctionalities = new HashSet<>();
-    private boolean loadElementsToRam = true;
+    private final boolean loadElementsToRam = true;
     private final String zimplCompilationScript = "src/main/resources/zimpl/checkCompilation.sh";
     private final String zimplSolveScript = "src/main/resources/zimpl/solve.sh" ;
     private String originalSource;
@@ -143,12 +129,12 @@ public class Model implements ModelInterface {
     
     //TODO: the design is fucked up, and it's apparent in getInput methods. I need to make a better design of things.
     @Override
-    public String[] getInput(ModelParameter parameter) throws Exception {
+    public String[] getInput(ModelParameter parameter) {
         if(parameter == null)
             throw new BadRequestException("Trying to get input of a null parameter!");
         if(params.get(parameter.getIdentifier()) == null)
             throw new BadRequestException("parameter " + parameter.getIdentifier() + " doesnt exist ");
-        if(params.get(parameter.getIdentifier()).hasValue() == false)
+        if(!params.get(parameter.getIdentifier()).hasValue())
             throw new BadRequestException("parameter " + parameter.getIdentifier() + " is not set to have an input, or is not a declarative parameter");
         parameter = params.get(parameter.getIdentifier());
 
@@ -157,7 +143,7 @@ public class Model implements ModelInterface {
     }
 
     @Override
-    public List<String[]> getInput(ModelSet set) throws Exception {
+    public List<String[]> getInput(ModelSet set) {
         if(set == null || set.getIdentifier() == null)
             throw new BadRequestException("Trying to get input of a null set!");
         if(sets.get(set.getIdentifier()) == null)
@@ -247,7 +233,7 @@ public class Model implements ModelInterface {
                     }
                 }
 
-                throw new BadRequestException("Error checking compilation: "+ output.toString());
+                throw new BadRequestException("Error checking compilation: "+ output);
             });
     
             try {
@@ -316,7 +302,7 @@ public class Model implements ModelInterface {
                     if (line.startsWith("@@")) continue;
     
                     // Remove excessive newlines
-                    if (line.trim().isEmpty() && (output.length() == 0 || output.toString().endsWith("\n"))) {
+                    if (line.trim().isEmpty() && (output.isEmpty() || output.toString().endsWith("\n"))) {
                         continue;
                     }
 
