@@ -12,7 +12,7 @@ public class Tuple implements ModelType {
         this.val = Arrays.asList(val);
     }
 
-    Tuple() {
+    public Tuple() {
         val = new LinkedList();
     }
 
@@ -69,7 +69,7 @@ public class Tuple implements ModelType {
         return true;
     }
 
-    void append(ModelType tmp) {
+    public void append(ModelType tmp) {
         if(tmp instanceof ModelPrimitives)
             val.add((ModelPrimitives)tmp);
         else {

@@ -9,7 +9,7 @@ public class ModelConstraint extends ModelFunctionality {
         super(identifier);
     }
 
-    ModelConstraint(String constName, List<ModelSet> basicSets, List<ModelParameter> basicParams) {
+    public ModelConstraint(String constName, List<ModelSet> basicSets, List<ModelParameter> basicParams) {
         super(constName,basicSets,basicParams);
     }
 }

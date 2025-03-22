@@ -3,9 +3,9 @@ package Model;
 import java.util.*;
 
 public abstract class ModelComponent {
-    protected String identifier;
-    protected List<ModelSet> setDependencies; // order matters
-    protected List<ModelParameter> paramDependencies;
+    public String identifier;
+    public List<ModelSet> setDependencies; // order matters
+    public List<ModelParameter> paramDependencies;
     
     public ModelComponent(String identifier) {
         this.identifier = identifier;

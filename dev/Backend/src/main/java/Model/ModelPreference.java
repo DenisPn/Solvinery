@@ -8,7 +8,7 @@ public class ModelPreference extends ModelFunctionality {
         super(identifier);
     }
 
-    ModelPreference(String preferenceName, List<ModelSet> basicSets, List<ModelParameter> basicParams) {
+    public ModelPreference(String preferenceName, List<ModelSet> basicSets, List<ModelParameter> basicParams) {
         super(preferenceName,basicSets,basicParams);
     }
     
