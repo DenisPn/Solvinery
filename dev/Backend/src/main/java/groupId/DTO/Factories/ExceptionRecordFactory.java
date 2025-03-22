@@ -24,7 +24,8 @@ public class ExceptionRecordFactory {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         //return new ExceptionDTO("An unknown error occurred, see log for details, or contract the developer");
-        return new ExceptionDTO("Full error ahead, this is temporary and should not be shown to end users: "+ exception.getMessage());
+        return new ExceptionDTO("An uncaught error occurred- this is a bug and should not happen.\n " +
+                "App functionality will probably break, and user is now authorized to slap the developers.");
     }
     public static ExceptionDTO makeDTO(RuntimeException exception) {
         Objects.requireNonNull(exception,ohNo);
