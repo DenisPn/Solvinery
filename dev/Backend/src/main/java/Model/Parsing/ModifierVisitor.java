@@ -163,9 +163,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         if (setName.equals(targetIdentifier)) {
             if (act == Action.COMMENT_OUT)
                 commentOutSet(ctx);
-            else if (ctx.setExpr() instanceof FormulationParser.SetExprStackContext) {
-                FormulationParser.SetExprStackContext stackCtx =
-                        (FormulationParser.SetExprStackContext) ctx.setExpr();
+            else if (ctx.setExpr() instanceof FormulationParser.SetExprStackContext stackCtx) {
                 if (stackCtx.setDesc() instanceof FormulationParser.SetDescStackContext) {
                     modifySetContent(ctx, stackCtx);
                 }
@@ -178,7 +176,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     public Void visitConstraint (FormulationParser.ConstraintContext ctx) {
         String constraintName = extractName(ctx.name.getText());
         if ((targetFunctionalities != null && targetFunctionalities.contains(constraintName)) ||
-                (targetIdentifier != null && constraintName.equals(targetIdentifier))) {
+                (constraintName.equals(targetIdentifier))) {
             if (act == Action.COMMENT_OUT)
                 commentOutConstraint(ctx);
         }
@@ -192,7 +190,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
 
             String objectiveName = subCtx.getText();
             if ((targetFunctionalities != null && targetFunctionalities.contains(objectiveName)) ||
-                    (targetIdentifier != null && objectiveName.equals(targetIdentifier))) {
+                    (objectiveName.equals(targetIdentifier))) {
                 if (act == Action.COMMENT_OUT)
                     zeroOutPreference(subCtx);
             }
@@ -260,7 +258,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         modifiedSource.replace(startIndex, stopIndex + 1, commentedOut.toString());
         modified = true;
     }
-
+//TODO: As planned after Plan A split, preferences wont by removed- but multiplied by a scalar of 0
     private void commentOutPreference (FormulationParser.UExprContext ctx) {
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();

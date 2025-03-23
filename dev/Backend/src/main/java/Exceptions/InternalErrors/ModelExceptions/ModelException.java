@@ -4,7 +4,7 @@ package Exceptions.InternalErrors.ModelExceptions;
  * An undefined exception thrown from within the Model Package.
  * Should be extended with specific exceptions for specific issues.
  */
-public abstract class ModelException extends RuntimeException {
+public class ModelException extends RuntimeException {
 
     /**
      * Constructs a new ModelException with the specified detail message.

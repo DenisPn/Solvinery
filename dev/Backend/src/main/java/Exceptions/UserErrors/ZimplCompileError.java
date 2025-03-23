@@ -1,13 +1,29 @@
 package Exceptions.UserErrors;
 
+import Exceptions.ErrorData.ZimplErrorType;
+
+/**
+ * Represents an exception thrown when a compiler error occurs
+ * in the ZIMPL language.
+ * <p>
+ * Has two fields: an error code/message pair enum {@link ZimplErrorType} and the message received in runtime.
+ * @see ZimplErrorType
+ */
 public class ZimplCompileError extends Exception {
-    final int errorCode;
-    public ZimplCompileError(String message, int errorCode) {
+    private final ZimplErrorType error;
+
+    /**
+     * Constructs a new ZimplCompileError with the specified error type and message.
+     *
+     * @param error   the error type representing the specific ZIMPL compilation issue
+     * @param message the detailed error message describing the compilation problem, received from the compiler
+     */
+    public ZimplCompileError(ZimplErrorType error, String message) {
         super(message);
-        this.errorCode = errorCode;
+        this.error=error;
     }
 
-    public int getErrorCode() {
-        return errorCode;
+    public ZimplErrorType getErrorCode() {
+        return error;
     }
 }

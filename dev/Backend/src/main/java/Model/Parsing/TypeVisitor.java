@@ -162,25 +162,25 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
         if (ctx.condition() != null) {
             TypeVisitor elementVisitor = new TypeVisitor(model);
             elementVisitor.visit(ctx.condition());
-            ModelSet s = new ModelSet("anonymous_set", elementVisitor.type, elementVisitor.basicSets, elementVisitor.basicParams);
-            basicSets.add(s);
+            ModelSet set = new ModelSet("anonymous_set", elementVisitor.type, elementVisitor.basicSets, elementVisitor.basicParams);
+            basicSets.add(set);
             type = elementVisitor.getType();
         } else if (ctx.csv() != null) {
             // Handle explicit set elements
             TypeVisitor elementVisitor = new TypeVisitor(model);
             elementVisitor.visit(ctx.csv().expr(0));
-            ModelSet s = new ModelSet("anonymous_set", elementVisitor.type, elementVisitor.basicSets, elementVisitor.basicParams);
+            ModelSet set = new ModelSet("anonymous_set", elementVisitor.type, elementVisitor.basicSets, elementVisitor.basicParams);
             // Add this as a basic set since it's explicitly defined
-            basicSets.add(s);
+            basicSets.add(set);
             type = elementVisitor.getType();
         } else if (ctx.range() != null) {
-            ModelSet s = new ModelSet("anonymous_set", ModelPrimitives.INT);
-            basicSets.add(s);
+            ModelSet set = new ModelSet("anonymous_set", ModelPrimitives.INT);
+            basicSets.add(set);
             type = ModelPrimitives.INT;
             TypeVisitor visitor = new TypeVisitor(model);
             visitor.visit(ctx.range());
-            s.paramDependencies.addAll(visitor.getBasicParams());
-            s.setDependencies.addAll(visitor.getBasicSets());
+            set.paramDependencies.addAll(visitor.getBasicParams());
+            set.setDependencies.addAll(visitor.getBasicSets());
         }
         return null;
     }
@@ -221,45 +221,48 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
         return null;
     }
 
+    //Planning to remove this if it's not too much effort, kept for posterity
+    @Deprecated
     @Override
     public Void visitProjFunc (FormulationParser.ProjFuncContext ctx) {
-        TypeVisitor visitor = new TypeVisitor(model);
-        visitor.visit(ctx.setExpr());
-        ModelType customType = new Tuple();
-        List<Integer> pointersToSetComp = new LinkedList<>();
-        String structureTuple = ctx.tuple().csv().getText();
-        String[] d = structureTuple.split(",");
-        for (String tctx : structureTuple.split(",")) {
-            pointersToSetComp.add(Integer.parseInt(tctx));
-        }
-
-        int count = 0;
-        for (ModelSet s : visitor.basicSets) {
-            count += s.getStructure().length;
-        }
-        ModelInput.StructureBlock[] totalStructure = new ModelInput.StructureBlock[count];
-        count = 0;
-        for (ModelSet s : visitor.basicSets) {
-            int i = 1;
-            for (ModelInput.StructureBlock sb : s.getStructure()) {
-                totalStructure[count] = new ModelInput.StructureBlock(s, sb == null && s.identifier.equals("anonymous_set") ? i : sb.position);
-                count++;
-                i++;
+        if(false) {
+            TypeVisitor visitor = new TypeVisitor(model);
+            visitor.visit(ctx.setExpr());
+            List<Integer> pointersToSetComp = new LinkedList<>();
+            String structureTuple = ctx.tuple().csv().getText();
+            for (String tctx : structureTuple.split(",")) {
+                pointersToSetComp.add(Integer.parseInt(tctx));
             }
-        }
 
-        ModelInput.StructureBlock[] resultingStructure = new ModelInput.StructureBlock[pointersToSetComp.size()];
-        count = 0;
-        for (Integer p : pointersToSetComp) {
-            resultingStructure[count++] = totalStructure[p - 1];
-        }
-        ModelSet newSet = new ModelSet("anonymous_set", visitor.getBasicSets(), visitor.getBasicParams(), resultingStructure);
-        basicSets.add(newSet);
-        if (type == null || type == ModelPrimitives.UNKNOWN)
-            type = newSet.getType();
-        else if (type instanceof Tuple)
-            ((Tuple) type).append(newSet.getType());
+            int count = 0;
+            for (ModelSet s : visitor.basicSets) {
+                count += s.getStructure().length;
+            }
+            ModelInput.StructureBlock[] totalStructure = new ModelInput.StructureBlock[count];
+            count = 0;
+            for (ModelSet s : visitor.basicSets) {
+                int i = 1;
+                for (ModelInput.StructureBlock sb : s.getStructure()) {
+                    totalStructure[count] = new ModelInput.StructureBlock(s, sb == null && s.identifier.equals("anonymous_set") ? i : sb.position);
+                    count++;
+                    i++;
+                }
+            }
 
+            ModelInput.StructureBlock[] resultingStructure = new ModelInput.StructureBlock[pointersToSetComp.size()];
+            count = 0;
+            for (Integer p : pointersToSetComp) {
+                resultingStructure[count++] = totalStructure[p - 1];
+            }
+            ModelSet newSet = new ModelSet("anonymous_set", visitor.getBasicSets(), visitor.getBasicParams(), resultingStructure);
+            basicSets.add(newSet);
+            if (type == null || type == ModelPrimitives.UNKNOWN)
+                type = newSet.getType();
+            else if (type instanceof Tuple)
+                ((Tuple) type).append(newSet.getType());
+
+            return null;
+        }
         return null;
     }
 

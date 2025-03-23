@@ -28,7 +28,6 @@ public class Model implements ModelInterface {
     private final Map<String,ModelPreference> preferences = new HashMap<>();
     private final Map<String,ModelVariable> variables = new HashMap<>();
     private final Set<String> toggledOffFunctionalities = new HashSet<>();
-    private final boolean loadElementsToRam = true;
 
     public String getSourceFilePath () {
         return sourceFilePath;
@@ -62,10 +61,6 @@ public class Model implements ModelInterface {
 
     public Set<String> getToggledOffFunctionalities () {
         return toggledOffFunctionalities;
-    }
-
-    public boolean isLoadElementsToRam () {
-        return loadElementsToRam;
     }
 
     public String getZimplCompilationScript () {
