@@ -1,4 +1,4 @@
-package Exceptions.UserErrors;
+package Exceptions.InternalErrors.ModelExceptions;
 
 import Exceptions.ErrorData.ZimplErrorType;
 

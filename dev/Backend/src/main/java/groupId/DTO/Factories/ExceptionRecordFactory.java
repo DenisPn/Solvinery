@@ -2,7 +2,7 @@ package groupId.DTO.Factories;
 
 import groupId.DTO.Records.Requests.Responses.ExceptionDTO;
 import Exceptions.InternalErrors.BadRequestException;
-import Exceptions.UserErrors.ZimplCompileError;
+import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.http.converter.HttpMessageNotReadableException;

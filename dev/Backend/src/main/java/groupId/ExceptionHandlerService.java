@@ -1,7 +1,7 @@
 package groupId;
 import groupId.DTO.Factories.ExceptionRecordFactory;
 import Exceptions.InternalErrors.BadRequestException;
-import Exceptions.UserErrors.ZimplCompileError;
+import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;

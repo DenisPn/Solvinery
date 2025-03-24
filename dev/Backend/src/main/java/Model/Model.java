@@ -1,6 +1,9 @@
 package Model;
 
 import Exceptions.InternalErrors.BadRequestException;
+import Exceptions.InternalErrors.ModelExceptions.EngineErrorException;
+import Exceptions.InternalErrors.ModelExceptions.InvalidModelInputException;
+import Exceptions.InternalErrors.ModelExceptions.Parsing.ParsingException;
 import Model.Parsing.CollectorVisitor;
 import Model.Parsing.ModifierVisitor;
 import org.antlr.v4.runtime.*;
@@ -100,63 +103,77 @@ public class Model implements ModelInterface {
         collector.visit(tree);
     }
     
-    public void appendToSet(ModelSet set, String value) throws Exception {
+    public void appendToSet(ModelSet set, String value) {
         // if (!sets.containsKey(setName)) {
         //     throw new IllegalArgumentException("Set " + setName + " not found");
         // }
         if(!set.isCompatible(value))
-            throw new BadRequestException("set "+set.identifier+" is incompatible with given input: "+value+" , expected type: "+set.getType());
+            throw new InvalidModelInputException("set "+set.identifier+" is incompatible with given input: "+value+" , expected type: "+set.getType());
         
         ModifierVisitor modifier = new ModifierVisitor(this, tokens, set.getIdentifier(), value, ModifierVisitor.Action.APPEND, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
-            // Write modified source back to file, preserving original formatting
-            String modifiedSource = modifier.getModifiedSource();
-            Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
-            parseSource();
+            try {
+                // Write modified source back to file, preserving original formatting
+                String modifiedSource = modifier.getModifiedSource();
+                Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
+                parseSource();
+            }
+            catch (IOException e) {
+                throw new ParsingException("Error writing to source file: " + e.getMessage());
+            }
         }
     }
     
-    public void removeFromSet(ModelSet set, String value) throws Exception {
+    public void removeFromSet(ModelSet set, String value) {
         // if (!sets.containsKey(setName)) {
         //     throw new IllegalArgumentException("Set " + setName + " not found");
         // }
         if(!set.isCompatible(value))
-            throw new BadRequestException("set "+set.identifier+" is incompatible with given input: "+value+" , expected type: "+set.getType());
+            throw new InvalidModelInputException("set "+set.identifier+" is incompatible with given input: "+value+" , expected type: "+set.getType());
 
         ModifierVisitor modifier = new ModifierVisitor(this, tokens, set.getIdentifier(), value,  ModifierVisitor.Action.DELETE, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
-            // Write modified source back to file, preserving original formatting
-            String modifiedSource = modifier.getModifiedSource();
-            Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
-            parseSource();
+
+            try {
+                // Write modified source back to file, preserving original formatting
+                String modifiedSource = modifier.getModifiedSource();
+                Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
+                parseSource();
+            } catch (IOException e) {
+                throw new ParsingException("Error writing to source file: " + e.getMessage());
+            }
         }
     }
 
-    public void setInput(ModelParameter identifier, String value) throws Exception {
+    public void setInput(ModelParameter identifier, String value){
 
         if(!identifier.isCompatible(value))
-            throw new BadRequestException("parameter "+identifier.identifier+" is incompatible with given input: "+value +" expected type: "+identifier.getType());
+            throw new InvalidModelInputException("parameter "+identifier.identifier+" is incompatible with given input: "+value +" expected type: "+identifier.getType());
         
         ModifierVisitor modifier = new ModifierVisitor(this, tokens, identifier.getIdentifier(), value,  ModifierVisitor.Action.SET, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
-            // Write modified source back to file, preserving original formatting
-            String modifiedSource = modifier.getModifiedSource();
-            Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
-            parseSource();
+            try {
+                // Write modified source back to file, preserving original formatting
+                String modifiedSource = modifier.getModifiedSource();
+                Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
+                parseSource();
+            } catch (IOException e) {
+                throw new ParsingException("Error writing to source file: " + e.getMessage());
+            }
         }
     }
 
-    public void setInput(ModelSet identifier, String[] values) throws Exception {
+    public void setInput(ModelSet identifier, String[] values) {
 
         for(String str : values){
             if(!identifier.isCompatible(str))
-                throw new BadRequestException("set "+identifier.identifier+" is incompatible with given input: "+str+" , expected type: "+identifier.getType());
+                throw new InvalidModelInputException("set "+identifier.identifier+" is incompatible with given input: "+str+" , expected type: "+identifier.getType());
 
         }
         
@@ -164,41 +181,45 @@ public class Model implements ModelInterface {
         modifier.visit(tree);
         
         if (modifier.isModified()) {
-            // Write modified source back to file, preserving original formatting
-            String modifiedSource = modifier.getModifiedSource();
-            Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
-            parseSource();
+            try {
+                // Write modified source back to file, preserving original formatting
+                String modifiedSource = modifier.getModifiedSource();
+                Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
+                parseSource();
+            } catch (IOException e) {
+                throw new ParsingException("Error writing to source file: " + e.getMessage());
+            }
         }
     }
     
     //TODO: the design is fucked up, and it's apparent in getInput methods. I need to make a better design of things.
     @Override
-    public String[] getInput(ModelParameter parameter) {
+    public List<String> getInput(ModelParameter parameter) {
         if(parameter == null)
-            throw new BadRequestException("Trying to get input of a null parameter!");
+            throw new InvalidModelInputException("Trying to get input of a null parameter!");
         if(params.get(parameter.getIdentifier()) == null)
-            throw new BadRequestException("parameter " + parameter.getIdentifier() + " doesnt exist ");
+            throw new InvalidModelInputException("parameter " + parameter.getIdentifier() + " doesnt exist ");
         if(!params.get(parameter.getIdentifier()).hasValue())
-            throw new BadRequestException("parameter " + parameter.getIdentifier() + " is not set to have an input, or is not a declarative parameter");
+            throw new InvalidModelInputException("parameter " + parameter.getIdentifier() + " is not set to have an input, or is not a declarative parameter");
         parameter = params.get(parameter.getIdentifier());
 
-        return ModelType.convertStringToAtoms(parameter.getValue());
+        return ModelType.convertStringToAtoms(parameter.getValue()).getFirst(); //TODO FIX THIS SHIT
         
     }
 
     @Override
-    public List<String[]> getInput(ModelSet set) {
+    public List<List<String>> getInput(ModelSet set) {
         if(set == null || set.getIdentifier() == null)
-            throw new BadRequestException("Trying to get input of a null set!");
+            throw new InvalidModelInputException("Trying to get input of a null set!");
         if(sets.get(set.getIdentifier()) == null)
-            throw new BadRequestException("set " + set.getIdentifier() + " doesnt exist ");
+            throw new InvalidModelInputException("set " + set.getIdentifier() + " doesnt exist ");
         if(sets.get(set.getIdentifier()).getElements() == null)
-            throw new BadRequestException("set " + set.getIdentifier() + " is not set to have an input, or is not declarative set");
+            throw new InvalidModelInputException("set " + set.getIdentifier() + " is not set to have an input, or is not declarative set");
         
         set = sets.get(set.getIdentifier());
-        List<String[]> ans = new LinkedList<>();
+        List<List<String>> ans = new LinkedList<>();
         for(String element :set.getElements() ){
-            ans.add(ModelType.convertStringToAtoms(element));
+            ans.addAll(ModelType.convertStringToAtoms(element));
         }
         return ans;
         
@@ -239,7 +260,7 @@ public class Model implements ModelInterface {
     }
     
 
-    public boolean isCompiling(float timeout) throws BadRequestException {
+    public boolean isCompiling(float timeout) {
         boolean ans = false;
         try {
             commentOutToggledFunctionalities();
@@ -253,10 +274,10 @@ public class Model implements ModelInterface {
             try {
                 process = processBuilder.start();
             } catch (IOException e) {
-                // Check if it's specifically a command not found error
+                // Check if it's specifically a "command not found" error
                 if (e.getMessage().contains("Cannot run program \"scip\"") || 
                     e.getMessage().contains("error=2")) {
-                    throw new BadRequestException("SCIP solver not found. Please ensure SCIP is installed and available in system PATH");
+                    throw new EngineErrorException("SCIP solver not found. Please ensure SCIP is installed and available in system PATH");
                 }
                 throw e; // Rethrow other IOExceptions
             }
@@ -284,7 +305,6 @@ public class Model implements ModelInterface {
                 ans = future.get((long) timeout, TimeUnit.SECONDS);
             } catch (TimeoutException e) {
                 process.destroy(); // Kill the process if timeout occurs
-                ans = false;
             } finally {
                 executor.shutdown();
             }
@@ -308,9 +328,9 @@ public class Model implements ModelInterface {
         }
     }
     
-    public Solution solve(float timeout, String solutionFileSufix) throws BadRequestException {
-        if(solutionFileSufix == null)
-            throw new BadRequestException("solutionFileSufix is null");
+    public Solution solve(float timeout, String solutionFileSuffix) {
+        if(solutionFileSuffix == null)
+            throw new InvalidModelInputException("solutionFileSufix is null");
         Solution ans = null;
         try {
             commentOutToggledFunctionalities();
@@ -327,7 +347,7 @@ public class Model implements ModelInterface {
                 // Check if it's specifically a command not found error
                 if (e.getMessage().contains("Cannot run program \"scip\"") || 
                     e.getMessage().contains("error=2")) {
-                    throw new BadRequestException("SCIP solver not found. Please ensure SCIP is installed and available in system PATH");
+                    throw new EngineErrorException("SCIP solver not found. Please ensure SCIP is installed and available in system PATH");
                 }
                 throw e; // Rethrow other IOExceptions
             }
@@ -356,7 +376,7 @@ public class Model implements ModelInterface {
                     if (line.matches(".*Error [0-9]{1,4}:.*")){
                         while ((line += reader.readLine()) != null)
                         {}
-                        throw new BadRequestException("Error: Solving is unsuccesful: "+ line);
+                        throw new EngineErrorException("Error: Solving is unsuccesful: "+ line);
                     }
                     
                     // Capture lines after "SCIP Status" until the end
@@ -374,8 +394,8 @@ public class Model implements ModelInterface {
                         return String.join("\n", list);
                     }));
     
-                Files.write(Paths.get(sourceFilePath + solutionFileSufix), filteredOutput.getBytes());
-                return new Solution(Paths.get(sourceFilePath + solutionFileSufix).toString());
+                Files.write(Paths.get(sourceFilePath + solutionFileSuffix), filteredOutput.getBytes());
+                return new Solution(Paths.get(sourceFilePath + solutionFileSuffix).toString());
             });
     
             try {
@@ -395,12 +415,6 @@ public class Model implements ModelInterface {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-            
-            // If it's our SCIP not found exception, rethrow it
-            if (e instanceof BadRequestException) {
-                throw (BadRequestException) e;
-            }
-            
             e.printStackTrace();
             return null;
         }
@@ -445,75 +459,6 @@ public class Model implements ModelInterface {
         
         findComponentContextsRecursive(ctx.uExpr(0), components);
     }
-
-    // private class TypeVisitor extends FormulationBaseVisitor<Void> {
-    //     ModelType type = ModelPrimitives.UNKNOWN;
-    //     List<ModelSet> setComposition = new LinkedList<ModelSet>();
-    //     List<ModelParameter> paramComposition = new LinkedList<ModelParameter>();
-    //     boolean isVariable = false;
-
-    //     public ModelType getType(){
-    //         return type;
-    //     }
-    //     public List<ModelSet> getComposition() {
-    //         //implement
-    //     } 
-
-    //     public Void visitStrExprToken(FormulationParser.StrExprTokenContext ctx){
-    //         if(type == ModelPrimitives.UNKNOWN)
-    //             type = ModelPrimitives.TEXT;
-    //         else if( type instanceof Tuple){
-    //             ((Tuple)type).append(ModelPrimitives.TEXT);
-    //         } else {
-    //             //nothing
-    //         }
-    //         return super.visitStrExprToken(ctx);
-    //     }
-
-    //     public Void visitBasicExprToken(FormulationParser.BasicExprTokenContext ctx){
-    //         ModelPrimitives tmp = ModelPrimitives.UNKNOWN;
-    //         if(ctx.FLOAT() != null){
-    //             tmp = ModelPrimitives.FLOAT;
-    //         } else if(ctx.INFINITY() != null){
-    //             tmp = ModelPrimitives.INFINITY;
-    //         } else if(ctx.INT() != null){
-    //             tmp = ModelPrimitives.INT;
-    //         }
-    //         if(type == ModelPrimitives.UNKNOWN){
-    //             type = tmp;
-    //         } else if ( type instanceof Tuple){
-    //             ((Tuple) type).append(tmp);
-    //         } else {
-
-    //         }
-    //         return super.visitBasicExprToken(ctx);
-    //     }
-    
-    //     public Void visitTuple(FormulationParser.TupleContext ctx){
-    //         if(type == ModelPrimitives.UNKNOWN){
-    //             type = new Tuple();
-    //         } else if (type instanceof Tuple) {
-
-    //         }
-    //         return super.visitTuple(ctx);
-    //     }
-        
-    //     public Void visitVairable (FormulationParser.VariableContext ctx){
-    //         isVariable = true;
-
-    //         return super.visitVariable(ctx);
-    //     }
-
-    //     public Void visitSetExprBin(FormulationParser.SetExprBinContext ctx) {
-    //         TypeVisitor left = new TypeVisitor();
-    //         TypeVisitor right = new TypeVisitor();
-    //         left.visit(ctx.setExpr(0));
-    //         right.visit(ctx.setExpr(0));
-    //         setComposition.addAll(left.getComposition());
-    //         setComposition.addAll(right.getComposition());
-    //         return super.visitSetExprBin(ctx);
-    //     }
-    // }
 
 
     public ModelSet getSet(String identifier) {

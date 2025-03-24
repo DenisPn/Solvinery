@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -240,7 +241,9 @@ public class ModelTest {
     public void testValidGetInputOfParameter() throws Exception {
         ModelParameter subject = model.getParameter("conditioner");
         assertNotNull(subject);
-        assertArrayEquals(new String[]{"10"}, model.getInput(subject));
+        List<String> expected = new ArrayList<>();
+        expected.add("10");
+        assertEquals(expected, model.getInput(subject));
     }
 
 
@@ -248,10 +251,10 @@ public class ModelTest {
     public void testValidGetInputOfSet() throws Exception {
         ModelSet subject = model.getSet("Emdot");
         assertNotNull(subject);
-        List<String[]> expected =  List.of(new String[]{"Shin Gimel"}, new String[]{"Fillbox"});
+        List<List<String>> expected =  List.of(List.of("Shin Gimel"), List.of("Fillbox"));
         int i=0;
-        for(String[] element : model.getInput(subject)){
-            assertArrayEquals(element, expected.get(i));
+        for(List<String> element : model.getInput(subject)){
+            assertEquals(element, expected.get(i));
             i++;
         }
     }

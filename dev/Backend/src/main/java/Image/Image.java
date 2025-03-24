@@ -2,7 +2,6 @@ package Image;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,6 +11,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
+import Exceptions.InternalErrors.ModelExceptions.Parsing.ParsingException;
+import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import groupId.DTO.Factories.RecordFactory;
 import groupId.DTO.Records.Image.SolutionDTO;
 import groupId.DTO.Records.Model.ModelData.InputDTO;
@@ -148,14 +150,37 @@ public class Image {
             Objects.requireNonNull(name,"Null value during Toggle Constraint in Image");
             constraintsModules.get(name).ToggleModule();
     }*/
+
+    /**
+     * Solves the optimization problem using the provided timeout value.
+     * This method compiles the model and attempts to find a solution within the given timeout limit.
+     * If the solution is found, it is parsed and wrapped into a {@code SolutionDTO}.
+     * In case of errors during compilation or solution parsing, appropriate runtime exceptions are thrown.
+     *
+     * @param timeout The maximum time, in seconds, allowed for solving the problem. Must be non-negative.
+     * @return A {@code SolutionDTO} object containing the results of the solved optimization problem,
+     *         including information such as whether the problem was solved, the solving time,
+     *         the objective value, any error messages, and the solution variables.
+     * @throws IllegalArgumentException if the timeout is negative.
+     * @throws InvalidModelStateException if there is a compilation error in the model.
+     * @throws ParsingException if an I/O exception occurs while parsing the solution file.
+     */
     public SolutionDTO solve(int timeout){
-        Solution solution=model.solve(timeout, "SOLUTION");
+        assert timeout >= 0 : "Timeout must be non-negative";
         try {
-            solution.parseSolution(model, variables.getIdentifiers(),variables.getAliases());
-        } catch (IOException e) {
-            throw new RuntimeException("IO exception while parsing solution file, message: "+ e);
+            Solution solution = model.solve(timeout, "SOLUTION");
+            try {
+                solution.parseSolution(model, variables.getIdentifiers(), variables.getAliases());
+            } catch (IOException e) {
+                throw new ParsingException("IO exception while parsing solution file, message: " + e);
+            }
+            return RecordFactory.makeDTO(solution);
         }
-        return RecordFactory.makeDTO(solution);
+        catch (ZimplCompileError e) {
+            throw new InvalidModelStateException("Error while compiling model code before solve." +
+                    " Error message: " + e.getMessage());
+        }
+
         /*Objects.requireNonNull(input,"Input is null in solve method in image");
         for(String constraint:input.constraintsToggledOff()){
             toggleOffConstraint(constraint);
@@ -241,17 +266,14 @@ public class Image {
         Map<String,List<String>> paramsToValues = new HashMap<>();
 
         for (String param : relevantParams.toArray(new String[0])) {
-            String[] atoms = model.getInput(model.getParameter(param));
-            paramsToValues.put(param, List.of(atoms));
+            List<String> atoms = model.getInput(model.getParameter(param));
+            paramsToValues.put(param, atoms);
         }
 
         for (String set : relevantSets.toArray(new String[0])) {
-            List<String[]> atomsOfElements = model.getInput(model.getSet(set));
-            List<List<String>> convertedList = new ArrayList<>();
-            for (String[] array : atomsOfElements) {
-                convertedList.add(Arrays.asList(array)); // Convert String[] to List<String>
-
-            }
+            List<List<String>> atomsOfElements = model.getInput(model.getSet(set));
+            // Convert String[] to List<String>
+            List<List<String>> convertedList = new ArrayList<>(atomsOfElements);
 
             setsToValues.put(set, convertedList);
         }
