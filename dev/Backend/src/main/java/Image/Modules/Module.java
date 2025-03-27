@@ -1,8 +1,7 @@
 package Image.Modules;
 
-import Model.ModelFunctionality;
-import Model.ModelParameter;
-import Model.ModelSet;
+import Model.Data.Elements.Data.ModelParameter;
+import Model.Data.Elements.Data.ModelSet;
 
 import java.util.Collection;
 import java.util.HashSet;

@@ -1,25 +1,21 @@
 package Acceptance;
-import DTO.Factories.RecordFactory;
-import DTO.Records.Image.*;
-import DTO.Records.Model.ModelData.InputDTO;
-import DTO.Records.Model.ModelDefinition.*;
-import DTO.Records.Requests.Commands.CreateImageFromFileDTO;
-import DTO.Records.Requests.Commands.ImageConfigDTO;
-import DTO.Records.Requests.Commands.SolveCommandDTO;
-import DTO.Records.Requests.Responses.CreateImageResponseDTO;
-import DTO.Records.Requests.Responses.ImageResponseDTO;
+import groupId.DTO.Factories.RecordFactory;
+import groupId.DTO.Records.Image.*;
+import groupId.DTO.Records.Model.ModelData.InputDTO;
+import groupId.DTO.Records.Model.ModelDefinition.*;
+import groupId.DTO.Records.Requests.Commands.CreateImageFromFileDTO;
+import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
+import groupId.DTO.Records.Requests.Commands.SolveCommandDTO;
+import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import Image.Image;
-import Model.Solution;
 import groupId.Service;
 import groupId.UserController;
 import org.junit.jupiter.api.*;
 
-import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.http.*;
 
@@ -86,12 +82,11 @@ public class ServiceRequestsTests {
 
             CreateImageResponseDTO expected = new CreateImageResponseDTO(
                     "some imageId", new ModelDTO(
-                    Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of(), Set.of("x")))),
-                    Set.of(new PreferenceDTO("myVar[3]", new DependenciesDTO(Set.of(), Set.of()))),
-                    Set.of(new VariableDTO("myVar", new DependenciesDTO(Set.of("mySet"), Set.of()))),
+                    Set.of(new ConstraintDTO("sampleConstraint")),
+                    Set.of(new PreferenceDTO("myVar[3]")),
+                    Set.of(new VariableDTO("myVar")),
                     Map.of("mySet", List.of("INT")),
-                    Map.of("x", "INT"),
-                    Map.of()
+                    Map.of("x", "INT")
             ));
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
@@ -101,18 +96,18 @@ public class ServiceRequestsTests {
             assertEquals(response.getBody().model().variables(), expected.model().variables());
             assertEquals(response.getBody().model().setTypes(), expected.model().setTypes());
             assertEquals(response.getBody().model().paramTypes(), expected.model().paramTypes());
-            assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
+            //assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
 
             /**
              * TEST
              */
             Set<ConstraintModuleDTO> constraintModuleDTOs = Set.of(
                     new ConstraintModuleDTO("Test module", "PeanutButter",
-                            Set.of("sampleConstraint"), Set.of(), Set.of("x")));
+                            Set.of("sampleConstraint")));
             Set<PreferenceModuleDTO> preferenceModuleDTOs = Set.of(
                     new PreferenceModuleDTO("Test module", "PeanutButter",
                             Set.of("myVar[3]"), Set.of(), Set.of()));
-            VariableModuleDTO variableModuleDTO = new VariableModuleDTO(Set.of("myVar"), Set.of("mySet"), Set.of(),Map.of("myVar",List.of("test_alias")));
+            VariableModuleDTO variableModuleDTO = new VariableModuleDTO(Set.of("myVar"),Map.of("myVar",List.of("test_alias")));
             ImageDTO imageDTO = new ImageDTO(variableModuleDTO, constraintModuleDTOs, preferenceModuleDTOs);
             ImageConfigDTO configDTO= new ImageConfigDTO(response.getBody().imageId(),imageDTO);
             ResponseEntity<Void> response2= service.configureImage(configDTO);
@@ -135,7 +130,7 @@ public class ServiceRequestsTests {
                     Map.of("x",List.of("10")),
                     List.of(),List.of());
             SolveCommandDTO solveCommandDTO=new SolveCommandDTO(responseDTO.imageId(),input,600);
-            ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Set.of(),Set.of(),Map.of("myVar",List.of("test_alias"))),Set.of(),Set.of());
+            ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Map.of("myVar",List.of("test_alias"))),Set.of(),Set.of());
             ImageConfigDTO config= new ImageConfigDTO(responseDTO.imageId(),imageDTO);
             userController.overrideImage(config);
             SolutionDTO solution=userController.solve(solveCommandDTO);

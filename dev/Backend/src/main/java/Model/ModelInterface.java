@@ -3,7 +3,13 @@ package Model;
 import java.util.Collection;
 import java.util.List;
 
-import Exceptions.InternalErrors.BadRequestException;
+import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
+import Model.Data.Elements.Data.ModelParameter;
+import Model.Data.Elements.Data.ModelSet;
+import Model.Data.Elements.Operational.Constraint;
+import Model.Data.Elements.Operational.OperationalElement;
+import Model.Data.Elements.Operational.Preference;
+import Model.Data.Elements.Variable;
 
 /**
  * Interface defining the public API for interacting with a mathematical optimization model.
@@ -16,41 +22,47 @@ public interface ModelInterface {
      * 
      * @param set The set to append to
      * @param value The value to append
-     * @throws Exception if the value is incompatible with the set's type
      */
-    void appendToSet(ModelSet set, String value) throws Exception;
+    void appendToSet(ModelSet set, String value);
 
     /**
      * Removes a value from a specified set in the model.
      * 
      * @param set The set to remove from
      * @param value The value to remove
-     * @throws Exception if the value is incompatible with the set's type
      */
-    void removeFromSet(ModelSet set, String value) throws Exception;
+    void removeFromSet(ModelSet set, String value);
 
     /**
      * Sets the value of a model input (parameter).
      * 
      * @param identifier The input identifier
      * @param value The value to set
-     * @throws Exception if the value is incompatible with the input's type
      */
-    void setInput(ModelParameter identifier, String value) throws Exception;
+    void setInput(ModelParameter identifier, String value);
 
     /**
      * Sets the value of a model input (set).
      * 
      * @param identifier The input identifier
-     * @throws Exception if the values are incompatible with the input's type
      */
-    void setInput(ModelSet identifier, String[] values) throws Exception;
+    void setInput(ModelSet identifier, String[] values);
 
-    // Get last committed input from zpl file
-    String[] getInput(ModelParameter parameter) throws Exception;
+    /**
+     * Retrieves the input values associated with a given model parameter.
+     *
+     * @param parameter The model parameter whose input values are to be retrieved.
+     * @return A list of input values associated with the specified model parameter.
+     */
+    List<String> getInput(ModelParameter parameter);
 
-    // Get last committed input from zpl file
-    List<String[]> getInput(ModelSet set) throws Exception;
+    /**
+     * Retrieves the input values associated with a given model set.
+     *
+     * @param set The model set whose input values are to be retrieved.
+     * @return A list of input values associated with the specified model set.
+     */
+    List<List<String>> getInput(ModelSet set);
 
     
     /**
@@ -59,7 +71,7 @@ public interface ModelInterface {
      * @param mf The functionality to toggle
      * @param turnOn true to enable, false to disable
      */
-    void toggleFunctionality(ModelFunctionality mf, boolean turnOn);
+    void toggleFunctionality(OperationalElement operationalElement, boolean turnOn);
 
     /**
      * Checks if the model compiles successfully.
@@ -67,7 +79,7 @@ public interface ModelInterface {
      * @param timeout Maximum time in seconds to wait for compilation
      * @return true if compilation succeeds, false otherwise
      */
-    boolean isCompiling(float timeout) throws BadRequestException;
+    boolean isCompiling(float timeout);
 
     /**
      * Solves the model and returns the solution.
@@ -75,7 +87,7 @@ public interface ModelInterface {
      * @param timeout Maximum time in seconds to wait for solving
      * @return Solution object if solving succeeds, null otherwise
      */
-    Solution solve(float timeout, String solutionFileSufix) throws BadRequestException;
+    Solution solve(float timeout, String solutionFileSuffix) throws ZimplCompileError;
 
     /**
      * Retrieves a set by its identifier.
@@ -99,36 +111,36 @@ public interface ModelInterface {
      * @param identifier The constraint identifier
      * @return ModelConstraint object if found, null otherwise
      */
-    ModelConstraint getConstraint(String identifier);
+    Constraint getConstraint(String identifier);
 
     /**
-     * Retrieves a all constraints loaded in the model
+     * Retrieves an all constraints loaded in the model
      * @return set of all constraints parsed from the model
      */
-    Collection<ModelConstraint> getConstraints();
+    Collection<Constraint> getConstraints();
     /**
      * Retrieves a preference by its identifier.
      * 
      * @param identifier The preference identifier
      * @return ModelPreference object if found, null otherwise
      */
-    ModelPreference getPreference(String identifier);
+    Preference getPreference(String identifier);
     /**
      * Retrieves a all preferences loaded in the model
      * @return set of all preferences parsed from the model
      */
-    Collection<ModelPreference> getPreferences();
+    Collection<Preference> getPreferences();
     /**
      * Retrieves a variable by its identifier.
      * 
      * @param identifier The variable identifier
      * @return ModelVariable object if found, null otherwise
      */
-    ModelVariable getVariable(String identifier);
+    Variable getVariable(String identifier);
 
-    Collection<ModelVariable> getVariables();
+    Collection<Variable> getVariables();
 
-    Collection<ModelVariable> getVariables(Collection<String> identifiers);
+    Collection<Variable> getVariables(Collection<String> identifiers);
 
 
     public Collection<ModelSet> getSets();
