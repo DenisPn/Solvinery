@@ -2,8 +2,10 @@ package Model.Parsing;
 
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
+import Model.Data.Types.ModelPrimitives;
+import Model.Data.Types.ModelType;
+import Model.Data.Types.Tuple;
 import Model.Model;
-import Model.*;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
 

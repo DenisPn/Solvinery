@@ -68,7 +68,6 @@ public interface ModelInterface {
     /**
      * Toggles a model functionality on or off.
      * 
-     * @param mf The functionality to toggle
      * @param turnOn true to enable, false to disable
      */
     void toggleFunctionality(OperationalElement operationalElement, boolean turnOn);

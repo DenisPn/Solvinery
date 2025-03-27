@@ -1,6 +1,6 @@
 package Model.Data.Elements.Data;
 
-import Model.ModelType;
+import Model.Data.Types.ModelType;
 
 public class ModelParameter extends DataElement {
     private String data;

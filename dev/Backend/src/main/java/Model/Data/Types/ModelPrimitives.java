@@ -1,4 +1,4 @@
-package Model;
+package Model.Data.Types;
 
 import java.util.List;
 

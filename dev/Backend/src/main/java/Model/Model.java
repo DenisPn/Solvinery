@@ -4,16 +4,15 @@ import Exceptions.InternalErrors.BadRequestException;
 import Exceptions.InternalErrors.ModelExceptions.EngineErrorException;
 import Exceptions.InternalErrors.ModelExceptions.InvalidModelInputException;
 import Exceptions.InternalErrors.ModelExceptions.Parsing.ParsingException;
-import Model.Data.Elements.Data.DataElement;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.OperationalElement;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
+import Model.Data.Types.ModelType;
 import Model.Parsing.CollectorVisitor;
 import Model.Parsing.ModifierVisitor;
-import org.antlr.v4.codegen.model.ModelElement;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 

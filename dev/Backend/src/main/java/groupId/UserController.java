@@ -30,7 +30,7 @@ import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import Exceptions.InternalErrors.BadRequestException;
 import Image.Image;
 import Model.ModelInterface;
-import Model.ModelType;
+import Model.Data.Types.ModelType;
 
 @Service
 public class UserController {

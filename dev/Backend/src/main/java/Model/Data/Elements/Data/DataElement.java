@@ -1,7 +1,7 @@
 package Model.Data.Elements.Data;
 
 import Model.Data.Elements.Element;
-import Model.ModelType;
+import Model.Data.Types.ModelType;
 
 public abstract class DataElement extends Element {
     private final ModelType type;

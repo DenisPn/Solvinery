@@ -1,8 +1,7 @@
 package Model.Data.Elements.Data;
 
-import Model.ModelType;
+import Model.Data.Types.ModelType;
 
-import java.util.List;
 import java.util.SequencedCollection;
 
 public class ModelSet extends DataElement {

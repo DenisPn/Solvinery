@@ -5,10 +5,11 @@ import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
+import Model.Data.Types.ModelPrimitives;
 import Model.Model;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
-import Model.*;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
