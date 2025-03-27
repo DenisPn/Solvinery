@@ -1,11 +1,18 @@
 package Model.Parsing;
 
+import Model.Data.Elements.Data.ModelParameter;
+import Model.Data.Elements.Data.ModelSet;
+import Model.Data.Elements.Operational.Constraint;
+import Model.Data.Elements.Operational.Preference;
+import Model.Data.Elements.Variable;
 import Model.Model;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
 import Model.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.SequencedCollection;
 
 public class CollectorVisitor extends FormulationBaseVisitor<Void> {
 
@@ -21,10 +28,8 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         TypeVisitor typer = new TypeVisitor(model);
         typer.visit(ctx.expr());
         ModelParameter param = new ModelParameter(paramName,
-                typer.getType(),
-                typer.getBasicSets(),
-                typer.getBasicParams());
-            param.setValue(ctx.expr().getText());
+                typer.getType(),ctx.expr().getText());
+          //  param.setValue(ctx.expr().getText());
         model.getParamsMap().put(paramName, param);
         return super.visitParamDecl(ctx);
     }
@@ -32,8 +37,8 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
     @Override
     public Void visitSetDecl (FormulationParser.SetDeclContext ctx) {
         String setName = extractName(ctx.sqRef().getText());
-        
-        model.getSetsMap().put(setName, new ModelSet(setName, ModelPrimitives.UNKNOWN));
+        //change?
+        model.getSetsMap().put(setName, new ModelSet(setName, ModelPrimitives.UNKNOWN,new LinkedList<>()));
         return super.visitSetDecl(ctx);
     }
 
@@ -43,10 +48,10 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
 
         TypeVisitor typer = new TypeVisitor(model);
         typer.visit(ctx.setExpr());
-        ModelSet set = new ModelSet(setName, typer.getType(), typer.getBasicSets(), typer.getBasicParams());
-        java.util.List<String> elements = parseSetElements(ctx.setExpr());
-        if(elements!=null) {
-            set.setElements(elements);
+        SequencedCollection<String> elements = parseSetElements(ctx.setExpr());
+        if(elements != null) {
+            ModelSet set = new ModelSet(setName, typer.getType(),elements);
+
             model.getSetsMap().put(setName, set);
         }
         return super.visitSetDefExpr(ctx);
@@ -57,7 +62,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         String constName = extractName(ctx.name.getText());
         TypeVisitor visitor = new TypeVisitor(model);
         visitor.visit(ctx);
-        model.getConstraintsMap().put(constName, new ModelConstraint(constName, visitor.getBasicSets(), visitor.getBasicParams()));
+        model.getConstraintsMap().put(constName, new Constraint(constName));
         return super.visitConstraint(ctx);
     }
 
@@ -73,9 +78,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
             visitor.visit(expressionComponent);
 
             model.getPreferencesMap().put(expressionComponent.getText(),
-                    new ModelPreference(expressionComponent.getText(),
-                            visitor.getBasicSets(),
-                            visitor.getBasicParams())
+                    new Preference(expressionComponent.getText())
             );
         }
 
@@ -86,11 +89,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         String varName = extractName(ctx.sqRef().getText());
         TypeVisitor visitor = new TypeVisitor(model);
         visitor.visit(ctx);
-        boolean isComplex = true;
-        if (ctx.sqRef() instanceof FormulationParser.SqRefCsvContext) {
-            isComplex = ((FormulationParser.SqRefCsvContext) (ctx.sqRef())).csv() == null ? false : true;
-        }
-        model.getVariablesMap().put(varName, new ModelVariable(varName, visitor.getBasicSets(), visitor.getBasicParams(), isComplex));
+        model.getVariablesMap().put(varName, new Variable(varName));
         return super.visitVariable(ctx);
     }
 
@@ -100,6 +99,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         return bracketIndex == -1 ? sqRef : sqRef.substring(0, bracketIndex);
     }
     //Refactor below, kept this old one for posterity.
+    @Deprecated
     private List<String> parseSetElementsOld (FormulationParser.SetExprContext ctx) {
         List<String> elements = new ArrayList<>();
 

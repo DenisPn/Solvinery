@@ -1,5 +1,7 @@
 package Model;
 
+import Model.Data.Elements.Data.ModelSet;
+import Model.Data.Elements.Variable;
 import org.yaml.snakeyaml.util.Tuple;
 
 import java.io.BufferedReader;
@@ -28,7 +30,7 @@ public class Solution {
 
 
     //helper fields
-    Collection<ModelVariable> variables;
+    Collection<Variable> variables;
 
     public Solution(String solutionPath) {
         this.solutionPath = solutionPath;
@@ -56,27 +58,27 @@ public class Solution {
     //Implement as lazy call or run during initialization?
     public void parseSolution(ModelInterface model, Set<String> varsToParse,Map<String,List<String>> aliases) throws IOException {
         variables = model.getVariables(varsToParse);
-        for (ModelVariable variable : variables) {
-            if (varsToParse.contains(variable.getIdentifier())) {
-                variableSolution.put(variable.getIdentifier(), new ArrayList<>());
-                if(aliases.containsKey(variable.getIdentifier())) {
-                    variableStructure.put(variable.getIdentifier(), aliases.get(variable.getIdentifier()));
-                    variableTypes.put(variable.getIdentifier(), new ArrayList<>());
-                    for (ModelSet modelSet : variable.getSetDependencies()) {
-                        variableTypes.get(variable.getIdentifier()).add(modelSet.getType().toString());
-                    }
+        for (Variable variable : variables) {
+            if (varsToParse.contains(variable.getName())) {
+                variableSolution.put(variable.getName(), new ArrayList<>());
+                if(aliases.containsKey(variable.getName())) {
+                    variableStructure.put(variable.getName(), aliases.get(variable.getName()));
+                    variableTypes.put(variable.getName(), new ArrayList<>());
+                    /*for (ModelSet modelSet : variable.getSetDependencies()) {
+                        variableTypes.get(variable.getName()).add(modelSet.getType().toString());
+                    }*/
                 }
                 else {
-                    variableStructure.put(variable.getIdentifier(), new ArrayList<>());
-                    variableTypes.put(variable.getIdentifier(), new ArrayList<>());
+                    variableStructure.put(variable.getName(), new ArrayList<>());
+                    variableTypes.put(variable.getName(), new ArrayList<>());
                     //below lines are not solution dependent but problem dependent, will be more efficient to maintain them inside the image
-                    for (ModelSet modelSet : variable.getSetDependencies()) {
-                        variableTypes.get(variable.getIdentifier()).add(modelSet.getType().toString());
-                        for (ModelInput.StructureBlock block : modelSet.getStructure()) {
+                    /*for (ModelSet modelSet : variable.getSetDependencies()) {
+                        variableTypes.get(variable.getName()).add(modelSet.getType().toString());
+                        *//*for (ModelInput.StructureBlock block : modelSet.getStructure()) {
                             if (block.dependency != null) //fix?
-                                variableStructure.get(variable.getIdentifier()).add(block.dependency.identifier);
-                        }
-                    }
+                                variableStructure.get(variable.getName()).add(block.dependency.identifier);
+                        }*//*
+                    }*/
                 }
             }
         }
@@ -162,7 +164,7 @@ public class Solution {
         return objectiveValue;
     }
 
-    public Collection<ModelVariable> getVariables() {
+    public Collection<Variable> getVariables() {
         return variables;
     }
 

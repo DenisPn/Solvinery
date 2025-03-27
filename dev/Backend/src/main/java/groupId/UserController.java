@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import Model.Data.Elements.Variable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,6 @@ import Exceptions.InternalErrors.BadRequestException;
 import Image.Image;
 import Model.ModelInterface;
 import Model.ModelType;
-import Model.ModelVariable;
 
 @Service
 public class UserController {
@@ -66,7 +66,7 @@ private String storageDir;
             URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
             appDir = new File(uri).getParent();
         } catch (Exception e) {
-            appDir = System.getProperty("user.home"); // Fallback
+            appDir = System.getProperty("/tmp"); // Fallback
         }
 
         if (appDir == null) {
@@ -137,17 +137,17 @@ private String storageDir;
         ImageDTO imageDTO= imgConfig.image();
         Image image=images.get(UUID.fromString(imgConfig.imageId()));
         BadRequestException.requireNotNull(image, "Invalid image ID during override image");
-        Map<String, ModelVariable> variables = new HashMap<>();
+        Map<String, Variable> variables = new HashMap<>();
         ModelInterface model= image.getModel();
         for(String variable:imageDTO.variablesModule().variablesOfInterest()){
-            ModelVariable modelVariable=model.getVariable(variable);
+            Variable modelVariable=model.getVariable(variable);
             Objects.requireNonNull(modelVariable,"Invalid variable name in config/override image");
             variables.put(variable,modelVariable);
         }
-        image.reset(variables, imageDTO.variablesModule().variablesConfigurableSets(),imageDTO.variablesModule().variablesConfigurableParams(),imageDTO.variablesModule().variableAliases());
+        image.reset(variables /*,imageDTO.variablesModule().variablesConfigurableSets(),imageDTO.variablesModule().variablesConfigurableParams()*/,imageDTO.variablesModule().variableAliases());
         for(ConstraintModuleDTO constraintModule:imageDTO.constraintModules()){
             image.addConstraintModule(constraintModule.moduleName(),constraintModule.description(),
-                    constraintModule.constraints(),constraintModule.inputSets(),constraintModule.inputParams());
+                    constraintModule.constraints()/*,constraintModule.inputSets(),constraintModule.inputParams()*/);
         }
         for (PreferenceModuleDTO preferenceModule:imageDTO.preferenceModules()){
             image.addPreferenceModule(preferenceModule.moduleName(), preferenceModule.description(),

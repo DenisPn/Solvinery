@@ -4,6 +4,12 @@ import java.util.Collection;
 import java.util.List;
 
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
+import Model.Data.Elements.Data.ModelParameter;
+import Model.Data.Elements.Data.ModelSet;
+import Model.Data.Elements.Operational.Constraint;
+import Model.Data.Elements.Operational.OperationalElement;
+import Model.Data.Elements.Operational.Preference;
+import Model.Data.Elements.Variable;
 
 /**
  * Interface defining the public API for interacting with a mathematical optimization model.
@@ -65,7 +71,7 @@ public interface ModelInterface {
      * @param mf The functionality to toggle
      * @param turnOn true to enable, false to disable
      */
-    void toggleFunctionality(ModelFunctionality mf, boolean turnOn);
+    void toggleFunctionality(OperationalElement operationalElement, boolean turnOn);
 
     /**
      * Checks if the model compiles successfully.
@@ -105,36 +111,36 @@ public interface ModelInterface {
      * @param identifier The constraint identifier
      * @return ModelConstraint object if found, null otherwise
      */
-    ModelConstraint getConstraint(String identifier);
+    Constraint getConstraint(String identifier);
 
     /**
      * Retrieves an all constraints loaded in the model
      * @return set of all constraints parsed from the model
      */
-    Collection<ModelConstraint> getConstraints();
+    Collection<Constraint> getConstraints();
     /**
      * Retrieves a preference by its identifier.
      * 
      * @param identifier The preference identifier
      * @return ModelPreference object if found, null otherwise
      */
-    ModelPreference getPreference(String identifier);
+    Preference getPreference(String identifier);
     /**
      * Retrieves a all preferences loaded in the model
      * @return set of all preferences parsed from the model
      */
-    Collection<ModelPreference> getPreferences();
+    Collection<Preference> getPreferences();
     /**
      * Retrieves a variable by its identifier.
      * 
      * @param identifier The variable identifier
      * @return ModelVariable object if found, null otherwise
      */
-    ModelVariable getVariable(String identifier);
+    Variable getVariable(String identifier);
 
-    Collection<ModelVariable> getVariables();
+    Collection<Variable> getVariables();
 
-    Collection<ModelVariable> getVariables(Collection<String> identifiers);
+    Collection<Variable> getVariables(Collection<String> identifiers);
 
 
     public Collection<ModelSet> getSets();

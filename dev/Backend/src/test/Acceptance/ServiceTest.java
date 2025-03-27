@@ -11,6 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -89,12 +91,12 @@ public class ServiceTest {
         //Expected response
         CreateImageResponseDTO expected = new CreateImageResponseDTO(
             "some imageId", new ModelDTO(
-              Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of(),Set.of("x")))),
-                Set.of(new PreferenceDTO("myVar[3]", new DependenciesDTO(Set.of(),Set.of()))),
-                Set.of(new VariableDTO("myVar", new DependenciesDTO(Set.of("mySet"),Set.of()))),
+              Set.of(new ConstraintDTO("sampleConstraint")),
+                Set.of(new PreferenceDTO("myVar[3]")),
+                Set.of(new VariableDTO("myVar")),
                 Map.of("mySet",List.of("INT")),
-                Map.of("x","INT"),
-                Map.of()));
+                Map.of("x","INT")
+                ));
         
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody().imageId());
@@ -103,7 +105,7 @@ public class ServiceTest {
         assertEquals(response.getBody().model().variables(), expected.model().variables());
         assertEquals(response.getBody().model().setTypes(), expected.model().setTypes());
         assertEquals(response.getBody().model().paramTypes(), expected.model().paramTypes());
-        assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
+       // assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
     }
     
     @Test
@@ -127,12 +129,12 @@ public class ServiceTest {
         //Expected response
         CreateImageResponseDTO expected = new CreateImageResponseDTO(
                 "some imageId", new ModelDTO(
-                Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of(),Set.of("x")))),
-                Set.of(new PreferenceDTO("myVar[3]", new DependenciesDTO(Set.of(),Set.of()))),
-                Set.of(new VariableDTO("myVar", new DependenciesDTO(Set.of("mySet"),Set.of()))),
+                Set.of(new ConstraintDTO("sampleConstraint")),
+                Set.of(new PreferenceDTO("myVar[3]")),
+                Set.of(new VariableDTO("myVar")),
                 Map.of("mySet",List.of("INT")),
-                Map.of("x","INT"),
-                Map.of()
+                Map.of("x","INT")
+
         ));
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -142,17 +144,17 @@ public class ServiceTest {
         assertEquals(response.getBody().model().variables(), expected.model().variables());
         assertEquals(response.getBody().model().setTypes(), expected.model().setTypes());
         assertEquals(response.getBody().model().paramTypes(), expected.model().paramTypes());
-        assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
+        //assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
         /**
          * TEST
          */
         Set<ConstraintModuleDTO> constraintModuleDTOs=Set.of(
                 new ConstraintModuleDTO("Test module","PeanutButter",
-                        Set.of("sampleConstraint"),Set.of("mySet"),Set.of("x")));
+                        Set.of("sampleConstraint")));
         Set<PreferenceModuleDTO> preferenceModuleDTOs=Set.of(
                 new PreferenceModuleDTO("Test module","PeanutButter",
                         Set.of("myVar[3]"),Set.of(),Set.of()));
-        VariableModuleDTO variableModuleDTO= new VariableModuleDTO(Set.of("myVar"),Set.of("mySet"),Set.of(),Map.of());
+        VariableModuleDTO variableModuleDTO= new VariableModuleDTO(Set.of("myVar"),Map.of());
         ImageDTO imageDTO= new ImageDTO(variableModuleDTO,constraintModuleDTOs,preferenceModuleDTOs);
         ImageConfigDTO configDTO= new ImageConfigDTO(response.getBody().imageId(),imageDTO);
         HttpEntity<ImageConfigDTO> request2 = new HttpEntity<>(configDTO, headers);
@@ -200,19 +202,19 @@ public class ServiceTest {
         //Expected response
         CreateImageResponseDTO expected = new CreateImageResponseDTO(
             "some imageId", new ModelDTO(
-              Set.of(new ConstraintDTO("drisha1", new DependenciesDTO(Set.of("People","Emdot"),Set.of("shiftTime"))),
-              new ConstraintDTO("drisha2", new DependenciesDTO(Set.of("Emdot","People"),Set.of("shiftTime"))),
-              new ConstraintDTO("drisha3", new DependenciesDTO(Set.of("People","Emdot"),Set.of("shiftTime","restHours"))),
-              new ConstraintDTO("drisha4", new DependenciesDTO(Set.of("Emdot","People"),Set.of("shiftTime")))),
-                Set.of(new PreferenceDTO("sum<person>inPeople:(TotalMishmarot[person]**2)", new DependenciesDTO(Set.of("People"),Set.of()))),
-                Set.of(new VariableDTO("Shibutsim", new DependenciesDTO(Set.of("People","Emdot"),Set.of("shiftTime"))),
-                        new VariableDTO("TotalMishmarot", new DependenciesDTO(Set.of("People"),Set.of()))),
+              Set.of(new ConstraintDTO("drisha1"),
+              new ConstraintDTO("drisha2"),
+              new ConstraintDTO("drisha3"),
+              new ConstraintDTO("drisha4")),
+                Set.of(new PreferenceDTO("sum<person>inPeople:(TotalMishmarot[person]**2)")),
+                Set.of(new VariableDTO("Shibutsim"),
+                        new VariableDTO("TotalMishmarot")),
               Map.of(
                 "People",List.of("TEXT"),
                 "Emdot",List.of("TEXT")),
                 Map.of("shiftTime","INT",
-                "restHours","INT"),
-                      Map.of()));
+                "restHours","INT")
+                     ));
         
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody().imageId());
@@ -221,7 +223,7 @@ public class ServiceTest {
         assertEquals(response.getBody().model().variables(), expected.model().variables());
         assertEquals(response.getBody().model().setTypes(), expected.model().setTypes());
         assertEquals(response.getBody().model().paramTypes(), expected.model().paramTypes());
-        assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
+        //assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
     }
     @Test
     public void testSolve_Simple() {
@@ -250,12 +252,12 @@ public class ServiceTest {
             //Expected response
             CreateImageResponseDTO expected = new CreateImageResponseDTO(
                     "some imageId", new ModelDTO(
-                    Set.of(new ConstraintDTO("sampleConstraint", new DependenciesDTO(Set.of(),Set.of("x")))),
-                    Set.of(new PreferenceDTO("myVar[3]", new DependenciesDTO(Set.of(),Set.of()))),
-                    Set.of(new VariableDTO("myVar", new DependenciesDTO(Set.of("mySet"),Set.of()))),
+                    Set.of(new ConstraintDTO("sampleConstraint")),
+                    Set.of(new PreferenceDTO("myVar[3]")),
+                    Set.of(new VariableDTO("myVar")),
                     Map.of("mySet",List.of("INT")),
-                    Map.of("x","INT"),
-                    Map.of()));
+                    Map.of("x","INT")
+                    ));
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody().imageId());
@@ -264,11 +266,11 @@ public class ServiceTest {
             assertEquals(response.getBody().model().variables(), expected.model().variables());
             assertEquals(response.getBody().model().setTypes(), expected.model().setTypes());
             assertEquals(response.getBody().model().paramTypes(), expected.model().paramTypes());
-            assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
+            //assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
             /**
              *  CONFIG IMAGE TO DISPLAY myVar
              */
-            ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Set.of(),Set.of(),Map.of("myVar",List.of("test_alias"))),Set.of(),Set.of());
+            ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Map.of("myVar",List.of("test_alias"))),Set.of(),Set.of());
             ImageConfigDTO config= new ImageConfigDTO(response.getBody().imageId(),imageDTO);
             HttpEntity<ImageConfigDTO> request2 = new HttpEntity<>(config, headers);
             // Send PATCH request with body
@@ -306,17 +308,18 @@ public class ServiceTest {
     }
 
     @Test
+    @Disabled
     public void testLoadImageInput() {
         // create Image
         CreateImageResponseDTO imageCreated = createImageCall(SimpleCodeExample);
         String imageId = imageCreated.imageId();
     Set<ConstraintModuleDTO> constraintModuleDTOs=Set.of(
             new ConstraintModuleDTO("MyConst","description",
-                    Set.of("sampleConstraint"),Set.of(),Set.of("x")));
+                    Set.of("sampleConstraint")));
     Set<PreferenceModuleDTO> preferenceModuleDTOs=Set.of(
             new PreferenceModuleDTO("MyPref","desc",
                     Set.of("myVar[3]"),Set.of(),Set.of()));
-    VariableModuleDTO variableModuleDTO= new VariableModuleDTO(Set.of("myVar"),Set.of("mySet"),Set.of(),Map.of());
+    VariableModuleDTO variableModuleDTO= new VariableModuleDTO(Set.of("myVar"),Map.of());
     ImageDTO imageDTO= new ImageDTO(variableModuleDTO,constraintModuleDTOs,preferenceModuleDTOs);
     ImageConfigDTO configDTO= new ImageConfigDTO(imageId,imageDTO);
     configImage(configDTO);

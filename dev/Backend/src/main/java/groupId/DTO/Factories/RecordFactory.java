@@ -1,5 +1,10 @@
 package groupId.DTO.Factories;
 
+import Model.Data.Elements.Data.ModelParameter;
+import Model.Data.Elements.Data.ModelSet;
+import Model.Data.Elements.Operational.Constraint;
+import Model.Data.Elements.Operational.Preference;
+import Model.Data.Elements.Variable;
 import groupId.DTO.Records.Image.*;
 import groupId.DTO.Records.Model.ModelDefinition.*;
 import groupId.DTO.Records.Model.ModelData.*;
@@ -41,8 +46,8 @@ public class RecordFactory {
         double objectiveValue = solution.getObjectiveValue();
         boolean solved = true;
         HashMap<String, SolutionVariable> variables = new HashMap<>();
-        for (ModelVariable variable : solution.getVariables()) {
-            String variableName = variable.getIdentifier();
+        for (Variable variable : solution.getVariables()) {
+            String variableName = variable.getName();
             Set<SolutionValueDTO> variableValues = new HashSet<>();
             List<String> variableStructure = List.copyOf(solution.getVariableStructure(variableName));
             List<String> variableTypes = List.copyOf(solution.getVariableTypes(variableName));
@@ -59,14 +64,14 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    public static PreferenceDTO makeDTO (ModelPreference preference) {
+    public static PreferenceDTO makeDTO (Preference preference) {
         if (preference == null)
             throw new NullPointerException("Null preference in DTO mapping");
         HashSet<ModelSet> sets = new HashSet<>();
-        preference.getPrimitiveSets(sets);
+        //preference.getPrimitiveSets(sets);
         HashSet<ModelParameter> parameters = new HashSet<>();
-        preference.getPrimitiveParameters(parameters);
-        return new PreferenceDTO(preference.getIdentifier(), makeDTO(sets, parameters));
+        //preference.getPrimitiveParameters(parameters);
+        return new PreferenceDTO(preference.getName()/*, makeDTO(sets, parameters)*/);
     }
 
     /**
@@ -74,14 +79,14 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    public static ConstraintDTO makeDTO (ModelConstraint constraint) {
+    public static ConstraintDTO makeDTO (Constraint constraint) {
         if (constraint == null)
             throw new NullPointerException("Null constraint in DTO mapping");
         HashSet<ModelSet> sets = new HashSet<>();
-        constraint.getPrimitiveSets(sets);
+        //constraint.getPrimitiveSets(sets);
         HashSet<ModelParameter> parameters = new HashSet<>();
-        constraint.getPrimitiveParameters(parameters);
-        return new ConstraintDTO(constraint.getIdentifier(), makeDTO(sets, parameters));
+        //constraint.getPrimitiveParameters(parameters);
+        return new ConstraintDTO(constraint.getName()/*, makeDTO(sets, parameters)*/);
     }
 
     /**
@@ -93,38 +98,38 @@ public class RecordFactory {
         if (module == null)
             throw new NullPointerException("Null constraint module in DTO mapping");
         Set<String> constraints = new HashSet<>();
-        for (ModelConstraint constraint : module.getConstraints().values()) {
-            constraints.add(constraint.getIdentifier());
+        for (Constraint constraint : module.getConstraints().values()) {
+            constraints.add(constraint.getName());
         }
 
         Set<String> sets = new HashSet<>();
         for (ModelSet s : module.getInvolvedSets()) {
-            sets.add(s.getIdentifier());
+            sets.add(s.getName());
         }
         Set<String> param = new HashSet<>();
         for (ModelParameter p : module.getInvolvedParameters()) {
-            param.add(p.getIdentifier());
+            param.add(p.getName());
         }
         return new ConstraintModuleDTO(module.getName(), module.getDescription(),
-                constraints, sets, param);
+                constraints);
     }
 
     public static PreferenceModuleDTO makeDTO (PreferenceModule module) {
         if (module == null)
             throw new NullPointerException("Null preference module in DTO mapping");
         Set<String> preferences = new HashSet<>();
-        for (ModelPreference pref : module.getPreferences().values()) {
-            preferences.add(pref.getIdentifier());
+        for (Preference pref : module.getPreferences().values()) {
+            preferences.add(pref.getName());
         }
 
         Set<String> sets = new HashSet<>();
         for (ModelSet s : module.getInvolvedSets()) {
-            sets.add(s.getIdentifier());
+            sets.add(s.getName());
         }
 
         Set<String> param = new HashSet<>();
         for (ModelParameter p : module.getInvolvedParameters()) {
-            param.add(p.getIdentifier());
+            param.add(p.getName());
         }
         return new PreferenceModuleDTO(module.getName(), module.getDescription(),
                 preferences, sets, param);
@@ -137,12 +142,12 @@ public class RecordFactory {
      */
     public static SetDefinitionDTO makeDTO (ModelSet set) {
         LinkedList<String> dependencies = new LinkedList<>();
-        for (ModelSet dependency : set.getSetDependencies()) {
+        /*for (ModelSet dependency : set.getSetDependencies()) {
             for (ModelInput.StructureBlock block : dependency.getStructure()) {
-                dependencies.add(block.dependency.getIdentifier());
+                dependencies.add(block.dependency.getName());
             }
-        }
-        return new SetDefinitionDTO(set.getIdentifier(), dependencies, set.getType().typeList());
+        }*/
+        return new SetDefinitionDTO(set.getName(), dependencies, set.getType().typeList());
     }
 
     /**
@@ -164,7 +169,7 @@ public class RecordFactory {
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
     public static ParameterDefinitionDTO makeDTO (ModelParameter parameter) {
-        return new ParameterDefinitionDTO(parameter.getIdentifier(), parameter.getType().toString());
+        return new ParameterDefinitionDTO(parameter.getName(), parameter.getType().toString());
     }
 
     /**
@@ -181,12 +186,12 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    private static VariableDTO makeDTO (ModelVariable variable) {
+    private static VariableDTO makeDTO (Variable variable) {
         HashSet<ModelSet> sets = new HashSet<>();
-        variable.getPrimitiveSets(sets);
+       // variable.getPrimitiveSets(sets);
         HashSet<ModelParameter> parameters = new HashSet<>();
-        variable.getPrimitiveParameters(parameters);
-        return new VariableDTO(variable.getIdentifier(), makeDTO(sets, parameters));
+       // variable.getPrimitiveParameters(parameters);
+        return new VariableDTO(variable.getName()/*, makeDTO(sets, parameters)*/);
     }
 
     /**
@@ -240,20 +245,20 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    private static VariableModuleDTO makeDTO (List<ModelVariable> values, Map<String, List<String>> aliases) {
-        Set<String> intr = new HashSet<>();
+    private static VariableModuleDTO makeDTO (List<Variable> values, Map<String, List<String>> aliases) {
+        Set<String> variables = new HashSet<>();
         Set<String> params = new HashSet<>();
         Set<String> sets = new HashSet<>();
-        for (ModelVariable mv : values) {
-            intr.add(mv.getIdentifier());
-            for (ModelSet set : mv.getSetDependencies()) {
-                sets.add(set.getIdentifier());
+        for (Variable mv : values) {
+            variables.add(mv.getName());
+            /*for (ModelSet set : mv.getSetDependencies()) {
+                sets.add(set.getName());
             }
             for (ModelParameter param : mv.getParamDependencies()) {
-                params.add(param.getIdentifier());
-            }
+                params.add(param.getName());
+            }*/
         }
-        return new VariableModuleDTO(intr, sets, params, aliases);
+        return new VariableModuleDTO(variables/*, sets, params*/, aliases);
     }
 
     public static ImageResponseDTO makeDTO (UUID id, Image image) {
@@ -279,43 +284,26 @@ public class RecordFactory {
         Set<PreferenceDTO> preferences = new HashSet<>();
         //TODO: Variables.
         Set<VariableDTO> variables = new HashSet<>();
-        Map<String, List<String>> setTypes = new HashMap<>();
-        Map<String, String> paramTypes = new HashMap<>();
+        Map<String, List<String>> sets = new HashMap<>();
+        Map<String, String> params = new HashMap<>();
         Map<String, String> varTypes = new HashMap<>();
-        for (ModelConstraint constraint : modelInterface.getConstraints()) {
-            HashSet<ModelSet> primitiveSets = new HashSet<>();
-            HashSet<ModelParameter> primitiveParameters = new HashSet<>();
-            constraint.getPrimitiveSets(primitiveSets);
-            constraint.getPrimitiveParameters(primitiveParameters);
+        for (Constraint constraint : modelInterface.getConstraints()) {
             constraints.add(makeDTO(constraint));
-            for (ModelSet set : primitiveSets)
-                setTypes.putIfAbsent(set.getIdentifier(), set.getType().typeList());
-            for (ModelParameter parameter : primitiveParameters)
-                paramTypes.putIfAbsent(parameter.getIdentifier(), parameter.getType().toString());
-        }
-        for (ModelPreference preference : modelInterface.getPreferences()) {
+        for (Preference preference : modelInterface.getPreferences()) {
             preferences.add(makeDTO(preference));
-            HashSet<ModelSet> primitiveSets = new HashSet<>();
-            HashSet<ModelParameter> primitiveParameters = new HashSet<>();
-            preference.getPrimitiveSets(primitiveSets);
-            preference.getPrimitiveParameters(primitiveParameters);
-            for (ModelSet set : primitiveSets)
-                setTypes.putIfAbsent(set.getIdentifier(), set.getType().typeList());
-            for (ModelParameter parameter : primitiveParameters)
-                paramTypes.putIfAbsent(parameter.getIdentifier(), parameter.getType().toString());
         }
-        for (ModelVariable variable : modelInterface.getVariables()) {
+        for (Variable variable : modelInterface.getVariables()) {
             variables.add(makeDTO(variable));
-            HashSet<ModelSet> primitiveSets = new HashSet<>();
-            HashSet<ModelParameter> primitiveParameters = new HashSet<>();
-            variable.getPrimitiveSets(primitiveSets);
-            variable.getPrimitiveParameters(primitiveParameters);
-            for (ModelSet set : primitiveSets)
-                setTypes.putIfAbsent(set.getIdentifier(), set.getType().typeList());
-            for (ModelParameter parameter : primitiveParameters)
-                paramTypes.putIfAbsent(parameter.getIdentifier(), parameter.getType().toString());
         }
-        return new ModelDTO(constraints, preferences, variables, setTypes, paramTypes, varTypes);
+        for (ModelSet set : modelInterface.getSets()) {
+            sets.put(set.getName(),set.getType().typeList());
+        }
+        for (ModelParameter parameter: modelInterface.getParameters()) {
+            params.put(parameter.getName(),parameter.getType().toString());
+        }
+
+        }
+        return new ModelDTO(constraints, preferences, variables, sets, params);
     }
 
     /**
@@ -323,16 +311,18 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
+    @Deprecated
     public static DependenciesDTO makeDTO (Set<ModelSet> sets, Set<ModelParameter> parameters) {
-        Set<String> resS = new HashSet<>();
+       /* Set<String> resS = new HashSet<>();
         Set<String> resP = new HashSet<>();
         for (ModelSet x : sets) {
-            resS.add(x.getIdentifier());
+            resS.add(x.getName());
         }
         for (ModelParameter x : parameters) {
-            resP.add(x.getIdentifier());
+            resP.add(x.getName());
         }
-        return new DependenciesDTO(resS, resP);
+        //return new DependenciesDTO(resS, resP);*/
+        return new DependenciesDTO();
     }
 
     /**

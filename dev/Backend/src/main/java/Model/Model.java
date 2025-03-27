@@ -4,8 +4,16 @@ import Exceptions.InternalErrors.BadRequestException;
 import Exceptions.InternalErrors.ModelExceptions.EngineErrorException;
 import Exceptions.InternalErrors.ModelExceptions.InvalidModelInputException;
 import Exceptions.InternalErrors.ModelExceptions.Parsing.ParsingException;
+import Model.Data.Elements.Data.DataElement;
+import Model.Data.Elements.Data.ModelParameter;
+import Model.Data.Elements.Data.ModelSet;
+import Model.Data.Elements.Operational.Constraint;
+import Model.Data.Elements.Operational.OperationalElement;
+import Model.Data.Elements.Operational.Preference;
+import Model.Data.Elements.Variable;
 import Model.Parsing.CollectorVisitor;
 import Model.Parsing.ModifierVisitor;
+import org.antlr.v4.codegen.model.ModelElement;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 
@@ -25,11 +33,11 @@ public class Model implements ModelInterface {
     private final String sourceFilePath;
     ParseTree tree;
     private CommonTokenStream tokens;
-    private final Map<String,ModelSet> sets = new HashMap<>();
-    private final Map<String,ModelParameter> params = new HashMap<>();
-    private final Map<String,ModelConstraint> constraints = new HashMap<>();
-    private final Map<String,ModelPreference> preferences = new HashMap<>();
-    private final Map<String,ModelVariable> variables = new HashMap<>();
+    private final Map<String, ModelSet> sets = new HashMap<>();
+    private final Map<String, ModelParameter> params = new HashMap<>();
+    private final Map<String, Constraint> constraints = new HashMap<>();
+    private final Map<String, Preference> preferences = new HashMap<>();
+    private final Map<String, Variable> variables = new HashMap<>();
     private final Set<String> toggledOffFunctionalities = new HashSet<>();
 
     public String getSourceFilePath () {
@@ -42,15 +50,15 @@ public class Model implements ModelInterface {
     public Map<String,ModelParameter> getParamsMap(){
         return params;
     }
-    public Map<String,ModelConstraint> getConstraintsMap(){
+    public Map<String,Constraint> getConstraintsMap(){
         return constraints;
     }
 
-    public Map<String,ModelPreference> getPreferencesMap(){
+    public Map<String,Preference> getPreferencesMap(){
         return preferences;
     }
 
-    public Map<String,ModelVariable> getVariablesMap(){
+    public Map<String,Variable> getVariablesMap(){
         return variables;
     }
 
@@ -108,9 +116,9 @@ public class Model implements ModelInterface {
         //     throw new IllegalArgumentException("Set " + setName + " not found");
         // }
         if(!set.isCompatible(value))
-            throw new InvalidModelInputException("set "+set.identifier+" is incompatible with given input: "+value+" , expected type: "+set.getType());
+            throw new InvalidModelInputException("set "+set.getName()+" is incompatible with given input: "+value+" , expected type: "+set.getType());
         
-        ModifierVisitor modifier = new ModifierVisitor(this, tokens, set.getIdentifier(), value, ModifierVisitor.Action.APPEND, originalSource);
+        ModifierVisitor modifier = new ModifierVisitor(this, tokens, set.getName(), value, ModifierVisitor.Action.APPEND, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
@@ -131,9 +139,9 @@ public class Model implements ModelInterface {
         //     throw new IllegalArgumentException("Set " + setName + " not found");
         // }
         if(!set.isCompatible(value))
-            throw new InvalidModelInputException("set "+set.identifier+" is incompatible with given input: "+value+" , expected type: "+set.getType());
+            throw new InvalidModelInputException("set "+set.getName()+" is incompatible with given input: "+value+" , expected type: "+set.getType());
 
-        ModifierVisitor modifier = new ModifierVisitor(this, tokens, set.getIdentifier(), value,  ModifierVisitor.Action.DELETE, originalSource);
+        ModifierVisitor modifier = new ModifierVisitor(this, tokens, set.getName(), value,  ModifierVisitor.Action.DELETE, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
@@ -152,9 +160,9 @@ public class Model implements ModelInterface {
     public void setInput(ModelParameter identifier, String value){
 
         if(!identifier.isCompatible(value))
-            throw new InvalidModelInputException("parameter "+identifier.identifier+" is incompatible with given input: "+value +" expected type: "+identifier.getType());
+            throw new InvalidModelInputException("parameter "+identifier.getName()+" is incompatible with given input: "+value +" expected type: "+identifier.getType());
         
-        ModifierVisitor modifier = new ModifierVisitor(this, tokens, identifier.getIdentifier(), value,  ModifierVisitor.Action.SET, originalSource);
+        ModifierVisitor modifier = new ModifierVisitor(this, tokens, identifier.getName(), value,  ModifierVisitor.Action.SET, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
@@ -173,11 +181,11 @@ public class Model implements ModelInterface {
 
         for(String str : values){
             if(!identifier.isCompatible(str))
-                throw new InvalidModelInputException("set "+identifier.identifier+" is incompatible with given input: "+str+" , expected type: "+identifier.getType());
+                throw new InvalidModelInputException("set "+identifier.getName()+" is incompatible with given input: "+str+" , expected type: "+identifier.getType());
 
         }
         
-        ModifierVisitor modifier = new ModifierVisitor(this, tokens, identifier.getIdentifier(), values,  ModifierVisitor.Action.SET, originalSource);
+        ModifierVisitor modifier = new ModifierVisitor(this, tokens, identifier.getName(), values,  ModifierVisitor.Action.SET, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
@@ -197,39 +205,39 @@ public class Model implements ModelInterface {
     public List<String> getInput(ModelParameter parameter) {
         if(parameter == null)
             throw new InvalidModelInputException("Trying to get input of a null parameter!");
-        if(params.get(parameter.getIdentifier()) == null)
-            throw new InvalidModelInputException("parameter " + parameter.getIdentifier() + " doesnt exist ");
-        if(!params.get(parameter.getIdentifier()).hasValue())
-            throw new InvalidModelInputException("parameter " + parameter.getIdentifier() + " is not set to have an input, or is not a declarative parameter");
-        parameter = params.get(parameter.getIdentifier());
+        if(params.get(parameter.getName()) == null)
+            throw new InvalidModelInputException("parameter " + parameter.getName() + " doesnt exist ");
+        if(params.get(parameter.getName()).getData() == null)
+            throw new InvalidModelInputException("parameter " + parameter.getName() + " is not set to have an input, or is not a declarative parameter");
+        parameter = params.get(parameter.getName());
 
-        return ModelType.convertStringToAtoms(parameter.getValue()).getFirst(); //TODO FIX THIS SHIT
+        return ModelType.convertStringToAtoms(parameter.getData()).getFirst(); //TODO FIX THIS SHIT
         
     }
 
     @Override
     public List<List<String>> getInput(ModelSet set) {
-        if(set == null || set.getIdentifier() == null)
+        if(set == null || set.getName() == null)
             throw new InvalidModelInputException("Trying to get input of a null set!");
-        if(sets.get(set.getIdentifier()) == null)
-            throw new InvalidModelInputException("set " + set.getIdentifier() + " doesnt exist ");
-        if(sets.get(set.getIdentifier()).getElements() == null)
-            throw new InvalidModelInputException("set " + set.getIdentifier() + " is not set to have an input, or is not declarative set");
+        if(sets.get(set.getName()) == null)
+            throw new InvalidModelInputException("set " + set.getName() + " doesnt exist ");
+        if(sets.get(set.getName()).getData() == null)
+            throw new InvalidModelInputException("set " + set.getName() + " is not set to have an input, or is not declarative set");
         
-        set = sets.get(set.getIdentifier());
+        set = sets.get(set.getName());
         List<List<String>> ans = new LinkedList<>();
-        for(String element :set.getElements() ){
+        for(String element :set.getData() ){
             ans.addAll(ModelType.convertStringToAtoms(element));
         }
         return ans;
         
     }
 
-    public void toggleFunctionality(ModelFunctionality mf, boolean turnOn) {
+    public void toggleFunctionality(OperationalElement operationalElement, boolean turnOn) {
         if (!turnOn) {
-            toggledOffFunctionalities.add(mf.getIdentifier());
+            toggledOffFunctionalities.add(operationalElement.getName());
         } else {
-            toggledOffFunctionalities.remove(mf.getIdentifier());
+            toggledOffFunctionalities.remove(operationalElement.getName());
         }
     }
 
@@ -469,30 +477,30 @@ public class Model implements ModelInterface {
         return params.get(identifier);
     }
     
-    public ModelConstraint getConstraint(String identifier) {
+    public Constraint getConstraint(String identifier) {
         return constraints.get(identifier);
     }
 
     @Override
-    public Collection<ModelConstraint> getConstraints() {
+    public Collection<Constraint> getConstraints() {
         return constraints.values();
     }
 
-    public ModelPreference getPreference(String identifier) {
+    public Preference getPreference(String identifier) {
         return preferences.get(identifier);
     }
 
     @Override
-    public Collection<ModelPreference> getPreferences() {
+    public Collection<Preference> getPreferences() {
         return preferences.values();
     }
 
-    public ModelVariable getVariable(String identifier) {
+    public Variable getVariable(String identifier) {
         return variables.get(identifier);
     }
 
     @Override
-    public Collection<ModelVariable> getVariables() {
+    public Collection<Variable> getVariables() {
         return variables.values();
     }
     @Override
@@ -505,8 +513,8 @@ public class Model implements ModelInterface {
         return this.params.values();
     }
     @Override
-    public Collection<ModelVariable> getVariables(Collection<String> identifiers){
-        HashSet<ModelVariable> set = new HashSet<>();
+    public Collection<Variable> getVariables(Collection<String> identifiers){
+        HashSet<Variable> set = new HashSet<>();
         for (String identifier : identifiers) {
             set.add(getVariable(identifier));
         }

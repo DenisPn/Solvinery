@@ -16,7 +16,7 @@ import jakarta.validation.constraints.NotNull;
  * @param variableAliases alias structure of a variable, a map from variable name to a list of aliases
  */
 public record VariableModuleDTO(@Valid @NotNull Set<@NotBlank String> variablesOfInterest,
-                                @Valid @NotNull Set<@NotBlank String> variablesConfigurableSets,
-                                @Valid @NotNull Set<@NotBlank String> variablesConfigurableParams,
+                                /*@Valid @NotNull Set<@NotBlank String> variablesConfigurableSets,
+                                @Valid @NotNull Set<@NotBlank String> variablesConfigurableParams,*/
                                 @Valid @NotNull Map<@NotBlank String, @Valid @NotNull List<@NotBlank String>> variableAliases
                                 ) {}

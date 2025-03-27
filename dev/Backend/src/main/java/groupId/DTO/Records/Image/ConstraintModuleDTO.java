@@ -17,6 +17,6 @@ import java.util.Set;
  * @param inputSets a list of sets which the constraints in the module depend on
  * @param inputParams a list of parameters which the constraints in the module depend on
  */
-public record ConstraintModuleDTO(@NotBlank String moduleName, @NotNull String description, @Valid Set<@NotBlank String> constraints,
-                                  @Valid Set<@NotBlank String> inputSets,
-                                  @Valid Set<@NotBlank String> inputParams) {}
+public record ConstraintModuleDTO(@NotBlank String moduleName, @NotNull String description, @Valid Set<@NotBlank String> constraints
+                                /*  @Valid Set<@NotBlank String> inputSets,
+                                  @Valid Set<@NotBlank String> inputParams*/) {}

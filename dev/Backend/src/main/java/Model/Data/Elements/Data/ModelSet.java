@@ -1,8 +1,22 @@
 package Model.Data.Elements.Data;
 
-public class ModelSet extends DataElement {
+import Model.ModelType;
 
-    public ModelSet (String name, String type) {
+import java.util.List;
+import java.util.SequencedCollection;
+
+public class ModelSet extends DataElement {
+    private SequencedCollection<String> data;
+    public ModelSet (String name, ModelType type, SequencedCollection<String> data) {
         super(name,type);
+        this.data = data;
     }
+
+    public SequencedCollection<String> getData () {
+        return data;
+    }
+    public boolean isEmpty () {
+        return data.isEmpty();
+    }
+
 }

@@ -11,6 +11,6 @@ import jakarta.validation.constraints.NotNull;
  * @see DependenciesDTO
  */
 public record VariableDTO(
-    @NotBlank String identifier,
-    @Valid @NotNull DependenciesDTO dep
+    @NotBlank String identifier
+    //@Valid @NotNull DependenciesDTO dep
 ) {}

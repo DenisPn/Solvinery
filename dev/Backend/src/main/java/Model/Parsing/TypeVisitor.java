@@ -1,5 +1,7 @@
 package Model.Parsing;
 
+import Model.Data.Elements.Data.ModelParameter;
+import Model.Data.Elements.Data.ModelSet;
 import Model.Model;
 import Model.*;
 import parser.FormulationBaseVisitor;
@@ -156,32 +158,33 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
 
         return null;
     }
-
+    @Deprecated
     @Override
+    //dependencies are not longer used, avoid deletion for now since that will take changing parser def (.g4 file)
     public Void visitSetDescStack (FormulationParser.SetDescStackContext ctx) {
+
         if (ctx.condition() != null) {
             TypeVisitor elementVisitor = new TypeVisitor(model);
             elementVisitor.visit(ctx.condition());
-            ModelSet set = new ModelSet("anonymous_set", elementVisitor.type, elementVisitor.basicSets, elementVisitor.basicParams);
-            basicSets.add(set);
+            /*ModelSet set = new ModelSet("anonymous_set", elementVisitor.type);
+            basicSets.add(set);*/
             type = elementVisitor.getType();
         } else if (ctx.csv() != null) {
             // Handle explicit set elements
             TypeVisitor elementVisitor = new TypeVisitor(model);
             elementVisitor.visit(ctx.csv().expr(0));
-            ModelSet set = new ModelSet("anonymous_set", elementVisitor.type, elementVisitor.basicSets, elementVisitor.basicParams);
+            /*ModelSet set = new ModelSet("anonymous_set", elementVisitor.type, elementVisitor.basicSets, elementVisitor.basicParams);
             // Add this as a basic set since it's explicitly defined
-            basicSets.add(set);
+            basicSets.add(set);*/
             type = elementVisitor.getType();
         } else if (ctx.range() != null) {
-            ModelSet set = new ModelSet("anonymous_set", ModelPrimitives.INT);
-            basicSets.add(set);
+            /*ModelSet set = new ModelSet("anonymous_set", ModelPrimitives.INT);
+            basicSets.add(set);*/
             type = ModelPrimitives.INT;
             TypeVisitor visitor = new TypeVisitor(model);
             visitor.visit(ctx.range());
-            set.paramDependencies.addAll(visitor.getBasicParams());
-            set.setDependencies.addAll(visitor.getBasicSets());
-        }
+         }
+
         return null;
     }
 
@@ -225,7 +228,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
     @Deprecated
     @Override
     public Void visitProjFunc (FormulationParser.ProjFuncContext ctx) {
-        if(false) {
+       /* if(false) {
             TypeVisitor visitor = new TypeVisitor(model);
             visitor.visit(ctx.setExpr());
             List<Integer> pointersToSetComp = new LinkedList<>();
@@ -235,10 +238,10 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
             }
 
             int count = 0;
-            for (ModelSet s : visitor.basicSets) {
+            *//*for (ModelSet s : visitor.basicSets) {
                 count += s.getStructure().length;
-            }
-            ModelInput.StructureBlock[] totalStructure = new ModelInput.StructureBlock[count];
+            }*//*
+            *//*ModelInput.StructureBlock[] totalStructure = new ModelInput.StructureBlock[count];
             count = 0;
             for (ModelSet s : visitor.basicSets) {
                 int i = 1;
@@ -247,13 +250,13 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
                     count++;
                     i++;
                 }
-            }
+            }*//*
 
-            ModelInput.StructureBlock[] resultingStructure = new ModelInput.StructureBlock[pointersToSetComp.size()];
+            *//*ModelInput.StructureBlock[] resultingStructure = new ModelInput.StructureBlock[pointersToSetComp.size()];
             count = 0;
             for (Integer p : pointersToSetComp) {
                 resultingStructure[count++] = totalStructure[p - 1];
-            }
+            }*//*
             ModelSet newSet = new ModelSet("anonymous_set", visitor.getBasicSets(), visitor.getBasicParams(), resultingStructure);
             basicSets.add(newSet);
             if (type == null || type == ModelPrimitives.UNKNOWN)
@@ -262,7 +265,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
                 ((Tuple) type).append(newSet.getType());
 
             return null;
-        }
+        }*/
         return null;
     }
 

@@ -22,7 +22,7 @@ public record ModelDTO(
     Set<PreferenceDTO> preferences,
     Set<VariableDTO> variables,
     Map<String, List<String>> setTypes,
-    Map<String, String> paramTypes,
-    Map<String,String> varTypes
+    Map<String, String> paramTypes
+    //Map<String,String> varTypes
 
 ) {}

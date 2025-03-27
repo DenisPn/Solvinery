@@ -14,6 +14,9 @@ import java.util.Set;
 import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
 import Exceptions.InternalErrors.ModelExceptions.Parsing.ParsingException;
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
+import Model.Data.Elements.Operational.Constraint;
+import Model.Data.Elements.Operational.Preference;
+import Model.Data.Elements.Variable;
 import groupId.DTO.Factories.RecordFactory;
 import groupId.DTO.Records.Image.SolutionDTO;
 import groupId.DTO.Records.Model.ModelData.InputDTO;
@@ -23,10 +26,7 @@ import Image.Modules.ConstraintModule;
 import Image.Modules.PreferenceModule;
 import Image.Modules.VariableModule;
 import Model.Model;
-import Model.ModelConstraint;
 import Model.ModelInterface;
-import Model.ModelPreference;
-import Model.ModelVariable;
 import Model.Solution;
 
 public class Image {
@@ -65,14 +65,14 @@ public class Image {
     public void addConstraintModule(String moduleName, String description) {
         constraintsModules.put(moduleName, new ConstraintModule(moduleName, description));
     }
-    public void addConstraintModule(String moduleName, String description, Collection<String> constraints, Collection<String> inputSets, Collection<String> inputParams) {
-        HashSet<ModelConstraint> modelConstraints = new HashSet<>();
+    public void addConstraintModule(String moduleName, String description, Collection<String> constraints/* ,Collection<String> inputSets, Collection<String> inputParams*/) {
+        HashSet<Constraint> modelConstraints = new HashSet<>();
         for (String name : constraints) {
-            ModelConstraint constraint = model.getConstraint(name);
+            Constraint constraint = model.getConstraint(name);
             Objects.requireNonNull(constraint,"Invalid constraint name in add constraint in image");
             modelConstraints.add(constraint);
         }
-        constraintsModules.put(moduleName, new ConstraintModule(moduleName, description, modelConstraints,inputSets,inputParams));
+        constraintsModules.put(moduleName, new ConstraintModule(moduleName, description, modelConstraints/*,inputSets,inputParams*/));
     }
     public void addPreferenceModule(PreferenceModule module) {
         preferenceModules.put(module.getName(), module);
@@ -81,9 +81,9 @@ public class Image {
         preferenceModules.put(moduleName, new PreferenceModule(moduleName, description));
     }
     public void addPreferenceModule(String moduleName, String description, Collection<String> preferences, Collection<String> inputSets, Collection<String> inputParams) {
-        HashSet<ModelPreference> modelPreferences = new HashSet<>();
+        HashSet<Preference> modelPreferences = new HashSet<>();
         for (String name : preferences) {
-            ModelPreference preference = model.getPreference(name);
+            Preference preference = model.getPreference(name);
            Objects.requireNonNull(preference,"Invalid preference name in add preference module");
            modelPreferences.add(preference);
         }
@@ -122,10 +122,10 @@ public class Image {
             throw new IllegalArgumentException("No preference module with name: " + moduleName);
         preferenceModules.get(moduleName).removePreference(model.getPreference(preferenceDTO.identifier()));
     }
-    public Map<String,ModelVariable> getVariables() {
+    public Map<String, Variable> getVariables() {
         return variables.getVariables();
     }
-    public ModelVariable getVariable(String name) {
+    public Variable getVariable(String name) {
         return variables.get(name);
     }
     /*public void addVariable(ModelVariable variable) {
@@ -193,13 +193,13 @@ public class Image {
 
     private void toggleOffConstraint(String name){
         Objects.requireNonNull(name,"Null value during Toggle Preference in Image");
-        ModelConstraint constraint=model.getConstraint(name);
+        Constraint constraint=model.getConstraint(name);
         Objects.requireNonNull(constraint,"Invalid constraint name in Toggle Constraint in Image");
         model.toggleFunctionality(constraint, false);
     }
     private void toggleOffPreference(String name){
         Objects.requireNonNull(name,"Null value during Toggle Preference in Image");
-        ModelPreference preference=model.getPreference(name);
+        Preference preference=model.getPreference(name);
         Objects.requireNonNull(preference,"Invalid preference name in Toggle Preference in Image");
         model.toggleFunctionality(preference, false);
     }
@@ -213,16 +213,17 @@ public class Image {
         throw new UnsupportedOperationException("Unimplemented method 'getId'");
     }
 
-    public void reset(Map<String,ModelVariable> variables, Collection<String> sets, Collection<String> params,Map<String,List<String>> aliases) {
+    public void reset(Map<String,Variable> variables,/* Collection<String> sets, Collection<String> params,*/Map<String,List<String>> aliases) {
         constraintsModules.clear();
         preferenceModules.clear();
-        this.variables.override(variables,sets,params,aliases);
+        this.variables.override(variables/*,sets,params*/,aliases);
     }
     public Map<String,List<String>> getAliases() {
         return variables.getAliases();
     }
+    @Deprecated
     public Set<String> getAllInvolvedSets() {
-        Set<String> allSets = new HashSet<>();
+       /* Set<String> allSets = new HashSet<>();
 
         // Add inputSets from each constraint module
         for (ConstraintModule constraintModule : constraintsModules.values()) {
@@ -236,11 +237,12 @@ public class Image {
 
         allSets.addAll(variables.getInputSets());
 
-        return allSets;
+        return allSets;*/
+        return null;
     }
 
     public Set<String> getAllInvolvedParams() {
-        Set<String> allParams = new HashSet<>();
+        /*Set<String> allParams = new HashSet<>();
 
         // Add inputParams from each constraint module
         for (ConstraintModule constraintModule : constraintsModules.values()) {
@@ -254,13 +256,14 @@ public class Image {
 
         allParams.addAll(variables.getInputParams());
 
-        return allParams;
+        return allParams;*/
+        return null;
     }
 
 
 
-    public InputDTO getInput() throws Exception {
-        Set<String> relevantParams = getAllInvolvedParams();
+    public InputDTO getInput() {
+        /*Set<String> relevantParams = model.getParameters();
         Set<String> relevantSets = getAllInvolvedSets();
         Map<String, List<List<String>>> setsToValues = new HashMap<>();
         Map<String,List<String>> paramsToValues = new HashMap<>();
@@ -277,7 +280,7 @@ public class Image {
 
             setsToValues.put(set, convertedList);
         }
-
-        return new InputDTO(setsToValues,paramsToValues,new LinkedList<>(), new LinkedList<>());
+*/
+        return new InputDTO(new HashMap<>(),new HashMap<>(),new LinkedList<>(), new LinkedList<>());
     }
 }

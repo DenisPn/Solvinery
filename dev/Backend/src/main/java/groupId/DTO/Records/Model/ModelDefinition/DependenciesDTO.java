@@ -14,7 +14,8 @@ import java.util.Set;
  * @see PreferenceDTO
  * @see VariableDTO
  */
+@Deprecated
 public record DependenciesDTO(
-    @NotNull @Valid Set<@NotNull String> setDependencies,
-    @NotNull @Valid Set<@NotNull String> paramDependencies
+//    @NotNull @Valid Set<@NotNull String> setDependencies,
+//    @NotNull @Valid Set<@NotNull String> paramDependencies
 ) {}

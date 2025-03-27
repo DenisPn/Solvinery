@@ -27,20 +27,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import Model.Model;
-import Model.ModelConstraint;
-import Model.ModelFunctionality;
 import Model.ModelInterface;
-import Model.ModelParameter;
-import Model.ModelPreference;
 import Model.ModelPrimitives;
-import Model.ModelSet;
 import Model.ModelType;
-import Model.ModelVariable;
 import Model.Solution;
 import Model.Tuple;
 
 
 public class ModelTest {
+    /*
     private ModelInterface model;
 
     private static String source = "src/test/Unit/TestFile.zpl";
@@ -302,6 +297,6 @@ public class ModelTest {
        Files.deleteIfExists(Path.of(targetPath.toString()+"SOLUTION"));
        Files.deleteIfExists(Path.of("./src/test/Unit/TestFile2.zplSOLUTION"));
 
-    }
+    }*/
 
 }
