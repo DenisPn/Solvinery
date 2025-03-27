@@ -22,12 +22,16 @@ import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
 import groupId.DTO.Records.Requests.Commands.SolveCommandDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import jakarta.validation.Valid;
+import org.springframework.jdbc.core.JdbcTemplate;
+
 
 @RestController
 @RequestMapping("/")
 public class Service implements ServiceInterface {
-    private final UserController controller;
 
+    private final UserController controller;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
     @Autowired 
     public Service(UserController controller) {
         this.controller = controller;
@@ -64,4 +68,16 @@ public class Service implements ServiceInterface {
         InputDTO res = controller.loadLastInput(imageId);
         return ResponseEntity.ok(res);
     }
+    @GetMapping("/test-connection")
+    public String testConnection() {
+        try {
+            // Test query to fetch PostgreSQL version
+            String postgresVersion = jdbcTemplate.queryForObject("SELECT version();", String.class);
+            return "Connected to PostgreSQL: " + postgresVersion;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Connection failed: " + e.getMessage();
+        }
+    }
+
 }
