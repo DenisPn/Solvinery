@@ -2,6 +2,8 @@ package groupId;
 
 import java.io.IOException;
 
+import Persistence.Repositories.UserRepository;
+import User.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -30,6 +32,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class Service implements ServiceInterface {
 
     private final UserController controller;
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     JdbcTemplate jdbcTemplate;
     @Autowired 
@@ -73,6 +77,7 @@ public class Service implements ServiceInterface {
         try {
             // Test query to fetch PostgreSQL version
             String postgresVersion = jdbcTemplate.queryForObject("SELECT version();", String.class);
+            userRepository.save(new User("test_user"));
             return "Connected to PostgreSQL: " + postgresVersion;
         } catch (Exception e) {
             e.printStackTrace();
