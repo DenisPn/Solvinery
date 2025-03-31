@@ -18,5 +18,5 @@ import jakarta.validation.constraints.NotNull;
 public record VariableModuleDTO(@Valid @NotNull Set<@NotBlank String> variablesOfInterest,
                                 /*@Valid @NotNull Set<@NotBlank String> variablesConfigurableSets,
                                 @Valid @NotNull Set<@NotBlank String> variablesConfigurableParams,*/
-                                @Valid @NotNull Map<@NotBlank String, @Valid @NotNull List<@NotBlank String>> variableAliases
+                                @Valid @NotNull Map<@NotBlank String, @NotBlank String> variableAliases
                                 ) {}

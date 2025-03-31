@@ -1,12 +1,10 @@
-package Image.Modules;
+package Image.Modules.Operational;
 
-import Model.Data.Elements.Data.ModelParameter;
-import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Preference;
 
 import java.util.*;
 
-public class PreferenceModule extends Module{
+public class PreferenceModule extends OperationalModule {
     /**
      * a preference module, holding the user definition for a group of model preference
      * (a preference is a single expressions in the expression sum in the minimize/maximize expression in zimpl)
@@ -21,34 +19,13 @@ public class PreferenceModule extends Module{
         preferences = new HashMap<>();
 
     }
-    public PreferenceModule(String name, String description, Collection<Preference> preferences, Collection<String> inputSets, Collection<String> inputParams) {
-        super(name, description,inputSets,inputParams);
+    public PreferenceModule(String name, String description, Collection<Preference> preferences) {
+        super(name, description);
         this.preferences = new HashMap<>();
         for (Preference constraint : preferences) {
             this.preferences.put(constraint.getName(), constraint);
         }
 
-    }
-    /**
-     * Fetch all ModelSets that are in use in any of the preferences in the module.
-     * @return all sets that are part of any preferences in the module
-     */
-    @Override
-    public Set<ModelSet> getInvolvedSets(){
-        HashSet<ModelSet> involvedSets = new HashSet<>();
-        /*for(Preference constraint : preferences.values()){
-            constraint.getPrimitiveSets(involvedSets);
-        }*/
-        return involvedSets;
-    }
-
-    @Override
-    public Set<ModelParameter> getInvolvedParameters() {
-        HashSet<ModelParameter> involvedParameters = new HashSet<>();
-        /*for(Preference preference : preferences.values()){
-          preference.getPrimitiveParameters(involvedParameters);
-        }*/
-        return involvedParameters;
     }
 
     public Preference getPreference(String name){

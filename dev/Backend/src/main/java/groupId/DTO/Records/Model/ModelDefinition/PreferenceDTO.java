@@ -12,5 +12,5 @@ import jakarta.validation.constraints.NotNull;
  */
 public record PreferenceDTO(
     @NotBlank String identifier
-    //@NotNull @Valid DependenciesDTO dep
+    //@NotNull @Valid DependenciesDTO structure
 ) {}

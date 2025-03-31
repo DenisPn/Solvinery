@@ -110,7 +110,7 @@
                     <outputDirectory>${basedir}/src/main/generated-sources/antlr4</outputDirectory>
                     <visitor>true</visitor>
                     <listener>true</listener>
-                    <package>parser</package>
+                   <!-- <package>parser</package> -->
                 </configuration>
                 <executions>
                     <execution>

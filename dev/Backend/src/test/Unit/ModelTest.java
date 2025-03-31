@@ -28,10 +28,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import Model.Model;
 import Model.ModelInterface;
-import Model.ModelPrimitives;
-import Model.ModelType;
-import Model.Solution;
-import Model.Tuple;
+
 
 
 public class ModelTest {

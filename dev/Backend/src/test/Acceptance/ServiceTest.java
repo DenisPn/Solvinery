@@ -93,7 +93,7 @@ public class ServiceTest {
             "some imageId", new ModelDTO(
               Set.of(new ConstraintDTO("sampleConstraint")),
                 Set.of(new PreferenceDTO("myVar[3]")),
-                Set.of(new VariableDTO("myVar")),
+                Set.of(new VariableDTO("myVar",List.of("mySet"))),
                 Map.of("mySet",List.of("INT")),
                 Map.of("x","INT")
                 ));
@@ -131,7 +131,7 @@ public class ServiceTest {
                 "some imageId", new ModelDTO(
                 Set.of(new ConstraintDTO("sampleConstraint")),
                 Set.of(new PreferenceDTO("myVar[3]")),
-                Set.of(new VariableDTO("myVar")),
+                Set.of(new VariableDTO("myVar",List.of("mySet"))),
                 Map.of("mySet",List.of("INT")),
                 Map.of("x","INT")
 
@@ -153,7 +153,7 @@ public class ServiceTest {
                         Set.of("sampleConstraint")));
         Set<PreferenceModuleDTO> preferenceModuleDTOs=Set.of(
                 new PreferenceModuleDTO("Test module","PeanutButter",
-                        Set.of("myVar[3]"),Set.of(),Set.of()));
+                        Set.of("myVar[3]")));
         VariableModuleDTO variableModuleDTO= new VariableModuleDTO(Set.of("myVar"),Map.of());
         ImageDTO imageDTO= new ImageDTO(variableModuleDTO,constraintModuleDTOs,preferenceModuleDTOs);
         ImageConfigDTO configDTO= new ImageConfigDTO(response.getBody().imageId(),imageDTO);
@@ -207,8 +207,8 @@ public class ServiceTest {
               new ConstraintDTO("drisha3"),
               new ConstraintDTO("drisha4")),
                 Set.of(new PreferenceDTO("sum<person>inPeople:(TotalMishmarot[person]**2)")),
-                Set.of(new VariableDTO("Shibutsim"),
-                        new VariableDTO("TotalMishmarot")),
+                Set.of(new VariableDTO("Shibutsim",List.of("People","Emdot","Times")),
+                        new VariableDTO("TotalMishmarot",List.of("Emdot","Times"))),
               Map.of(
                 "People",List.of("TEXT"),
                 "Emdot",List.of("TEXT")),
@@ -254,7 +254,7 @@ public class ServiceTest {
                     "some imageId", new ModelDTO(
                     Set.of(new ConstraintDTO("sampleConstraint")),
                     Set.of(new PreferenceDTO("myVar[3]")),
-                    Set.of(new VariableDTO("myVar")),
+                    Set.of(new VariableDTO("myVar",List.of("mySet"))),
                     Map.of("mySet",List.of("INT")),
                     Map.of("x","INT")
                     ));
@@ -270,7 +270,7 @@ public class ServiceTest {
             /**
              *  CONFIG IMAGE TO DISPLAY myVar
              */
-            ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Map.of("myVar",List.of("test_alias"))),Set.of(),Set.of());
+            ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Map.of("myVar","test_alias")),Set.of(),Set.of());
             ImageConfigDTO config= new ImageConfigDTO(response.getBody().imageId(),imageDTO);
             HttpEntity<ImageConfigDTO> request2 = new HttpEntity<>(config, headers);
             // Send PATCH request with body
@@ -318,7 +318,7 @@ public class ServiceTest {
                     Set.of("sampleConstraint")));
     Set<PreferenceModuleDTO> preferenceModuleDTOs=Set.of(
             new PreferenceModuleDTO("MyPref","desc",
-                    Set.of("myVar[3]"),Set.of(),Set.of()));
+                    Set.of("myVar[3]")));
     VariableModuleDTO variableModuleDTO= new VariableModuleDTO(Set.of("myVar"),Map.of());
     ImageDTO imageDTO= new ImageDTO(variableModuleDTO,constraintModuleDTOs,preferenceModuleDTOs);
     ImageConfigDTO configDTO= new ImageConfigDTO(imageId,imageDTO);

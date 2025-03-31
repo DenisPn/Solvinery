@@ -7,19 +7,16 @@ import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
 import groupId.DTO.Records.Image.*;
 import groupId.DTO.Records.Model.ModelDefinition.*;
-import groupId.DTO.Records.Model.ModelData.*;
-import groupId.DTO.Records.Image.*;
 import groupId.DTO.Records.Model.ModelData.ParameterDTO;
 import groupId.DTO.Records.Model.ModelData.ParameterDefinitionDTO;
 import groupId.DTO.Records.Model.ModelData.SetDTO;
 import groupId.DTO.Records.Model.ModelData.SetDefinitionDTO;
-import groupId.DTO.Records.Model.ModelDefinition.*;
 import groupId.DTO.Records.Requests.Commands.CreateImageFromFileDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import groupId.DTO.Records.Requests.Responses.ImageResponseDTO;
 import Image.Image;
-import Image.Modules.ConstraintModule;
-import Image.Modules.PreferenceModule;
+import Image.Modules.Operational.ConstraintModule;
+import Image.Modules.Operational.PreferenceModule;
 import Model.*;
 import org.yaml.snakeyaml.util.Tuple;
 
@@ -101,15 +98,6 @@ public class RecordFactory {
         for (Constraint constraint : module.getConstraints().values()) {
             constraints.add(constraint.getName());
         }
-
-        Set<String> sets = new HashSet<>();
-        for (ModelSet s : module.getInvolvedSets()) {
-            sets.add(s.getName());
-        }
-        Set<String> param = new HashSet<>();
-        for (ModelParameter p : module.getInvolvedParameters()) {
-            param.add(p.getName());
-        }
         return new ConstraintModuleDTO(module.getName(), module.getDescription(),
                 constraints);
     }
@@ -122,17 +110,8 @@ public class RecordFactory {
             preferences.add(pref.getName());
         }
 
-        Set<String> sets = new HashSet<>();
-        for (ModelSet s : module.getInvolvedSets()) {
-            sets.add(s.getName());
-        }
-
-        Set<String> param = new HashSet<>();
-        for (ModelParameter p : module.getInvolvedParameters()) {
-            param.add(p.getName());
-        }
         return new PreferenceModuleDTO(module.getName(), module.getDescription(),
-                preferences, sets, param);
+                preferences);
     }
 
     /**
@@ -191,7 +170,7 @@ public class RecordFactory {
        // variable.getPrimitiveSets(sets);
         HashSet<ModelParameter> parameters = new HashSet<>();
        // variable.getPrimitiveParameters(parameters);
-        return new VariableDTO(variable.getName()/*, makeDTO(sets, parameters)*/);
+        return new VariableDTO(variable.getName(), variable.getStructure()/*, makeDTO(sets, parameters)*/);
     }
 
     /**
@@ -245,7 +224,7 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    private static VariableModuleDTO makeDTO (List<Variable> values, Map<String, List<String>> aliases) {
+    private static VariableModuleDTO makeDTO (List<Variable> values, Map<String, String> aliases) {
         Set<String> variables = new HashSet<>();
         Set<String> params = new HashSet<>();
         Set<String> sets = new HashSet<>();

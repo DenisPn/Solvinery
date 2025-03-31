@@ -67,11 +67,11 @@ public class Service implements ServiceInterface {
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping("images/{id}/inputs")
+    /*@GetMapping("images/{id}/inputs")
     public ResponseEntity<InputDTO> loadImageInput(@PathVariable("id") String imageId) throws Exception {
         InputDTO res = controller.loadLastInput(imageId);
         return ResponseEntity.ok(res);
-    }
+    }*/
     @GetMapping("/test-connection")
     public String testConnection() {
         try {
