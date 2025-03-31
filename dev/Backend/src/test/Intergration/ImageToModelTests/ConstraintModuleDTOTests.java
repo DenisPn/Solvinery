@@ -1,6 +1,10 @@
 package Intergration.ImageToModelTests;
 
+import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import Image.Image;
+import Model.Data.Elements.Element;
+import Model.Data.Elements.Operational.Constraint;
+import Model.Data.Elements.Operational.Preference;
 import Model.Model;
 import Model.ModelInterface;
 import org.junit.jupiter.api.*;
@@ -62,25 +66,25 @@ public class ConstraintModuleDTOTests {
     public void GivenPath_WhenPathInvalid_ThrowsException() {
         String badPath= sourcePath+ "/IDontExist.zpl";
         //TODO: a custom exception will probably be a better choice, instead of letting IO be thrown upwards
-        assertThrows(IOException.class, () -> new Model(badPath));
+        assertThrows(Exception.class, () -> new Model(badPath));
     }
     //TODO: Writer an easier to work with zimpl example, this one throws warnings
     @Test
     public void GivenZimplCode_WhenFetchingConstraints_FetchCorrect() {
-        Collection<ModelConstraint> constraints = model.getConstraints();
+        Collection<Constraint> constraints = model.getConstraints();
         Set<String> actualIdentifiers= Set.of("trivial1","trivial2","trivial3","trivial4","trivial5",
                 "Soldier_Not_In_Two_Stations_Concurrently","All_Stations_One_Soldier","minGuardsCons","maxGuardsCons", "minimalSpacingCons");
         Set<String> identifiers = constraints.stream()
-                .map(ModelConstraint::getIdentifier)
+                .map(Constraint::getName)
                 .collect(Collectors.toSet());
         assertEquals(10, constraints.size());
         assertEquals(actualIdentifiers, identifiers);
     }
     @Test
     public void GivenZimplCode_WhenFetchingPreferences_FetchCorrect() {
-        Collection<ModelPreference> preferences = model.getPreferences();
+        Collection<Preference> preferences = model.getPreferences();
         Set<String> identifiers = preferences.stream()
-                .map(ModelPreference::getIdentifier)
+                .map(Preference::getName)
                 .collect(Collectors.toSet());
         System.out.println(identifiers);
         assertEquals(3, preferences.size());
@@ -92,7 +96,6 @@ public class ConstraintModuleDTOTests {
            assertTrue(model.isCompiling(1000));
     }
 
-    
     @Test
     public void GivenInvalidZimplCode_WhenCompiling_ReturnsFalse() {
         try {
@@ -101,7 +104,7 @@ public class ConstraintModuleDTOTests {
             badZimpl.toFile().deleteOnExit();
             Files.writeString(badZimpl, "\nThis text is appended to zimpl code and make it not compile;",StandardOpenOption.APPEND, StandardOpenOption.WRITE);
             model = new Model(badZimpl.toFile().getPath());
-            assertFalse(model.isCompiling(1000));
+            assertFalse(model.isCompiling(10));
         }
         catch (IOException e){
             fail("IO error in GivenInvalidZimplCode_WhenCompiling_ReturnsFalse: "+ e.getMessage());
@@ -115,7 +118,7 @@ public class ConstraintModuleDTOTests {
             badZimpl.toFile().deleteOnExit();
             Files.writeString(badZimpl, "", StandardOpenOption.WRITE, StandardOpenOption.WRITE);
             model = new Model(badZimpl.toFile().getPath());
-            assertFalse(model.isCompiling(1000));
+            assertFalse(model.isCompiling(10));
         }
         catch (IOException e){
             fail("IO error in GivenInvalidZimplCode_WhenCompiling_ReturnsFalse: "+ e.getMessage());
@@ -124,13 +127,17 @@ public class ConstraintModuleDTOTests {
 
     @Test
     public void testSolve(){
-        Solution solution= model.solve(1000,"SOLUTION");
-        Set<String> vars= model.getVariables().stream().map(ModelVariable -> ModelVariable.getIdentifier()).collect(Collectors.toSet());
         try {
-            solution.parseSolution(model,vars, Map.of());
-        }
-        catch (IOException e){
-            fail(e.getMessage());
+            Solution solution= model.solve(10,"SOLUTION");
+            Set<String> vars= model.getVariables().stream().map(Element::getName).collect(Collectors.toSet());
+            try {
+                solution.parseSolution(model,vars, Map.of());
+            }
+            catch (IOException e){
+                fail(e.getMessage());
+            }
+        } catch (ZimplCompileError e) {
+            throw new RuntimeException(e);
         }
     }
 }

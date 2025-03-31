@@ -1,8 +1,7 @@
 package groupId;
-import DTO.Factories.ExceptionRecordFactory;
-import DTO.Factories.RecordFactory;
+import groupId.DTO.Factories.ExceptionRecordFactory;
 import Exceptions.InternalErrors.BadRequestException;
-import Exceptions.UserErrors.ZimplCompileError;
+import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import DTO.Records.Requests.Responses.ExceptionDTO;
+import groupId.DTO.Records.Requests.Responses.ExceptionDTO;
 
 /**
  * Usage instructions: use some Record to make the DTO of the exception and return it.

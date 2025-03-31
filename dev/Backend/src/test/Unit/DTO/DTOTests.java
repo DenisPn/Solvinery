@@ -1,7 +1,7 @@
 package Unit.DTO;
 
-import DTO.Factories.RecordFactory;
-import DTO.Records.Image.SolutionDTO;
+import groupId.DTO.Factories.RecordFactory;
+import groupId.DTO.Records.Image.SolutionDTO;
 import Model.Model;
 import Model.Solution;
 import org.junit.jupiter.api.BeforeEach;

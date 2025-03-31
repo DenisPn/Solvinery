@@ -1,42 +1,39 @@
 package Image.Modules;
 
-import Model.ModelInput;
-import Model.ModelParameter;
-import Model.ModelSet;
-import Model.ModelVariable;
+import Model.Data.Elements.Variable;
 
 import java.util.*;
 
 public class VariableModule {
 
-    final Map<String, ModelVariable> variables;
-    final Set<String> inputSets;
-    final Set<String> inputParams;
+    final Map<String, Variable> variables;
+    /*final Set<String> inputSets;
+    final Set<String> inputParams;*/
     final Map<String, List<String>> aliases;
 
-    public Map<String, ModelVariable> getVariables() {
+    public Map<String, Variable> getVariables() {
         return variables;
     }
 
-    public Set<String> getInputSets() {
+   /* public Set<String> getInputSets() {
         return inputSets;
     }
 
     public Set<String> getInputParams() {
         return inputParams;
-    }
+    }*/
 
     public VariableModule() {
         variables = new HashMap<>();
-        inputSets = new HashSet<>();
-        inputParams = new HashSet<>();
+        /*inputSets = new HashSet<>();
+        inputParams = new HashSet<>();*/
         aliases = new HashMap<>();
     }
 
-    public VariableModule(Map<String, ModelVariable> variables, Collection<String> inputSets, Collection<String> inputParams,Map<String,List<String>> aliases) {
+    public VariableModule(Map<String, Variable> variables, Collection<String> inputSets, Collection<String> inputParams,Map<String,List<String>> aliases) {
         this.variables = new HashMap<>(variables);
-        this.inputSets = new HashSet<>(inputSets);
-        this.inputParams = new HashSet<>(inputParams);
+        /*this.inputSets = new HashSet<>(inputSets);
+        this.inputParams = new HashSet<>(inputParams);*/
         this.aliases = new HashMap<>(aliases);
         for (String variableName : variables.keySet()) {
             if(aliases.containsKey(variableName)) {
@@ -48,16 +45,16 @@ public class VariableModule {
             }
         }
     }
-    public VariableModule(Set<ModelVariable> variables, Collection<String> inputSets, Collection<String> inputParams,Map<String,List<String>> aliases) {
+    public VariableModule(Set<Variable> variables, Collection<String> inputSets, Collection<String> inputParams,Map<String,List<String>> aliases) {
         this.variables = new HashMap<>();
-        for(ModelVariable variable: variables) {
-            this.variables.put(variable.getIdentifier(),variable);
+        for(Variable variable: variables) {
+            this.variables.put(variable.getName(),variable);
         }
-        this.inputSets = new HashSet<>(inputSets);
-        this.inputParams = new HashSet<>(inputParams);
+        /*this.inputSets = new HashSet<>(inputSets);
+        this.inputParams = new HashSet<>(inputParams);*/
         this.aliases = new HashMap<>(aliases);
-        for (ModelVariable variable : variables) {
-            String variableName = variable.getIdentifier();
+        for (Variable variable : variables) {
+            String variableName = variable.getName();
             if(aliases.containsKey(variableName)) {
                 this.aliases.put(variableName, aliases.get(variableName));
             }
@@ -70,17 +67,17 @@ public class VariableModule {
 
     public void clear() {
         variables.clear();
-        inputSets.clear();
-        inputParams.clear();
+       /* inputSets.clear();
+        inputParams.clear();*/
     }
 
-    public void override(Map<String, ModelVariable> variables, Collection<String> inputSets, Collection<String> inputParams,Map<String,List<String>> aliases) {
+    public void override(Map<String, Variable> variables/* Collection<String> inputSets, Collection<String> inputParams */,Map<String,List<String>> aliases) {
         this.variables.clear();
-        this.inputSets.clear();
-        this.inputParams.clear();
+        /*this.inputSets.clear();
+        this.inputParams.clear();*/
         this.variables.putAll(variables);
-        this.inputSets.addAll(inputSets);
-        this.inputParams.addAll(inputParams);
+        /*this.inputSets.addAll(inputSets);
+        this.inputParams.addAll(inputParams);*/
         for (String variableName : variables.keySet()) {
             if(aliases.containsKey(variableName)) {
                 this.aliases.put(variableName, aliases.get(variableName));
@@ -93,18 +90,18 @@ public class VariableModule {
     public Set<String> getIdentifiers() {
         return variables.keySet();
     }
-    public ModelVariable get(String name) {
+    public Variable get(String name) {
         return variables.get(name);
     }
 
-    public void addVariable(ModelVariable variable) {
-        variables.put(variable.getIdentifier(),variable);
-        if(!aliases.containsKey(variable.getIdentifier())) {
-            aliases.put(variable.getIdentifier(), getDefaultAliases(variable));
+    public void addVariable(Variable variable) {
+        variables.put(variable.getName(),variable);
+        if(!aliases.containsKey(variable.getName())) {
+            aliases.put(variable.getName(), getDefaultAliases(variable));
         }
     }
-    private List<String> getDefaultAliases(ModelVariable variable) {
-        ArrayList<String> defaultAliases = new ArrayList<>();
+    private List<String> getDefaultAliases(Variable variable) {
+        /*ArrayList<String> defaultAliases = new ArrayList<>();
         for (ModelSet modelSet : variable.getSetDependencies()) {
             for (ModelInput.StructureBlock block : modelSet.getStructure()) {
                 defaultAliases.add(block.dependency.getIdentifier());
@@ -112,7 +109,8 @@ public class VariableModule {
         }
         if (defaultAliases.isEmpty())
             defaultAliases.add("Unspecified");
-        return defaultAliases;
+        return defaultAliases;*/
+        return new ArrayList<>(); //TODO tmp fix
     }
     public Map<String, List<String>> getAliases() {
         return aliases;
