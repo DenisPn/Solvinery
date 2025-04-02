@@ -143,15 +143,16 @@
 
 
 
-
 .inputGroup {
     background-color: #ffffff1f;
     display: block; 
     margin: 10px 0;
     position: relative;
 
-    
+    border-radius: 10px;
     border: 1px solid black;
+
+    overflow: hidden;
 
     label {
         padding: 12px 200px 12px 30px;
@@ -170,7 +171,7 @@
         height: 10px;
         border-radius: 50%;
         content: '';
-        background-color: #5562eb;
+        background-color:#6ab91d;
         position: absolute;
         left: 50%;
         top: 50%;
@@ -249,7 +250,7 @@ body {
 *::before,
 *::after {
   box-sizing: inherit;
-  
+
 }
 
 html {

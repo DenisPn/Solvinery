@@ -138,7 +138,7 @@ const ConfigureVariablesPage = () => {
             
             </div>
             
-            <Link to="/configure-constraints" className="continue-button" onClick={handleContinue}>
+            <Link to="/configure-constraints" className="button" onClick={handleContinue}>
                 Continue
             </Link>
         </div>
