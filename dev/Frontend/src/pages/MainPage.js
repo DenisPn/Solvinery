@@ -7,15 +7,14 @@ const MainPage = () => {
         <div className="main-page">
             <h1 className="main-title">Plan A</h1>
             <div className="button-container">
-                <Link to="/work-assignment" className="main-button">
-                    Shifts assignment
+                <Link to="/my-images" className="footer-button">
+                    My Images
                 </Link>
-                <button className="main-button">Courses assignmnent</button>
-                <button className="main-button">Upload new environment</button>
-            </div>
-            <div className="footer-button-container">
+                <Link to="/view-images" className="footer-button">
+                    View Images
+                </Link>
                 <Link to="/upload-zpl" className="footer-button">
-                    Create new environment (For developers)
+                    Create New Image
                 </Link>
             </div>
         </div>

@@ -12,6 +12,8 @@ import ConfigurePreferencesPage from './pages/ConfigurePreferencesPage';
 import SolutionPreviewPage from './pages/SolutionPreviewPage';
 import SolutionResultsPage from "./pages/SolutionResultsPage";
 import LogInPage from "./pages/LogInPage";
+import ViewImagesPage from "./pages/ViewImagesPage";
+import MyImagesPage from "./pages/MyImagesPage";
 
 function App() {
     return (
@@ -22,6 +24,8 @@ function App() {
                     <Route path="/log-in" element={<LogInPage />} />
                     <Route path="/work-assignment" element={<WorkAssignmentPage />} />
                     <Route path="/upload-zpl" element={<UploadZPLPage />} />
+                    <Route path="/view-images" element={<ViewImagesPage />} />
+                    <Route path="/my-images" element={<MyImagesPage />} />
                     <Route path="/configure-variables" element={<ConfigureVariablesPage />} />
                     <Route path="/configure-constraints" element={<ConfigureConstraintsPage />} />
                     <Route path="/configure-preferences" element={<ConfigurePreferencesPage />} />
