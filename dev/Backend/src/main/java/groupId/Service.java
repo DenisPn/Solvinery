@@ -77,7 +77,7 @@ public class Service implements ServiceInterface {
         try {
             // Test query to fetch PostgreSQL version
             String postgresVersion = jdbcTemplate.queryForObject("SELECT version();", String.class);
-            userRepository.save(new UserEntity("test_user-2"));
+            userRepository.save(new UserEntity("test_user-2","email@email.com","mypass123"));
             return "Connected to PostgreSQL: " + postgresVersion;
         } catch (Exception e) {
             e.printStackTrace();

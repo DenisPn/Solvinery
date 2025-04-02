@@ -15,12 +15,20 @@ import java.util.UUID;
 public class EntityMapper {
 
     public static User toDomain(UserEntity entity){
-        return new User(entity.getUsername());
+        return new User(entity.getUsername(),entity.getEmail());
     }
-    public static UserEntity toEntity(User user){
-       UserEntity entity = new UserEntity();
-       entity.setUsername(user.getUsername());
-       return entity;
+
+    /**
+     * Convert a user to user entity, for persistence. Should be used only when registering a new user
+     * Invalid parameters are accepted, and an exception will be thrown only when saving the user entity
+     * @param user the user to convert
+     * @param rawPassword the password, since password isn't used above persistence after registration.
+     * @return a new UserEntity.
+     * @see UserEntity
+     * @see User
+     */
+    public static UserEntity toEntity(User user,String rawPassword){
+       return new UserEntity(user.getUsername(),user.getEmail(),rawPassword);
     }
     public static ModelType toDomain(String type){
         List<List<String>> atoms=ModelType.convertStringToAtoms(type);

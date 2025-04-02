@@ -14,7 +14,7 @@ class ModelDataKeyPairTest {
         ModelDataKeyPair key1 = new ModelDataKeyPair(parentId, "uniqueName");
         ModelDataKeyPair key2 = new ModelDataKeyPair(parentId, "uniqueName");
 
-        assertTrue(key1.equals(key2));
+        assertEquals(key1, key2);
     }
 
     @Test
@@ -22,7 +22,7 @@ class ModelDataKeyPairTest {
         ModelDataKeyPair key1 = new ModelDataKeyPair(UUID.randomUUID(), "uniqueName");
         ModelDataKeyPair key2 = new ModelDataKeyPair(UUID.randomUUID(), "uniqueName");
 
-        assertFalse(key1.equals(key2));
+        assertNotEquals(key1, key2);
     }
 
     @Test
@@ -31,20 +31,20 @@ class ModelDataKeyPairTest {
         ModelDataKeyPair key1 = new ModelDataKeyPair(parentId, "uniqueName1");
         ModelDataKeyPair key2 = new ModelDataKeyPair(parentId, "uniqueName2");
 
-        assertFalse(key1.equals(key2));
+        assertNotEquals(key1, key2);
     }
 
     @Test
     void givenNull_whenEquals_thenReturnsFalse() {
         ModelDataKeyPair key = new ModelDataKeyPair(UUID.randomUUID(), "uniqueName");
 
-        assertFalse(key.equals(null));
+        assertNotEquals(null, key);
     }
 
     @Test
     void givenDifferentClass_whenEquals_thenReturnsFalse() {
         ModelDataKeyPair key = new ModelDataKeyPair(UUID.randomUUID(), "uniqueName");
 
-        assertFalse(key.equals("SomeString"));
+        assertNotEquals("SomeString", key);
     }
 }

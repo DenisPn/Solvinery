@@ -8,17 +8,20 @@ import java.util.UUID;
 
 public class User {
 
-    private String username;
+    private final String username;
 
-    public User (String username) {
+    private final String email;
+
+    public User (String username,String email) {
         this.username = username;
-    }
-
-    public User () {
+        this.email = email;
     }
 
     public String getUsername () {
         return username;
     }
 
+    public String getEmail () {
+        return email;
+    }
 }

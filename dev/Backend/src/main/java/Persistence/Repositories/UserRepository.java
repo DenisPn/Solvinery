@@ -8,4 +8,5 @@ import org.springframework.validation.annotation.Validated;
 import java.util.UUID;
 @Validated
 public interface UserRepository extends JpaRepository<UserEntity, UUID> {
+
 }

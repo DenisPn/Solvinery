@@ -4,33 +4,25 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.List;
 
 @Entity
-@Table(name = "sets")
-public class ModelSetEntity {
+@Table(name = "params")
+public class ModelParamEntity {
 
     @EmbeddedId
     private ModelDataKeyPair modelDataKeyPair;
+
     @Column(name = "type", nullable = false)
     @NotBlank(message = "Type cannot be blank")
     private String type;
 
-    @ElementCollection
-    @CollectionTable(name = "set_data", joinColumns = {
-            @JoinColumn(name = "image_id",
-            referencedColumnName = "image_id"),
-            @JoinColumn(name = "name",
-            referencedColumnName = "name")
-        }
-    )
-    @Column(name = "element")
+    @Column(name = "data", nullable = false)
     @NotNull(message = "Data cannot be null")
-    private List<String> data;
+    private String data;
 
-    public ModelSetEntity() {}
+    public ModelParamEntity () {}
 
-    public ModelSetEntity(ModelDataKeyPair modelDataKeyPair, String type, List<String> data) {
+    public ModelParamEntity (ModelDataKeyPair modelDataKeyPair, String type, String data) {
         this.modelDataKeyPair = modelDataKeyPair;
         this.type = type;
         this.data = data;
@@ -44,7 +36,7 @@ public class ModelSetEntity {
         return type;
     }
 
-    public List<String> getData() {
+    public String getData() {
         return data;
     }
 }
