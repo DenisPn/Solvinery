@@ -2,6 +2,7 @@ package groupId;
 
 import java.io.IOException;
 
+import Persistence.Entities.UserEntity;
 import Persistence.Repositories.UserRepository;
 import User.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -77,7 +77,7 @@ public class Service implements ServiceInterface {
         try {
             // Test query to fetch PostgreSQL version
             String postgresVersion = jdbcTemplate.queryForObject("SELECT version();", String.class);
-            userRepository.save(new User("test_user"));
+            userRepository.save(new UserEntity("test_user-2"));
             return "Connected to PostgreSQL: " + postgresVersion;
         } catch (Exception e) {
             e.printStackTrace();

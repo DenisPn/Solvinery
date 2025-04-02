@@ -1,17 +1,25 @@
 package Model.Data.Elements.Data;
 
 import Model.Data.Types.ModelType;
+import jakarta.persistence.*;
 
+import java.util.List;
 import java.util.SequencedCollection;
 
+
 public class ModelSet extends DataElement {
-    private SequencedCollection<String> data;
-    public ModelSet (String name, ModelType type, SequencedCollection<String> data) {
+
+    private List<String> data;
+    public ModelSet (String name, ModelType type, List<String> data) {
         super(name,type);
         this.data = data;
     }
 
-    public SequencedCollection<String> getData () {
+    protected ModelSet() {
+        super();
+    }
+
+    public List<String> getData () {
         return data;
     }
     public boolean isEmpty () {

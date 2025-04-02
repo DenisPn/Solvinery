@@ -1,6 +1,8 @@
 package Image.Modules.Data;
 
 import Model.Data.Elements.Data.ModelSet;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.OneToMany;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 public class SetModule {
     private final Set<ModelSet> visibleSets;
     private final Map<String,String> setAliases;

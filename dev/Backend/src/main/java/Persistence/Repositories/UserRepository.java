@@ -1,12 +1,11 @@
 package Persistence.Repositories;
 
+import Persistence.Entities.UserEntity;
 import User.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.UUID;
-
-public interface UserRepository extends JpaRepository<User, UUID> {
-
-    User findByUsername(String username);
-
+@Validated
+public interface UserRepository extends JpaRepository<UserEntity, UUID> {
 }

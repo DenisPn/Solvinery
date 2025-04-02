@@ -46,7 +46,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
 
         TypeVisitor typer = new TypeVisitor(model);
         typer.visit(ctx.setExpr());
-        SequencedCollection<String> elements = parseSetElements(ctx.setExpr());
+        List<String> elements = parseSetElements(ctx.setExpr());
         if(elements != null) {
             ModelSet set = new ModelSet(setName, typer.getType(),elements);
 
