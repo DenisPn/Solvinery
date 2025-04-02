@@ -285,7 +285,7 @@ const SolutionPreviewPage = () => {
 
 
   return (
-    <div className="solution-preview-page">
+    <div className="solution-preview-page background">
       <h1 className="page-title">Solution Preview</h1>
       <div className="modules-container">
         {/* Constraints Section */}

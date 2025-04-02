@@ -1,19 +1,24 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './MainPage.css';
+import '../Themes/MainTheme.css'
 
 const MainPage = () => {
     return (
-        <div className="main-page">
-            <h1 className="main-title">Plan A</h1>
+        <div className="main-page background">
+            
             <div className="button-container">
-                <Link to="/my-images" className="footer-button">
+            <h1 className="main-title">Solvinery</h1>
+                <Link to="/my-images" className="button">
+            
                     My Images
+                   
                 </Link>
-                <Link to="/view-images" className="footer-button">
+        
+                <Link to="/view-images" className="button">
                     View Images
                 </Link>
-                <Link to="/upload-zpl" className="footer-button">
+                <Link to="/upload-zpl" className="button">
                     Create New Image
                 </Link>
             </div>

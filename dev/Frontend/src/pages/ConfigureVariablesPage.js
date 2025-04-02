@@ -100,7 +100,7 @@ const ConfigureVariablesPage = () => {
     
 
     return (
-        <div className="configure-variables-page">
+        <div className="configure-variables-page background">
             <h1 className="page-title">Configure Variables</h1>
             <div className="variables-layout">
                 

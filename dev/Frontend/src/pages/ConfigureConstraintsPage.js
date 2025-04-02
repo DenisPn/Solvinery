@@ -70,7 +70,7 @@ const ConfigureConstraintsPage = () => {
     };
 
     return (
-        <div className="configure-constraints-page">
+        <div className="configure-constraints-page background">
             <h1 className="page-title">Configure High-Level Constraints</h1>
 
             <div className="constraints-layout">
