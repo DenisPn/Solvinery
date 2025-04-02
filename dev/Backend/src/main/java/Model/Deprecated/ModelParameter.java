@@ -1,0 +1,48 @@
+package Model;
+
+import java.util.Collection;
+import java.util.List;
+
+//import parser.FormulationParser.ParamDeclContext;
+
+public class ModelParameter extends ModelInput {
+    private String value;
+
+    public ModelParameter(String identifier, ModelType type) {
+       super(identifier,type);
+    }
+
+
+    public ModelParameter(String paramName, ModelType type, List<ModelSet> basicSets,
+            List<ModelParameter> basicParams) {
+        super(paramName, type, basicSets, basicParams);
+    }
+    @Override
+    public boolean isPrimitive(){
+        return this.setDependencies.isEmpty() && this.paramDependencies.isEmpty();
+    }
+
+
+    public String getValue() {
+        return value;
+    }
+    
+    // Set the value
+    public void setValue(String value) {
+        this.value = value;
+    }
+    
+    // Check if value is present
+    public boolean hasValue() {
+        return value != null && !value.isEmpty();
+    }
+    
+    // Clear the value
+    public void clearValue() {
+        this.value = null;
+    }
+
+
+
+    
+}
