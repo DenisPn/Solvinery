@@ -26,6 +26,59 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ContextConfiguration(classes = {TestsConfiguration.class})
 class ModelSetEntityTest {
 
+    @Transactional
+    @Test
+    public void givenModelSetWithoutAlias_whenSave_thenAliasIsNull () {
+        // Given
+        UUID imageId = UUID.randomUUID();
+        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "mySet");
+        ModelSetEntity modelSetEntity = new ModelSetEntity(keyPair, "TestType", List.of("data1"), null);
+
+        // When
+        setRepository.save(modelSetEntity);
+        ModelSetEntity foundEntity = setRepository.findById(keyPair).orElse(null);
+
+        // Then
+        assertThat(foundEntity).isNotNull();
+        assertThat(foundEntity.getAlias()).isNull();
+    }
+
+    @Transactional
+    @Test
+    public void givenModelSetWithAlias_whenSave_thenAliasIsPersisted () {
+        // Given
+        UUID imageId = UUID.randomUUID();
+        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "mySet");
+        ModelSetEntity modelSetEntity = new ModelSetEntity(keyPair, "TestType", List.of("data1"), "testAlias");
+
+        // When
+        setRepository.save(modelSetEntity);
+        ModelSetEntity foundEntity = setRepository.findById(keyPair).orElse(null);
+
+        // Then
+        assertThat(foundEntity).isNotNull();
+        assertThat(foundEntity.getAlias()).isEqualTo("testAlias");
+    }
+
+    @Transactional
+    @Test
+    public void givenModelSetAlias_whenUpdateAlias_thenAliasIsUpdated () {
+        // Given
+        UUID imageId = UUID.randomUUID();
+        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "mySet");
+        ModelSetEntity modelSetEntity = new ModelSetEntity(keyPair, "TestType", List.of("data1"), "initialAlias");
+        setRepository.save(modelSetEntity);
+
+        // When
+        modelSetEntity.setAlias("updatedAlias");
+        setRepository.save(modelSetEntity);
+        ModelSetEntity updatedEntity = setRepository.findById(keyPair).orElse(null);
+
+        // Then
+        assertThat(updatedEntity).isNotNull();
+        assertThat(updatedEntity.getAlias()).isEqualTo("updatedAlias");
+    }
+
     @Autowired
     private SetRepository setRepository;
 
@@ -52,6 +105,7 @@ class ModelSetEntityTest {
         assertThat(foundEntity.getModelDataKey()).isEqualTo(keyPair);
         assertThat(foundEntity.getType()).isEqualTo("INT");
         assertThat(foundEntity.getData()).containsExactly("data1", "data2");
+        assertThat(foundEntity.getAlias()).isNull();
     }
 
     @Test
@@ -87,6 +141,7 @@ class ModelSetEntityTest {
         assertThat(foundEntity).isNotNull();
         assertThat(foundEntity.getModelDataKey()).isEqualTo(keyPair);
         assertThat(foundEntity.getData()).isEmpty();
+        assertThat(foundEntity.getAlias()).isNull();
     }
 
     @Transactional
@@ -121,6 +176,7 @@ class ModelSetEntityTest {
         assertThat(foundEntity).isNotNull();
         assertThat(foundEntity.getType()).isEqualTo("TYPE2");
         assertThat(foundEntity.getData()).containsExactly("data2");
+        assertThat(foundEntity.getAlias()).isNull();
     }
 
     @Transactional
@@ -160,5 +216,6 @@ class ModelSetEntityTest {
         assertThat(allEntities).hasSize(2);
         assertThat(allEntities).extracting(ModelSetEntity::getType).containsExactlyInAnyOrder("TestType1", "TestType2");
     }
+    
     
 }

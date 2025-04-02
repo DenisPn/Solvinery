@@ -28,12 +28,22 @@ public class ModelSetEntity {
     @NotNull(message = "Data cannot be null")
     private List<String> data;
 
+    @Column(name = "alias")
+    private String alias;
+
     public ModelSetEntity() {}
 
     public ModelSetEntity(ModelDataKeyPair modelDataKeyPair, String type, List<String> data) {
         this.modelDataKeyPair = modelDataKeyPair;
         this.type = type;
         this.data = data;
+        this.alias = null;
+    }
+    public ModelSetEntity(ModelDataKeyPair modelDataKeyPair, String type, List<String> data, String alias) {
+        this.modelDataKeyPair = modelDataKeyPair;
+        this.type = type;
+        this.data = data;
+        this.alias = alias;
     }
 
     public ModelDataKeyPair getModelDataKey() {
@@ -46,5 +56,15 @@ public class ModelSetEntity {
 
     public List<String> getData() {
         return data;
+    }
+
+    public String getAlias () {
+        return alias;
+    }
+    public boolean hasAlias () {
+        return alias != null;
+    }
+    public void setAlias (String alias) {
+        this.alias = alias;
     }
 }

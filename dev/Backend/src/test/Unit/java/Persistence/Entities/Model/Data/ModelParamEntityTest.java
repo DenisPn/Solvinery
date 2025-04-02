@@ -33,6 +33,43 @@ public class ModelParamEntityTest {
     public void cleanDatabase() {
         paramRepository.deleteAll();
     }
+    @Transactional
+    @Test
+    public void givenModelParamWithNonNullAlias_whenSave_thenSuccess () {
+        // Given
+        UUID imageId = UUID.randomUUID();
+        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "myParam");
+        ModelParamEntity paramEntity = new ModelParamEntity(keyPair, "STRING", "data");
+        paramEntity.setAlias("customAlias");
+
+        // When
+        paramRepository.save(paramEntity);
+        ModelParamEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
+
+        // Then
+        assertThat(foundEntity).isNotNull();
+        assertThat(foundEntity.getAlias()).isEqualTo("customAlias");
+    }
+
+    @Transactional
+    @Test
+    public void givenModelParamWithNullAlias_whenSave_thenSuccess () {
+        // Given
+        UUID imageId = UUID.randomUUID();
+        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "myParam");
+        ModelParamEntity paramEntity = new ModelParamEntity(keyPair, "STRING", "data");
+        paramEntity.setAlias(null);
+
+        // When
+        paramRepository.save(paramEntity);
+        ModelParamEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
+
+        // Then
+        assertThat(foundEntity).isNotNull();
+        assertThat(foundEntity.getAlias()).isNull();
+    }
+
+
 
     @Transactional
     @Test
@@ -51,6 +88,7 @@ public class ModelParamEntityTest {
         assertThat(foundEntity.getModelDataKey()).isEqualTo(keyPair);
         assertThat(foundEntity.getType()).isEqualTo("INT");
         assertThat(foundEntity.getData()).isEqualTo("data");
+        assertThat(foundEntity.getAlias()).isNull();
     }
 
     @Test
@@ -85,6 +123,7 @@ public class ModelParamEntityTest {
         assertThat(foundEntity).isNotNull();
         assertThat(foundEntity.getModelDataKey()).isEqualTo(keyPair);
         assertThat(foundEntity.getData()).isEmpty();
+        assertThat(foundEntity.getAlias()).isNull();
     }
 
     @Transactional
@@ -119,6 +158,7 @@ public class ModelParamEntityTest {
         assertThat(foundEntity).isNotNull();
         assertThat(foundEntity.getType()).isEqualTo("TYPE2");
         assertThat(foundEntity.getData()).isEqualTo("data2");
+        assertThat(foundEntity.getAlias()).isNull();
     }
 
     @Transactional
