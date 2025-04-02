@@ -11,6 +11,7 @@ import ConfigureConstraintsPage from './pages/ConfigureConstraintsPage';
 import ConfigurePreferencesPage from './pages/ConfigurePreferencesPage';
 import SolutionPreviewPage from './pages/SolutionPreviewPage';
 import SolutionResultsPage from "./pages/SolutionResultsPage";
+import LogInPage from "./pages/LogInPage";
 
 function App() {
     return (
@@ -18,6 +19,7 @@ function App() {
             <DndProvider backend={HTML5Backend}>
                 <Routes>
                     <Route path="/" element={<MainPage />} />
+                    <Route path="/log-in" element={<LogInPage />} />
                     <Route path="/work-assignment" element={<WorkAssignmentPage />} />
                     <Route path="/upload-zpl" element={<UploadZPLPage />} />
                     <Route path="/configure-variables" element={<ConfigureVariablesPage />} />
