@@ -24,6 +24,7 @@ import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
 import groupId.DTO.Records.Requests.Commands.SolveCommandDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import jakarta.validation.Valid;
+import groupId.DTO.Records.Requests.Commands.LogInDTO;
 
 
 @RestController
@@ -64,6 +65,11 @@ public class Service implements ServiceInterface {
     public ResponseEntity<SolutionDTO> solve(@Valid @RequestBody SolveCommandDTO input) throws Exception {
         SolutionDTO res = controller.solve(input);
         return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<CreateImageResponseDTO> logIn(@Valid @RequestBody LogInDTO data) throws Exception {
+        return ResponseEntity.ok(null);
     }
 
     /*@GetMapping("images/{id}/inputs")
