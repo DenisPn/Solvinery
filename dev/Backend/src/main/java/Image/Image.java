@@ -1,16 +1,13 @@
 package Image;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
 import Exceptions.InternalErrors.ModelExceptions.Parsing.ParsingException;
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
-import Image.Modules.Data.SetModule;
+import Model.Data.Elements.Data.ModelParameter;
+import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
@@ -20,7 +17,6 @@ import groupId.DTO.Records.Model.ModelDefinition.ConstraintDTO;
 import groupId.DTO.Records.Model.ModelDefinition.PreferenceDTO;
 import Image.Modules.Operational.ConstraintModule;
 import Image.Modules.Operational.PreferenceModule;
-import Image.Modules.VariableModule;
 import Model.Model;
 import Model.ModelInterface;
 import Model.Solution;
@@ -29,32 +25,34 @@ public class Image {
     // Note: this implies module names must be unique between user constraints/preferences.
     private final HashMap<String,ConstraintModule> constraintsModules;
     private final HashMap<String,PreferenceModule> preferenceModules;
-    private final SetModule visibleSets;
-    private final VariableModule variables;
+    private final Set<ModelSet> activeSets;
+    private final Set<ModelParameter> activeParams;
+    private final Set<Variable> activeVariables;
     private final ModelInterface model;
     public Image(ModelInterface model) {
+        this.activeParams = new HashSet<>();
         constraintsModules = new HashMap<>();
         preferenceModules = new HashMap<>();
-        variables = new VariableModule();
-        visibleSets = new SetModule();
+        activeVariables = new HashSet<>();
+        activeSets = new HashSet<>();
         this.model = model;
     }
     public Image(String path) throws IOException {
+        this.activeParams = new HashSet<>();
         constraintsModules = new HashMap<>();
         preferenceModules = new HashMap<>();
-        variables = new VariableModule();
-        visibleSets = new SetModule();
+        activeVariables = new HashSet<>();
+        activeSets = new HashSet<>();
         this.model = new Model(path);
     }
 
-    //will probably have to use an adapter layer, or change types to DTOs
     public void addConstraintModule(ConstraintModule module) {
         constraintsModules.put(module.getName(), module);
     }
-    public void addConstraintModule(String moduleName, String description) {
+    public void addConstraint(String moduleName, String description) {
         constraintsModules.put(moduleName, new ConstraintModule(moduleName, description));
     }
-    public void addConstraintModule(String moduleName, String description, Collection<String> constraints/* ,Collection<String> inputSets, Collection<String> inputParams*/) {
+    public void addConstraintModule(String moduleName, String description, Collection<String> constraints) {
         HashSet<Constraint> modelConstraints = new HashSet<>();
         for (String name : constraints) {
             Constraint constraint = model.getConstraint(name);
@@ -63,10 +61,11 @@ public class Image {
         }
         constraintsModules.put(moduleName, new ConstraintModule(moduleName, description, modelConstraints/*,inputSets,inputParams*/));
     }
+
     public void addPreferenceModule(PreferenceModule module) {
         preferenceModules.put(module.getName(), module);
     }
-    public void addPreferenceModule(String moduleName, String description) {
+    public void addPreference(String moduleName, String description) {
         preferenceModules.put(moduleName, new PreferenceModule(moduleName, description));
     }
     public void addPreferenceModule(String moduleName, String description, Collection<String> preferences) {
@@ -111,11 +110,8 @@ public class Image {
             throw new IllegalArgumentException("No preference module with name: " + moduleName);
         preferenceModules.get(moduleName).removePreference(model.getPreference(preferenceDTO.identifier()));
     }
-    public Map<String, Variable> getVariables() {
-        return variables.getVariables();
-    }
-    public Variable getVariable(String name) {
-        return variables.get(name);
+    public Set<Variable> getActiveVariables () {
+        return activeVariables;
     }
 
     /**
@@ -136,11 +132,11 @@ public class Image {
         assert timeout >= 0 : "Timeout must be non-negative";
         try {
             Solution solution = model.solve(timeout, "SOLUTION");
-            try {
-                solution.parseSolution(model, variables.getIdentifiers(), variables.getAliases(),visibleSets.getSetAliases());
+            /*try {
+                solution.parseSolution(model, activeVariables.getIdentifiers(), activeVariables.getAliases(), activeSets.getSetAliases());
             } catch (IOException e) {
                 throw new ParsingException("IO exception while parsing solution file, message: " + e);
-            }
+            }*/
             return RecordFactory.makeDTO(solution);
         }
         catch (ZimplCompileError e) {
@@ -157,13 +153,12 @@ public class Image {
         // Do not use this! ID stored in controller, image not aware of its own ID.
         throw new UnsupportedOperationException("Unimplemented method 'getId'");
     }
-
+    //Don't see it being used in the new version of our project, have a better solution
+    @Deprecated
     public void reset(Map<String,Variable> variables,/* Collection<String> sets, Collection<String> params,*/Map<String,String> aliases) {
-        constraintsModules.clear();
+       /* constraintsModules.clear();
         preferenceModules.clear();
-        this.variables.override(variables/*,sets,params*/,aliases);
+        this.activeVariables.override(variables*//*,sets,params*//*,aliases);*/
     }
-    public Map<String,String> getAliases() {
-        return variables.getAliases();
-    }
+    
 }

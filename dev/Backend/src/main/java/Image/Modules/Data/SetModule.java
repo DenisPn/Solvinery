@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+@Deprecated
+//Reason: changed to image holding a Set of Sets, with alias inside the ModelSet objects.
 public class SetModule {
     private final Set<ModelSet> visibleSets;
     private final Map<String,String> setAliases;

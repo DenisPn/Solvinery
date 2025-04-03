@@ -204,11 +204,12 @@ public class RecordFactory {
      * should only be called when loading a new Image, not when modifying it.
      */
     public static ImageDTO makeDTO (Image image) {
-        if (image == null)
+        //TODO: image under refactoring, implement when its finished.
+        /*if (image == null)
             throw new NullPointerException("Null image in DTO mapping");
         Set<ConstraintModuleDTO> constraints = new HashSet<>();
         Set<PreferenceModuleDTO> preferences = new HashSet<>();
-        VariableModuleDTO variables = makeDTO(image.getVariables().values().stream().toList(), image.getAliases());
+        VariableModuleDTO variables = makeDTO(image.getActiveVariables().stream().toList(), image.getAliases());
         for (ConstraintModule module : image.getConstraintsModules().values()) {
             constraints.add(makeDTO(module));
         }
@@ -216,7 +217,8 @@ public class RecordFactory {
             preferences.add(makeDTO(module));
         }
 
-        return new ImageDTO(variables, constraints, preferences);
+        return new ImageDTO(variables, constraints, preferences);*/
+        return new ImageDTO(null,null,null);
     }
 
     /**

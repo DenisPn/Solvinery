@@ -9,21 +9,29 @@ import java.util.SequencedCollection;
 
 public class ModelSet extends DataElement {
 
-    private List<String> data;
+    private final List<String> data;
     public ModelSet (String name, ModelType type, List<String> data) {
         super(name,type);
         this.data = data;
     }
 
-    protected ModelSet() {
-        super();
+    public ModelSet (String name, ModelType type, List<String> data,String alias) {
+        super(name,type,alias);
+        this.data = data;
     }
 
     public List<String> getData () {
         return data;
     }
+
+
     public boolean isEmpty () {
         return data.isEmpty();
     }
-
+    public int size () {
+        return data.size();
+    }
+    public boolean contains (String element) {
+        return data.contains(element);
+    }
 }

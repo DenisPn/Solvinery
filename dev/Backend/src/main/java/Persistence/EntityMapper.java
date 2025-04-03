@@ -4,8 +4,8 @@ import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Types.ModelPrimitives;
 import Model.Data.Types.ModelType;
 import Model.Data.Types.Tuple;
-import Persistence.Entities.Model.Data.ModelDataKeyPair;
-import Persistence.Entities.Model.Data.ModelSetEntity;
+import Persistence.Entities.Image.ImageComponentKey;
+import Persistence.Entities.Image.Data.ModelSetEntity;
 import Persistence.Entities.UserEntity;
 import User.User;
 
@@ -61,7 +61,7 @@ public class EntityMapper {
         return type.toString();
     }
     public static ModelSetEntity toEntity(ModelSet modelSet, UUID imageId){
-        ModelDataKeyPair key= new ModelDataKeyPair(imageId,modelSet.getName());
+        ImageComponentKey key= new ImageComponentKey(imageId,modelSet.getName());
         return new ModelSetEntity(key,toEntity(modelSet.getType()),modelSet.getData());
     }
     public static ModelSet toDomain(ModelSetEntity entity){

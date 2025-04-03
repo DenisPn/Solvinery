@@ -7,12 +7,11 @@ import jakarta.validation.constraints.NotBlank;
 
 public abstract class Element {
 
-    protected String name;
+    protected final String name;
 
     public Element (String name) {
         this.name = name;
     }
-    protected Element () {}
     public String getName () {
         return name;
     }
