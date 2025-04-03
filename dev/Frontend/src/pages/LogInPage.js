@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-//import "./LogInPage.css"; // We'll style it later
+import '../Themes/MainTheme.css'
+import './LogInPage.css'
 
 const LogInPage = () => {
   const [username, setUsername] = useState("");
@@ -13,32 +14,47 @@ const LogInPage = () => {
   };
 
   return (
-    <div className="login-container">
-      {/* Back Button */}
-      <button className="back-button" onClick={() => navigate("/main")}>Back</button>
+    <div className="background">
+         {/* Back Button */}
+         <button className="back-button" onClick={() => navigate("/")}>Back</button>
       
-      <h1>Log In</h1>
+    <div className="form-container">
+   
+      <h1 className="main-login-title">Log In</h1>
 
+<form>
+
+  <div class="group">
       {/* Username Input */}
       <input
         type="text"
         placeholder="User name"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
-        className="input-box"
+        className="input-box-login"
       />
-      
+      <span class="highlight-login"></span>
+      <span class="bar-login"></span>
+      </div>
+      <br></br>
+      <div class="group">
       {/* Password Input */}
       <input
         type="password"
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        className="input-box"
+        className="input-box-login"
       />
-      
+        <span class="highlight-login"></span>
+        <span class="bar-login"></span>
+</div>
+</form>
+      <br></br>
+      <br></br>
       {/* Login Button */}
-      <button className="login-button" onClick={handleLogin}>Log In</button>
+      <button className="button" onClick={handleLogin}>Log In</button>
+    </div>
     </div>
   );
 };

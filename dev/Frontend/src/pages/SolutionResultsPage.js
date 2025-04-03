@@ -9,7 +9,7 @@ const SolutionResultsPage = () => {
   );
 
   if (!solutionResponse || !solutionResponse.solution) {
-    return <p>No solution data available.</p>;
+    return <p className="background">No solution data available.</p>;
   }
 
   const handleVariableChange = (event) => {
@@ -29,6 +29,7 @@ const SolutionResultsPage = () => {
   const renderRecursiveTable = (dimensions, remainingSolutions) => {
     if (dimensions.length === 2) {
       return (
+        <div className="background">
         <table className="solution-table">
           <thead>
             <tr>
@@ -76,9 +77,11 @@ const SolutionResultsPage = () => {
             )}
           </tbody>
         </table>
+        </div>
       );
     } else if (dimensions.length === 3) {
       return (
+        <div className="background">
         <table className="solution-table">
           <thead>
             <tr>
@@ -147,12 +150,14 @@ const SolutionResultsPage = () => {
             )}
           </tbody>
         </table>
+        </div>
       );
     } else {
       // Recursive case
       const [currentRow, currentCol, ...remainingDims] = dimensions;
 
       return (
+        <div className="background">
         <table className="solution-table">
           <thead>
             <tr>
@@ -189,12 +194,13 @@ const SolutionResultsPage = () => {
             )}
           </tbody>
         </table>
+        </div>
       );
     }
   };
 
   return (
-    <div className="solution-results-page">
+    <div className="solution-results-page background">
       <h1 className="page-title">Solution Results</h1>
 
       {/* Dropdown to Select Variable */}

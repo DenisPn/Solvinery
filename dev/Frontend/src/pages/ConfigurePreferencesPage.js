@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useZPL } from '../context/ZPLContext';
 import './ConfigureConstraintsPage.css';
+import '../Themes/MainTheme.css';
 
 const ConfigurePreferencesPage = () => {
     const navigate = useNavigate();
@@ -70,7 +71,7 @@ const ConfigurePreferencesPage = () => {
     };
 
     return (
-        <div className="configure-constraints-page">
+        <div className="configure-constraints-page background">
             <h1 className="page-title">Configure High-Level Preferences</h1>
 
             <div className="constraints-layout">
@@ -161,7 +162,7 @@ const ConfigurePreferencesPage = () => {
             </div>
 
             <button
-                className="continue-button"
+                className="button"
                 onClick={() => navigate('/solution-preview')}
             >
                 Continue

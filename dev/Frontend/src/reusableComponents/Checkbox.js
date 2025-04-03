@@ -1,6 +1,7 @@
 import React from 'react';
 
 const Checkbox = ({
+  key,
   label,
   checked = false,
   disabled = false,
@@ -8,27 +9,19 @@ const Checkbox = ({
   name
 }) => {
   return (
-    <label className="checkbox-label" style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      cursor: disabled ? 'not-allowed' : 'pointer',
-      opacity: disabled ? 0.6 : 1
-    }}>
+    <div class="inputGroup">
       <input
+        id={key}
         type="checkbox"
         name={name}
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange?.(e.target.checked)}
-        style={{
-          width: '16px',
-          height: '16px',
-          cursor: disabled ? 'not-allowed' : 'pointer'
-        }}
+        
       />
-      {label && <span style={{ fontSize: '14px' }}>{label}</span>}
-    </label>
+      <label for={key} >{label}</label>
+
+    </div>
   );
 };
 

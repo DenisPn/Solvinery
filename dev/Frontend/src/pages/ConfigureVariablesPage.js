@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useZPL } from "../context/ZPLContext";
 import "./ConfigureVariablesPage.css";
-import Checkbox from "../reusableComponents/Checkbox.js";
 
 const ConfigureVariablesPage = () => {
     const { variables, variablesModule, setVariablesModule } = useZPL();
@@ -100,70 +99,48 @@ const ConfigureVariablesPage = () => {
     
 
     return (
-        <div className="configure-variables-page">
+        <div className="configure-variables-page background">
+            <div className="MainDiv">
             <h1 className="page-title">Configure Variables</h1>
             <div className="variables-layout">
                 
                 {/* Variables Section */}
                 <div className="available-variables">
-                    <h2>Available Variables</h2>
+
+                    <form class="form">
+                    
+
                     {variables.length > 0 ? (
                         variables.map((variable, index) => (
-                            <Checkbox
-                                key={index}
+                      
+                         <div class="inputGroup">
+                            <input
+                                id={index}
                                 label={variable.identifier}
                                 checked={selectedVars.includes(variable)}
                                 onChange={() => handleVarCheckboxChange(variable)}
+                                type="checkbox"
                             />
+                            <label for={index}>{variable.identifier}</label>
+                        </div>
+                        
                         ))
                     ) : (
                         <p>No variables available.</p>
                     )}
+                    
+                    </form>
+                    
+
                 </div>
                 
-                {/* Sets & Parameters Section (Only for Selected Variables) */}
-                <div className="involved-section">
-                    <h2>Involved Sets</h2>
-                    {displaySets.length > 0 ? (
-                        displaySets.map((set, index) => (
-                            <div key={index} className="set-item">
-                                <Checkbox
-                                    label={set}
-                                    checked={selectedSets.includes(set)}
-                                    onChange={() => handleSetCheckboxChange(set)}
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="alias"
-                                    value={setAliases[set] || ""}
-                                    onChange={(e) => handleAliasChange(set, e.target.value)}
-                                    className="alias-input"
-                                />
-                            </div>
-                        ))
-                    ) : (
-                        <p>No sets available.</p>
-                    )}
-
-                    <h2>Involved Parameters</h2>
-                    {displayParams.length > 0 ? (
-                        displayParams.map((param, index) => (
-                            <Checkbox
-                                key={index}
-                                label={param}
-                                checked={selectedParams.includes(param)}
-                                onChange={() => handleParamCheckboxChange(param)}
-                            />
-                        ))
-                    ) : (
-                        <p>No parameters available.</p>
-                    )}
-                </div>
+            
             </div>
             
-            <Link to="/configure-constraints" className="continue-button" onClick={handleContinue}>
+            <Link to="/configure-constraints" className="button" onClick={handleContinue}>
                 Continue
             </Link>
+        </div>
         </div>
     );
 };
