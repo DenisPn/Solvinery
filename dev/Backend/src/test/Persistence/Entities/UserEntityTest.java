@@ -1,4 +1,4 @@
-package Unit.java.Persistence.Entities;
+package Persistence.Entities;
 
 import Persistence.Entities.UserEntity;
 import Persistence.Repositories.UserRepository;

@@ -3,13 +3,15 @@ package Image.Modules.Operational;
 public abstract class OperationalModule {
 
 
+    private String name;
+    private String description;
+
     public OperationalModule(String name, String description) {
         this.name = name;
         this.description = description;
+
     }
-    private String name;
-    private String description;
-   // private boolean isActive;
+    // private boolean isActive;
     public String getName() {
         return name;
     }

@@ -1,9 +1,7 @@
-package Unit.java.Persistence.Entities.Model.Data;
+package Persistence.Entities.Image.Data;
 
-import Persistence.Entities.Model.Data.ModelDataKeyPair;
-import Persistence.Entities.Model.Data.ModelParamEntity;
-import Persistence.Entities.Model.Data.ModelSetEntity;
-import Persistence.Repositories.Model.Data.ParamRepository;
+import Persistence.Entities.Image.ImageComponentKey;
+import Persistence.Entities.Image.Repositories.ParamRepository;
 import Utilities.TestsConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -19,8 +17,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureDataJpa
@@ -38,7 +34,7 @@ public class ModelParamEntityTest {
     public void givenModelParamWithNonNullAlias_whenSave_thenSuccess () {
         // Given
         UUID imageId = UUID.randomUUID();
-        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "myParam");
+        ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
         ModelParamEntity paramEntity = new ModelParamEntity(keyPair, "STRING", "data");
         paramEntity.setAlias("customAlias");
 
@@ -56,7 +52,7 @@ public class ModelParamEntityTest {
     public void givenModelParamWithNullAlias_whenSave_thenSuccess () {
         // Given
         UUID imageId = UUID.randomUUID();
-        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "myParam");
+        ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
         ModelParamEntity paramEntity = new ModelParamEntity(keyPair, "STRING", "data");
         paramEntity.setAlias(null);
 
@@ -76,7 +72,7 @@ public class ModelParamEntityTest {
     public void givenModelSet_whenSave_thenSuccess () {
         // Given
         UUID imageId = UUID.randomUUID();
-        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "myParam");
+        ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
         ModelParamEntity paramEntity = new ModelParamEntity(keyPair, "INT", "data");
 
         // When
@@ -99,7 +95,7 @@ public class ModelParamEntityTest {
         // When & Then
         try {
             UUID imageId = UUID.randomUUID();
-            ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "myParam");
+            ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
             ModelParamEntity paramEntity = new ModelParamEntity(keyPair, null, "data");
             paramRepository.save(paramEntity);
             fail();
@@ -112,7 +108,7 @@ public class ModelParamEntityTest {
     public void givenModelParamWithEmptyData_whenSave_thenSuccess () {
         // Given
         UUID imageId = UUID.randomUUID();
-        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "myParam");
+        ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
         ModelParamEntity paramEntity = new ModelParamEntity(keyPair, "EMPTY", "");
 
         // When
@@ -130,7 +126,7 @@ public class ModelParamEntityTest {
     @Test
     public void givenNonExistingKey_whenFindById_thenReturnNull () {
         // Given
-        ModelDataKeyPair nonExistentKey = new ModelDataKeyPair(UUID.randomUUID(), "nonexistent");
+        ImageComponentKey nonExistentKey = new ImageComponentKey(UUID.randomUUID(), "nonexistent");
 
         // When
         ModelParamEntity foundEntity = paramRepository.findById(nonExistentKey).orElse(null);
@@ -144,7 +140,7 @@ public class ModelParamEntityTest {
     public void givenDuplicateModelParamKey_whenSaveTwice_thenOverrideEntity () {
         // Given
         UUID imageId = UUID.randomUUID();
-        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "myParam");
+        ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
         ModelParamEntity paramEntity1 = new ModelParamEntity(keyPair, "TYPE1", "data1");
         ModelParamEntity paramEntity2 = new ModelParamEntity(keyPair, "TYPE2", "data2");
 
@@ -166,7 +162,7 @@ public class ModelParamEntityTest {
     public void givenModelParam_whenDeleteByKey_thenEntityIsDeleted () {
         // Given
         UUID imageId = UUID.randomUUID();
-        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "myParam");
+        ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
         ModelParamEntity paramEntity = new ModelParamEntity(keyPair, "TestType", "data");
         paramRepository.save(paramEntity);
 
@@ -182,10 +178,10 @@ public class ModelParamEntityTest {
     @Test
     public void givenMultipleModelParams_whenFindAll_thenReturnAllEntities () {
         // Given
-        ModelDataKeyPair keyPair1 = new ModelDataKeyPair(UUID.randomUUID(), "TestName1");
+        ImageComponentKey keyPair1 = new ImageComponentKey(UUID.randomUUID(), "TestName1");
         ModelParamEntity paramEntity1 = new ModelParamEntity(keyPair1, "TestType1", "data1");
 
-        ModelDataKeyPair keyPair2 = new ModelDataKeyPair(UUID.randomUUID(), "TestName2");
+        ImageComponentKey keyPair2 = new ImageComponentKey(UUID.randomUUID(), "TestName2");
         ModelParamEntity paramEntity2 = new ModelParamEntity(keyPair2, "TestType2", "data2");
 
         paramRepository.save(paramEntity1);

@@ -3,7 +3,7 @@ package Image.Modules;
 import Model.Data.Elements.Variable;
 
 import java.util.*;
-
+@Deprecated
 public class VariableModule {
 
     final Map<String, Variable> variables;

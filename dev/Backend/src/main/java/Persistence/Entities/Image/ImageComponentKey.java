@@ -1,4 +1,4 @@
-package Persistence.Entities.Model.Data;
+package Persistence.Entities.Image;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -19,17 +19,17 @@ import java.util.UUID;
  * </ul>
  */
 @Embeddable
-public class ModelDataKeyPair implements Serializable {
+public class ImageComponentKey implements Serializable {
     @Column(name = "image_id", nullable = false)
     private UUID imageId;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "element_name", nullable = false)
     private String name;
 
-    public ModelDataKeyPair() {}
+    public ImageComponentKey () {}
 
     // Constructor
-    public ModelDataKeyPair(UUID imageId, String name) {
+    public ImageComponentKey (UUID imageId, String name) {
         this.imageId = imageId;
         this.name = name;
     }
@@ -56,7 +56,7 @@ public class ModelDataKeyPair implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ModelDataKeyPair that = (ModelDataKeyPair) o;
+        ImageComponentKey that = (ImageComponentKey) o;
         return Objects.equals(imageId, that.imageId) && Objects.equals(name, that.name);
     }
 

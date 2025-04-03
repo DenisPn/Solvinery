@@ -1,15 +1,12 @@
-package Unit.java.Persistence.Entities.Model.Data;
+package Persistence.Entities.Image.Data;
 
-import Persistence.Entities.Model.Data.ModelDataKeyPair;
-import Persistence.Entities.Model.Data.ModelSetEntity;
-import Persistence.Repositories.Model.Data.SetRepository;
+import Persistence.Entities.Image.ImageComponentKey;
+import Persistence.Entities.Image.Repositories.SetRepository;
 import Utilities.TestsConfiguration;
-import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,10 +28,10 @@ class ModelSetEntityTest {
     public void givenModelSetWithoutAlias_whenSave_thenAliasIsNull () {
         // Given
         UUID imageId = UUID.randomUUID();
-        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "mySet");
-        ModelSetEntity modelSetEntity = new ModelSetEntity(keyPair, "TestType", List.of("data1"), null);
+        ModelSetEntity modelSetEntity = new ModelSetEntity(imageId, "mySet", "TestType", List.of("data1"), null);
 
         // When
+        ImageComponentKey keyPair = new ImageComponentKey(imageId, "mySet");
         setRepository.save(modelSetEntity);
         ModelSetEntity foundEntity = setRepository.findById(keyPair).orElse(null);
 
@@ -48,10 +45,10 @@ class ModelSetEntityTest {
     public void givenModelSetWithAlias_whenSave_thenAliasIsPersisted () {
         // Given
         UUID imageId = UUID.randomUUID();
-        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "mySet");
-        ModelSetEntity modelSetEntity = new ModelSetEntity(keyPair, "TestType", List.of("data1"), "testAlias");
+        ModelSetEntity modelSetEntity = new ModelSetEntity(imageId, "mySet", "TestType", List.of("data1"), "testAlias");
 
         // When
+        ImageComponentKey keyPair = new ImageComponentKey(imageId, "mySet");
         setRepository.save(modelSetEntity);
         ModelSetEntity foundEntity = setRepository.findById(keyPair).orElse(null);
 
@@ -65,14 +62,14 @@ class ModelSetEntityTest {
     public void givenModelSetAlias_whenUpdateAlias_thenAliasIsUpdated () {
         // Given
         UUID imageId = UUID.randomUUID();
-        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "mySet");
+        ImageComponentKey keyPair = new ImageComponentKey(imageId, "mySet");
         ModelSetEntity modelSetEntity = new ModelSetEntity(keyPair, "TestType", List.of("data1"), "initialAlias");
         setRepository.save(modelSetEntity);
 
         // When
         modelSetEntity.setAlias("updatedAlias");
         setRepository.save(modelSetEntity);
-        ModelSetEntity updatedEntity = setRepository.findById(keyPair).orElse(null);
+        ModelSetEntity updatedEntity = setRepository.findById(new ImageComponentKey(imageId, "mySet")).orElse(null);
 
         // Then
         assertThat(updatedEntity).isNotNull();
@@ -93,13 +90,12 @@ class ModelSetEntityTest {
     public void givenModelSet_whenSave_thenSuccess () {
         // Given
         UUID imageId = UUID.randomUUID();
-        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "mySet");
-        ModelSetEntity modelSetEntity = new ModelSetEntity(keyPair, "INT", List.of("data1", "data2"));
+        ModelSetEntity modelSetEntity = new ModelSetEntity(imageId, "mySet", "INT", List.of("data1", "data2"));
 
         // When
         setRepository.save(modelSetEntity);
-        ModelSetEntity foundEntity = setRepository.findById(keyPair).orElse(null);
-
+        ModelSetEntity foundEntity = setRepository.findById(new ImageComponentKey(imageId, "mySet")).orElse(null);
+        ImageComponentKey keyPair = new ImageComponentKey(imageId, "mySet");
         // Then
         assertThat(foundEntity).isNotNull();
         assertThat(foundEntity.getModelDataKey()).isEqualTo(keyPair);
@@ -116,7 +112,7 @@ class ModelSetEntityTest {
         // When & Then
         try {
             UUID imageId = UUID.randomUUID();
-            ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "mySet");
+            ImageComponentKey keyPair = new ImageComponentKey(imageId, "mySet");
             ModelSetEntity modelSetEntity = new ModelSetEntity(keyPair, null, List.of("data1", "data2"));
             setRepository.save(modelSetEntity);
             fail();
@@ -130,10 +126,10 @@ class ModelSetEntityTest {
     public void givenModelSetWithEmptyData_whenSave_thenSuccess () {
         // Given
         UUID imageId = UUID.randomUUID();
-        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "mySet");
-        ModelSetEntity modelSetEntity = new ModelSetEntity(keyPair, "EMPTY", List.of());
+        ModelSetEntity modelSetEntity = new ModelSetEntity(imageId, "mySet", "EMPTY", List.of());
 
         // When
+        ImageComponentKey keyPair = new ImageComponentKey(imageId, "mySet");
         setRepository.save(modelSetEntity);
         ModelSetEntity foundEntity = setRepository.findById(keyPair).orElse(null);
 
@@ -148,7 +144,7 @@ class ModelSetEntityTest {
     @Test
     public void givenNonExistingKey_whenFindById_thenReturnNull () {
         // Given
-        ModelDataKeyPair nonExistentKey = new ModelDataKeyPair(UUID.randomUUID(), "nonexistent");
+        ImageComponentKey nonExistentKey = new ImageComponentKey(UUID.randomUUID(), "nonexistent");
 
         // When
         ModelSetEntity foundEntity = setRepository.findById(nonExistentKey).orElse(null);
@@ -162,11 +158,11 @@ class ModelSetEntityTest {
     public void givenDuplicateModelSetKey_whenSaveTwice_thenOverrideEntity () {
         // Given
         UUID imageId = UUID.randomUUID();
-        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "mySet");
-        ModelSetEntity modelSetEntity1 = new ModelSetEntity(keyPair, "TYPE1", List.of("data1"));
-        ModelSetEntity modelSetEntity2 = new ModelSetEntity(keyPair, "TYPE2", List.of("data2"));
+        ModelSetEntity modelSetEntity1 = new ModelSetEntity(imageId, "mySet", "TYPE1", List.of("data1"));
+        ModelSetEntity modelSetEntity2 = new ModelSetEntity(imageId, "mySet", "TYPE2", List.of("data2"));
 
         // When
+        ImageComponentKey keyPair = new ImageComponentKey(imageId, "mySet");
         setRepository.save(modelSetEntity1);
         setRepository.save(modelSetEntity2); // Same keyPair being saved
 
@@ -184,13 +180,13 @@ class ModelSetEntityTest {
     public void givenModelSet_whenDeleteByKey_thenEntityIsDeleted () {
         // Given
         UUID imageId = UUID.randomUUID();
-        ModelDataKeyPair keyPair = new ModelDataKeyPair(imageId, "mySet");
+        ImageComponentKey keyPair = new ImageComponentKey(imageId, "mySet");
         ModelSetEntity modelSetEntity = new ModelSetEntity(keyPair, "TestType", List.of("data1", "data2"));
         setRepository.save(modelSetEntity);
 
         // When
-        setRepository.deleteById(keyPair);
-        ModelSetEntity foundEntity = setRepository.findById(keyPair).orElse(null);
+        setRepository.deleteById(new ImageComponentKey(imageId, "mySet"));
+        ModelSetEntity foundEntity = setRepository.findById(new ImageComponentKey(imageId, "mySet")).orElse(null);
 
         // Then
         assertThat(foundEntity).isNull();
@@ -200,11 +196,11 @@ class ModelSetEntityTest {
     @Test
     public void givenMultipleModelSets_whenFindAll_thenReturnAllEntities () {
         // Given
-        ModelDataKeyPair keyPair1 = new ModelDataKeyPair(UUID.randomUUID(), "TestName1");
-        ModelSetEntity modelSetEntity1 = new ModelSetEntity(keyPair1, "TestType1", List.of("data1", "data2"));
+        UUID imageId1 = UUID.randomUUID();
+        ModelSetEntity modelSetEntity1 = new ModelSetEntity(imageId1, "TestName1", "TestType1", List.of("data1", "data2"));
 
-        ModelDataKeyPair keyPair2 = new ModelDataKeyPair(UUID.randomUUID(), "TestName2");
-        ModelSetEntity modelSetEntity2 = new ModelSetEntity(keyPair2, "TestType2", List.of("data3", "data4"));
+        UUID imageId2 = UUID.randomUUID();
+        ModelSetEntity modelSetEntity2 = new ModelSetEntity(imageId2, "TestName2", "TestType2", List.of("data3", "data4"));
 
         setRepository.save(modelSetEntity1);
         setRepository.save(modelSetEntity2);
