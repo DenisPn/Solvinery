@@ -5,8 +5,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 @Entity
 @Table(name = "users")
@@ -42,7 +43,12 @@ public class UserEntity {
             this.password = null; //set password as an invalid null to throw error on save, not here.
         }
         else {
-            this.password = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                this.password= new String(digest.digest(rawPassword.getBytes()));
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException("Error during password encryption: "+e);
+            }
         }
     }
     public void setUsername (String username) {
@@ -76,7 +82,12 @@ public class UserEntity {
             this.password = null; //set password as an invalid null to throw error on save, not here.
         }
         else {
-            this.password = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                this.password= new String(digest.digest(rawPassword.getBytes()));
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException("Error during password encryption: "+e);
+            }
         }
     }
 
@@ -90,7 +101,14 @@ public class UserEntity {
         if( rawPassword == null)
             return this.password == null;
         else
-            return BCrypt.checkpw(rawPassword, this.password);
+        {
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                return this.password.equals(new String(digest.digest(rawPassword.getBytes())));
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException("Error during password encryption: "+e);
+            }
+        }
     }
 
 
