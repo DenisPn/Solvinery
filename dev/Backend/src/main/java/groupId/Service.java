@@ -2,6 +2,7 @@ package groupId;
 
 import java.io.IOException;
 
+import groupId.DTO.Records.Requests.Commands.LogInDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -63,5 +64,10 @@ public class Service implements ServiceInterface {
     public ResponseEntity<InputDTO> loadImageInput(@PathVariable("id") String imageId) throws Exception {
         InputDTO res = controller.loadLastInput(imageId);
         return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<CreateImageResponseDTO> logIn(@Valid @RequestBody LogInDTO data) throws Exception {
+        return ResponseEntity.ok(null);
     }
 }
