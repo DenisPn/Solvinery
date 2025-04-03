@@ -151,7 +151,7 @@ private String storageDir;
         }
         for (PreferenceModuleDTO preferenceModule:imageDTO.preferenceModules()){
             image.addPreferenceModule(preferenceModule.moduleName(), preferenceModule.description(),
-                    preferenceModule.preferences(),preferenceModule.inputSets(),preferenceModule.inputParams());
+                    preferenceModule.preferences());
         }
     }
 
@@ -165,11 +165,11 @@ private String storageDir;
         return images.get(UUID.fromString(id));
     }
 
-    /**
+   /* *//**
      * @see InputDTO
-     */
+     *//*
     public InputDTO loadLastInput(String imageId) throws Exception {
         return images.get(UUID.fromString(imageId)).getInput();
     }
-
+*/
 }

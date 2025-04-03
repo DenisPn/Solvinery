@@ -19,5 +19,5 @@ public interface ServiceInterface {
 
     public ResponseEntity<SolutionDTO> solve(SolveCommandDTO input) throws Exception;
 
-    public ResponseEntity<InputDTO> loadImageInput(@PathVariable("id") String imageId) throws Exception ;
+   // public ResponseEntity<InputDTO> loadImageInput(@PathVariable("id") String imageId) throws Exception ;
 }

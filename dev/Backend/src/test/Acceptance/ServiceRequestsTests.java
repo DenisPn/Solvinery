@@ -13,6 +13,7 @@ import groupId.UserController;
 import org.junit.jupiter.api.*;
 
 import java.nio.file.*;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -84,7 +85,7 @@ public class ServiceRequestsTests {
                     "some imageId", new ModelDTO(
                     Set.of(new ConstraintDTO("sampleConstraint")),
                     Set.of(new PreferenceDTO("myVar[3]")),
-                    Set.of(new VariableDTO("myVar")),
+                    Set.of(new VariableDTO("myVar",List.of("mySet"))),
                     Map.of("mySet", List.of("INT")),
                     Map.of("x", "INT")
             ));
@@ -96,7 +97,6 @@ public class ServiceRequestsTests {
             assertEquals(response.getBody().model().variables(), expected.model().variables());
             assertEquals(response.getBody().model().setTypes(), expected.model().setTypes());
             assertEquals(response.getBody().model().paramTypes(), expected.model().paramTypes());
-            //assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
 
             /**
              * TEST
@@ -106,8 +106,8 @@ public class ServiceRequestsTests {
                             Set.of("sampleConstraint")));
             Set<PreferenceModuleDTO> preferenceModuleDTOs = Set.of(
                     new PreferenceModuleDTO("Test module", "PeanutButter",
-                            Set.of("myVar[3]"), Set.of(), Set.of()));
-            VariableModuleDTO variableModuleDTO = new VariableModuleDTO(Set.of("myVar"),Map.of("myVar",List.of("test_alias")));
+                            Set.of("myVar[3]")));
+            VariableModuleDTO variableModuleDTO = new VariableModuleDTO(Set.of("myVar"),Map.of("myVar","test_alias"));
             ImageDTO imageDTO = new ImageDTO(variableModuleDTO, constraintModuleDTOs, preferenceModuleDTOs);
             ImageConfigDTO configDTO= new ImageConfigDTO(response.getBody().imageId(),imageDTO);
             ResponseEntity<Void> response2= service.configureImage(configDTO);
@@ -130,7 +130,7 @@ public class ServiceRequestsTests {
                     Map.of("x",List.of("10")),
                     List.of(),List.of());
             SolveCommandDTO solveCommandDTO=new SolveCommandDTO(responseDTO.imageId(),input,600);
-            ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Map.of("myVar",List.of("test_alias"))),Set.of(),Set.of());
+            ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Map.of("myVar","test_alias")),Set.of(),Set.of());
             ImageConfigDTO config= new ImageConfigDTO(responseDTO.imageId(),imageDTO);
             userController.overrideImage(config);
             SolutionDTO solution=userController.solve(solveCommandDTO);

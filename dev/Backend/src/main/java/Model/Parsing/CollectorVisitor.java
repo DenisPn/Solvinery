@@ -10,10 +10,7 @@ import Model.Model;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SequencedCollection;
+import java.util.*;
 
 public class CollectorVisitor extends FormulationBaseVisitor<Void> {
 
@@ -49,7 +46,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
 
         TypeVisitor typer = new TypeVisitor(model);
         typer.visit(ctx.setExpr());
-        SequencedCollection<String> elements = parseSetElements(ctx.setExpr());
+        List<String> elements = parseSetElements(ctx.setExpr());
         if(elements != null) {
             ModelSet set = new ModelSet(setName, typer.getType(),elements);
 
@@ -90,7 +87,11 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         String varName = extractName(ctx.sqRef().getText());
         TypeVisitor visitor = new TypeVisitor(model);
         visitor.visit(ctx);
-        model.getVariablesMap().put(varName, new Variable(varName));
+        List<String> basicSetNames = new LinkedList<>();
+        for(ModelSet set : visitor.getBasicSets()) {
+         basicSetNames.add(set.getName());
+        }
+        model.getVariablesMap().put(varName, new Variable(varName,basicSetNames));
         return super.visitVariable(ctx);
     }
 

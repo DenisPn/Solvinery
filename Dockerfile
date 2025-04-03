@@ -23,7 +23,8 @@ RUN apt-get install -y \
     liblapack3 \
     libmetis5 \
     libopenblas0 \
-    libtbb12
+    libtbb12 \
+    iputils-ping
     
 
 

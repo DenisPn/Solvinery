@@ -2,7 +2,6 @@ package groupId;
 
 import java.io.IOException;
 
-import groupId.DTO.Records.Requests.Commands.LogInDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -10,7 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,11 +22,16 @@ import groupId.DTO.Records.Requests.Commands.SolveCommandDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import jakarta.validation.Valid;
 
+
 @RestController
 @RequestMapping("/")
 public class Service implements ServiceInterface {
-    private final UserController controller;
 
+    private final UserController controller;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
     @Autowired 
     public Service(UserController controller) {
         this.controller = controller;
@@ -60,14 +63,22 @@ public class Service implements ServiceInterface {
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping("images/{id}/inputs")
+    /*@GetMapping("images/{id}/inputs")
     public ResponseEntity<InputDTO> loadImageInput(@PathVariable("id") String imageId) throws Exception {
         InputDTO res = controller.loadLastInput(imageId);
         return ResponseEntity.ok(res);
+    }*/
+    @GetMapping("/test-connection")
+    public String testConnection() {
+        try {
+            // Test query to fetch PostgreSQL version
+            String postgresVersion = jdbcTemplate.queryForObject("SELECT version();", String.class);
+            userRepository.save(new UserEntity("test_user-2","email@email.com","mypass123"));
+            return "Connected to PostgreSQL: " + postgresVersion;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Connection failed: " + e.getMessage();
+        }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<CreateImageResponseDTO> logIn(@Valid @RequestBody LogInDTO data) throws Exception {
-        return ResponseEntity.ok(null);
-    }
 }

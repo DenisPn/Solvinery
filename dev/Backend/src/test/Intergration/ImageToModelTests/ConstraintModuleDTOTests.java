@@ -131,7 +131,7 @@ public class ConstraintModuleDTOTests {
             Solution solution= model.solve(10,"SOLUTION");
             Set<String> vars= model.getVariables().stream().map(Element::getName).collect(Collectors.toSet());
             try {
-                solution.parseSolution(model,vars, Map.of());
+                solution.parseSolution(model,vars, Map.of(),Map.of());
             }
             catch (IOException e){
                 fail(e.getMessage());

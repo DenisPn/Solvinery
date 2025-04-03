@@ -56,29 +56,16 @@ public class Solution {
     }
 
     //Implement as lazy call or run during initialization?
-    public void parseSolution(ModelInterface model, Set<String> varsToParse,Map<String,List<String>> aliases) throws IOException {
+    public void parseSolution(ModelInterface model, Set<String> varsToParse,Map<String,String> varAliases,Map<String,String> setAliases) throws IOException {
         variables = model.getVariables(varsToParse);
         for (Variable variable : variables) {
             if (varsToParse.contains(variable.getName())) {
                 variableSolution.put(variable.getName(), new ArrayList<>());
-                if(aliases.containsKey(variable.getName())) {
-                    variableStructure.put(variable.getName(), aliases.get(variable.getName()));
-                    variableTypes.put(variable.getName(), new ArrayList<>());
-                    /*for (ModelSet modelSet : variable.getSetDependencies()) {
-                        variableTypes.get(variable.getName()).add(modelSet.getType().toString());
-                    }*/
+                if(varAliases.containsKey(variable.getName())) {
+                    variableSolution.put(varAliases.get(variable.getName()), new ArrayList<>());
                 }
                 else {
-                    variableStructure.put(variable.getName(), new ArrayList<>());
-                    variableTypes.put(variable.getName(), new ArrayList<>());
-                    //below lines are not solution dependent but problem dependent, will be more efficient to maintain them inside the image
-                    /*for (ModelSet modelSet : variable.getSetDependencies()) {
-                        variableTypes.get(variable.getName()).add(modelSet.getType().toString());
-                        *//*for (ModelInput.StructureBlock block : modelSet.getStructure()) {
-                            if (block.dependency != null) //fix?
-                                variableStructure.get(variable.getName()).add(block.dependency.identifier);
-                        }*//*
-                    }*/
+                    variableSolution.put(variable.getName(), new ArrayList<>());
                 }
             }
         }
@@ -106,17 +93,14 @@ public class Solution {
                     if (objectiveMatcher.find()) {
                         objectiveValue = Double.parseDouble(objectiveMatcher.group(1));
                         solutionSection = true; // Objective value is defined right before the solution values section
-                        parseSolutionValues(reader, varsToParse);
+                        parseSolutionValues(reader, varsToParse,varAliases);
                     }
                 }
-//              else {
-//                    parseSolutionValues(reader,varsToParse);
-//                }
             }
         }
         parsed=true;
     }
-    private void parseSolutionValues(BufferedReader reader, Set<String> varsToParse) throws IOException {
+    private void parseSolutionValues(BufferedReader reader, Set<String> varsToParse,Map<String,String> aliases) throws IOException {
         Pattern variablePattern = Pattern.compile("^(.*?)[ \\t]+(\\d+)[ \\t]+\\(obj:(\\d+)\\)");
         String line;
         while ((line = reader.readLine()) != null){
@@ -128,7 +112,15 @@ public class Solution {
                 String variableIdentifier = splitSolution.getFirst();
                 splitSolution.removeFirst();
                 if(varsToParse.contains(variableIdentifier) && objectiveValue!=0) { //A 0 objective value means the solution part has no effect on the actual max/min expression
-                    variableSolution.get(variableIdentifier).add(new Tuple<>(splitSolution,objectiveValue));
+                    if(aliases.containsKey(variableIdentifier)) {
+                        String alias = aliases.get(variableIdentifier);
+                        if (!variableSolution.containsKey(alias))
+                            throw new RuntimeException("Internal Logic error: Variable aliased and requested, but isn't in solution.");
+                        variableSolution.get(variableIdentifier).add(new Tuple<>(splitSolution, objectiveValue));
+                    }
+                    else {
+                        variableSolution.get(variableIdentifier).add(new Tuple<>(splitSolution,objectiveValue));
+                    }
                 }
             }
             else {
