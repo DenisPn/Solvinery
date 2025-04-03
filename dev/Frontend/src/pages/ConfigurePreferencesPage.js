@@ -162,7 +162,7 @@ const ConfigurePreferencesPage = () => {
             </div>
 
             <button
-                className="continue-button"
+                className="button"
                 onClick={() => navigate('/solution-preview')}
             >
                 Continue

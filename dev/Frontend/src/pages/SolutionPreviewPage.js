@@ -513,14 +513,11 @@ const SolutionPreviewPage = () => {
 
         {/* Solve Button */}
 
-        <button className="solve-button" onClick={handleSolve}>
+        <button className="button" onClick={handleSolve}>
           Solve
         </button>
 
-        {/* Fake Response Button */}
-        <button className="fake-response-button" onClick={handleFakeResponse}>
-          Fake Solve Response
-        </button>
+ 
 
         {/* Modal for Response */}
         {showModal && (

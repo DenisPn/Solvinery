@@ -161,7 +161,7 @@ const ConfigureConstraintsPage = () => {
             </div>
 
             <button
-                className="continue-button"
+                className="button"
                 onClick={() => navigate('/configure-preferences')}
             >
                 Continue

@@ -6,7 +6,11 @@ import '../Themes/MainTheme.css'
 const MainPage = () => {
     return (
         <div className="main-page background">
-            
+            <div className="logout-button">
+            <Link to="/log-in" className="back-button">
+                            Log Out
+                        </Link>
+            </div>
             <div className="button-container">
             <h1 className="main-title">Solvinery</h1>
                 <Link to="/my-images" className="button">

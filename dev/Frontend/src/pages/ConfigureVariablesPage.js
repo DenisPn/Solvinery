@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useZPL } from "../context/ZPLContext";
 import "./ConfigureVariablesPage.css";
-import Checkbox from "../reusableComponents/Checkbox.js";
 
 const ConfigureVariablesPage = () => {
     const { variables, variablesModule, setVariablesModule } = useZPL();
