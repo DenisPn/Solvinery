@@ -89,12 +89,17 @@ public class Model implements ModelInterface {
     private final String zimplSolveScript = "src/main/resources/zimpl/solve.sh" ;
     private String originalSource;
     
-    public Model(String sourceFilePath) throws IOException {
-        if (!Files.exists(Paths.get(sourceFilePath))) {
-            throw new BadRequestException("File does not exist: " + sourceFilePath);
+    public Model(String sourceFilePath) {
+        try {
+            if (!Files.exists(Paths.get(sourceFilePath))) {
+                throw new ParsingException("File does not exist: " + sourceFilePath);
+            }
+            this.sourceFilePath = sourceFilePath;
+            parseSource();
         }
-        this.sourceFilePath = sourceFilePath;
-        parseSource();
+        catch (IOException e) {
+            throw new ParsingException("I/O error parsing source file: " + e.getMessage());
+        }
     }
     
     private void parseSource() throws IOException {
@@ -109,7 +114,12 @@ public class Model implements ModelInterface {
         CollectorVisitor collector = new CollectorVisitor(this);
         collector.visit(tree);
     }
-    
+
+    @Override
+    public String getSourceCode () {
+        return originalSource;
+    }
+
     public void appendToSet(ModelSet set, String value) {
         // if (!sets.containsKey(setName)) {
         //     throw new IllegalArgumentException("Set " + setName + " not found");

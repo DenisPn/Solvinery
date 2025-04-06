@@ -2,6 +2,7 @@ package Image;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
 import Exceptions.InternalErrors.ModelExceptions.Parsing.ParsingException;
@@ -17,27 +18,59 @@ import groupId.DTO.Records.Model.ModelDefinition.ConstraintDTO;
 import groupId.DTO.Records.Model.ModelDefinition.PreferenceDTO;
 import Image.Modules.Operational.ConstraintModule;
 import Image.Modules.Operational.PreferenceModule;
+import Model.ModelProxy;
 import Model.Model;
 import Model.ModelInterface;
 import Model.Solution;
 
 public class Image {
     // Note: this implies module names must be unique between user constraints/preferences.
-    private final HashMap<String,ConstraintModule> constraintsModules;
-    private final HashMap<String,PreferenceModule> preferenceModules;
+    private final Map<String,ConstraintModule> constraintsModules;
+    private final Map<String,PreferenceModule> preferenceModules;
     private final Set<ModelSet> activeSets;
     private final Set<ModelParameter> activeParams;
     private final Set<Variable> activeVariables;
     private final ModelInterface model;
+
+    /**
+     * Constructs a new empty image, given a Model. It's implied from the existence of Model that there is a file on
+     * In the filesystem with the source code on it.
+     * @param model The already initialized model.
+     */
     public Image(ModelInterface model) {
         this.activeParams = new HashSet<>();
-        constraintsModules = new HashMap<>();
-        preferenceModules = new HashMap<>();
-        activeVariables = new HashSet<>();
-        activeSets = new HashSet<>();
+        this.constraintsModules = new HashMap<>();
+        this.preferenceModules = new HashMap<>();
+        this.activeVariables = new HashSet<>();
+        this.activeSets = new HashSet<>();
         this.model = model;
     }
-    public Image(String path) throws IOException {
+
+    /**
+     * Given source code and all Image components, creates an image object. This is intended for images loaded from persistence.
+     * For runtime concerns, the Model object is created on get, meaning the source code isn't parsed until the Image needs it.
+     *
+     * @param code               The source code of the model.
+     * @param constraintsModules The constraint modules to load.
+     * @param preferenceModules  The preference modules to load.
+     * @param activeSets         The active sets used in the model.
+     * @param activeParams       The active parameters used in the model.
+     * @param activeVariables    The active variables used in the model.
+     */
+    public Image (String code, Set<ConstraintModule> constraintsModules, Set<PreferenceModule> preferenceModules, Set<ModelSet> activeSets, Set<ModelParameter> activeParams, Set<Variable> activeVariables) {
+        this.constraintsModules = constraintsModules.stream().collect(Collectors.toMap(ConstraintModule::getName, constraintModule -> constraintModule));
+        this.preferenceModules = preferenceModules.stream().collect(Collectors.toMap(PreferenceModule::getName, preferenceModule -> preferenceModule));
+        this.activeSets = activeSets;
+        this.activeParams = activeParams;
+        this.activeVariables = activeVariables;
+        this.model = new ModelProxy(code);
+    }
+
+    /**
+     * Given path, created an Image and the Model inside it.
+     * @param path path to file
+     */
+    public Image(String path) {
         this.activeParams = new HashSet<>();
         constraintsModules = new HashMap<>();
         preferenceModules = new HashMap<>();
@@ -83,10 +116,10 @@ public class Image {
     public PreferenceModule getPreferenceModules(String name) {
         return preferenceModules.get(name);
     }
-    public HashMap<String, ConstraintModule> getConstraintsModules() {
+    public Map<String, ConstraintModule> getConstraintsModules() {
         return constraintsModules;
     }
-    public HashMap<String, PreferenceModule> getPreferenceModules() {
+    public Map<String, PreferenceModule> getPreferenceModules() {
         return preferenceModules;
     }
 
@@ -160,5 +193,15 @@ public class Image {
         preferenceModules.clear();
         this.activeVariables.override(variables*//*,sets,params*//*,aliases);*/
     }
-    
+
+    public Set<ModelSet> getActiveSets () {
+        return activeSets;
+    }
+
+    public Set<ModelParameter> getActiveParams () {
+        return activeParams;
+    }
+    public String getSourceCode() {
+        return model.getSourceCode();
+    }
 }

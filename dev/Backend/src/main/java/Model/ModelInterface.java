@@ -17,6 +17,7 @@ import Model.Data.Elements.Variable;
  * and variables within the model, as well as solving and compiling operations.
  */
 public interface ModelInterface {
+    String getSourceCode();
     /**
      * Appends a value to a specified set in the model.
      * 
