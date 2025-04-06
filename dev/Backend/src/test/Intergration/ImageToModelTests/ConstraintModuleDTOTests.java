@@ -56,7 +56,7 @@ public class ConstraintModuleDTOTests {
         try {
             model = new Model(sourcePath);
         }
-        catch (IOException e) {
+        catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
             fail();

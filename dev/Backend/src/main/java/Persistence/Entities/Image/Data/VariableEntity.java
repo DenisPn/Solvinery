@@ -1,12 +1,10 @@
 package Persistence.Entities.Image.Data;
 
 import Persistence.Entities.Image.ImageComponentKey;
-import Persistence.Entities.Image.Operational.ConstraintEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -20,9 +18,21 @@ public class VariableEntity {
     @Column(name = "alias")
     private String alias;
 
+
+    @ElementCollection
+    @CollectionTable(name = "structure_parts", joinColumns = {
+            @JoinColumn(name = "image_id",
+                    referencedColumnName = "image_id"),
+            @JoinColumn(name = "element_name",
+                    referencedColumnName = "element_name")
+    }
+    )
+    @Column(name = "structure_part")
+    @NotNull(message = "Structure can't be null.")
+    private List<String> structure;
     public VariableEntity() {}
 
-    public VariableEntity(UUID id,String varName, String alias) {
+    public VariableEntity(UUID id,String varName, List<String> structure,String alias) {
         this.imageComponentKey= new ImageComponentKey(id,varName);
         this.alias = alias;
 }
@@ -39,6 +49,10 @@ public class VariableEntity {
     @Override
     public int hashCode() {
         return Objects.hash(imageComponentKey, alias);
+    }
+
+    public List<String> getStructure () {
+        return structure;
     }
     public String getAlias() {
         return alias;

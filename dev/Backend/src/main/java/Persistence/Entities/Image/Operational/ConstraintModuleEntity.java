@@ -54,6 +54,7 @@ public class ConstraintModuleEntity {
         this.description = description;
         this.constraints = new HashSet<>();
     }
+
     public ImageComponentKey getImageComponentKey () {
         return imageComponentKey;
     }
