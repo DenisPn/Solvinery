@@ -5,12 +5,23 @@ import java.util.SequencedCollection;
 
 public class Variable extends Element {
     private final List<String> structure;
+    private final String alias;
 
+    public Variable (String name, List<String> structure, String alias) {
+        super(name);
+        this.structure = structure;
+        this.alias = alias;
+    }
     public Variable (String name, List<String> structure) {
         super(name);
         this.structure = structure;
+        this.alias = null;
     }
     public List<String> getStructure() {
         return structure;
+    }
+
+    public String getAlias () {
+        return alias;
     }
 }

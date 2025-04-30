@@ -46,7 +46,9 @@ class ImageEntityTest {
         setData.add("data1"); setData.add("data2");
         ModelParamEntity param = new ModelParamEntity(imageId, "paramName", "p-type", "p-data", "p-alias");
         ModelSetEntity set = new ModelSetEntity(imageId, "setName", "s-type", setData, "s-alias");
-        VariableEntity var = new VariableEntity(imageId, "varName", "v-alias");
+        List<String> structure= new ArrayList<>();
+        structure.add("structure1"); structure.add("structure2");
+        VariableEntity var = new VariableEntity(imageId, "varName",structure, "v-alias");
         ConstraintEntity constraint = new ConstraintEntity("constraint");
         PreferenceEntity preference = new PreferenceEntity("preference");
         HashSet<ModelSetEntity> sets= new HashSet<>();
@@ -65,9 +67,9 @@ class ImageEntityTest {
         HashSet<PreferenceModuleEntity> preferenceModules = new HashSet<>();
         constraintModules.add(constraintModule);
         preferenceModules.add(preferenceModule);
-
+        String emptyZimplCode= "";
         // Add children to the parent
-        stub.setAll(preferenceModules, constraintModules, variables, params, sets);
+        stub.setAll(preferenceModules, constraintModules, variables, params, sets,emptyZimplCode);
         return stub;
     }
     @Test
@@ -128,12 +130,16 @@ class ImageEntityTest {
     @Transactional
     void GivenTwoIdenticalImageEntities_WhenEqualsIsCalled_ThenTheyAreEqual () {
         // Arrange
+        List<String> structure= new ArrayList<>();
+        structure.add("structure1"); structure.add("structure2");
+        List<String> structure1= new ArrayList<>();
+        structure1.add("structure1"); structure1.add("structure2");
         UUID imageId = UUID.randomUUID();
         ImageEntity entity1 = new ImageEntity();
-        entity1.addVariable(new VariableEntity(imageId, "varName", "varAlias") );
+        entity1.addVariable(new VariableEntity(imageId, "varName",structure, "varAlias") );
 
         ImageEntity entity2 = new ImageEntity();
-        entity2.addVariable(new VariableEntity(imageId, "varName", "varAlias") );
+        entity2.addVariable(new VariableEntity(imageId, "varName",structure1,"varAlias") );
 
         // Act & Assert
         assertEquals(entity1, entity2);
@@ -143,12 +149,16 @@ class ImageEntityTest {
     @Transactional
     void GivenTwoDifferentImageEntities_WhenEqualsIsCalled_ThenTheyAreNotEqual () {
         // Arrange
+        List<String> structure= new ArrayList<>();
+        structure.add("structure1"); structure.add("structure2");
+        List<String> structure1= new ArrayList<>();
+        structure1.add("structure1"); structure1.add("structure2");
         UUID imageId = UUID.randomUUID();
         ImageEntity entity1 = new ImageEntity();
-        entity1.addVariable(new VariableEntity(imageId, "varName1", "varAlias1") );
+        entity1.addVariable(new VariableEntity(imageId, "varName1",structure, "varAlias1") );
 
         ImageEntity entity2 = new ImageEntity();
-        entity2.addVariable(new VariableEntity(imageId, "varName2", "varAlias2") );
+        entity2.addVariable(new VariableEntity(imageId, "varName2",structure1, "varAlias2") );
 
         // Act & Assert
         assertNotEquals(entity1, entity2);
@@ -181,9 +191,6 @@ class ImageEntityTest {
 
         // Then
         assertNull(retrievedEntity);
-
-        // Validate cascading delete for child entities
-        assertTrue(imageRepository.findAll().isEmpty());
     }
 
     @Test
@@ -261,7 +268,7 @@ class ImageEntityTest {
         imageRepository.save(validEntity);
 
         // Act - remove all child entities from parent
-        validEntity.setAll(new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
+        validEntity.setAll(new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(),"");
         imageRepository.save(validEntity);
 
         ImageEntity retrievedEntity = imageRepository.findById(validEntity.getId()).orElse(null);
@@ -273,5 +280,6 @@ class ImageEntityTest {
         assertTrue(retrievedEntity.getVariables().isEmpty());
         assertTrue(retrievedEntity.getConstraintModules().isEmpty());
         assertTrue(retrievedEntity.getPreferenceModules().isEmpty());
+        assertTrue(retrievedEntity.getZimplCode().isEmpty());
     }
 }

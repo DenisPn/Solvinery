@@ -24,6 +24,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = {TestsConfiguration.class})
 class UserEntityTest {
 
+    @Autowired
+    private UserRepository userRepository;
+
     @ParameterizedTest
     @ValueSource(strings = {"new_username", "another_user", "updated_user"})
     public void givenValidUser_whenUpdate_thenSuccess(String newUsername) {
@@ -82,9 +85,6 @@ class UserEntityTest {
         //then
         assertThat(userRepository.findById(nonExistentId)).isEmpty();
     }
-
-    @Autowired
-    private UserRepository userRepository;
 
     @ParameterizedTest
     @ValueSource(strings = {"test_user","test_user-1","Smellma1996","BobTheBuilder",

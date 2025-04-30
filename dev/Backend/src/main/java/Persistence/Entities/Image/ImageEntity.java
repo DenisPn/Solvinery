@@ -41,31 +41,46 @@ public class ImageEntity {
             cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PreferenceModuleEntity> preferenceModules;
 
+    @Lob
+    @Column(name = "zimpl_code", nullable = false,
+    columnDefinition = "TEXT")
+    @Basic(fetch = FetchType.LAZY)
+    private String zimplCode;
+
     public ImageEntity () {
         this.activeSets = new HashSet<>();
         this.activeParams = new HashSet<>();
         this.variables = new HashSet<>();
         this.constraintModules = new HashSet<>();
         this.preferenceModules = new HashSet<>();
+        this.zimplCode = "";
     }
 
-    public ImageEntity (Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ModelParamEntity> activeParams, Set<ModelSetEntity> activeSets) {
+    public ImageEntity (Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ModelParamEntity> activeParams, Set<ModelSetEntity> activeSets,String zimplCode) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
         this.variables = variables;
         this.activeParams = activeParams;
         this.activeSets = activeSets;
+        this.zimplCode = zimplCode;
     }
 
     public UUID getId () {
         return id;
     }
-    public void setAll (Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ModelParamEntity> activeParams, Set<ModelSetEntity> activeSets) {
+    public void setAll (Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ModelParamEntity> activeParams, Set<ModelSetEntity> activeSets, String zimplCode) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
         this.variables = variables;
         this.activeParams = activeParams;
         this.activeSets = activeSets;
+        this.zimplCode = zimplCode;
+    }
+    public String getZimplCode () {
+        return zimplCode;
+    }
+    public void setZimplCode (String zimplCode) {
+        this.zimplCode = zimplCode;
     }
     public Set<ModelSetEntity> getActiveSets () {
         return activeSets;
@@ -162,4 +177,5 @@ public class ImageEntity {
     public int hashCode() {
         return Objects.hash(id, activeSets, activeParams, variables, constraintModules, preferenceModules);
     }
+
 }
