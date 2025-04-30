@@ -1,8 +1,7 @@
 package Persistence.Entities.Image;
 
-import Model.Data.Elements.Data.ModelSet;
-import Persistence.Entities.Image.Data.ModelParamEntity;
-import Persistence.Entities.Image.Data.ModelSetEntity;
+import Persistence.Entities.Image.Data.ParameterEntity;
+import Persistence.Entities.Image.Data.SetEntity;
 import Persistence.Entities.Image.Data.VariableEntity;
 import Persistence.Entities.Image.Operational.ConstraintEntity;
 import Persistence.Entities.Image.Operational.ConstraintModuleEntity;
@@ -10,7 +9,6 @@ import Persistence.Entities.Image.Operational.PreferenceEntity;
 import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
 import Persistence.Repositories.ImageRepository;
 import Utilities.TestsConfiguration;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
@@ -44,16 +42,16 @@ class ImageEntityTest {
         // Initialize children with the auto-generated ID
         LinkedList<String> setData=new LinkedList<>();
         setData.add("data1"); setData.add("data2");
-        ModelParamEntity param = new ModelParamEntity(imageId, "paramName", "p-type", "p-data", "p-alias");
-        ModelSetEntity set = new ModelSetEntity(imageId, "setName", "s-type", setData, "s-alias");
+        ParameterEntity param = new ParameterEntity(imageId, "paramName", "p-type", "p-data", "p-alias");
+        SetEntity set = new SetEntity(imageId, "setName", "s-type", setData, "s-alias");
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
         VariableEntity var = new VariableEntity(imageId, "varName",structure, "v-alias");
         ConstraintEntity constraint = new ConstraintEntity("constraint");
         PreferenceEntity preference = new PreferenceEntity("preference");
-        HashSet<ModelSetEntity> sets= new HashSet<>();
+        HashSet<SetEntity> sets= new HashSet<>();
         sets.add(set);
-        HashSet<ModelParamEntity> params= new HashSet<>();
+        HashSet<ParameterEntity> params= new HashSet<>();
         params.add(param);
         HashSet<VariableEntity> variables = new HashSet<>();
         variables.add(var);
@@ -111,7 +109,7 @@ class ImageEntityTest {
         ImageEntity validEntity = makeStub();
         imageRepository.save(validEntity);
         List<String> updatedData = List.of("updated1", "updated2");
-        ModelSetEntity updatedSet = new ModelSetEntity(validEntity.getId(), "updatedSet", "updated-type", updatedData, "updatedAlias");
+        SetEntity updatedSet = new SetEntity(validEntity.getId(), "updatedSet", "updated-type", updatedData, "updatedAlias");
         validEntity.addSet(updatedSet);
 
         // Act
@@ -204,7 +202,7 @@ class ImageEntityTest {
         ArrayList<String> data = new ArrayList<>();
         data.add("newData");
         data.add("newData2");
-        ModelSetEntity newSet = new ModelSetEntity(validEntity.getId(), "newSet", "s-type", data, "newAlias");
+        SetEntity newSet = new SetEntity(validEntity.getId(), "newSet", "s-type", data, "newAlias");
         validEntity.addSet(newSet);
         imageRepository.save(validEntity);
 
@@ -227,7 +225,7 @@ class ImageEntityTest {
         imageRepository.save(validEntity);
 
         // Update a child entity
-        ModelParamEntity paramToUpdate = validEntity.getActiveParams().iterator().next();
+        ParameterEntity paramToUpdate = validEntity.getActiveParams().iterator().next();
         paramToUpdate.setAlias("updatedAlias");
 
         imageRepository.save(validEntity);
@@ -249,7 +247,7 @@ class ImageEntityTest {
         imageRepository.save(validEntity);
 
         // Use a child entity attribute to fetch the parent
-        ModelParamEntity targetParam = validEntity.getActiveParams().iterator().next();
+        ParameterEntity targetParam = validEntity.getActiveParams().iterator().next();
         UUID imageId = targetParam.getUUID();
 
         // Act

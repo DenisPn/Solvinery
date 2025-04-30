@@ -15,8 +15,8 @@ import groupId.DTO.Records.Requests.Commands.CreateImageFromFileDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import groupId.DTO.Records.Requests.Responses.ImageResponseDTO;
 import Image.Image;
-import Image.Modules.Operational.ConstraintModule;
-import Image.Modules.Operational.PreferenceModule;
+import Image.Modules.Grouping.ConstraintModule;
+import Image.Modules.Grouping.PreferenceModule;
 import Model.*;
 import org.yaml.snakeyaml.util.Tuple;
 

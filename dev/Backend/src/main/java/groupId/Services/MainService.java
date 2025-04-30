@@ -98,33 +98,6 @@ private final Map<UUID,Image> images;
     }
 
     /**
-     * Given DTO object representing an image and an id, overrides the image with the associated ID with the image.
-     * @param imgConfig DTO object parsed from HTTP JSON request.
-     * @throws BadRequestException Throws exception if image ID does not exist in the server.
-     */
-    public void overrideImage(ImageConfigDTO imgConfig) throws BadRequestException {
-        ImageDTO imageDTO= imgConfig.image();
-        Image image=images.get(UUID.fromString(imgConfig.imageId()));
-        BadRequestException.requireNotNull(image, "Invalid image ID during override image");
-        Map<String, Variable> variables = new HashMap<>();
-        ModelInterface model= image.getModel();
-        for(String variable:imageDTO.variablesModule().variablesOfInterest()){
-            Variable modelVariable=model.getVariable(variable);
-            Objects.requireNonNull(modelVariable,"Invalid variable name in config/override image");
-            variables.put(variable,modelVariable);
-        }
-        image.reset(variables /*,imageDTO.variablesModule().variablesConfigurableSets(),imageDTO.variablesModule().variablesConfigurableParams()*/,imageDTO.variablesModule().variableAliases());
-        for(ConstraintModuleDTO constraintModule:imageDTO.constraintModules()){
-            image.addConstraintModule(constraintModule.moduleName(),constraintModule.description(),
-                    constraintModule.constraints()/*,constraintModule.inputSets(),constraintModule.inputParams()*/);
-        }
-        for (PreferenceModuleDTO preferenceModule:imageDTO.preferenceModules()){
-            image.addPreferenceModule(preferenceModule.moduleName(), preferenceModule.description(),
-                    preferenceModule.preferences());
-        }
-    }
-
-    /**
      * Given ID, returns the image associated with it.
      * Implemented for testing, and should not be used outside that scope.
      * @param id image id

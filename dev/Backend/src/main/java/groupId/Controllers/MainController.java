@@ -40,8 +40,8 @@ public class MainController {
         this.controller = controller;
     }
 
-    @GetMapping(value = {"/"/*, "/{path:^(?!api|static).*$}/**"*/})
-    public ResponseEntity<Resource> serveHomePage() throws IOException {
+    @GetMapping(value = "/")
+    public ResponseEntity<Resource> serveHomePage() {
         Resource resource = new ClassPathResource("static/index.html");
         return ResponseEntity.ok()
             .contentType(MediaType.TEXT_HTML)

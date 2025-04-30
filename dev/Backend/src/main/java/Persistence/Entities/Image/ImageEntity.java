@@ -1,7 +1,7 @@
 package Persistence.Entities.Image;
 
-import Persistence.Entities.Image.Data.ModelParamEntity;
-import Persistence.Entities.Image.Data.ModelSetEntity;
+import Persistence.Entities.Image.Data.ParameterEntity;
+import Persistence.Entities.Image.Data.SetEntity;
 import Persistence.Entities.Image.Data.VariableEntity;
 import Persistence.Entities.Image.Operational.ConstraintModuleEntity;
 import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
@@ -23,11 +23,11 @@ public class ImageEntity {
 
     @OneToMany(mappedBy = "imageComponentKey.imageId",
             cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ModelSetEntity> activeSets;
+    private Set<SetEntity> activeSets;
 
     @OneToMany(mappedBy = "imageComponentKey.imageId",
             cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ModelParamEntity> activeParams;
+    private Set<ParameterEntity> activeParams;
 
     @OneToMany(mappedBy = "imageComponentKey.imageId",
             cascade = CascadeType.ALL, orphanRemoval = true)
@@ -56,7 +56,7 @@ public class ImageEntity {
         this.zimplCode = "";
     }
 
-    public ImageEntity (Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ModelParamEntity> activeParams, Set<ModelSetEntity> activeSets,String zimplCode) {
+    public ImageEntity (Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String zimplCode) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
         this.variables = variables;
@@ -68,7 +68,7 @@ public class ImageEntity {
     public UUID getId () {
         return id;
     }
-    public void setAll (Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ModelParamEntity> activeParams, Set<ModelSetEntity> activeSets, String zimplCode) {
+    public void setAll (Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String zimplCode) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
         this.variables = variables;
@@ -82,27 +82,27 @@ public class ImageEntity {
     public void setZimplCode (String zimplCode) {
         this.zimplCode = zimplCode;
     }
-    public Set<ModelSetEntity> getActiveSets () {
+    public Set<SetEntity> getActiveSets () {
         return activeSets;
     }
 
-    public void addSet (ModelSetEntity set) {
+    public void addSet (SetEntity set) {
         this.activeSets.add(set);
     }
 
-    public void removeSet (ModelSetEntity set) {
+    public void removeSet (SetEntity set) {
         this.activeSets.remove(set);
     }
 
-    public Set<ModelParamEntity> getActiveParams () {
+    public Set<ParameterEntity> getActiveParams () {
         return activeParams;
     }
 
-    public void addParam (ModelParamEntity param) {
+    public void addParam (ParameterEntity param) {
         this.activeParams.add(param);
     }
 
-    public void removeParam (ModelParamEntity param) {
+    public void removeParam (ParameterEntity param) {
         this.activeParams.remove(param);
     }
 
@@ -142,11 +142,11 @@ public class ImageEntity {
         this.preferenceModules.remove(preferenceModule);
     }
 
-    public void setActiveSets (Set<ModelSetEntity> activeSets) {
+    public void setActiveSets (Set<SetEntity> activeSets) {
         this.activeSets = activeSets;
     }
 
-    public void setActiveParams (Set<ModelParamEntity> activeParams) {
+    public void setActiveParams (Set<ParameterEntity> activeParams) {
         this.activeParams = activeParams;
     }
 

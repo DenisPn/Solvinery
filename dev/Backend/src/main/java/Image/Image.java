@@ -1,23 +1,24 @@
 package Image;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
 import Exceptions.InternalErrors.ModelExceptions.Parsing.ParsingException;
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
-import Model.Data.Elements.Data.ModelParameter;
-import Model.Data.Elements.Data.ModelSet;
+import Image.Modules.Single.ParameterModule;
+import Image.Modules.Single.SetModule;
+import Image.Modules.Single.VariableModule;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
 import groupId.DTO.Factories.RecordFactory;
+import groupId.DTO.Records.Image.ImageDTO;
 import groupId.DTO.Records.Image.SolutionDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ConstraintDTO;
 import groupId.DTO.Records.Model.ModelDefinition.PreferenceDTO;
-import Image.Modules.Operational.ConstraintModule;
-import Image.Modules.Operational.PreferenceModule;
+import Image.Modules.Grouping.ConstraintModule;
+import Image.Modules.Grouping.PreferenceModule;
 import Model.ModelProxy;
 import Model.Model;
 import Model.ModelInterface;
@@ -27,9 +28,9 @@ public class Image {
     // Note: this implies module names must be unique between user constraints/preferences.
     private final Map<String,ConstraintModule> constraintsModules;
     private final Map<String,PreferenceModule> preferenceModules;
-    private final Set<ModelSet> activeSets;
-    private final Set<ModelParameter> activeParams;
-    private final Set<Variable> activeVariables;
+    private final Set<SetModule> activeSets;
+    private final Set<ParameterModule> activeParams;
+    private final Set<VariableModule> activeVariables;
     private final ModelInterface model;
 
     /**
@@ -57,7 +58,7 @@ public class Image {
      * @param activeParams       The active parameters used in the model.
      * @param activeVariables    The active variables used in the model.
      */
-    public Image (String code, Set<ConstraintModule> constraintsModules, Set<PreferenceModule> preferenceModules, Set<ModelSet> activeSets, Set<ModelParameter> activeParams, Set<Variable> activeVariables) {
+    public Image (String code, Set<ConstraintModule> constraintsModules, Set<PreferenceModule> preferenceModules, Set<SetModule> activeSets, Set<ParameterModule> activeParams, Set<VariableModule> activeVariables) {
         this.constraintsModules = constraintsModules.stream().collect(Collectors.toMap(ConstraintModule::getName, constraintModule -> constraintModule));
         this.preferenceModules = preferenceModules.stream().collect(Collectors.toMap(PreferenceModule::getName, preferenceModule -> preferenceModule));
         this.activeSets = activeSets;
@@ -66,6 +67,21 @@ public class Image {
         this.model = new ModelProxy(code);
     }
 
+    /**
+     * Overrides the image with new fields from the DTO data.
+     * Ideally this should be replaced with a diff,
+     * i.e., an imageDiffDTO with data about changes only
+     */
+    public void override(ImageDTO imageDTO) {
+        this.constraintsModules.clear();
+        this.preferenceModules.clear();
+        this.activeSets.clear();
+        this.activeParams.clear();
+        this.activeVariables.clear();
+        for (String variableName: imageDTO.variablesModule().variablesOfInterest()){
+
+        }
+    }
     /**
      * Given path, created an Image and the Model inside it.
      * @param path path to file
@@ -78,7 +94,6 @@ public class Image {
         activeSets = new HashSet<>();
         this.model = new Model(path);
     }
-
     public void addConstraintModule(ConstraintModule module) {
         constraintsModules.put(module.getName(), module);
     }
@@ -143,8 +158,14 @@ public class Image {
             throw new IllegalArgumentException("No preference module with name: " + moduleName);
         preferenceModules.get(moduleName).removePreference(model.getPreference(preferenceDTO.identifier()));
     }
-    public Set<Variable> getActiveVariables () {
+    public Set<VariableModule> getActiveVariables () {
         return activeVariables;
+    }
+    public void addVariable(String name) {
+        Variable varName= model.getVariable(name);
+        if(varName==null)
+            throw new IllegalArgumentException("No variable with name: " + name);
+        activeVariables.add(new VariableModule(varName));
     }
 
     /**
@@ -194,11 +215,11 @@ public class Image {
         this.activeVariables.override(variables*//*,sets,params*//*,aliases);*/
     }
 
-    public Set<ModelSet> getActiveSets () {
+    public Set<SetModule> getActiveSets () {
         return activeSets;
     }
 
-    public Set<ModelParameter> getActiveParams () {
+    public Set<ParameterModule> getActiveParams () {
         return activeParams;
     }
     public String getSourceCode() {

@@ -1,23 +1,22 @@
 package Persistence;
 
 import Image.Image;
-import Image.Modules.Operational.ConstraintModule;
-import Image.Modules.Operational.PreferenceModule;
+import Image.Modules.Grouping.ConstraintModule;
+import Image.Modules.Grouping.PreferenceModule;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
 import Model.Data.Types.ModelPrimitives;
-import Persistence.Entities.Image.Data.ModelParamEntity;
-import Persistence.Entities.Image.Data.ModelSetEntity;
+import Persistence.Entities.Image.Data.ParameterEntity;
+import Persistence.Entities.Image.Data.SetEntity;
 import Persistence.Entities.Image.Data.VariableEntity;
 import Persistence.Entities.Image.ImageEntity;
 import Persistence.Entities.Image.Operational.ConstraintEntity;
 import Persistence.Entities.Image.Operational.ConstraintModuleEntity;
 import Persistence.Entities.Image.Operational.PreferenceEntity;
 import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
-import Persistence.EntityMapper;
 import Persistence.Entities.UserEntity;
 import Persistence.Repositories.ImageRepository;
 import Persistence.Repositories.UserRepository;
@@ -116,16 +115,16 @@ public class EntityMapperTest {
         // Initialize children with the auto-generated ID
         LinkedList<String> setData=new LinkedList<>();
         setData.add("data1"); setData.add("data2");
-        ModelParamEntity param = new ModelParamEntity(imageId, "paramName", "INT", "p-data", "p-alias");
-        ModelSetEntity set = new ModelSetEntity(imageId, "setName", "INT", setData, "s-alias");
+        ParameterEntity param = new ParameterEntity(imageId, "paramName", "INT", "p-data", "p-alias");
+        SetEntity set = new SetEntity(imageId, "setName", "INT", setData, "s-alias");
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
         VariableEntity var = new VariableEntity(imageId, "varName",structure, "v-alias");
         ConstraintEntity constraint = new ConstraintEntity("constraint");
         PreferenceEntity preference = new PreferenceEntity("preference");
-        HashSet<ModelSetEntity> sets= new HashSet<>();
+        HashSet<SetEntity> sets= new HashSet<>();
         sets.add(set);
-        HashSet<ModelParamEntity> params= new HashSet<>();
+        HashSet<ParameterEntity> params= new HashSet<>();
         params.add(param);
         HashSet<VariableEntity> variables = new HashSet<>();
         variables.add(var);
