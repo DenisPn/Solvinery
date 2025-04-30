@@ -8,12 +8,12 @@ import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
 import groupId.DTO.Records.Requests.Commands.SolveCommandDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import Image.Image;
-import groupId.Service;
-import groupId.UserController;
+import groupId.Controllers.MainController;
+import groupId.Services.ImageService;
+import groupId.Services.MainService;
 import org.junit.jupiter.api.*;
 
 import java.nio.file.*;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,8 +37,9 @@ public class ServiceRequestsTests {
             """;
     static Path tmpDirPath;
     static String sourcePath = "src/test/Utilities/ZimplExamples/ExampleZimplProgram.zpl";
-    UserController userController;
-    Service service;
+    MainService userController;
+    ImageService imageService;
+    MainController service;
     @BeforeAll
     public static void setup(){
         //try {
@@ -53,8 +54,9 @@ public class ServiceRequestsTests {
     }
     @BeforeEach
     public void setUp() {
-        userController = new UserController("../User/Models");
-        service=new Service(userController);
+        userController = new MainService("../User/Models");
+        service=new MainController(userController);
+        imageService=new ImageService("../User/Models");
     }
 
     @Test
@@ -125,7 +127,7 @@ public class ServiceRequestsTests {
     @Test
     public void testSolve_Simple() {
         try {
-            CreateImageResponseDTO responseDTO=userController.createImageFromFile(SimpleCodeExample);
+            CreateImageResponseDTO responseDTO=imageService.createImageFromFile(SimpleCodeExample);
             InputDTO input=new InputDTO(Map.of("mySet",List.of(List.of("1"),List.of("2"),List.of("3"))),
                     Map.of("x",List.of("10")),
                     List.of(),List.of());

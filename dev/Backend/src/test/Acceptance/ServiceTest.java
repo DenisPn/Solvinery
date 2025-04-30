@@ -33,7 +33,6 @@ import groupId.DTO.Records.Image.SolutionValueDTO;
 import groupId.DTO.Records.Image.VariableModuleDTO;
 import groupId.DTO.Records.Model.ModelData.InputDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ConstraintDTO;
-import groupId.DTO.Records.Model.ModelDefinition.DependenciesDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ModelDTO;
 import groupId.DTO.Records.Model.ModelDefinition.PreferenceDTO;
 import groupId.DTO.Records.Model.ModelDefinition.VariableDTO;
@@ -42,7 +41,7 @@ import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
 import groupId.DTO.Records.Requests.Commands.SolveCommandDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import groupId.Main;
-import groupId.Service;
+import groupId.Controllers.MainController;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,classes = Main.class)
 public class ServiceTest {
@@ -61,7 +60,7 @@ public class ServiceTest {
               myVar[3];
             """;
     @Autowired
-    private Service service;
+    private MainController service;
     
     @Autowired
     private TestRestTemplate restTemplate;

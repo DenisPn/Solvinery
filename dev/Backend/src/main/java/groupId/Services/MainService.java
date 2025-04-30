@@ -1,4 +1,4 @@
-package groupId;
+package groupId.Services;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +15,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 import Model.Data.Elements.Variable;
+import groupId.DTO.Records.Requests.Commands.RegisterDTO;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -33,56 +35,23 @@ import Model.ModelInterface;
 import Model.Data.Types.ModelType;
 
 @Service
-public class UserController {
+public class MainService {
 private final Map<UUID,Image> images;
 
-@Value("${app.file.storage-dir}")
-private String storageDir;
 
 
-    public UserController(){
+
+    public MainService (){
         images = new HashMap<>();
     }
 
     //Dependency injection - for TESTS only!
-    public UserController(String path){
+    public MainService (String path){
         images = new HashMap<>();
         this.storageDir = path;
     }
 
-    /**
-     * @param code string of zimpl code. has to be valid and compile
-     * @return a new DTO of the new image
-     * @throws IOException in case any IO errors happen during execution
-     * @see CreateImageResponseDTO
-     */
-    public CreateImageResponseDTO createImageFromFile(String code) throws IOException {
-        UUID id = UUID.randomUUID();
-        String name = id.toString();
 
-        // Get application directory
-        String appDir;
-        try {
-            URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-            appDir = new File(uri).getParent();
-        } catch (Exception e) {
-            appDir = System.getProperty("/tmp"); // Fallback
-        }
-
-        if (appDir == null) {
-            throw new BadRequestException("Could not determine application directory.");
-        }
-
-        // Resolve the path relative to the JAR location
-        Path storagePath = Paths.get(appDir, storageDir);
-        Files.createDirectories(storagePath);
-        Path filePath = storagePath.resolve(name + ".zpl");
-        Files.writeString(filePath, code, StandardOpenOption.CREATE);
-        Image image = new Image(filePath.toAbsolutePath().toString());
-        images.put(id, image);
-
-        return RecordFactory.makeDTO(id, image.getModel());
-    }
 
     /**
      * @param command solve command DTO object
@@ -165,7 +134,11 @@ private String storageDir;
         return images.get(UUID.fromString(id));
     }
 
-   /* *//**
+    public void register (@Valid RegisterDTO data) {
+
+    }
+
+    /* *//**
      * @see InputDTO
      *//*
     public InputDTO loadLastInput(String imageId) throws Exception {

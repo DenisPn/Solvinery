@@ -1,5 +1,6 @@
 package groupId.DTO.Factories;
 
+import Exceptions.UserErrors.UserDataException;
 import groupId.DTO.Records.Requests.Responses.ExceptionDTO;
 import Exceptions.InternalErrors.BadRequestException;
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
@@ -78,6 +79,10 @@ public class ExceptionRecordFactory {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO("An unhandled server communication occurred. (" +exception.getMessage() + ")");
+    }
+    public static ExceptionDTO makeDTO(UserDataException exception) {
+        Objects.requireNonNull(exception,ohNo);
+        return new ExceptionDTO(exception.getMessage());
     }
     //kinda proud of this one
     public static ExceptionDTO makeDTO(MethodArgumentNotValidException exception) {
