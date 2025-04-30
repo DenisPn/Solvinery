@@ -9,11 +9,12 @@ import java.util.List;
 import java.util.SequencedCollection;
 
 /**
- * represents a preference parsed from zimpl code
+ * represents a variable parsed from zimpl code
  * @param identifier the variable's identifier
  * @param structure the variable's structure, every string is supposed to have a Set associated with it.
  */
 public record VariableDTO(
     @NotBlank String identifier,
-    @Valid @NotNull List<String> structure
+    @Valid @NotNull List<String> structure,
+    String alias
 ) {}

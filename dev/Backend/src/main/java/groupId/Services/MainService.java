@@ -45,12 +45,6 @@ private final Map<UUID,Image> images;
         images = new HashMap<>();
     }
 
-    //Dependency injection - for TESTS only!
-    public MainService (String path){
-        images = new HashMap<>();
-        this.storageDir = path;
-    }
-
 
 
     /**
@@ -70,7 +64,7 @@ private final Map<UUID,Image> images;
                     setElements.add(tuple);
                 }
 
-                model.setInput(model.getSet(set.getKey()), setElements.toArray(new String[0]));
+                model.setInput(model.getSet(set.getKey()), setElements);
 
 
             }

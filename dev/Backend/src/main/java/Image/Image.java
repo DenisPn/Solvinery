@@ -9,12 +9,18 @@ import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import Image.Modules.Single.ParameterModule;
 import Image.Modules.Single.SetModule;
 import Image.Modules.Single.VariableModule;
+import Model.Data.Elements.Data.ModelParameter;
+import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
 import groupId.DTO.Factories.RecordFactory;
+import groupId.DTO.Records.Image.ConstraintModuleDTO;
 import groupId.DTO.Records.Image.ImageDTO;
+import groupId.DTO.Records.Image.PreferenceModuleDTO;
 import groupId.DTO.Records.Image.SolutionDTO;
+import groupId.DTO.Records.Model.ModelData.ParameterDTO;
+import groupId.DTO.Records.Model.ModelData.SetDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ConstraintDTO;
 import groupId.DTO.Records.Model.ModelDefinition.PreferenceDTO;
 import Image.Modules.Grouping.ConstraintModule;
@@ -23,6 +29,7 @@ import Model.ModelProxy;
 import Model.Model;
 import Model.ModelInterface;
 import Model.Solution;
+import groupId.DTO.Records.Model.ModelDefinition.VariableDTO;
 
 public class Image {
     // Note: this implies module names must be unique between user constraints/preferences.
@@ -71,6 +78,10 @@ public class Image {
      * Overrides the image with new fields from the DTO data.
      * Ideally this should be replaced with a diff,
      * i.e., an imageDiffDTO with data about changes only
+     * Additional reasoning for why this is bad: if you only changed an alias, for example,
+     * the Model object doesn't need to be loaded, since it isn't changed.
+     * in this impl, the Model is always loaded. We want to avoid doing so since loading the model
+     * means parsing the zpl code, which, as one can expect, is heavy.
      */
     public void override(ImageDTO imageDTO) {
         this.constraintsModules.clear();
@@ -78,8 +89,55 @@ public class Image {
         this.activeSets.clear();
         this.activeParams.clear();
         this.activeVariables.clear();
-        for (String variableName: imageDTO.variablesModule().variablesOfInterest()){
+        
+        for (VariableDTO variableDTO: imageDTO.variables()){
+            String variableName= variableDTO.identifier();
+            Variable variable = model.getVariable(variableName);
+            if(variable==null)
+                throw new IllegalArgumentException("No variable with name: " + variableName);
+            this.activeVariables.add(new VariableModule(variable, variableDTO.alias()));
+        }
+        for (ConstraintModuleDTO constraintModuleDTO : imageDTO.constraintModules()) {
+            Set<Constraint> constraints = constraintModuleDTO.constraints().stream()
+                    .map(constraintName -> {
+                        Constraint constraint = model.getConstraint(constraintName);
+                        if (constraint == null) {
+                            throw new IllegalArgumentException("No constraint with name: " + constraintName);
+                        }
+                        return constraint;
+                    }).collect(Collectors.toSet());
+            this.constraintsModules.put(constraintModuleDTO.moduleName(), new ConstraintModule(
+                    constraintModuleDTO.moduleName(),
+                    constraintModuleDTO.description(),
+                    constraints
+            ));
+        }
+        for (PreferenceModuleDTO preferenceModuleDTO : imageDTO.preferenceModules()) {
+            Set<Preference> preferences = preferenceModuleDTO.preferences().stream()
+                    .map(preferenceName -> {
+                        Preference preference = model.getPreference(preferenceName);
+                        if (preference == null) {
+                            throw new IllegalArgumentException("No preference with name: " + preferenceName);
+                        }
+                        return preference;
+                    }).collect(Collectors.toSet());
+            this.preferenceModules.put(preferenceModuleDTO.moduleName(), new PreferenceModule(
+                    preferenceModuleDTO.moduleName(),
+                    preferenceModuleDTO.description(),
+                    preferences
+            ));
+        }
+        for (SetDTO setDTO: imageDTO.sets()){
+            ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
+            activeSets.add(new SetModule(modelSet,setDTO.setDefinition().alias()));
 
+            model.setInput(modelSet,setDTO.values());
+        }
+        for (ParameterDTO parameterDTO: imageDTO.parameters()){
+            ModelParameter modelParameter= model.getParameter(parameterDTO.parameterDefinition().name());
+            activeParams.add(new ParameterModule(modelParameter,parameterDTO.parameterDefinition().alias()));
+
+            model.setInput(modelParameter,parameterDTO.value());
         }
     }
     /**

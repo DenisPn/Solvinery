@@ -185,8 +185,8 @@ public class Model implements ModelInterface {
             }
         }
     }
-
-    public void setInput(ModelSet identifier, String[] values) {
+    @Override
+    public void setInput(ModelSet identifier, Collection<String> values) {
 
         for(String str : values){
             if(!identifier.isCompatible(str))
@@ -194,7 +194,8 @@ public class Model implements ModelInterface {
 
         }
         
-        ModifierVisitor modifier = new ModifierVisitor(this, tokens, identifier.getName(), values,  ModifierVisitor.Action.SET, originalSource);
+        ModifierVisitor modifier = new ModifierVisitor(this, tokens, identifier.getName(), 
+                values.toArray(new String[0]),  ModifierVisitor.Action.SET, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {

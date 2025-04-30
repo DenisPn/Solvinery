@@ -85,7 +85,7 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
-    public void setInput (ModelSet identifier, String[] values) {
+    public void setInput (ModelSet identifier, Collection<String> values) {
         getModel().setInput(identifier,values);
     }
 
