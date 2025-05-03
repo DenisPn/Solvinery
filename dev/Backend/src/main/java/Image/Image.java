@@ -130,13 +130,11 @@ public class Image {
         for (SetDTO setDTO: imageDTO.sets()){
             ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
             activeSets.add(new SetModule(modelSet,setDTO.setDefinition().alias()));
-
             model.setInput(modelSet,setDTO.values());
         }
         for (ParameterDTO parameterDTO: imageDTO.parameters()){
             ModelParameter modelParameter= model.getParameter(parameterDTO.parameterDefinition().name());
             activeParams.add(new ParameterModule(modelParameter,parameterDTO.parameterDefinition().alias()));
-
             model.setInput(modelParameter,parameterDTO.value());
         }
     }

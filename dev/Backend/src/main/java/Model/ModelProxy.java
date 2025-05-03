@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class ModelProxy implements ModelInterface{
-    @Value("${app.file.storage-dir}")
-    private String storageDir;
+    private final String storageDir= "User/Model";
 
     private final String code;
     private Model model;
