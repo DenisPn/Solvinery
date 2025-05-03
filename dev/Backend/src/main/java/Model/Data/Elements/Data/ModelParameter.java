@@ -13,4 +13,7 @@ public class ModelParameter extends DataElement {
         return data;
     }
 
+    public void setData (String data) {
+        this.data = data;
+    }
 }

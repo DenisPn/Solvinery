@@ -129,14 +129,14 @@ public class Image {
         }
         for (SetDTO setDTO: imageDTO.sets()){
             ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
+            modelSet.setData(setDTO.values());
             activeSets.add(new SetModule(modelSet,setDTO.setDefinition().alias()));
-
             model.setInput(modelSet,setDTO.values());
         }
         for (ParameterDTO parameterDTO: imageDTO.parameters()){
             ModelParameter modelParameter= model.getParameter(parameterDTO.parameterDefinition().name());
+            modelParameter.setData(parameterDTO.value());
             activeParams.add(new ParameterModule(modelParameter,parameterDTO.parameterDefinition().alias()));
-
             model.setInput(modelParameter,parameterDTO.value());
         }
     }

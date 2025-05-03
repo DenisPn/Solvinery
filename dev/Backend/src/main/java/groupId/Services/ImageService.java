@@ -63,8 +63,8 @@ public class ImageService {
      * @see CreateImageResponseDTO
      */
     public CreateImageResponseDTO createImageFromFile(String code) throws IOException {
-        UUID id = UUID.randomUUID();
-        String name = id.toString();
+        UUID tmpId = UUID.randomUUID();
+        String tmpName = tmpId.toString();
 
         // Get application directory
         String appDir;
@@ -82,21 +82,19 @@ public class ImageService {
         // Resolve the path relative to the JAR location
         Path storagePath = Paths.get(appDir, storageDir);
         Files.createDirectories(storagePath);
-        Path filePath = storagePath.resolve(name + ".zpl");
+        Path filePath = storagePath.resolve(tmpName + ".zpl");
         Files.writeString(filePath, code, StandardOpenOption.CREATE);
 
         // Create a new image, model is created as well.
         // The code is parsed and image validity is verified at this point.
-        Image image = new Image(filePath.toAbsolutePath().toString());
-        ImageEntity imageEntity= EntityMapper.toEntity(image, id);
-
         //persist image
-        Objects.requireNonNull(imageEntity,"ImageEntity from EntityMapper is null while creating new image");
+        Image image = new Image(filePath.toAbsolutePath().toString());
+        ImageEntity imageEntity= EntityMapper.toEntity(image, null);
         assert imageRepository != null;
-        imageRepository.save(imageEntity);
-
-
-        return RecordFactory.makeDTO(id, image.getModel());
+        imageEntity = imageRepository.save(imageEntity);
+        Objects.requireNonNull(imageEntity,"ImageEntity from EntityMapper is null while creating new image");
+        UUID generatedId = imageEntity.getId();
+        return RecordFactory.makeDTO(generatedId, image.getModel());
     }
     /**
      * Given DTO object representing an image and an id, overrides the image with the associated ID with the image.
@@ -108,6 +106,8 @@ public class ImageService {
         ImageEntity imageEntity=imageRepository.findById(UUID.fromString(imgConfig.imageId()))
                 .orElseThrow(()->new BadRequestException("Invalid image ID during override image"));
         Image image= EntityMapper.toDomain(imageEntity);
+        image.override(imageDTO);
+        imageRepository.save(EntityMapper.toEntity(image,imageEntity.getId()));
        /*
         BadRequestException.requireNotNull(image, "Invalid image ID during override image");
         Map<String, Variable> variables = new HashMap<>();

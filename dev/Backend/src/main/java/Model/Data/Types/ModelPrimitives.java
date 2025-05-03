@@ -15,22 +15,20 @@ public enum ModelPrimitives implements ModelType{
 
     public boolean isCompatible(String str){
         switch(this) {
-            case BINARY:
+            case BINARY, INFINITY:
                 return false;
-            case TEXT:
-              if (str.matches("\".*\""))
+           /* case TEXT:
+                return true;*/
+              /*if (str.matches("\".*\""))
                 return true;
               else
-                return false;
+                return false;*/
             case INT:
               try{
                 Integer.valueOf(str); 
                 return true;
             } catch (Exception e){return false;}
-              
-            case INFINITY:
-              return false;
-              
+
             case FLOAT:
             try{
                 Float.valueOf(str); 
