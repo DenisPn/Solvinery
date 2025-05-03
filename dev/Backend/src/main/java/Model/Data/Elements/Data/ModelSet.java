@@ -15,11 +15,6 @@ public class ModelSet extends DataElement {
         this.data = data;
     }
 
-    public ModelSet (String name, ModelType type, List<String> data,String alias) {
-        super(name,type,alias);
-        this.data = data;
-    }
-
     public List<String> getData () {
         return data;
     }

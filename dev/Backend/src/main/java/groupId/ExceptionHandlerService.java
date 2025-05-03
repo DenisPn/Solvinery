@@ -75,6 +75,7 @@ public class ExceptionHandlerService {
     @ExceptionHandler(UserDataException.class)
     public ResponseEntity<ExceptionDTO> handleException(UserDataException ex) {
         ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
+        return ResponseEntity.status(400).body(errorResponse);
     }
     // Catch-all fallback for uncaught exceptions
 }

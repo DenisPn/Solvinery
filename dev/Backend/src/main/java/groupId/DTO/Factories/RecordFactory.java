@@ -1,5 +1,8 @@
 package groupId.DTO.Factories;
 
+import Image.Modules.Single.ParameterModule;
+import Image.Modules.Single.SetModule;
+import Image.Modules.Single.VariableModule;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
@@ -18,6 +21,8 @@ import Image.Image;
 import Image.Modules.Grouping.ConstraintModule;
 import Image.Modules.Grouping.PreferenceModule;
 import Model.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.yaml.snakeyaml.util.Tuple;
 
 import java.util.*;
@@ -119,81 +124,81 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
+    public static SetDTO makeDTO (SetModule set) {
+
+        return new SetDTO(new SetDefinitionDTO(set.getSet().getName(), set.getSet().getType().typeList(), set.getAlias()),set.getSet().getData());
+    }
     public static SetDefinitionDTO makeDTO (ModelSet set) {
-        LinkedList<String> dependencies = new LinkedList<>();
-        /*for (ModelSet dependency : set.getSetDependencies()) {
-            for (ModelInput.StructureBlock block : dependency.getStructure()) {
-                dependencies.add(block.dependency.getName());
-            }
-        }*/
-        return new SetDefinitionDTO(set.getName(), dependencies, set.getType().typeList());
+
+        return new SetDefinitionDTO(set.getName(), set.getType().typeList(), null);
     }
 
     /**
      * DTOs should be created using these methods only.
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
-     */
-    public static Collection<SetDefinitionDTO> makeDTO (Collection<ModelSet> sets) {
+     *//*
+    public static Collection<SetDefinitionDTO> makeSetDTOs (Collection<SetModule> sets) {
+        LinkedList<SetDefinitionDTO> setDTOs = new LinkedList<>();
+        for (SetModule set : sets) {
+            setDTOs.add(makeDTO(set));
+        }
+        return setDTOs;
+    }
+    public static Collection<SetDefinitionDTO> makeModelSetsDTO (Collection<ModelSet> sets) {
         LinkedList<SetDefinitionDTO> setDTOs = new LinkedList<>();
         for (ModelSet set : sets) {
             setDTOs.add(makeDTO(set));
         }
         return setDTOs;
-    }
+    }*/
 
     /**
      * DTOs should be created using these methods only.
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
+    public static ParameterDTO makeDTO (ParameterModule parameter) {
+        return new ParameterDTO(new ParameterDefinitionDTO(parameter.getParameter().getName(), parameter.getParameter().getType().toString(), parameter.getAlias()),parameter.getParameter().getData());
+    }
     public static ParameterDefinitionDTO makeDTO (ModelParameter parameter) {
-        return new ParameterDefinitionDTO(parameter.getName(), parameter.getType().toString());
+        return new ParameterDefinitionDTO(parameter.getName(), parameter.getType().toString(), null);
     }
+
 
     /**
      * DTOs should be created using these methods only.
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    public static ParameterDTO makeDTO (ModelParameter parameter, String value) {
-        return new ParameterDTO(makeDTO(parameter), value);
+    private static VariableDTO makeDTO (VariableModule variable) {
+        return new VariableDTO(variable.getVariable().getName(), variable.getVariable().getStructure(), variable.getAlias());
     }
-
-    /**
-     * DTOs should be created using these methods only.
-     * To avoid bloat while reducing coupling between the object and its DTO
-     * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
-     */
+    /*private static Set<VariableDTO> makeVariableDTOs (Set<VariableModule> vars) {
+        Set<VariableDTO> varDTOs = new HashSet<>();
+        for (VariableModule var : vars) {
+            varDTOs.add(makeDTO(var));
+        }
+        return varDTOs;
+    }*/
     private static VariableDTO makeDTO (Variable variable) {
-        HashSet<ModelSet> sets = new HashSet<>();
-       // variable.getPrimitiveSets(sets);
-        HashSet<ModelParameter> parameters = new HashSet<>();
-       // variable.getPrimitiveParameters(parameters);
-        return new VariableDTO(variable.getName(), variable.getStructure()/*, makeDTO(sets, parameters)*/);
+        return new VariableDTO(variable.getName(), variable.getStructure(), null);
     }
 
-    /**
+   /* *//**
      * DTOs should be created using these methods only.
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
-     */
-    private static Collection<ParameterDefinitionDTO> makeDTO (Set<ModelParameter> params) {
+     *//*
+    private static Collection<ParameterDefinitionDTO> makeParamDTOs (Set<ParameterModule> params) {
         LinkedList<ParameterDefinitionDTO> paramDTOs = new LinkedList<>();
-        for (ModelParameter param : params) {
+        for (ParameterModule param : params) {
             paramDTOs.add(makeDTO(param));
         }
         return paramDTOs;
     }
+*/
 
-    /**
-     * DTOs should be created using these methods only.
-     * To avoid bloat while reducing coupling between the object and its DTO
-     * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
-     */
-    public static SetDTO makeDTO (ModelSet set, List<String> values) {
-        return new SetDTO(makeDTO(set), values);
-    }
 
 
     /**
@@ -204,43 +209,30 @@ public class RecordFactory {
      * should only be called when loading a new Image, not when modifying it.
      */
     public static ImageDTO makeDTO (Image image) {
-        //TODO: image under refactoring, implement when its finished.
-        /*if (image == null)
-            throw new NullPointerException("Null image in DTO mapping");
-        Set<ConstraintModuleDTO> constraints = new HashSet<>();
-        Set<PreferenceModuleDTO> preferences = new HashSet<>();
-        VariableModuleDTO variables = makeDTO(image.getActiveVariables().stream().toList(), image.getAliases());
-        for (ConstraintModule module : image.getConstraintsModules().values()) {
-            constraints.add(makeDTO(module));
+        Set<VariableDTO> variables=  new HashSet<>();
+        Set<ConstraintModuleDTO> constraintModules= new HashSet<>();
+        Set<PreferenceModuleDTO> preferenceModules= new HashSet<>();
+        Set<SetDTO> sets= new HashSet<>();
+        Set<ParameterDTO> parameter=new HashSet<>();
+        for(ConstraintModule constraintModule:image.getConstraintsModules().values()){
+            constraintModules.add(makeDTO(constraintModule));
         }
-        for (PreferenceModule module : image.getPreferenceModules().values()) {
-            preferences.add(makeDTO(module));
+        for(PreferenceModule preferenceModule:image.getPreferenceModules().values()){
+            preferenceModules.add(makeDTO(preferenceModule));
         }
-
-        return new ImageDTO(variables, constraints, preferences);*/
-        return new ImageDTO(null,null,null);
+        for(SetModule setModule:image.getActiveSets()){
+            sets.add(makeDTO(setModule));
+        }
+        for (ParameterModule parameterModule:image.getActiveParams()){
+            parameter.add(makeDTO(parameterModule));
+        }
+        for (VariableModule variableModule:image.getActiveVariables()){
+            variables.add(makeDTO(variableModule));
+        }
+        return new ImageDTO(variables, constraintModules, preferenceModules, sets, parameter);
     }
 
-    /**
-     * DTOs should be created using these methods only.
-     * To avoid bloat while reducing coupling between the object and its DTO
-     * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
-     */
-    private static VariableModuleDTO makeDTO (List<Variable> values, Map<String, String> aliases) {
-        Set<String> variables = new HashSet<>();
-        Set<String> params = new HashSet<>();
-        Set<String> sets = new HashSet<>();
-        for (Variable mv : values) {
-            variables.add(mv.getName());
-            /*for (ModelSet set : mv.getSetDependencies()) {
-                sets.add(set.getName());
-            }
-            for (ModelParameter param : mv.getParamDependencies()) {
-                params.add(param.getName());
-            }*/
-        }
-        return new VariableModuleDTO(variables/*, sets, params*/, aliases);
-    }
+
 
     public static ImageResponseDTO makeDTO (UUID id, Image image) {
         return new ImageResponseDTO(id.toString(), makeDTO(image));
@@ -263,7 +255,6 @@ public class RecordFactory {
     private static ModelDTO makeDTO (ModelInterface modelInterface) {
         Set<ConstraintDTO> constraints = new HashSet<>();
         Set<PreferenceDTO> preferences = new HashSet<>();
-        //TODO: Variables.
         Set<VariableDTO> variables = new HashSet<>();
         Map<String, List<String>> sets = new HashMap<>();
         Map<String, String> params = new HashMap<>();
@@ -286,6 +277,7 @@ public class RecordFactory {
         }
         return new ModelDTO(constraints, preferences, variables, sets, params);
     }
+
 
     /**
      * DTOs should be created using these methods only.

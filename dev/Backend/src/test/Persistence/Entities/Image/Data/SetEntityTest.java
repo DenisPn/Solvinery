@@ -23,6 +23,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ContextConfiguration(classes = {TestsConfiguration.class})
 class SetEntityTest {
 
+    @Autowired
+    private SetRepository setRepository;
+
+
+    @AfterEach
+    public void cleanDatabase() {
+        setRepository.deleteAll();
+    }
+
     @Transactional
     @Test
     public void givenModelSetWithoutAlias_whenSave_thenAliasIsNull () {
@@ -74,15 +83,6 @@ class SetEntityTest {
         // Then
         assertThat(updatedEntity).isNotNull();
         assertThat(updatedEntity.getAlias()).isEqualTo("updatedAlias");
-    }
-
-    @Autowired
-    private SetRepository setRepository;
-
-
-    @AfterEach
-    public void cleanDatabase() {
-        setRepository.deleteAll();
     }
 
     @Transactional
