@@ -5,57 +5,52 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+
 @Entity
-@Table(name = "sets")
-public class ModelSetEntity {
+@Table(name = "params")
+public class ParameterEntity {
 
     @EmbeddedId
     private ImageComponentKey imageComponentKey;
+
     @Column(name = "type", nullable = false)
     @NotBlank(message = "Type cannot be blank")
     private String type;
 
-    @ElementCollection
-    @CollectionTable(name = "set_data", joinColumns = {
-            @JoinColumn(name = "image_id",
-            referencedColumnName = "image_id"),
-            @JoinColumn(name = "element_name",
-            referencedColumnName = "element_name")
-        }
-    )
-    @Column(name = "data_element")
+    @Column(name = "data", nullable = false)
     @NotNull(message = "Data cannot be null")
-    private List<String> data;
+    private String data;
+
 
     @Column(name = "alias")
     private String alias;
 
-    public ModelSetEntity() {}
 
-    public ModelSetEntity(ImageComponentKey imageComponentKey, String type, List<String> data) {
+    public ParameterEntity () {}
+
+    public ParameterEntity (ImageComponentKey imageComponentKey, String type, String data) {
         this.imageComponentKey = imageComponentKey;
         this.type = type;
         this.data = data;
         this.alias = null;
     }
-    public ModelSetEntity(UUID id,String name, String type, List<String> data) {
-        this.imageComponentKey= new ImageComponentKey(id,name);
-        this.type = type;
-        this.data = data;
-        this.alias = null;
-    }
-    public ModelSetEntity(UUID id,String name, String type, List<String> data,String alias) {
-        this.imageComponentKey= new ImageComponentKey(id,name);
+    public ParameterEntity (ImageComponentKey imageComponentKey, String type, String data, String alias) {
+        this.imageComponentKey = imageComponentKey;
         this.type = type;
         this.data = data;
         this.alias = alias;
     }
-    public ModelSetEntity(ImageComponentKey imageComponentKey, String type, List<String> data, String alias) {
-        this.imageComponentKey = imageComponentKey;
+    public ParameterEntity (UUID id, String name, String type, String data) {
+        this.imageComponentKey= new ImageComponentKey(id,name);
+        this.type = type;
+        this.data = data;
+        this.alias = null;
+    }
+    public ParameterEntity (UUID id, String name, String type, String data, String alias) {
+        this.imageComponentKey= new ImageComponentKey(id,name);
         this.type = type;
         this.data = data;
         this.alias = alias;
@@ -69,7 +64,7 @@ public class ModelSetEntity {
         return type;
     }
 
-    public List<String> getData() {
+    public String getData() {
         return data;
     }
 
@@ -88,11 +83,13 @@ public class ModelSetEntity {
     public UUID getUUID(){
         return imageComponentKey.getImageId();
     }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ModelSetEntity that = (ModelSetEntity) o;
+        ParameterEntity that = (ParameterEntity) o;
         return imageComponentKey.equals(that.imageComponentKey) &&
                 alias.equals(that.alias) &&
                 data.equals(that.data);
@@ -100,6 +97,6 @@ public class ModelSetEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(imageComponentKey, alias, data);
+        return Objects.hash(imageComponentKey, alias,data);
     }
 }

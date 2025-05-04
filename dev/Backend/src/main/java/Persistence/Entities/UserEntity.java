@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.UUID;
 @Entity
 @Table(name = "users")
@@ -39,17 +40,7 @@ public class UserEntity {
                        String rawPassword) {
         this.username = username;
         this.email = email;
-        if (rawPassword == null || rawPassword.length() > 16 || rawPassword.length() < 8 || rawPassword.isBlank()) {
-            this.password = null; //set password as an invalid null to throw error on save, not here.
-        }
-        else {
-            try {
-                MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                this.password= new String(digest.digest(rawPassword.getBytes()));
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Error during password encryption: "+e);
-            }
-        }
+        setPassword(rawPassword);
     }
     public void setUsername (String username) {
         this.username = username;
@@ -84,9 +75,11 @@ public class UserEntity {
         else {
             try {
                 MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                this.password= new String(digest.digest(rawPassword.getBytes()));
+                byte[] hash = digest.digest(rawPassword.getBytes());
+                this.password = Base64.getEncoder().encodeToString(hash);
+
             } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Error during password encryption: "+e);
+                throw new RuntimeException("Critical error during user creation: "+e);
             }
         }
     }
@@ -104,9 +97,11 @@ public class UserEntity {
         {
             try {
                 MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                return this.password.equals(new String(digest.digest(rawPassword.getBytes())));
+                byte[] hash = digest.digest(rawPassword.getBytes());
+                String hashStr = Base64.getEncoder().encodeToString(hash);
+                return this.password.equals(hashStr);
             } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Error during password encryption: "+e);
+                throw new RuntimeException("Critical error during user creation: "+e);
             }
         }
     }

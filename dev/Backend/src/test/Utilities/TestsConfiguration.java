@@ -6,7 +6,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "Persistence.Repositories") // Specify where repositories are located
+@EnableJpaRepositories(basePackages = {
+        "Persistence.Repositories",
+        "Persistence.Entities.Image.Repositories"
+})
 @EntityScan(basePackages = "Persistence.Entities") // Specify where entities are located
 @ComponentScan(basePackages = "Persistence")
 public class TestsConfiguration {

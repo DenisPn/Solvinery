@@ -47,7 +47,7 @@ public interface ModelInterface {
      * 
      * @param identifier The input identifier
      */
-    void setInput(ModelSet identifier, String[] values);
+    void setInput(ModelSet identifier, Collection<String> values);
 
     /**
      * Retrieves the input values associated with a given model parameter.

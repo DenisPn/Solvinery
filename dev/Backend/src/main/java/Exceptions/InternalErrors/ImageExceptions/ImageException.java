@@ -4,7 +4,7 @@ package Exceptions.InternalErrors.ImageExceptions;
  * An undefined exception thrown from within the {@link Image} Package.
  * Should be extended with specific exceptions for specific issues.
  */
-public abstract class ImageException extends RuntimeException {
+public class ImageException extends RuntimeException {
     /**
      * Constructs a new ImageException with the specified detail message.
      *

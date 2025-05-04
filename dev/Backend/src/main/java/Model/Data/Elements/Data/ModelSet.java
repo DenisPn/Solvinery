@@ -9,14 +9,9 @@ import java.util.SequencedCollection;
 
 public class ModelSet extends DataElement {
 
-    private final List<String> data;
+    private List<String> data;
     public ModelSet (String name, ModelType type, List<String> data) {
         super(name,type);
-        this.data = data;
-    }
-
-    public ModelSet (String name, ModelType type, List<String> data,String alias) {
-        super(name,type,alias);
         this.data = data;
     }
 
@@ -33,5 +28,9 @@ public class ModelSet extends DataElement {
     }
     public boolean contains (String element) {
         return data.contains(element);
+    }
+
+    public void setData (List<String> data) {
+        this.data = data;
     }
 }

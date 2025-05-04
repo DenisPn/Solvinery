@@ -1,4 +1,4 @@
-package Image.Modules.Operational;
+package Image.Modules.Grouping;
 
 public abstract class OperationalModule {
 

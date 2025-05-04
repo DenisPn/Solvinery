@@ -1,9 +1,13 @@
-package groupId;
+package groupId.Controllers;
 
 import java.io.IOException;
 
 import Persistence.Entities.UserEntity;
 import Persistence.Repositories.UserRepository;
+import groupId.DTO.Records.Requests.Commands.*;
+import groupId.DTO.Records.Requests.Responses.ConfirmationDTO;
+import groupId.ServiceInterface;
+import groupId.Services.MainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -18,65 +22,39 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import groupId.DTO.Records.Image.SolutionDTO;
-import groupId.DTO.Records.Model.ModelData.InputDTO;
-import groupId.DTO.Records.Requests.Commands.CreateImageFromFileDTO;
-import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
-import groupId.DTO.Records.Requests.Commands.SolveCommandDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import jakarta.validation.Valid;
-import groupId.DTO.Records.Requests.Commands.LogInDTO;
 
 
 @RestController
 @RequestMapping("/")
-public class Service implements ServiceInterface {
+public class MainController {
 
-    private final UserController controller;
+    private final MainService controller;
     @Autowired
     private UserRepository userRepository;
     @Autowired
     JdbcTemplate jdbcTemplate;
     @Autowired 
-    public Service(UserController controller) {
+    public MainController (MainService controller) {
         this.controller = controller;
     }
 
-    @GetMapping(value = {"/"/*, "/{path:^(?!api|static).*$}/**"*/})
-    public ResponseEntity<Resource> serveHomePage() throws IOException {
+    @GetMapping(value = "/")
+    public ResponseEntity<Resource> serveHomePage() {
         Resource resource = new ClassPathResource("static/index.html");
         return ResponseEntity.ok()
             .contentType(MediaType.TEXT_HTML)
             .body(resource);
     }
     
-    @PostMapping("/images")
-    public ResponseEntity<CreateImageResponseDTO> createImage(@Valid @RequestBody CreateImageFromFileDTO data) throws Exception {
-        CreateImageResponseDTO response = controller.createImageFromFile(data.code());
-        return ResponseEntity.ok(response);
-    }
 
-    @PatchMapping("/images")
-    public ResponseEntity<Void> configureImage(@Valid @RequestBody ImageConfigDTO imgConfig){
-        controller.overrideImage(imgConfig);
-        return ResponseEntity.ok().build();
-    }
     
     @PostMapping("/solve")
     public ResponseEntity<SolutionDTO> solve(@Valid @RequestBody SolveCommandDTO input) throws Exception {
         SolutionDTO res = controller.solve(input);
         return ResponseEntity.ok(res);
     }
-
-    @PostMapping("/login")
-    public ResponseEntity<CreateImageResponseDTO> logIn(@Valid @RequestBody LogInDTO data) throws Exception {
-        return ResponseEntity.ok(null);
-    }
-
-    /*@GetMapping("images/{id}/inputs")
-    public ResponseEntity<InputDTO> loadImageInput(@PathVariable("id") String imageId) throws Exception {
-        InputDTO res = controller.loadLastInput(imageId);
-        return ResponseEntity.ok(res);
-    }*/
     @GetMapping("/test-connection")
     public String testConnection() {
         try {

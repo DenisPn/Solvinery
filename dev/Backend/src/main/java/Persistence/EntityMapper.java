@@ -1,8 +1,11 @@
 package Persistence;
 
 import Image.Image;
-import Image.Modules.Operational.ConstraintModule;
-import Image.Modules.Operational.PreferenceModule;
+import Image.Modules.Single.ParameterModule;
+import Image.Modules.Single.SetModule;
+import Image.Modules.Grouping.ConstraintModule;
+import Image.Modules.Grouping.PreferenceModule;
+import Image.Modules.Single.VariableModule;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
@@ -11,11 +14,10 @@ import Model.Data.Elements.Variable;
 import Model.Data.Types.ModelPrimitives;
 import Model.Data.Types.ModelType;
 import Model.Data.Types.Tuple;
-import Model.Model;
-import Persistence.Entities.Image.Data.ModelParamEntity;
+import Persistence.Entities.Image.Data.ParameterEntity;
 import Persistence.Entities.Image.Data.VariableEntity;
 import Persistence.Entities.Image.ImageComponentKey;
-import Persistence.Entities.Image.Data.ModelSetEntity;
+import Persistence.Entities.Image.Data.SetEntity;
 import Persistence.Entities.Image.ImageEntity;
 import Persistence.Entities.Image.Operational.ConstraintEntity;
 import Persistence.Entities.Image.Operational.ConstraintModuleEntity;
@@ -23,7 +25,6 @@ import Persistence.Entities.Image.Operational.PreferenceEntity;
 import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
 import Persistence.Entities.UserEntity;
 import User.User;
-import org.apache.tomcat.util.bcel.Const;
 
 import java.util.Collection;
 import java.util.List;
@@ -80,19 +81,19 @@ public class EntityMapper {
     public static String toEntity(ModelType type){
         return type.toString();
     }
-    public static ModelSetEntity toEntity(ModelSet modelSet, UUID imageId){
-        ImageComponentKey key= new ImageComponentKey(imageId,modelSet.getName());
-        return new ModelSetEntity(key,toEntity(modelSet.getType()),modelSet.getData());
+    public static SetEntity toEntity(SetModule set, UUID imageId){
+        ImageComponentKey key= new ImageComponentKey(imageId,set.getSet().getName());
+        return new SetEntity(key,toEntity(set.getSet().getType()),set.getSet().getData(), set.getAlias());
     }
-    public static ModelSet toDomain(ModelSetEntity entity){
-        return new ModelSet(entity.getModelDataKey().getName(),
-                toDomain(entity.getType()),entity.getData());
+    public static SetModule toDomain(SetEntity entity){
+        return new SetModule(new ModelSet(entity.getModelDataKey().getName(),
+                toDomain(entity.getType()),entity.getData()),entity.getAlias());
     }
-    public static ModelParamEntity toEntity(ModelParameter parameter, UUID imageId){
-        return new ModelParamEntity(imageId, parameter.getName(), parameter.getType().toString(), parameter.getData(), parameter.getAlias());
+    public static ParameterEntity toEntity(ParameterModule parameter, UUID imageId){
+        return new ParameterEntity(imageId, parameter.getParameter().getName(), parameter.getParameter().getType().toString(), parameter.getParameter().getData(), parameter.getAlias());
     }
-    public static ModelParameter toDomain(ModelParamEntity entity){
-        return new ModelParameter(entity.getName(),toDomain(entity.getType()),entity.getData(),entity.getAlias());
+    public static ParameterModule toDomain(ParameterEntity entity){
+        return new ParameterModule(new ModelParameter(entity.getName(),toDomain(entity.getType()),entity.getData()),entity.getAlias());
     }
     public static Constraint toDomain(ConstraintEntity entity){
         return new Constraint(entity.getName());
@@ -129,13 +130,13 @@ public class EntityMapper {
                 .collect(Collectors.toSet());
     }
 
-    public static Set<Variable> toVariables (Collection<VariableEntity> entities) {
+    public static Set<VariableModule> toVariables (Collection<VariableEntity> entities) {
         return entities.stream()
                 .map(EntityMapper::toDomain)
                 .collect(Collectors.toSet());
     }
 
-    public static Set<VariableEntity> toVariableEntities (Collection<Variable> variables, UUID imageId) {
+    public static Set<VariableEntity> toVariableEntities (Collection<VariableModule> variables, UUID imageId) {
         return variables.stream()
                 .map(variable -> EntityMapper.toEntity(variable, imageId))
                 .collect(Collectors.toSet());
@@ -162,23 +163,23 @@ public class EntityMapper {
                 .collect(Collectors.toSet());
     }
 
-    public static Set<ModelSet> toModelSets (Collection<ModelSetEntity> entities) {
+    public static Set<SetModule> toSets (Collection<SetEntity> entities) {
         return entities.stream()
                 .map(EntityMapper::toDomain)
                 .collect(Collectors.toSet());
     }
-    public static Set<ModelParameter> toModelParams (Collection<ModelParamEntity> entities) {
+    public static Set<ParameterModule> toParams (Collection<ParameterEntity> entities) {
         return entities.stream()
                 .map(EntityMapper::toDomain)
                 .collect(Collectors.toSet());
     }
-    public static Set<ModelSetEntity> toModelSetEntities (Collection<ModelSet> modelSets, UUID imageId) {
-        return modelSets.stream()
-                .map(modelSet -> EntityMapper.toEntity(modelSet, imageId)).collect(Collectors.toSet());
+    public static Set<SetEntity> toSetEntities (Collection<SetModule> sets, UUID imageId) {
+        return sets.stream()
+                .map(set -> EntityMapper.toEntity(set, imageId)).collect(Collectors.toSet());
     }
-    public static Set<ModelParamEntity> toModelParamEntities (Collection<ModelParameter> modelParameters, UUID imageId) {
-        return modelParameters.stream()
-                .map(modelSet -> EntityMapper.toEntity(modelSet, imageId)).collect(Collectors.toSet());
+    public static Set<ParameterEntity> toParamEntities (Collection<ParameterModule> params, UUID imageId) {
+        return params.stream()
+                .map(Param -> EntityMapper.toEntity(Param, imageId)).collect(Collectors.toSet());
     }
     public static ConstraintModuleEntity toEntity(ConstraintModule module, UUID imageId){
         return new ConstraintModuleEntity(imageId, module.getName(), module.getDescription(), toConstraintsEntities(module.getConstraints().values()));
@@ -192,24 +193,25 @@ public class EntityMapper {
     public static PreferenceModule toDomain(PreferenceModuleEntity entity){
         return new PreferenceModule(entity.getName(), entity.getDescription(), toPreferences(entity.getPreferences()));
     }
-    public static Variable toDomain(VariableEntity entity){
-        return new Variable(entity.getName(),entity.getStructure(),entity.getAlias());
+    public static VariableModule toDomain(VariableEntity entity){
+        return new VariableModule(new Variable(entity.getName(),entity.getStructure()),entity.getAlias());
     }
-    public static VariableEntity toEntity(Variable entity, UUID imageId){
-        return new VariableEntity(imageId,entity.getName(),entity.getStructure(),entity.getAlias());
+    public static VariableEntity toEntity(VariableModule variable, UUID imageId){
+        return new VariableEntity(imageId,variable.getVariable().getName(),variable.getVariable().getStructure(),variable.getAlias());
     }
     public static Image toDomain(ImageEntity imageEntity){
         return new Image(imageEntity.getZimplCode(),toConstraintModules(imageEntity.getConstraintModules()),
-                toPreferenceModules(imageEntity.getPreferenceModules()), toModelSets(imageEntity.getActiveSets()),
-                toModelParams(imageEntity.getActiveParams()), toVariables(imageEntity.getVariables()));
+                toPreferenceModules(imageEntity.getPreferenceModules()), toSets(imageEntity.getActiveSets()),
+                toParams(imageEntity.getActiveParams()), toVariables(imageEntity.getVariables()));
     }
     public static ImageEntity toEntity(Image image, UUID imageId){
         return new ImageEntity(toPreferenceModuleEntities(image.getPreferenceModules().values(),imageId),
                 toConstraintModuleEntities(image.getConstraintsModules().values(), imageId),
                 toVariableEntities(image.getActiveVariables(),imageId),
-                toModelParamEntities(image.getActiveParams(),imageId),
-                toModelSetEntities(image.getActiveSets(),imageId),
+                toParamEntities(image.getActiveParams(),imageId),
+                toSetEntities(image.getActiveSets(),imageId),
                 image.getSourceCode());
     }
+
     
 }

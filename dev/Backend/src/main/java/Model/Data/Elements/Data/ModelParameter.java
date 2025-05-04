@@ -8,13 +8,12 @@ public class ModelParameter extends DataElement {
         super(name, type);
         this.data = data;
     }
-    public ModelParameter (String name, ModelType type, String data,String alias) {
-        super(name, type,alias);
-        this.data = data;
-    }
 
     public String getData () {
         return data;
     }
 
+    public void setData (String data) {
+        this.data = data;
+    }
 }

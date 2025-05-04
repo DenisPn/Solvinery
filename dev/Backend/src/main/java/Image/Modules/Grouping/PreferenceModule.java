@@ -1,4 +1,4 @@
-package Image.Modules.Operational;
+package Image.Modules.Grouping;
 
 import Model.Data.Elements.Operational.Preference;
 

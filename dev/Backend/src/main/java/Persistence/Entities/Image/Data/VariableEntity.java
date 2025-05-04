@@ -34,6 +34,7 @@ public class VariableEntity {
 
     public VariableEntity(UUID id,String varName, List<String> structure,String alias) {
         this.imageComponentKey= new ImageComponentKey(id,varName);
+        this.structure = structure;
         this.alias = alias;
 }
 

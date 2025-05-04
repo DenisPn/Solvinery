@@ -1,4 +1,5 @@
 package groupId;
+import Exceptions.UserErrors.UserDataException;
 import groupId.DTO.Factories.ExceptionRecordFactory;
 import Exceptions.InternalErrors.BadRequestException;
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
@@ -71,6 +72,10 @@ public class ExceptionHandlerService {
         ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
         return ResponseEntity.status(400).body(errorResponse);
     }
-
+    @ExceptionHandler(UserDataException.class)
+    public ResponseEntity<ExceptionDTO> handleException(UserDataException ex) {
+        ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
+        return ResponseEntity.status(400).body(errorResponse);
+    }
     // Catch-all fallback for uncaught exceptions
 }

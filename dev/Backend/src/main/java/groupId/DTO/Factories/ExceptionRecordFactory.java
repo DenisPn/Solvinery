@@ -1,5 +1,6 @@
 package groupId.DTO.Factories;
 
+import Exceptions.UserErrors.UserDataException;
 import groupId.DTO.Records.Requests.Responses.ExceptionDTO;
 import Exceptions.InternalErrors.BadRequestException;
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
@@ -62,22 +63,26 @@ public class ExceptionRecordFactory {
     public static ExceptionDTO makeDTO(HttpMediaTypeNotSupportedException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
-        return new ExceptionDTO("An server communication error occurred, HTTP content media type not supported.(" +exception.getMessage() + ")");
+        return new ExceptionDTO("A server communication error occurred, HTTP content media type not supported." +exception.getMessage() + ")");
     }
     public static ExceptionDTO makeDTO(HttpMessageNotReadableException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
-        return new ExceptionDTO("An server communication error occurred, HTTP request content type is invalid (" +exception.getMessage() + ")");
+        return new ExceptionDTO("A server communication error occurred, HTTP request content type is invalid: " +exception.getMessage() + ")");
     }
     public static ExceptionDTO makeDTO(InvalidFormatException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
-        return new ExceptionDTO("An server communication error occurred. HTTP request payload parsing failed, invalid format(" +exception.getMessage() + ")");
+        return new ExceptionDTO("A server communication error occurred. HTTP request payload parsing failed, invalid format: " +exception.getMessage() + ")");
     }
     public static ExceptionDTO makeDTO(NestedRuntimeException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO("An unhandled server communication occurred. (" +exception.getMessage() + ")");
+    }
+    public static ExceptionDTO makeDTO(UserDataException exception) {
+        Objects.requireNonNull(exception,ohNo);
+        return new ExceptionDTO(exception.getMessage());
     }
     //kinda proud of this one
     public static ExceptionDTO makeDTO(MethodArgumentNotValidException exception) {

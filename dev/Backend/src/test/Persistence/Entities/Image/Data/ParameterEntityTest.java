@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.fail;
 @SpringBootTest
 @AutoConfigureDataJpa
 @ContextConfiguration(classes = {TestsConfiguration.class})
-public class ModelParamEntityTest {
+public class ParameterEntityTest {
 
     @Autowired
     private ParamRepository paramRepository;
@@ -35,12 +35,12 @@ public class ModelParamEntityTest {
         // Given
         UUID imageId = UUID.randomUUID();
         ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
-        ModelParamEntity paramEntity = new ModelParamEntity(keyPair, "STRING", "data");
+        ParameterEntity paramEntity = new ParameterEntity(keyPair, "STRING", "data");
         paramEntity.setAlias("customAlias");
 
         // When
         paramRepository.save(paramEntity);
-        ModelParamEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
+        ParameterEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
 
         // Then
         assertThat(foundEntity).isNotNull();
@@ -53,12 +53,12 @@ public class ModelParamEntityTest {
         // Given
         UUID imageId = UUID.randomUUID();
         ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
-        ModelParamEntity paramEntity = new ModelParamEntity(keyPair, "STRING", "data");
+        ParameterEntity paramEntity = new ParameterEntity(keyPair, "STRING", "data");
         paramEntity.setAlias(null);
 
         // When
         paramRepository.save(paramEntity);
-        ModelParamEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
+        ParameterEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
 
         // Then
         assertThat(foundEntity).isNotNull();
@@ -73,11 +73,11 @@ public class ModelParamEntityTest {
         // Given
         UUID imageId = UUID.randomUUID();
         ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
-        ModelParamEntity paramEntity = new ModelParamEntity(keyPair, "INT", "data");
+        ParameterEntity paramEntity = new ParameterEntity(keyPair, "INT", "data");
 
         // When
         paramRepository.save(paramEntity);
-        ModelParamEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
+        ParameterEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
 
         // Then
         assertThat(foundEntity).isNotNull();
@@ -96,7 +96,7 @@ public class ModelParamEntityTest {
         try {
             UUID imageId = UUID.randomUUID();
             ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
-            ModelParamEntity paramEntity = new ModelParamEntity(keyPair, null, "data");
+            ParameterEntity paramEntity = new ParameterEntity(keyPair, null, "data");
             paramRepository.save(paramEntity);
             fail();
         } catch (Exception e) {
@@ -109,11 +109,11 @@ public class ModelParamEntityTest {
         // Given
         UUID imageId = UUID.randomUUID();
         ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
-        ModelParamEntity paramEntity = new ModelParamEntity(keyPair, "EMPTY", "");
+        ParameterEntity paramEntity = new ParameterEntity(keyPair, "EMPTY", "");
 
         // When
         paramRepository.save(paramEntity);
-        ModelParamEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
+        ParameterEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
 
         // Then
         assertThat(foundEntity).isNotNull();
@@ -129,7 +129,7 @@ public class ModelParamEntityTest {
         ImageComponentKey nonExistentKey = new ImageComponentKey(UUID.randomUUID(), "nonexistent");
 
         // When
-        ModelParamEntity foundEntity = paramRepository.findById(nonExistentKey).orElse(null);
+        ParameterEntity foundEntity = paramRepository.findById(nonExistentKey).orElse(null);
 
         // Then
         assertThat(foundEntity).isNull();
@@ -141,14 +141,14 @@ public class ModelParamEntityTest {
         // Given
         UUID imageId = UUID.randomUUID();
         ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
-        ModelParamEntity paramEntity1 = new ModelParamEntity(keyPair, "TYPE1", "data1");
-        ModelParamEntity paramEntity2 = new ModelParamEntity(keyPair, "TYPE2", "data2");
+        ParameterEntity paramEntity1 = new ParameterEntity(keyPair, "TYPE1", "data1");
+        ParameterEntity paramEntity2 = new ParameterEntity(keyPair, "TYPE2", "data2");
 
         // When
         paramRepository.save(paramEntity1);
         paramRepository.save(paramEntity2); // Same keyPair being saved
 
-        ModelParamEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
+        ParameterEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
 
         // Then
         assertThat(foundEntity).isNotNull();
@@ -163,12 +163,12 @@ public class ModelParamEntityTest {
         // Given
         UUID imageId = UUID.randomUUID();
         ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
-        ModelParamEntity paramEntity = new ModelParamEntity(keyPair, "TestType", "data");
+        ParameterEntity paramEntity = new ParameterEntity(keyPair, "TestType", "data");
         paramRepository.save(paramEntity);
 
         // When
         paramRepository.deleteById(keyPair);
-        ModelParamEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
+        ParameterEntity foundEntity = paramRepository.findById(keyPair).orElse(null);
 
         // Then
         assertThat(foundEntity).isNull();
@@ -179,19 +179,19 @@ public class ModelParamEntityTest {
     public void givenMultipleModelParams_whenFindAll_thenReturnAllEntities () {
         // Given
         ImageComponentKey keyPair1 = new ImageComponentKey(UUID.randomUUID(), "TestName1");
-        ModelParamEntity paramEntity1 = new ModelParamEntity(keyPair1, "TestType1", "data1");
+        ParameterEntity paramEntity1 = new ParameterEntity(keyPair1, "TestType1", "data1");
 
         ImageComponentKey keyPair2 = new ImageComponentKey(UUID.randomUUID(), "TestName2");
-        ModelParamEntity paramEntity2 = new ModelParamEntity(keyPair2, "TestType2", "data2");
+        ParameterEntity paramEntity2 = new ParameterEntity(keyPair2, "TestType2", "data2");
 
         paramRepository.save(paramEntity1);
         paramRepository.save(paramEntity2);
 
         // When
-        List<ModelParamEntity> allEntities = paramRepository.findAll();
+        List<ParameterEntity> allEntities = paramRepository.findAll();
 
         // Then
         assertThat(allEntities).hasSize(2);
-        assertThat(allEntities).extracting(ModelParamEntity::getType).containsExactlyInAnyOrder("TestType1", "TestType2");
+        assertThat(allEntities).extracting(ParameterEntity::getType).containsExactlyInAnyOrder("TestType1", "TestType2");
     }
 }
