@@ -37,7 +37,7 @@ public class Model implements ModelInterface {
     private final Map<String, Constraint> constraints = new HashMap<>();
     private final Map<String, Preference> preferences = new HashMap<>();
     private final Map<String, Variable> variables = new HashMap<>();
-    private final Set<String> toggledOffFunctionalities = new HashSet<>();
+  // private final Set<String> toggledOffFunctionalities = new HashSet<>();
 
     public String getSourceFilePath () {
         return sourceFilePath;
@@ -69,9 +69,9 @@ public class Model implements ModelInterface {
         return tokens;
     }
 
-    public Set<String> getToggledOffFunctionalities () {
+   /* public Set<String> getToggledOffFunctionalities () {
         return toggledOffFunctionalities;
-    }
+    }*/
 
     public String getZimplCompilationScript () {
         return zimplCompilationScript;
@@ -109,7 +109,6 @@ public class Model implements ModelInterface {
         tokens = new CommonTokenStream(lexer);
         FormulationParser parser = new FormulationParser(tokens);
         tree = parser.program();
-        
         // Initial parse to collect all declarations
         CollectorVisitor collector = new CollectorVisitor(this);
         collector.visit(tree);
@@ -229,7 +228,9 @@ public class Model implements ModelInterface {
     public List<List<String>> getInput(ModelSet set) {
         if(set == null || set.getName() == null)
             throw new InvalidModelInputException("Trying to get input of a null set!");
-        if(sets.get(set.getName()) == null)
+        if(!set.isPrimitive())
+            throw new InvalidModelInputException("Trying to get input of a non primitive set!");
+        if(!sets.containsKey(set.getName()))
             throw new InvalidModelInputException("set " + set.getName() + " doesnt exist ");
         if(sets.get(set.getName()).getData() == null)
             throw new InvalidModelInputException("set " + set.getName() + " is not set to have an input, or is not declarative set");
@@ -243,21 +244,23 @@ public class Model implements ModelInterface {
         
     }
 
-    public void toggleFunctionality(OperationalElement operationalElement, boolean turnOn) {
-        if (!turnOn) {
-            toggledOffFunctionalities.add(operationalElement.getName());
-        } else {
-            toggledOffFunctionalities.remove(operationalElement.getName());
-        }
+    public void toggleFunctionality(OperationalElement operationalElement, boolean toggle) {
+        Optional.ofNullable(constraints.get(operationalElement.getName()))
+                .ifPresentOrElse(
+                        constraint -> constraint.toggle(toggle),
+                        () -> {throw new IllegalArgumentException("Constraint not found: " + operationalElement.getName());}
+        );
+
     }
 
     private void commentOutToggledFunctionalities() throws IOException {
-        if (toggledOffFunctionalities.isEmpty()) {
-            return;
-        }
+        HashSet<String> toToggle = new HashSet<>();
+        constraints.values().stream()
+                .filter(Constraint::isOn)
+                .forEach(constraint -> toToggle.add(constraint.getName()));
 
         ModifierVisitor modifier = new ModifierVisitor(this, tokens, null, "", ModifierVisitor.Action.COMMENT_OUT, originalSource);
-        modifier.setTargetFunctionalities(toggledOffFunctionalities); // Set functionalities to be commented out
+        modifier.setTargetFunctionalities(toToggle); // Set functionalities to be commented out
         modifier.visit(tree);
         
         if (modifier.isModified()) {
@@ -266,15 +269,15 @@ public class Model implements ModelInterface {
         //    parseSource();
         }
     }
-
+    @Deprecated
     private void restoreToggledFunctionalities() throws IOException {
-        if (toggledOffFunctionalities.isEmpty()) {
+       /* if (toggledOffFunctionalities.isEmpty()) {
             return;
         }
 
         // Read the original file content and restore it
         Files.write(Paths.get(sourceFilePath), originalSource.getBytes());
-        parseSource();
+        parseSource();*/
     }
     
 
@@ -349,7 +352,7 @@ public class Model implements ModelInterface {
     public Solution solve(float timeout, String solutionFileSuffix) {
         if(solutionFileSuffix == null)
             throw new InvalidModelInputException("solutionFileSufix is null");
-        Solution ans = null;
+        Solution ans;
         try {
             commentOutToggledFunctionalities();
     
@@ -522,6 +525,12 @@ public class Model implements ModelInterface {
     public Collection<ModelParameter> getParameters(){
         return this.params.values();
     }
+
+    @Override
+    public String getCode() {
+        return originalSource;
+    }
+
     @Override
     public Collection<Variable> getVariables(Collection<String> identifiers){
         HashSet<Variable> set = new HashSet<>();

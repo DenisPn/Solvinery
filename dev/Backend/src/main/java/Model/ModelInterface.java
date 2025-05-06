@@ -147,4 +147,10 @@ public interface ModelInterface {
 
     public Collection<ModelParameter> getParameters();
 
+    /**
+     * Commits all changes done in the image into zimpl code and returns the code.
+     * @return zimpl code, with all changes done in the image.
+     */
+    String getCode();
+
 }
