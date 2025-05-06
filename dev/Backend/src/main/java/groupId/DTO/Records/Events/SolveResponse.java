@@ -1,6 +1,6 @@
 package groupId.DTO.Records.Events;
 
-public class SolveSolution {
+public class SolveResponse {
     private String problemId;
     private String solution;
     private String status;

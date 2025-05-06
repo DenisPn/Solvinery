@@ -515,7 +515,7 @@ public class Model implements ModelInterface {
     }
     @Override
     public Collection<ModelSet> getSets(){
-        return this.sets.values();
+        return this.sets.values().stream().filter(ModelSet::isPrimitive).toList();
     }
     
     @Override

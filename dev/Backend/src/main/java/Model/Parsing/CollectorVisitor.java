@@ -48,9 +48,13 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         typer.visit(ctx.setExpr());
         List<String> elements = parseSetElements(ctx.setExpr());
         if(elements != null) {
-            ModelSet set = new ModelSet(setName, typer.getType(),elements);
-
-            model.getSetsMap().put(setName, set);
+            //compute if absent is same as putIfAbsent, but creates a new set if key is absent
+            model.getSetsMap().computeIfAbsent(setName,
+                    ignored -> new ModelSet(setName, typer.getType(),elements));
+        }
+        else {
+            model.getSetsMap().computeIfAbsent(setName,
+                    ignored -> new ModelSet(setName, typer.getType()));
         }
         return super.visitSetDefExpr(ctx);
     }
@@ -87,11 +91,11 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         String varName = extractName(ctx.sqRef().getText());
         TypeVisitor visitor = new TypeVisitor(model);
         visitor.visit(ctx);
-        List<String> basicSetNames = new LinkedList<>();
+        List<String> types = new LinkedList<>();
         for(ModelSet set : visitor.getBasicSets()) {
-         basicSetNames.add(set.getName());
+         types.addAll(set.getType().typeList());
         }
-        model.getVariablesMap().put(varName, new Variable(varName,basicSetNames));
+        model.getVariablesMap().put(varName, new Variable(varName,types));
         return super.visitVariable(ctx);
     }
 

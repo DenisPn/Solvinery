@@ -1,11 +1,13 @@
 package Model.Parsing;
 
+import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
 import Model.Model;
 import org.antlr.v4.runtime.CommonTokenStream;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,7 +16,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     private final Model model;
     private final CommonTokenStream tokens;
     private final String targetIdentifier; // For single-target operations
-    private final String[] targetValues; // For single-target operations
+    private final Set<String> targetValues; // For single-target operations
     private Set<String> targetFunctionalities; // For multi-target operations
     private final Action act;
     private final String originalSource;
@@ -34,7 +36,8 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         this.model = model;
         this.tokens = tokens;
         this.targetIdentifier = targetIdentifier;
-        this.targetValues = new String[]{value};
+        this.targetValues = new HashSet<>();
+        this.targetValues.add(value);
         this.act = act;
         this.originalSource = originalSource;
         this.modifiedSource = new StringBuilder(originalSource);
@@ -44,7 +47,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         this.model = model;
         this.tokens = tokens;
         this.targetIdentifier = targetIdentifier;
-        this.targetValues = values;
+        this.targetValues = new HashSet<>(Arrays.asList(values));
         this.act = act;
         this.originalSource = originalSource;
         this.modifiedSource = new StringBuilder(originalSource);
@@ -69,7 +72,13 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         }
 
         // Modify the set content while preserving formatting
-        String modifiedLine = originalLine.replaceFirst(ctx.getText(), targetValues[0]);
+        // targetValues is expected to have at exactly one element
+        String modifiedLine = originalLine.replaceFirst(ctx.getText(),
+                targetValues.stream()
+                        .findFirst()
+                        .orElseThrow(() ->
+                                new InvalidModelStateException("Target value is null in modifyParamContent method.\n" +
+                                "This should never happen and is a bug.")));
 
         if (!originalLine.equals(modifiedLine)) {
             modifiedSource.replace(startIndex, stopIndex + 1, modifiedLine);
@@ -194,18 +203,17 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
                 if (act == Action.COMMENT_OUT)
                     zeroOutPreference(subCtx);
             }
-
         }
         return super.visitObjective(ctx);
     }
 
     // ... keep all existing helper methods (modifyParamContent, commentOutParameter, etc.) ...
 
-    private String modifySetLine (String line, String[] values, boolean isAppend) {
+    private String modifySetLine (String line, Set<String> values, boolean isAppend) {
         // Find the set content between braces
         int openBrace = line.indexOf('{');
         int closeBrace = line.lastIndexOf('}');
-
+        String separator= ",";
         if (openBrace != -1 && closeBrace != -1) {
             String beforeBraces = line.substring(0, openBrace + 1);
             String afterBraces = line.substring(closeBrace);
@@ -226,7 +234,9 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
             }
             return beforeBraces + content + afterBraces;
         }
-        return line;
+        else {
+            throw new InvalidModelStateException("Invalid or unmodifiable set: " + line + ". Modifiable sets must contain braces {} to indicate set contents.");
+        }
     }
 
     private void commentOutConstraint (FormulationParser.ConstraintContext ctx) {
@@ -280,12 +290,6 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         int stopIndex = ctx.stop.getStopIndex();
         String originalLine = originalSource.substring(startIndex, stopIndex + 1);
 
-        String indentation = "";
-        int lineStart = originalSource.lastIndexOf('\n', startIndex);
-        if (lineStart != -1) {
-            indentation = originalSource.substring(lineStart + 1, startIndex);
-        }
-
         modifiedSource.replace(startIndex, stopIndex + 1,
                 "((" + originalLine + ")*0)");
         modified = true;
@@ -302,5 +306,14 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
 
     public String getModifiedSource () {
         return modifiedSource.toString();
+    }
+
+    /**
+     * Removes all whitespace characters from a string.
+     * @param str The string to be modified.
+     * @return The modified string with all whitespace characters removed.
+     */
+    private static String removeWhitespaces(String str){
+        return str.replaceAll("\\s+","");
     }
 }

@@ -11,6 +11,7 @@ import parser.FormulationParser;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class TypeVisitor extends FormulationBaseVisitor<Void> {
     private final Model model;
@@ -209,7 +210,6 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
 
     @Override
     public Void visitSqRefCsv (FormulationParser.SqRefCsvContext ctx) {
-
         if (ctx.ID().getText() != null && model.getSet(ctx.ID().getText()) != null) {
             basicSets.add(model.getSet(ctx.ID().getText()));
         } else if (ctx.ID().getText() != null && model.getParameter(ctx.ID().getText()) != null) {
