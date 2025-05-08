@@ -6,7 +6,6 @@ import Persistence.Entities.UserEntity;
 import Persistence.Repositories.UserRepository;
 import groupId.DTO.Records.Requests.Commands.*;
 import groupId.DTO.Records.Requests.Responses.ConfirmationDTO;
-import groupId.ServiceInterface;
 import groupId.Services.MainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;

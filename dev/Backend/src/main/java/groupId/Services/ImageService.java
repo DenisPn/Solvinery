@@ -1,7 +1,9 @@
 package groupId.Services;
 
 import Exceptions.InternalErrors.BadRequestException;
+import Exceptions.InternalErrors.ClientSideError;
 import Exceptions.InternalErrors.ImageExceptions.ImageException;
+import Exceptions.UserErrors.ImageDataException;
 import Image.Image;
 import Model.Data.Elements.Variable;
 import Model.ModelInterface;
@@ -76,7 +78,7 @@ public class ImageService {
         }
 
         if (appDir == null) {
-            throw new ImageException("Could not determine application directory.");
+            throw new RuntimeException("Could not determine application directory when creating new image.");
         }
 
         // Resolve the path relative to the JAR location
@@ -99,12 +101,11 @@ public class ImageService {
     /**
      * Given DTO object representing an image and an id, overrides the image with the associated ID with the image.
      * @param imgConfig DTO object parsed from HTTP JSON request.
-     * @throws BadRequestException Throws exception if image ID does not exist in the server.
      */
-    public void overrideImage(ImageConfigDTO imgConfig) throws BadRequestException {
+    public void overrideImage(ImageConfigDTO imgConfig) {
         ImageDTO imageDTO= imgConfig.image();
         ImageEntity imageEntity=imageRepository.findById(UUID.fromString(imgConfig.imageId()))
-                .orElseThrow(()->new BadRequestException("Invalid image ID during override image"));
+                .orElseThrow(()->new ClientSideError("Invalid image ID during override image"));
         Image image= EntityMapper.toDomain(imageEntity);
         image.override(imageDTO);
         imageRepository.save(EntityMapper.toEntity(image,imageEntity.getId()));

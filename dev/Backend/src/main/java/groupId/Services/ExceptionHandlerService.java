@@ -1,4 +1,4 @@
-package groupId;
+package groupId.Services;
 import Exceptions.UserErrors.UserDataException;
 import groupId.DTO.Factories.ExceptionRecordFactory;
 import Exceptions.InternalErrors.BadRequestException;

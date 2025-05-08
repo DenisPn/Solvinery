@@ -25,7 +25,6 @@ import java.util.UUID;
  * Designed for lazy loading of the model class to avoid file parsing when it's unneeded.
  */
 public class ModelProxy implements ModelInterface{
-    private final String storageDir= "User/Model";
 
     private final String code;
     private Model model;
@@ -49,6 +48,7 @@ public class ModelProxy implements ModelInterface{
                 }
 
                 // Resolve the path relative to the JAR location
+                String storageDir = "User/Model";
                 Path storagePath = Paths.get(appDir, storageDir);
                 Files.createDirectories(storagePath);
                 Path filePath = storagePath.resolve(UUID.randomUUID() + ".zpl");

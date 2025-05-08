@@ -38,7 +38,6 @@ public interface ModelInterface {
      * Sets the value of a model input (parameter).
      * 
      * @param identifier The input identifier
-     * @param value The value to set
      */
     void setInput(ModelParameter identifier);
 

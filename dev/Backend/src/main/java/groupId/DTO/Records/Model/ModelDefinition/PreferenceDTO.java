@@ -7,8 +7,6 @@ import jakarta.validation.constraints.NotNull;
 /**
  * represents a preference parsed from zimpl code
  * @param identifier the preference's identifier
- * @param dep the preference's dependencies
- * @see DependenciesDTO
  */
 public record PreferenceDTO(
     @NotBlank String identifier
