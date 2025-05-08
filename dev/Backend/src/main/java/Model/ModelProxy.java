@@ -1,6 +1,5 @@
 package Model;
 
-import Exceptions.InternalErrors.BadRequestException;
 import Exceptions.InternalErrors.ModelExceptions.ModelBuildException;
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import Model.Data.Elements.Data.ModelParameter;
@@ -9,7 +8,6 @@ import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.OperationalElement;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +21,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Designed for lazy loading of the model class to avoid file parsing when it's unneeded.
+ */
 public class ModelProxy implements ModelInterface{
     private final String storageDir= "User/Model";
 
@@ -55,7 +56,7 @@ public class ModelProxy implements ModelInterface{
                 this.model = new Model(filePath.toAbsolutePath().toString());
                 return model;
             } catch (IOException e) {
-                throw new ModelBuildException("I/O while creating model: " + e.getMessage());
+                throw new ModelBuildException("I/O error while creating model: " + e.getMessage());
             }
         }
         else {
@@ -79,13 +80,13 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
-    public void setInput (ModelParameter identifier, String value) {
-        getModel().setInput(identifier,value);
+    public void setInput (ModelParameter identifier) {
+        getModel().setInput(identifier);
     }
 
     @Override
-    public void setInput (ModelSet identifier, Collection<String> values) {
-        getModel().setInput(identifier,values);
+    public void setInput (ModelSet identifier) {
+        getModel().setInput(identifier);
     }
 
     @Override
@@ -166,5 +167,10 @@ public class ModelProxy implements ModelInterface{
     @Override
     public Collection<ModelParameter> getParameters () {
         return getModel().getParameters();
+    }
+
+    @Override
+    public String getCode () {
+        return getModel().getCode();
     }
 }

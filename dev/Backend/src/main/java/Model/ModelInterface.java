@@ -40,14 +40,14 @@ public interface ModelInterface {
      * @param identifier The input identifier
      * @param value The value to set
      */
-    void setInput(ModelParameter identifier, String value);
+    void setInput(ModelParameter identifier);
 
     /**
      * Sets the value of a model input (set).
      * 
      * @param identifier The input identifier
      */
-    void setInput(ModelSet identifier, Collection<String> values);
+    void setInput(ModelSet identifier);
 
     /**
      * Retrieves the input values associated with a given model parameter.
@@ -87,6 +87,7 @@ public interface ModelInterface {
      * @param timeout Maximum time in seconds to wait for solving
      * @return Solution object if solving succeeds, null otherwise
      */
+    @Deprecated
     Solution solve(float timeout, String solutionFileSuffix) throws ZimplCompileError;
 
     /**

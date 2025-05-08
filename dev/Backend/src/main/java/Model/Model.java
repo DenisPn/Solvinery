@@ -165,12 +165,12 @@ public class Model implements ModelInterface {
         }
     }
 
-    public void setInput(ModelParameter identifier, String value){
+    public void setInput(ModelParameter parameter){
 
-        if(!identifier.isCompatible(value))
-            throw new InvalidModelInputException("parameter "+identifier.getName()+" is incompatible with given input: "+value +" expected type: "+identifier.getType());
+        if(!parameter.isCompatible(parameter.getData()))
+            throw new InvalidModelInputException("parameter "+parameter.getName()+" is incompatible with given input: "+parameter.getData() +" expected type: "+parameter.getType());
         
-        ModifierVisitor modifier = new ModifierVisitor(this, tokens, identifier.getName(), value,  ModifierVisitor.Action.SET, originalSource);
+        ModifierVisitor modifier = new ModifierVisitor(this, tokens, parameter.getName(), parameter.getData(),  ModifierVisitor.Action.SET, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
@@ -185,16 +185,16 @@ public class Model implements ModelInterface {
         }
     }
     @Override
-    public void setInput(ModelSet identifier, Collection<String> values) {
+    public void setInput(ModelSet modelSet) {
 
-        for(String str : values){
-            if(!identifier.isCompatible(str))
-                throw new InvalidModelInputException("set "+identifier.getName()+" is incompatible with given input: "+str+" , expected type: "+identifier.getType());
+        for(String str : modelSet.getData()){
+            if(!modelSet.isCompatible(str))
+                throw new InvalidModelInputException("set "+modelSet.getName()+" is incompatible with given input: "+str+" , expected type: "+modelSet.getType());
 
         }
         
-        ModifierVisitor modifier = new ModifierVisitor(this, tokens, identifier.getName(), 
-                values.toArray(new String[0]),  ModifierVisitor.Action.SET, originalSource);
+        ModifierVisitor modifier = new ModifierVisitor(this, tokens, modelSet.getName(),
+                modelSet.getData().toArray(new String[0]),  ModifierVisitor.Action.SET, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
@@ -350,29 +350,15 @@ public class Model implements ModelInterface {
     }
     
     public Solution solve(float timeout, String solutionFileSuffix) {
-        if(solutionFileSuffix == null)
+        throw new InvalidModelInputException("Calling deprecated solve method in model.");
+        /*if(solutionFileSuffix == null)
             throw new InvalidModelInputException("solutionFileSufix is null");
         Solution ans;
         try {
             commentOutToggledFunctionalities();
-    
-            ProcessBuilder processBuilder = new ProcessBuilder(
-                "scip", "-c", "read " + sourceFilePath + " optimize display solution q"
-            );
-            processBuilder.redirectErrorStream(true);
-            
-            Process process;
-            try {
-                process = processBuilder.start();
-            } catch (IOException e) {
-                // Check if it's specifically a command not found error
-                if (e.getMessage().contains("Cannot run program \"scip\"") || 
-                    e.getMessage().contains("error=2")) {
-                    throw new EngineErrorException("SCIP solver not found. Please ensure SCIP is installed and available in system PATH");
-                }
-                throw e; // Rethrow other IOExceptions
-            }
-    
+
+            Process process = this.getProcess();
+
             // Executor service to handle timeouts
             ExecutorService executor = Executors.newSingleThreadExecutor();
             Future<Solution> future = executor.submit(() -> {
@@ -441,6 +427,24 @@ public class Model implements ModelInterface {
         }
     }
 
+    private Process getProcess () throws IOException {
+        ProcessBuilder processBuilder = new ProcessBuilder(
+            "scip", "-c", "read " + sourceFilePath + " optimize display solution q"
+        );
+        processBuilder.redirectErrorStream(true);
+
+        try {
+            return processBuilder.start();
+        } catch (IOException e) {
+            // Check if it's specifically a command not found error
+            if (e.getMessage().contains("Cannot run program \"scip\"") ||
+                    e.getMessage().contains("error=2")) {
+                throw new EngineErrorException("SCIP solver not found. Please ensure SCIP is installed and available in system PATH");
+            }
+            throw e; // Rethrow other IOExceptions
+        }*/
+    }
+
     public List<FormulationParser.UExprContext> findComponentContexts(FormulationParser.NExprContext ctx) {
         List<FormulationParser.UExprContext> components = new ArrayList<>();
         findComponentContextsRecursive(ctx.uExpr(), components);
@@ -457,10 +461,10 @@ public class Model implements ModelInterface {
         // }
         // findComponentContextsRecursive(ctx.uExpr(0), components);
         // findComponentContextsRecursive(ctx.uExpr(1), components);
-        if (components.size() == 0 && ctx.uExpr() != null && ctx.uExpr(1) != null) {
+        if (components.isEmpty() && ctx.uExpr() != null && ctx.uExpr(1) != null) {
             String a = ctx.uExpr(1).getText();
             components.add(ctx.uExpr(1));
-        } else if (components.size() == 0){
+        } else if (components.isEmpty()){
             components.add(ctx);
         }
         String b = ctx.getText();

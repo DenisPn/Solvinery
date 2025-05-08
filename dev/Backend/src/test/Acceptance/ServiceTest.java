@@ -353,8 +353,8 @@ public class ServiceTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(response.getBody().setsToValues(),expected.setsToValues());
-        assertEquals(response.getBody().paramsToValues(),expected.paramsToValues());
+        assertEquals(response.getBody().setData(),expected.setData());
+        assertEquals(response.getBody().paramData(),expected.paramData());
         assertEquals(response.getBody().constraintsToggledOff(),expected.constraintsToggledOff());
         assertEquals(response.getBody().preferencesToggledOff(),expected.preferencesToggledOff());*/
         
