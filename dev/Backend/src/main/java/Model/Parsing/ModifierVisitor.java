@@ -193,7 +193,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitPreference (FormulationParser.ObjectiveContext ctx) {
+    public Void visitObjective (FormulationParser.ObjectiveContext ctx) {
         List<FormulationParser.UExprContext> components = model.findComponentContexts(ctx.nExpr());
         for (FormulationParser.UExprContext subCtx : components) {
 
@@ -204,7 +204,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
                     zeroOutPreference(subCtx);
             }
         }
-        return super.visitPreference(ctx);
+        return super.visitObjective(ctx);
     }
 
     // ... keep all existing helper methods (modifyParamContent, commentOutParameter, etc.) ...
