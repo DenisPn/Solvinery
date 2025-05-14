@@ -27,7 +27,7 @@ public class ConstraintEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ConstraintEntity that = (ConstraintEntity) o;
-        return Objects.equals(constraintName, that.constraintName);
+        return constraintName.equals(that.constraintName);
     }
 
     @Override

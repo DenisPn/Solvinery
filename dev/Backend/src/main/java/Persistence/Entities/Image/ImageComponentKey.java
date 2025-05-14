@@ -57,7 +57,7 @@ public class ImageComponentKey implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ImageComponentKey that = (ImageComponentKey) o;
-        return Objects.equals(imageId, that.imageId) && Objects.equals(name, that.name);
+        return imageId.equals(that.imageId) && name.equals(that.name);
     }
 
     @Override

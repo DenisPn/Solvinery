@@ -10,6 +10,7 @@ import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.OperationalElement;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
+import Model.Data.Types.ModelPrimitives;
 import Model.Data.Types.ModelType;
 import Model.Parsing.CollectorVisitor;
 import Model.Parsing.ModifierVisitor;
@@ -27,7 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
+
 public class Model implements ModelInterface {
     private final String sourceFilePath;
     ParseTree tree;
@@ -37,6 +38,8 @@ public class Model implements ModelInterface {
     private final Map<String, Constraint> constraints = new HashMap<>();
     private final Map<String, Preference> preferences = new HashMap<>();
     private final Map<String, Variable> variables = new HashMap<>();
+    private final Set<String> uneditedPreferences = new HashSet<>();
+    private final Map<Preference,ModelParameter> preferenceToScalar = new HashMap<>();
   // private final Set<String> toggledOffFunctionalities = new HashSet<>();
 
     public String getSourceFilePath () {
@@ -56,7 +59,9 @@ public class Model implements ModelInterface {
     public Map<String,Preference> getPreferencesMap(){
         return preferences;
     }
-
+    public Set<String> getUneditedPreferences(){
+        return uneditedPreferences;
+    }
     public Map<String,Variable> getVariablesMap(){
         return variables;
     }
@@ -88,6 +93,7 @@ public class Model implements ModelInterface {
     private final String zimplCompilationScript = "src/main/resources/zimpl/checkCompilation.sh";
     private final String zimplSolveScript = "src/main/resources/zimpl/solve.sh" ;
     private String originalSource;
+    private String currentSource;
     
     public Model(String sourceFilePath) {
         try {
@@ -112,6 +118,31 @@ public class Model implements ModelInterface {
         // Initial parse to collect all declarations
         CollectorVisitor collector = new CollectorVisitor(this);
         collector.visit(tree);
+        currentSource = originalSource;
+        parsePreferences();
+
+    }
+
+
+    private void parsePreferences(){
+        for(String body : uneditedPreferences){
+            //build new data
+            String paramName=hashPreference(body);
+            String newBody="(" +body+ ") * " + paramName;
+            String paramDeclaration= "param " + paramName + " := 1;\n";
+
+            //replace preference and add scalar parameter
+            currentSource = paramDeclaration.concat(currentSource);
+            Preference editedPreference=new Preference(newBody);
+            preferences.put(newBody,editedPreference);
+            ModelParameter preferenceScalar=new ModelParameter(paramName, ModelPrimitives.FLOAT,"1",true);
+            params.put(paramName,preferenceScalar);
+            preferenceToScalar.put(editedPreference,preferenceScalar);
+        }
+    }
+
+    public static String hashPreference(String input) {
+        return "scalar"+ Math.abs(input.hashCode());
     }
 
     @Override
@@ -126,7 +157,7 @@ public class Model implements ModelInterface {
         if(!set.isCompatible(value))
             throw new InvalidModelInputException("set "+set.getName()+" is incompatible with given input: "+value+" , expected type: "+set.getType());
         
-        ModifierVisitor modifier = new ModifierVisitor(this, tokens, set.getName(), value, ModifierVisitor.Action.APPEND, originalSource);
+        ModifierVisitor modifier = new ModifierVisitor(this, tokens, set.getName(), value, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
@@ -149,7 +180,7 @@ public class Model implements ModelInterface {
         if(!set.isCompatible(value))
             throw new InvalidModelInputException("set "+set.getName()+" is incompatible with given input: "+value+" , expected type: "+set.getType());
 
-        ModifierVisitor modifier = new ModifierVisitor(this, tokens, set.getName(), value,  ModifierVisitor.Action.DELETE, originalSource);
+        ModifierVisitor modifier = new ModifierVisitor(this, tokens, set.getName(), value, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
@@ -170,7 +201,7 @@ public class Model implements ModelInterface {
         if(!parameter.isCompatible(parameter.getData()))
             throw new InvalidModelInputException("parameter "+parameter.getName()+" is incompatible with given input: "+parameter.getData() +" expected type: "+parameter.getType());
         
-        ModifierVisitor modifier = new ModifierVisitor(this, tokens, parameter.getName(), parameter.getData(),  ModifierVisitor.Action.SET, originalSource);
+        ModifierVisitor modifier = new ModifierVisitor(this, tokens, parameter.getName(), parameter.getData(), originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
@@ -194,12 +225,12 @@ public class Model implements ModelInterface {
         }
         
         ModifierVisitor modifier = new ModifierVisitor(this, tokens, modelSet.getName(),
-                modelSet.getData().toArray(new String[0]),  ModifierVisitor.Action.SET, originalSource);
+                modelSet.getData().toArray(new String[0]), originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
             try {
-                // Write modified source back to file, preserving original formatting
+                // Write the modified source back to file, preserving its original formatting
                 String modifiedSource = modifier.getModifiedSource();
                 Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
                 parseSource();
@@ -259,7 +290,7 @@ public class Model implements ModelInterface {
                 .filter(Constraint::isOn)
                 .forEach(constraint -> toToggle.add(constraint.getName()));
 
-        ModifierVisitor modifier = new ModifierVisitor(this, tokens, null, "", ModifierVisitor.Action.COMMENT_OUT, originalSource);
+        ModifierVisitor modifier = new ModifierVisitor(this, tokens, null, "",originalSource);
         modifier.setTargetFunctionalities(toToggle); // Set functionalities to be commented out
         modifier.visit(tree);
         
@@ -491,7 +522,12 @@ public class Model implements ModelInterface {
     }
     
     public ModelParameter getParameter(String identifier) {
-        return params.get(identifier);
+        if(params.containsKey(identifier))
+            throw new InvalidModelInputException("parameter "+identifier+" does not exist");
+        ModelParameter param= params.get(identifier);
+        if(param.isAuxiliary())
+            throw new InvalidModelInputException("parameter "+identifier+" not user defined, and can not be used in image.");
+        return param;
     }
     
     public Constraint getConstraint(String identifier) {
@@ -527,6 +563,11 @@ public class Model implements ModelInterface {
     
     @Override
     public Collection<ModelParameter> getParameters(){
+        return this.params.values().stream().filter(
+                param -> !param.isAuxiliary())
+                .toList();
+    }
+    public Collection<ModelParameter> getAllParameters(){
         return this.params.values();
     }
 

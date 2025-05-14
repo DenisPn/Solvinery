@@ -69,22 +69,20 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitObjective (FormulationParser.ObjectiveContext ctx) {
+    public Void visitPreference(FormulationParser.ObjectiveContext ctx) {
         List<FormulationParser.UExprContext> components = model.findComponentContexts(ctx.nExpr());
 
         for (FormulationParser.UExprContext expressionComponent : components) {
-            String name = expressionComponent.getText();
+            String body = expressionComponent.getText();
             // Create a parse tree for the specific component
             //ParseTree componentParseTree = parseComponentExpression(expressionComponent);
             TypeVisitor visitor = new TypeVisitor(model);
             visitor.visit(expressionComponent);
 
-            model.getPreferencesMap().put(expressionComponent.getText(),
-                    new Preference(expressionComponent.getText())
-            );
+            model.getUneditedPreferences().add(expressionComponent.getText());
         }
 
-        return super.visitObjective(ctx);
+        return super.visitPreference(ctx);
     }
 
     public Void visitVariable (FormulationParser.VariableContext ctx) {

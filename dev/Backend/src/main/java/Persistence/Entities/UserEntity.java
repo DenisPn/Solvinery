@@ -1,5 +1,6 @@
 package Persistence.Entities;
 
+import Persistence.Entities.Image.ImageEntity;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -8,11 +9,16 @@ import jakarta.validation.constraints.Size;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.UUID;
+import java.util.*;
+
 @Entity
 @Table(name = "users")
 public class UserEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", nullable = false, updatable = false)
+    private UUID id;
 
     @Column(name = "username",nullable = false,
             unique = true)
@@ -29,12 +35,15 @@ public class UserEntity {
     @NotBlank(message = "Invalid password")
     private String password;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false, updatable = false)
-    private UUID id;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ImageEntity> images = new HashSet<>();
 
     public UserEntity () {
+    }
+    public UserEntity (String username,String email) {
+        this.username = username;
+        this.email = email;
+        this.password = null;
     }
     public UserEntity (String username,String email,
                        String rawPassword) {
@@ -42,6 +51,17 @@ public class UserEntity {
         this.email = email;
         setPassword(rawPassword);
     }
+
+    public Set<ImageEntity> getImages() {
+        return images;
+    }
+    public void addImage(ImageEntity imageEntity){
+        images.add(imageEntity);
+    }
+    public void removeImage(ImageEntity imageEntity){
+        images.remove(imageEntity);
+    }
+
     public void setUsername (String username) {
         this.username = username;
     }
@@ -106,5 +126,15 @@ public class UserEntity {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        UserEntity that = (UserEntity) o;
+        return Objects.equals(id, that.id) && Objects.equals(username, that.username) && Objects.equals(email, that.email) && Objects.equals(password, that.password);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, email, password);
+    }
 }
