@@ -176,9 +176,10 @@ public class EntityMapperTest {
         // Given
         Image image = makeImageStub();
         UUID imageId = UUID.randomUUID();
+        UserEntity user = new UserEntity("testUser", "test@example.com", "password123");
 
         // When
-        ImageEntity entity = EntityMapper.toEntity(image, imageId);
+        ImageEntity entity = EntityMapper.toEntity(user,image, imageId);
 
         // Then
         assertNotNull(entity);
@@ -191,7 +192,8 @@ public class EntityMapperTest {
         // Given
         Image image = makeImageStub();
         UUID imageId = UUID.randomUUID();
-        ImageEntity imageEntity = EntityMapper.toEntity(image, imageId);
+        UserEntity user = new UserEntity("testUser", "test@example.com", "password123");
+        ImageEntity imageEntity = EntityMapper.toEntity(user,image, imageId);
 
         // When
         imageRepository.save(imageEntity);

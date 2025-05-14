@@ -27,7 +27,7 @@ public class PreferenceEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PreferenceEntity that = (PreferenceEntity) o;
-        return Objects.equals(preferenceName, that.preferenceName);
+        return preferenceName.equals(that.preferenceName);
     }
     @Override
     public int hashCode() {

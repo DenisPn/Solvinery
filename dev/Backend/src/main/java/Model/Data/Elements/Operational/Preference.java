@@ -2,8 +2,9 @@ package Model.Data.Elements.Operational;
 
 public class Preference extends OperationalElement {
     private float scalar;
-    public Preference (String name) {
-        super(name);
+
+    public Preference (String body) {
+        super(body);
         scalar=1;
     }
 

@@ -18,37 +18,37 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     private final String targetIdentifier; // For single-target operations
     private final Set<String> targetValues; // For single-target operations
     private Set<String> targetFunctionalities; // For multi-target operations
-    private final Action act;
+  //  private final Action act;
     private final String originalSource;
     private boolean modified = false;
     private final StringBuilder modifiedSource;
 
-    public enum Action {
+  /*  public enum Action {
         APPEND,
         DELETE,
         SET,
         COMMENT_OUT,
         UNCOMMENT
-    }
+    }*/
 
     // Original constructor for backward compatibility
-    public ModifierVisitor (Model model, CommonTokenStream tokens, String targetIdentifier, String value, Action act, String originalSource) {
+    public ModifierVisitor (Model model, CommonTokenStream tokens, String targetIdentifier, String value,/* Action act,*/ String originalSource) {
         this.model = model;
         this.tokens = tokens;
         this.targetIdentifier = targetIdentifier;
         this.targetValues = new HashSet<>();
         this.targetValues.add(value);
-        this.act = act;
+   //     this.act = act;
         this.originalSource = originalSource;
         this.modifiedSource = new StringBuilder(originalSource);
     }
 
-    public ModifierVisitor (Model model, CommonTokenStream tokens, String targetIdentifier, String[] values, Action act, String originalSource) {
+    public ModifierVisitor (Model model, CommonTokenStream tokens, String targetIdentifier, String[] values, /*Action act,*/ String originalSource) {
         this.model = model;
         this.tokens = tokens;
         this.targetIdentifier = targetIdentifier;
         this.targetValues = new HashSet<>(Arrays.asList(values));
-        this.act = act;
+      //  this.act = act;
         this.originalSource = originalSource;
         this.modifiedSource = new StringBuilder(originalSource);
     }
@@ -99,17 +99,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         if (lineStart != -1) {
             indentation = originalSource.substring(lineStart + 1, startIndex);
         }
-        String modifiedLine = originalLine;
-        // Modify the set content while preserving formatting
-        if (act == Action.APPEND)
-            modifiedLine = modifySetLine(originalLine, targetValues, true);
-        else if (act == Action.DELETE)
-            modifiedLine = modifySetLine(originalLine, targetValues, false);
-        else if (act == Action.SET)
-            modifiedLine = modifySetLine(originalLine, targetValues, true);
-        else
-            System.out.println("ERROR - shouldnt reach this line (Model.java - modifySetContent(...))");
-
+        String modifiedLine = modifySetLine(originalLine, targetValues);
         if (!originalLine.equals(modifiedLine)) {
             modifiedSource.replace(startIndex, stopIndex + 1, indentation + modifiedLine);
             modified = true;
@@ -158,10 +148,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     public Void visitParamDecl (FormulationParser.ParamDeclContext ctx) {
         String paramName = extractName(ctx.sqRef().getText());
         if (paramName.equals(targetIdentifier)) {
-            if (act == Action.SET)
                 modifyParamContent(ctx.expr());
-            else if (act == Action.COMMENT_OUT)
-                commentOutParameter(ctx);
         }
         return super.visitParamDecl(ctx);
     }
@@ -170,9 +157,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     public Void visitSetDefExpr (FormulationParser.SetDefExprContext ctx) {
         String setName = extractName(ctx.sqRef().getText());
         if (setName.equals(targetIdentifier)) {
-            if (act == Action.COMMENT_OUT)
-                commentOutSet(ctx);
-            else if (ctx.setExpr() instanceof FormulationParser.SetExprStackContext stackCtx) {
+            if (ctx.setExpr() instanceof FormulationParser.SetExprStackContext stackCtx) {
                 if (stackCtx.setDesc() instanceof FormulationParser.SetDescStackContext) {
                     modifySetContent(ctx, stackCtx);
                 }
@@ -186,51 +171,49 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         String constraintName = extractName(ctx.name.getText());
         if ((targetFunctionalities != null && targetFunctionalities.contains(constraintName)) ||
                 (constraintName.equals(targetIdentifier))) {
-            if (act == Action.COMMENT_OUT)
                 commentOutConstraint(ctx);
         }
         return super.visitConstraint(ctx);
     }
 
     @Override
-    public Void visitObjective (FormulationParser.ObjectiveContext ctx) {
+    public Void visitPreference(FormulationParser.ObjectiveContext ctx) {
         List<FormulationParser.UExprContext> components = model.findComponentContexts(ctx.nExpr());
         for (FormulationParser.UExprContext subCtx : components) {
 
             String objectiveName = subCtx.getText();
             if ((targetFunctionalities != null && targetFunctionalities.contains(objectiveName)) ||
                     (objectiveName.equals(targetIdentifier))) {
-                if (act == Action.COMMENT_OUT)
                     zeroOutPreference(subCtx);
             }
         }
-        return super.visitObjective(ctx);
+        return super.visitPreference(ctx);
     }
 
     // ... keep all existing helper methods (modifyParamContent, commentOutParameter, etc.) ...
 
-    private String modifySetLine (String line, Set<String> values, boolean isAppend) {
+    private String modifySetLine (String line, Set<String> values) {
         // Find the set content between braces
         int openBrace = line.indexOf('{');
         int closeBrace = line.lastIndexOf('}');
         String separator= ",";
-        if (openBrace != -1 && closeBrace != -1) {
+        if (openBrace != -1 && closeBrace != -1 && closeBrace > openBrace) {
             String beforeBraces = line.substring(0, openBrace + 1);
             String afterBraces = line.substring(closeBrace);
-            String content = ""; // if Action.SET, then leave content empty string
-            if (this.act == Action.APPEND || this.act == Action.DELETE)
-                content = line.substring(openBrace + 1, closeBrace).trim();
+            String content = "";
+           /* if (this.act == Action.APPEND || this.act == Action.DELETE)
+                content = line.substring(openBrace + 1, closeBrace).trim();*/
             for (String val : values) {
-                if (isAppend) {
+              //  if (isAppend) {
                     // Add value
                     content = content.isEmpty() ? val : content + ", " + val;
-                } else {
+                /*} else {
                     // Remove value
                     content = Arrays.stream(content.split(","))
                             .map(String::trim)
                             .filter(s -> !s.equals(val))
                             .collect(Collectors.joining(", "));
-                }
+                }*/
             }
             return beforeBraces + content + afterBraces;
         }

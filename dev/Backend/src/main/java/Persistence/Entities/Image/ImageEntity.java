@@ -5,6 +5,7 @@ import Persistence.Entities.Image.Data.SetEntity;
 import Persistence.Entities.Image.Data.VariableEntity;
 import Persistence.Entities.Image.Operational.ConstraintModuleEntity;
 import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
+import Persistence.Entities.UserEntity;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -41,28 +42,42 @@ public class ImageEntity {
             cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PreferenceModuleEntity> preferenceModules;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
+
     @Lob
-    @Column(name = "zimpl_code", nullable = false,
+    @Column(name = "image_zpl_code", nullable = false,
     columnDefinition = "TEXT")
     @Basic(fetch = FetchType.LAZY)
     private String zimplCode;
 
-    public ImageEntity () {
+    @Lob
+    @Column(name = "original_source_code", nullable = false,
+            columnDefinition = "TEXT")
+    @Basic(fetch = FetchType.LAZY)
+    private String original_code;
+    public ImageEntity () {}
+    public ImageEntity (UserEntity user) {
         this.activeSets = new HashSet<>();
         this.activeParams = new HashSet<>();
         this.variables = new HashSet<>();
         this.constraintModules = new HashSet<>();
         this.preferenceModules = new HashSet<>();
         this.zimplCode = "";
+        this.original_code = "";
+        this.user = user;
     }
 
-    public ImageEntity (Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String zimplCode) {
+    public ImageEntity (Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String zimplCode,UserEntity user) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
         this.variables = variables;
         this.activeParams = activeParams;
         this.activeSets = activeSets;
         this.zimplCode = zimplCode;
+        this.original_code = zimplCode;
+        this.user = user;
     }
 
     public UUID getId () {
@@ -76,6 +91,11 @@ public class ImageEntity {
         this.activeSets = activeSets;
         this.zimplCode = zimplCode;
     }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
     public String getZimplCode () {
         return zimplCode;
     }
@@ -142,6 +162,14 @@ public class ImageEntity {
         this.preferenceModules.remove(preferenceModule);
     }
 
+    public String getOriginal_code() {
+        return original_code;
+    }
+
+    public void setOriginal_code(String original_code) {
+        this.original_code = original_code;
+    }
+
     public void setActiveSets (Set<SetEntity> activeSets) {
         this.activeSets = activeSets;
     }
@@ -166,16 +194,24 @@ public class ImageEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ImageEntity that = (ImageEntity) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(activeSets, that.activeSets) &&
-                Objects.equals(activeParams, that.activeParams) &&
-                Objects.equals(variables, that.variables) &&
-                Objects.equals(constraintModules, that.constraintModules) &&
-                Objects.equals(preferenceModules, that.preferenceModules);
+        return id.equals(that.id) &&
+                activeSets.equals(that.activeSets) &&
+                activeParams.equals(that.activeParams) &&
+                variables.equals(that.variables) &&
+                constraintModules.equals(that.constraintModules) &&
+                preferenceModules.equals(that.preferenceModules) &&
+                user.equals(that.user) &&
+                original_code.equals(that.original_code) &&
+                zimplCode.equals(that.zimplCode);
+
+
+
+
+
     }
     @Override
     public int hashCode() {
-        return Objects.hash(id, activeSets, activeParams, variables, constraintModules, preferenceModules);
+        return Objects.hash(id, activeSets, activeParams, variables, constraintModules, preferenceModules, user, original_code, zimplCode);
     }
 
 }
