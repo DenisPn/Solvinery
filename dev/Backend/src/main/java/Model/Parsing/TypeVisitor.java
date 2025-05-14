@@ -118,7 +118,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitObjective (FormulationParser.ObjectiveContext ctx) {
+    public Void visitPreference (FormulationParser.ObjectiveContext ctx) {
         this.visit(ctx.nExpr());
         return null;
     }
