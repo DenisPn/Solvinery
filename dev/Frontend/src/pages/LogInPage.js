@@ -5,16 +5,16 @@ import '../Themes/MainTheme.css';
 import './LogInPage.css';
 
 const LogInPage = () => {
-  const [username, setUsername] = useState("");
+  const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // 👈 New state
+  const [errorMessage, setErrorMessage] = useState(""); 
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
-      const requestData = { userName : username, password : password };
+      const requestData = { userName : userName, password : password };
   
-      const response = await axios.post("/login", requestData, {
+      const response = await axios.post("/users/user", requestData, {
         headers: { "Content-Type": "application/json" },
       });
   
@@ -51,7 +51,7 @@ const LogInPage = () => {
             <input
               type="text"
               placeholder="User name"
-              value={username}
+              value={userName}
               onChange={(e) => setUsername(e.target.value)}
               className="input-box-login"
             />
