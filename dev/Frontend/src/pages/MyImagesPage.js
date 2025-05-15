@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 const MyImagesPage = () => {
     return (
         <div className="main-page">
-            <h1 className="main-title">Plan A</h1>
+            <h1 className="main-title">Solvinery</h1>
             
         </div>
     );

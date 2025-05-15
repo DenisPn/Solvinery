@@ -28,18 +28,18 @@ else
 fi
 
 # Install SCIP
-if [ -f /opt/plan-a/installers/scipoptsuite.deb ] && [ "$PKG_MANAGER" = "apt" ]; then
+if [ -f /opt/Solvinery/installers/scipoptsuite.deb ] && [ "$PKG_MANAGER" = "apt" ]; then
     echo "Installing SCIP from .deb package"
-    dpkg -i /opt/plan-a/installers/scipoptsuite.deb
-elif [ -f /opt/plan-a/installers/SCIPOptSuite.sh ]; then
+    dpkg -i /opt/Solvinery/installers/scipoptsuite.deb
+elif [ -f /opt/Solvinery/installers/SCIPOptSuite.sh ]; then
     echo "Installing SCIP from .sh installer"
-    chmod +x /opt/plan-a/installers/SCIPOptSuite.sh
+    chmod +x /opt/Solvinery/installers/SCIPOptSuite.sh
     mkdir -p /opt/scipoptsuite
-    /opt/plan-a/installers/SCIPOptSuite.sh --prefix=/opt/scipoptsuite --skip-license
+    /opt/Solvinery/installers/SCIPOptSuite.sh --prefix=/opt/scipoptsuite --skip-license
     ln -sf /opt/scipoptsuite/bin/scip /usr/local/bin/scip
 else
-    echo "ERROR: No SCIP installer found in /opt/plan-a/installers/"
-    ls -la /opt/plan-a/installers/
+    echo "ERROR: No SCIP installer found in /opt/Solvinery/installers/"
+    ls -la /opt/Solvinery/installers/
     exit 1
 fi
 

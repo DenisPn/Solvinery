@@ -24,9 +24,9 @@ else
     exit 1
 fi
 
-# Ensure plan-a is symlinked to /usr/bin
-APP_NAME="plan-a"
-INSTALL_PATH="/opt/Plan-A"
+# Ensure Solvinery is symlinked to /usr/bin
+APP_NAME="Solvinery"
+INSTALL_PATH="/opt/Solvinery"
 BIN_PATH="/usr/bin/$APP_NAME"
 
 echo "Checking if $APP_NAME is properly installed in PATH..."
@@ -47,7 +47,7 @@ else
 fi
 
 # Set permissions and ownership for myJar.jar
-JAR_PATH="/opt/Plan-A/resources/resources/artifactid-0.0.1-SNAPSHOT.jar"
+JAR_PATH="/opt/Solvinery/resources/resources/artifactid-0.0.1-SNAPSHOT.jar"
 
 if [ -f "$JAR_PATH" ]; then
     echo "Setting ownership and permissions for $JAR_PATH..."

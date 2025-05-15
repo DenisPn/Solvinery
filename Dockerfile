@@ -29,12 +29,12 @@ RUN apt-get install -y \
 
 
 
-WORKDIR /Plan-A
+WORKDIR /Solvinery
 COPY . .
 RUN dpkg -i SCIPOptSuite-9.2.0-Linux-ubuntu24.deb
-RUN cd /Plan-A/dev/Frontend && npm install
-RUN cd /Plan-A/dev/Backend && mvn compile
-RUN cd /Plan-A/dev/Backend && mvn generate-sources
+RUN cd /Solvinery/dev/Frontend && npm install
+RUN cd /Solvinery/dev/Backend && mvn compile
+RUN cd /Solvinery/dev/Backend && mvn generate-sources
 
 RUN chmod +x ./scripts/containerEntryScript.sh
 ENTRYPOINT ["./scripts/containerEntryScript.sh"]

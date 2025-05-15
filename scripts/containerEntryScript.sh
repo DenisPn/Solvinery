@@ -1,5 +1,5 @@
 #! /bin/bash
 
-cd /Plan-A/dev/Backend && mvn generate-sources
-cd /Plan-A
+cd /Solvinery/dev/Backend && mvn generate-sources
+cd /Solvinery
 exec /bin/bash

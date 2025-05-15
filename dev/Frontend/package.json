@@ -1,5 +1,5 @@
 {
-  "name": "plan-a",
+  "name": "solvinery",
   "version": "0.1.0",
   "description": "A React and Electron application",
   "author": "Your Name <your-email@example.com>",
@@ -50,7 +50,7 @@
   },
   "build": {
     "appId": "com.example.reactelectron",
-    "productName": "Plan-A",
+    "productName": "Solvinery",
     "files": [
       "build/**/*",
       "electron.js",
