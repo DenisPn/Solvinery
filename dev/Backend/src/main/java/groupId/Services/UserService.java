@@ -26,7 +26,7 @@ public class UserService {
      * @throws UserDataException if the email already exists in the system or the username is already taken.
      */
     public void registerUser (RegisterDTO registerData) throws UserDataException {
-        UserEntity entity= new UserEntity(registerData.userName(), registerData.email(), registerData.password());
+        UserEntity entity= new UserEntity(registerData.userName(),registerData.nickname(), registerData.email(), registerData.password());
         if(userRepository.existsByEmail(entity.getEmail()))
             throw new UserDataException("Email already exists");
         if(userRepository.existsByUsername(entity.getUsername()))

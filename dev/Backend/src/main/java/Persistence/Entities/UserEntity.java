@@ -2,7 +2,6 @@ package Persistence.Entities;
 
 import Persistence.Entities.Image.ImageEntity;
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -26,6 +25,10 @@ public class UserEntity {
     @NotBlank(message = "Username cannot be blank")
     private String username;
 
+    @Size(min = 3, max = 20, message = "Nickname must be between 3 and 20 characters")
+    @NotBlank(message = "Nickname cannot be blank")
+    private String nickname;
+
     @Column(name ="email", nullable = false, unique = true)
     @Email(message = "Email is not valid")
     @NotBlank(message = "Email cannot be blank")
@@ -45,11 +48,24 @@ public class UserEntity {
         this.email = email;
         this.password = null;
     }
+    public UserEntity (String username,String nickname,String email,
+                       String rawPassword) {
+        this.username = username;
+        this.email = email;
+        if(nickname == null)
+            this.nickname = username;
+        else
+            this.nickname = nickname;
+        setPassword(rawPassword);
+
+    }
     public UserEntity (String username,String email,
                        String rawPassword) {
         this.username = username;
         this.email = email;
+        this.nickname = username;
         setPassword(rawPassword);
+
     }
 
     public Set<ImageEntity> getImages() {

@@ -93,7 +93,7 @@ public class ImageService {
         //persist image
         Image image = new Image(filePath.toAbsolutePath().toString());
         //TODO: ADD USER OWNERSHIP HERE AFTER USER DATA ADDED TO DTO
-        ImageEntity imageEntity= EntityMapper.toEntity(new UserEntity("dumyuser","dummy@mail.com","dummypass"),image, null);
+        ImageEntity imageEntity= EntityMapper.toEntity(new UserEntity("dumyuser","dummy","dummy@mail.com","dummypass"),image, null);
         assert imageRepository != null;
         imageEntity = imageRepository.save(imageEntity);
         Objects.requireNonNull(imageEntity,"ImageEntity from EntityMapper is null while creating new image");

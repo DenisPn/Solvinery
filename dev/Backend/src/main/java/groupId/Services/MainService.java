@@ -5,8 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import groupId.DTO.Records.Events.SolveRequest;
 import groupId.DTO.Records.Requests.Commands.RegisterDTO;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import groupId.DTO.Records.Image.SolutionDTO;
@@ -18,17 +22,13 @@ import Model.ModelInterface;
 import Model.Data.Types.ModelType;
 
 @Service
+@RequiredArgsConstructor
 public class MainService {
-private final Map<UUID,Image> images;
 
 
+    private static final String TOPIC_NAME = "solve-requests";
 
-
-    public MainService (){
-        images = new HashMap<>();
-    }
-
-
+    private final KafkaTemplate<String, SolveRequest> kafkaTemplate;
 
     /**
      * @param command solve command DTO object
@@ -75,25 +75,28 @@ private final Map<UUID,Image> images;
         return null;
     }
 
-    /**
-     * Given ID, returns the image associated with it.
-     * Implemented for testing, and should not be used outside that scope.
-     * @param id image id
-     * @return Image object
-     */
-    public Image getImage(String id) {
-        return images.get(UUID.fromString(id));
+    public void sendSolveRequest(String userId, String problemId, String zimplContent) {
+        SolveRequest request = new SolveRequest(userId, problemId, zimplContent);
+        kafkaTemplate.send(TOPIC_NAME, request);
     }
 
-    public void register (@Valid RegisterDTO data) {
-
+    @KafkaListener(topics = TOPIC_NAME, groupId = "${spring.kafka.consumer.group-id}")
+    public void handleSolveRequest(SolveRequest request) {
+        System.out.println("Received solve request:");
+        System.out.println("User ID: " + request.userId());
+        System.out.println("Problem ID: " + request.problemId());
+        System.out.println("Zimpl Content: " + request.zimplContent());
     }
 
-    /* *//**
-     * @see InputDTO
-     *//*
-    public InputDTO loadLastInput(String imageId) throws Exception {
-        return images.get(UUID.fromString(imageId)).getInput();
+    public void testKafka() {
+        // Test method to send a sample message
+        sendSolveRequest(
+                "test-user-123",
+                "problem-456",
+                "param n := 2;"
+        );
     }
-*/
+
+
+
 }

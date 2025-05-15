@@ -53,7 +53,7 @@ services:
       - app-network
     ports:
       - "4000:4000"
-      - "3000:3000"
+    #  - "3000:3000"
       - "5005:5005"
     depends_on:
       postgres:
