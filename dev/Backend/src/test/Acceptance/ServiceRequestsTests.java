@@ -15,10 +15,7 @@ import groupId.Services.MainService;
 import org.junit.jupiter.api.*;
 
 import java.nio.file.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.http.*;
 
@@ -86,7 +83,7 @@ public class ServiceRequestsTests {
         CreateImageFromFileDTO body = new CreateImageFromFileDTO(SimpleCodeExample);
         try {
             ResponseEntity<CreateImageResponseDTO> response= imageController.createImage(body);
-
+            String someUserId= UUID.randomUUID().toString();
             CreateImageResponseDTO expected = new CreateImageResponseDTO(
                     "some imageId", new ModelDTO(
                     Set.of(new ConstraintDTO("sampleConstraint")),
@@ -119,7 +116,7 @@ public class ServiceRequestsTests {
             Set<SetDTO> setDTOs = Set.of(new SetDTO(new SetDefinitionDTO("mySet",List.of("INT"),null),List.of()));
             Set<ParameterDTO> parameterDTOS = Set.of(new ParameterDTO(new ParameterDefinitionDTO("X", "INT",null),""));
             ImageDTO imageDTO = new ImageDTO(variableDTOS, constraintModuleDTOs, preferenceModuleDTOs,setDTOs,parameterDTOS);
-            ImageConfigDTO configDTO= new ImageConfigDTO(response.getBody().imageId(),imageDTO);
+            ImageConfigDTO configDTO= new ImageConfigDTO(someUserId,response.getBody().imageId(),imageDTO);
             ResponseEntity<Void> response2= imageController.configureImage(configDTO);
             assertEquals(HttpStatus.OK, response2.getStatusCode());
             Image image= mainController.getImage(response.getBody().imageId());

@@ -11,10 +11,11 @@ import java.util.Set;
 
 /**
  *
- * @param variables modules which make up the image
- * @param constraintModules modules which make up the image
- * @param preferenceModules modules which make up the image
- * @see VariableModuleDTO
+ * @param variables modules which make are in use.
+ * @param constraintModules modules which are in use.
+ * @param preferenceModules modules which are in use.
+ * @param parameters parameters which are in use.
+ * @param sets sets which are in use.
  * @see ConstraintModuleDTO
  * @see PreferenceModuleDTO
  */
