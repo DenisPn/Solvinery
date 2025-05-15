@@ -8,6 +8,7 @@ import Image.Image;
 import Model.Data.Elements.Variable;
 import Model.ModelInterface;
 import Persistence.Entities.Image.ImageEntity;
+import Persistence.Entities.UserEntity;
 import Persistence.EntityMapper;
 import Persistence.Repositories.ImageRepository;
 import groupId.DTO.Factories.RecordFactory;
@@ -91,7 +92,8 @@ public class ImageService {
         // The code is parsed and image validity is verified at this point.
         //persist image
         Image image = new Image(filePath.toAbsolutePath().toString());
-        ImageEntity imageEntity= EntityMapper.toEntity(image, null);
+        //TODO: ADD USER OWNERSHIP HERE AFTER USER DATA ADDED TO DTO
+        ImageEntity imageEntity= EntityMapper.toEntity(new UserEntity("dumyuser","dummy@mail.com","dummypass"),image, null);
         assert imageRepository != null;
         imageEntity = imageRepository.save(imageEntity);
         Objects.requireNonNull(imageEntity,"ImageEntity from EntityMapper is null while creating new image");
@@ -108,7 +110,7 @@ public class ImageService {
                 .orElseThrow(()->new ClientSideError("Invalid image ID during override image"));
         Image image= EntityMapper.toDomain(imageEntity);
         image.override(imageDTO);
-        imageRepository.save(EntityMapper.toEntity(image,imageEntity.getId()));
+        imageRepository.save(EntityMapper.toEntity(imageEntity.getUser(),image,imageEntity.getId()));
        /*
         BadRequestException.requireNotNull(image, "Invalid image ID during override image");
         Map<String, Variable> variables = new HashMap<>();

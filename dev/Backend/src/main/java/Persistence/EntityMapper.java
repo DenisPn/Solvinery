@@ -39,7 +39,7 @@ public class EntityMapper {
     }
 
     /**
-     * Convert a user to user entity, for persistence. Should be used only when registering a new user
+     * Convert a user to a user entity, for persistence. Should be used only when registering a new user
      * Invalid parameters are accepted, and an exception will be thrown only when saving the user entity
      * @param user the user to convert
      * @param rawPassword the password, since password isn't used above persistence after registration.
@@ -141,6 +141,7 @@ public class EntityMapper {
                 .map(variable -> EntityMapper.toEntity(variable, imageId))
                 .collect(Collectors.toSet());
     }
+
     public static Set<ConstraintModuleEntity> toConstraintModuleEntities (Collection<ConstraintModule> constraintModules, UUID imageId) {
         return constraintModules.stream()
                 .map(variable -> EntityMapper.toEntity(variable, imageId))
@@ -204,13 +205,13 @@ public class EntityMapper {
                 toPreferenceModules(imageEntity.getPreferenceModules()), toSets(imageEntity.getActiveSets()),
                 toParams(imageEntity.getActiveParams()), toVariables(imageEntity.getVariables()));
     }
-    public static ImageEntity toEntity(Image image, UUID imageId){
+    public static ImageEntity toEntity(UserEntity user,Image image, UUID imageId){
         return new ImageEntity(toPreferenceModuleEntities(image.getPreferenceModules().values(),imageId),
                 toConstraintModuleEntities(image.getConstraintsModules().values(), imageId),
                 toVariableEntities(image.getActiveVariables(),imageId),
                 toParamEntities(image.getActiveParams(),imageId),
                 toSetEntities(image.getActiveSets(),imageId),
-                image.getSourceCode());
+                image.getSourceCode(),user);
     }
 
     

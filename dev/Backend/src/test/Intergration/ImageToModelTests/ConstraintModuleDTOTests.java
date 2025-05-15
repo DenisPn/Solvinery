@@ -9,8 +9,6 @@ import Model.Model;
 import Model.ModelInterface;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.*;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -22,7 +20,6 @@ import java.util.stream.Collectors;
 import Model.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
 public class ConstraintModuleDTOTests {
     static String SimpleCodeExample = """
                 param x := 2;
@@ -36,7 +33,6 @@ public class ConstraintModuleDTOTests {
                 maximize myObjective:
                     1;
             """;
-    @Mock
     ModelInterface model;
     static String sourcePath = "src/test/Utilities/ZimplExamples/ExampleZimplProgram.zpl";
     static Path tmpDirPath;
