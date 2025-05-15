@@ -8,6 +8,6 @@ import groupId.DTO.Records.Model.ModelDefinition.ModelDTO;
  * @param model model DTO object of the image
  * @see ModelDTO
  */
-public record CreateImageResponseDTO (String imageId, ModelDTO model){
+public record CreateImageResponseDTO (String userId,String imageId, ModelDTO model){
     
 }

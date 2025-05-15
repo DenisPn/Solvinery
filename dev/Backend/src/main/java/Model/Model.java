@@ -522,8 +522,8 @@ public class Model implements ModelInterface {
     }
     
     public ModelParameter getParameter(String identifier) {
-        if(params.containsKey(identifier))
-            throw new InvalidModelInputException("parameter "+identifier+" does not exist");
+        if(!params.containsKey(identifier))
+            return null; //don't like this, but this has to be here due to legacy code (max)
         ModelParameter param= params.get(identifier);
         if(param.isAuxiliary())
             throw new InvalidModelInputException("parameter "+identifier+" not user defined, and can not be used in image.");
