@@ -29,4 +29,5 @@ public class ImageController {
         imageService.overrideImage(imgConfig);
         return ResponseEntity.ok().build();
     }
+
 }

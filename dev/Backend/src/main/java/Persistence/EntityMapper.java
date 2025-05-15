@@ -206,13 +206,12 @@ public class EntityMapper {
                 toParams(imageEntity.getActiveParams()), toVariables(imageEntity.getVariables()));
     }
     public static ImageEntity toEntity(UserEntity user,Image image, UUID imageId){
-        return new ImageEntity(toPreferenceModuleEntities(image.getPreferenceModules().values(),imageId),
+        return new ImageEntity(image.getName(),image.getDescription(),image.getCreationDate(),
+                toPreferenceModuleEntities(image.getPreferenceModules().values(),imageId),
                 toConstraintModuleEntities(image.getConstraintsModules().values(), imageId),
                 toVariableEntities(image.getActiveVariables(),imageId),
                 toParamEntities(image.getActiveParams(),imageId),
                 toSetEntities(image.getActiveSets(),imageId),
                 image.getSourceCode(),user);
     }
-
-    
 }

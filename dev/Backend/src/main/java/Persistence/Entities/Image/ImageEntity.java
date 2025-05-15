@@ -8,10 +8,8 @@ import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
 import Persistence.Entities.UserEntity;
 import jakarta.persistence.*;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Entity
 @Table(name = "image")
@@ -21,6 +19,15 @@ public class ImageEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
+
+    @Column(name = "name", nullable = false, updatable = false)
+    private String name;
+
+    @Column(name = "description", nullable = false, updatable = false)
+    private String description;
+
+    @Column(name = "creation_date", nullable = false, updatable = false)
+    private LocalDateTime creationDate;
 
     @OneToMany(mappedBy = "imageComponentKey.imageId",
             cascade = CascadeType.ALL, orphanRemoval = true)
@@ -69,7 +76,7 @@ public class ImageEntity {
         this.user = user;
     }
 
-    public ImageEntity (Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String zimplCode,UserEntity user) {
+    public ImageEntity (String name,String description,LocalDateTime creationDate,Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String zimplCode,UserEntity user) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
         this.variables = variables;
@@ -78,6 +85,10 @@ public class ImageEntity {
         this.zimplCode = zimplCode;
         this.original_code = zimplCode;
         this.user = user;
+        this.name = name;
+        this.description = description;
+        this.creationDate = LocalDateTime.now();
+        this.creationDate = creationDate;
     }
 
     public UUID getId () {

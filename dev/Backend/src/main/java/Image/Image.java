@@ -1,5 +1,6 @@
 package Image;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,9 @@ public class Image {
     private final Set<ParameterModule> activeParams;
     private final Set<VariableModule> activeVariables;
     private final ModelInterface model;
+    String name;
+    String description;
+    LocalDateTime creationDate;
 
     /**
      * Constructs a new empty image, given a Model. It's implied from the existence of Model that there is a file on
@@ -152,6 +156,19 @@ public class Image {
         activeSets = new HashSet<>();
         this.model = new Model(path);
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
     public void addConstraintModule(ConstraintModule module) {
         constraintsModules.put(module.getName(), module);
     }
