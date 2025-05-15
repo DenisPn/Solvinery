@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -20,12 +20,12 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    @GetMapping("/login")
+    @GetMapping("/user")
     public ResponseEntity<ConfirmationDTO> logIn(@Valid @RequestBody LoginDTO data) {
         userService.loginUser(data);
         return ResponseEntity.ok(new ConfirmationDTO("Login Successful."));
     }
-    @PostMapping("/register")
+    @PostMapping("/user")
     public ResponseEntity<ConfirmationDTO> register(@Valid @RequestBody RegisterDTO data) {
         userService.registerUser(data);
         return ResponseEntity.ok(new ConfirmationDTO("Registration Successful."));

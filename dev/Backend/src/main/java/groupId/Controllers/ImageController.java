@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/image")
+@RequestMapping("/images")
 public class ImageController {
 
     private final ImageService imageService;
@@ -18,13 +18,13 @@ public class ImageController {
     public ImageController(ImageService imageService) {
         this.imageService = imageService;
     }
-    @PostMapping("/images")
+    @PostMapping("/image")
     public ResponseEntity<CreateImageResponseDTO> createImage(@Valid @RequestBody CreateImageFromFileDTO data) throws Exception {
         CreateImageResponseDTO response = imageService.createImageFromFile(data.code());
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/images")
+    @PatchMapping("/image")
     public ResponseEntity<Void> configureImage(@Valid @RequestBody ImageConfigDTO imgConfig){
         imageService.overrideImage(imgConfig);
         return ResponseEntity.ok().build();

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import groupId.DTO.Records.Requests.Responses.ExceptionDTO;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
  * Usage instructions: use some Record to make the DTO of the exception and return it.
@@ -74,6 +75,11 @@ public class ExceptionHandlerService {
     }
     @ExceptionHandler(UserDataException.class)
     public ResponseEntity<ExceptionDTO> handleException(UserDataException ex) {
+        ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
+        return ResponseEntity.status(400).body(errorResponse);
+    }
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ExceptionDTO> handleException(NoResourceFoundException ex) {
         ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
         return ResponseEntity.status(400).body(errorResponse);
     }

@@ -10,6 +10,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -76,6 +77,11 @@ public class ExceptionRecordFactory {
         return new ExceptionDTO("A server communication error occurred. HTTP request payload parsing failed, invalid format: " +exception.getMessage() + ")");
     }
     public static ExceptionDTO makeDTO(NestedRuntimeException exception) {
+        Objects.requireNonNull(exception,ohNo);
+        //TODO: LOG
+        return new ExceptionDTO("An unhandled server communication occurred. (" +exception.getMessage() + ")");
+    }
+    public static ExceptionDTO makeDTO(NoResourceFoundException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO("An unhandled server communication occurred. (" +exception.getMessage() + ")");
