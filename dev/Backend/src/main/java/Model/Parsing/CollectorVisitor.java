@@ -69,7 +69,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitPreference(FormulationParser.ObjectiveContext ctx) {
+    public Void visitObjective(FormulationParser.ObjectiveContext ctx) {
         List<FormulationParser.UExprContext> components = model.findComponentContexts(ctx.nExpr());
 
         for (FormulationParser.UExprContext expressionComponent : components) {
@@ -82,7 +82,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
             model.getUneditedPreferences().add(expressionComponent.getText());
         }
 
-        return super.visitPreference(ctx);
+        return super.visitObjective(ctx);
     }
 
     public Void visitVariable (FormulationParser.VariableContext ctx) {

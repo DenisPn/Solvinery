@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     private final Model model;
@@ -177,7 +176,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitPreference(FormulationParser.ObjectiveContext ctx) {
+    public Void visitObjective(FormulationParser.ObjectiveContext ctx) {
         List<FormulationParser.UExprContext> components = model.findComponentContexts(ctx.nExpr());
         for (FormulationParser.UExprContext subCtx : components) {
 
@@ -187,7 +186,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
                     zeroOutPreference(subCtx);
             }
         }
-        return super.visitPreference(ctx);
+        return super.visitObjective(ctx);
     }
 
     // ... keep all existing helper methods (modifyParamContent, commentOutParameter, etc.) ...
