@@ -1,4 +1,8 @@
 package Acceptance;
+import User.User;
+import Utilities.PersistenceTestsConfiguration;
+import Utilities.UnitTestsConfiguration;
+import config.KafkaConfig;
 import groupId.Controllers.ImageController;
 import groupId.DTO.Factories.RecordFactory;
 import groupId.DTO.Records.Image.*;
@@ -6,7 +10,6 @@ import groupId.DTO.Records.Model.ModelData.*;
 import groupId.DTO.Records.Model.ModelDefinition.*;
 import groupId.DTO.Records.Requests.Commands.CreateImageFromFileDTO;
 import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
-import groupId.DTO.Records.Requests.Commands.SolveCommandDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import Image.Image;
 import groupId.Controllers.MainController;
@@ -17,29 +20,40 @@ import org.junit.jupiter.api.*;
 import java.nio.file.*;
 import java.util.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
+import org.springframework.test.context.ContextConfiguration;
 
 import static org.junit.jupiter.api.Assertions.*;
+@SpringBootTest
+@AutoConfigureDataJpa
+@ContextConfiguration(classes = {UnitTestsConfiguration.class, PersistenceTestsConfiguration.class})
 public class ServiceRequestsTests {
     static String SimpleCodeExample = """
           set mySet := {7,6,4};
           param x := 10;
-         
+        \s
           var myVar[mySet] >= 0;
-        
+       \s
           subto sampleConstraint:
               myVar[1] + myVar[2] + myVar[3] == x;
 
           maximize myObjective:
               myVar[3];
-            
-            """;
+           \s
+           \s""";
     static Path tmpDirPath;
     static String sourcePath = "src/test/Utilities/ZimplExamples/ExampleZimplProgram.zpl";
-    MainService mainController;
+    @Autowired
+    MainService mainService;
+    @Autowired
     ImageService imageService;
-    MainController service;
+    MainController mainController;
     ImageController imageController;
+    KafkaConfig kafkaConfig;
+    User stubUser;
     @BeforeAll
     public static void setup(){
         //try {
@@ -53,18 +67,17 @@ public class ServiceRequestsTests {
 //        }
     }
     @BeforeEach
-    public void setUp() {
-        mainController = new MainService();
-        imageService=new ImageService("../User/Models");
+    public void setUp(ImageService imageService) {
+        mainController = new MainController(mainService);
         imageController=new ImageController(imageService);
-        service=new MainController(mainController);
+        stubUser = new User(UUID.randomUUID(), "stub name", "stub@mail.com", "stub nickname");
     }
 
     @Test
     public void GivenEmptyZimplFIle_WhenCreatingIMageFrom_CreateEmptyImage(){
         try {
             String data="";
-            ResponseEntity<CreateImageResponseDTO> response= imageController.createImage(new CreateImageFromFileDTO(data));
+            ResponseEntity<CreateImageResponseDTO> response= imageController.createImage(new CreateImageFromFileDTO(stubUser.getId().toString(),data));
 
             ModelDTO model= response.getBody().model();
             assertEquals(0, model.constraints().size());
@@ -80,7 +93,7 @@ public class ServiceRequestsTests {
         /**
          * SET UP
          */
-        CreateImageFromFileDTO body = new CreateImageFromFileDTO(SimpleCodeExample);
+        CreateImageFromFileDTO body = new CreateImageFromFileDTO(stubUser.getId().toString(),SimpleCodeExample);
         try {
             ResponseEntity<CreateImageResponseDTO> response= imageController.createImage(body);
             String someUserId= UUID.randomUUID().toString();
@@ -119,7 +132,7 @@ public class ServiceRequestsTests {
             ImageConfigDTO configDTO= new ImageConfigDTO(someUserId,response.getBody().imageId(),imageDTO);
             ResponseEntity<Void> response2= imageController.configureImage(configDTO);
             assertEquals(HttpStatus.OK, response2.getStatusCode());
-            Image image= mainController.getImage(response.getBody().imageId());
+            Image image= imageService.getImage(response.getBody().imageId());
             assertNotNull(image);
             ImageDTO actual= RecordFactory.makeDTO(image);
             assertEquals(imageDTO, actual);

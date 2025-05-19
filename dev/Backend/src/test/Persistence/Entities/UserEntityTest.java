@@ -1,10 +1,8 @@
 package Persistence.Entities;
 
-import Persistence.Entities.UserEntity;
 import Persistence.Repositories.UserRepository;
-import Utilities.TestsConfiguration;
+import Utilities.PersistenceTestsConfiguration;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -12,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -21,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureDataJpa
-@ContextConfiguration(classes = {TestsConfiguration.class})
+@ContextConfiguration(classes = {PersistenceTestsConfiguration.class})
 class UserEntityTest {
 
     @Autowired

@@ -11,7 +11,6 @@ import parser.FormulationParser;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 public class TypeVisitor extends FormulationBaseVisitor<Void> {
     private final Model model;
@@ -37,7 +36,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
         ModelSet leftSet = model.getSet(ctx.setExpr(0).getText());
         if (leftSet != null) {
             basicSets.add(leftSet);
-            type = leftSet.getType(); // Inherit the type
+            type = leftSet.getDataType(); // Inherit the type
         } else {
             leftVisitor.visit(ctx.setExpr(0));
             basicSets.addAll(leftVisitor.getBasicSets());
@@ -48,7 +47,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
         ModelSet rightSet = model.getSet(ctx.setExpr(1).getText());
         if (rightSet != null) {
             basicSets.add(rightSet);
-            type = rightSet.getType(); // Inherit the type
+            type = rightSet.getDataType(); // Inherit the type
         } else {
             rightVisitor.visit(ctx.setExpr(1));
             basicSets.addAll(rightVisitor.getBasicSets());
@@ -60,7 +59,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
             // For Cartesian product, combine types into a tuple
             type = new Tuple();
             if (leftSet != null) {
-                ((Tuple) type).append(leftSet.getType());
+                ((Tuple) type).append(leftSet.getDataType());
             } else if (leftVisitor.getType() instanceof Tuple) {
                 ((Tuple) type).append((Tuple) leftVisitor.getType());
             } else {
@@ -68,7 +67,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
             }
 
             if (rightSet != null) {
-                ((Tuple) type).append(rightSet.getType());
+                ((Tuple) type).append(rightSet.getDataType());
             } else if (rightVisitor.getType() instanceof Tuple) {
                 ((Tuple) type).append((Tuple) rightVisitor.getType());
             } else {
@@ -77,9 +76,9 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
         } else {
             // For union, difference, etc., types must match
             if (leftSet != null) {
-                type = leftSet.getType();
+                type = leftSet.getDataType();
             } else if (rightSet != null) {
-                type = rightSet.getType();
+                type = rightSet.getDataType();
             } else {
                 type = leftVisitor.getType();
             }

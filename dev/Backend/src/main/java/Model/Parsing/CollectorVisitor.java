@@ -3,10 +3,10 @@ package Model.Parsing;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
-import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
 import Model.Data.Types.ModelPrimitives;
 import Model.Model;
+import org.antlr.v4.runtime.misc.Interval;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
 
@@ -73,13 +73,17 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         List<FormulationParser.UExprContext> components = model.findComponentContexts(ctx.nExpr());
 
         for (FormulationParser.UExprContext expressionComponent : components) {
-            String body = expressionComponent.getText();
+       //     String body = expressionComponent.getText();
+            String body = expressionComponent.start.getInputStream()
+                    .getText(new Interval(expressionComponent.start.getStartIndex(),
+                            expressionComponent.stop.getStopIndex()));
+
             // Create a parse tree for the specific component
             //ParseTree componentParseTree = parseComponentExpression(expressionComponent);
             TypeVisitor visitor = new TypeVisitor(model);
             visitor.visit(expressionComponent);
 
-            model.getUneditedPreferences().add(expressionComponent.getText());
+            model.getUneditedPreferences().add(body);
         }
 
         return super.visitObjective(ctx);
@@ -91,7 +95,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         visitor.visit(ctx);
         List<String> types = new LinkedList<>();
         for(ModelSet set : visitor.getBasicSets()) {
-         types.addAll(set.getType().typeList());
+         types.addAll(set.getDataType().typeList());
         }
         model.getVariablesMap().put(varName, new Variable(varName,types));
         return super.visitVariable(ctx);

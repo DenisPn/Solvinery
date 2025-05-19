@@ -1,22 +1,25 @@
 package Model.Parsing;
 
 import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
+import Model.Data.Elements.Element;
+import Model.Data.Elements.Operational.Preference;
 import Model.Model;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.misc.Interval;
 import parser.FormulationBaseVisitor;
+import parser.FormulationLexer;
 import parser.FormulationParser;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     private final Model model;
-    private final CommonTokenStream tokens;
-    private final String targetIdentifier; // For single-target operations
+   // private final CommonTokenStream tokens;
+   /* private final String targetIdentifier; // For single-target operations
     private final Set<String> targetValues; // For single-target operations
-    private Set<String> targetFunctionalities; // For multi-target operations
+    private Set<String> targetFunctionalities; // For multi-target operations*/
   //  private final Action act;
     private final String originalSource;
     private boolean modified = false;
@@ -31,33 +34,40 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }*/
 
     // Original constructor for backward compatibility
+    public ModifierVisitor(Model model, String originalSource){
+        this.model = model;
+       // this.tokens = tokens;
+        this.originalSource = originalSource;
+        this.modifiedSource = new StringBuilder(originalSource);
+    }
+    @Deprecated
     public ModifierVisitor (Model model, CommonTokenStream tokens, String targetIdentifier, String value,/* Action act,*/ String originalSource) {
         this.model = model;
-        this.tokens = tokens;
-        this.targetIdentifier = targetIdentifier;
+       // this.tokens = tokens;
+        /*this.targetIdentifier = targetIdentifier;
         this.targetValues = new HashSet<>();
-        this.targetValues.add(value);
+        this.targetValues.add(value);*/
    //     this.act = act;
         this.originalSource = originalSource;
         this.modifiedSource = new StringBuilder(originalSource);
     }
-
+    @Deprecated
     public ModifierVisitor (Model model, CommonTokenStream tokens, String targetIdentifier, String[] values, /*Action act,*/ String originalSource) {
         this.model = model;
-        this.tokens = tokens;
-        this.targetIdentifier = targetIdentifier;
-        this.targetValues = new HashSet<>(Arrays.asList(values));
+     //   this.tokens = tokens;
+        /*this.targetIdentifier = targetIdentifier;
+        this.targetValues = new HashSet<>(Arrays.asList(values));*/
       //  this.act = act;
         this.originalSource = originalSource;
         this.modifiedSource = new StringBuilder(originalSource);
     }
 
-    // Method to set target functionalities for commenting out
+   /* // Method to set target functionalities for commenting out
     public void setTargetFunctionalities (Set<String> functionalities) {
         this.targetFunctionalities = functionalities;
-    }
+    }*/
 
-    private void modifyParamContent (FormulationParser.ExprContext ctx) {
+    private void modifyParamContent (FormulationParser.ExprContext ctx, String value) {
         // Get the original text with its formatting
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
@@ -70,14 +80,15 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
             indentation = originalSource.substring(lineStart + 1, startIndex);
         }
 
-        // Modify the set content while preserving formatting
+       /* // Modify the set content while preserving formatting
         // targetValues is expected to have at exactly one element
         String modifiedLine = originalLine.replaceFirst(ctx.getText(),
                 targetValues.stream()
                         .findFirst()
                         .orElseThrow(() ->
                                 new InvalidModelStateException("Target value is null in modifyParamContent method.\n" +
-                                "This should never happen and is a bug.")));
+                                "This should never happen and is a bug.")));*/
+        String modifiedLine = originalLine.replaceFirst(ctx.getText(),value);
 
         if (!originalLine.equals(modifiedLine)) {
             modifiedSource.replace(startIndex, stopIndex + 1, modifiedLine);
@@ -86,7 +97,8 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
 
     private void modifySetContent (FormulationParser.SetDefExprContext ctx,
-                                   FormulationParser.SetExprStackContext stackCtx) {
+                                   List<String> values
+                                   /*FormulationParser.SetExprStackContext stackCtx*/) {
         // Get the original text with its formatting
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
@@ -98,13 +110,14 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         if (lineStart != -1) {
             indentation = originalSource.substring(lineStart + 1, startIndex);
         }
-        String modifiedLine = modifySetLine(originalLine, targetValues);
+        String modifiedLine = modifySetLine(originalLine, values);
         if (!originalLine.equals(modifiedLine)) {
             modifiedSource.replace(startIndex, stopIndex + 1, indentation + modifiedLine);
             modified = true;
         }
     }
-
+    @Deprecated
+    //not in use, no idea if works
     private void commentOutParameter (FormulationParser.ParamDeclContext ctx) {
         // Get the original text with its formatting
         int startIndex = ctx.start.getStartIndex();
@@ -123,7 +136,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
                 indentation + "# " + originalLine.substring(indentation.length()));
         modified = true;
     }
-
+    @Deprecated //don't need this?
     private void commentOutSet (FormulationParser.SetDefExprContext ctx) {
         // Get the original text with its formatting
         int startIndex = ctx.start.getStartIndex();
@@ -146,8 +159,8 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     @Override
     public Void visitParamDecl (FormulationParser.ParamDeclContext ctx) {
         String paramName = extractName(ctx.sqRef().getText());
-        if (paramName.equals(targetIdentifier)) {
-                modifyParamContent(ctx.expr());
+        if (model.isModified(paramName, Element.ElementType.MODEL_PARAMETER)) {
+                modifyParamContent(ctx.expr(),model.getParameterFromAll(paramName).getData());
         }
         return super.visitParamDecl(ctx);
     }
@@ -155,10 +168,10 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     @Override
     public Void visitSetDefExpr (FormulationParser.SetDefExprContext ctx) {
         String setName = extractName(ctx.sqRef().getText());
-        if (setName.equals(targetIdentifier)) {
+        if (model.isModified(setName, Element.ElementType.MODEL_SET)) {
             if (ctx.setExpr() instanceof FormulationParser.SetExprStackContext stackCtx) {
                 if (stackCtx.setDesc() instanceof FormulationParser.SetDescStackContext) {
-                    modifySetContent(ctx, stackCtx);
+                    modifySetContent(ctx,model.getSet(setName).getData());
                 }
             }
         }
@@ -168,8 +181,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     @Override
     public Void visitConstraint (FormulationParser.ConstraintContext ctx) {
         String constraintName = extractName(ctx.name.getText());
-        if ((targetFunctionalities != null && targetFunctionalities.contains(constraintName)) ||
-                (constraintName.equals(targetIdentifier))) {
+        if (model.isModified(constraintName, Element.ElementType.CONSTRAINT)) {
                 commentOutConstraint(ctx);
         }
         return super.visitConstraint(ctx);
@@ -179,19 +191,23 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     public Void visitObjective(FormulationParser.ObjectiveContext ctx) {
         List<FormulationParser.UExprContext> components = model.findComponentContexts(ctx.nExpr());
         for (FormulationParser.UExprContext subCtx : components) {
-
-            String objectiveName = subCtx.getText();
-            if ((targetFunctionalities != null && targetFunctionalities.contains(objectiveName)) ||
-                    (objectiveName.equals(targetIdentifier))) {
-                    zeroOutPreference(subCtx);
+            String preferenceName = subCtx.start.getInputStream()
+                    .getText(new Interval(subCtx.start.getStartIndex(),
+                            subCtx.stop.getStopIndex()));
+           // String preferenceName = subCtx.getText();
+            if (!model.hasPreference(preferenceName)) {
+                Preference preference = model.getPreferences().stream()
+                        .filter(pref -> pref.getName().contains(preferenceName))
+                        .findFirst()
+                        .orElse(null);
+                Objects.requireNonNull(preference, "Invalid Preference call in model: " + preferenceName);
+                replacePreference(subCtx,preference.getName());
             }
         }
         return super.visitObjective(ctx);
     }
 
-    // ... keep all existing helper methods (modifyParamContent, commentOutParameter, etc.) ...
-
-    private String modifySetLine (String line, Set<String> values) {
+    private String modifySetLine (String line, List<String> values) {
         // Find the set content between braces
         int openBrace = line.indexOf('{');
         int closeBrace = line.lastIndexOf('}');
@@ -250,7 +266,15 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         modifiedSource.replace(startIndex, stopIndex + 1, commentedOut.toString());
         modified = true;
     }
-//TODO: As planned after Plan A split, preferences wont by removed- but multiplied by a scalar of 0
+    private void replacePreference(FormulationParser.UExprContext ctx, String newPreference) {
+        int startIndex = ctx.start.getStartIndex();
+        int stopIndex = ctx.stop.getStopIndex();
+        String txt= ctx.getText();
+        int index1 = ctx.getRuleIndex();
+        String txt1= modifiedSource.substring(startIndex,stopIndex+1);
+        modifiedSource.replace(startIndex, stopIndex + 1, newPreference);
+    }
+    @Deprecated
     private void commentOutPreference (FormulationParser.UExprContext ctx) {
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
@@ -266,7 +290,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
                 indentation + "# " + originalLine.substring(indentation.length()));
         modified = true;
     }
-
+    @Deprecated //should not be used, preference scalars set through params
     private void zeroOutPreference (FormulationParser.UExprContext ctx) {
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
@@ -276,6 +300,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
                 "((" + originalLine + ")*0)");
         modified = true;
     }
+
 
     private String extractName (String sqRef) {
         int bracketIndex = sqRef.indexOf('[');

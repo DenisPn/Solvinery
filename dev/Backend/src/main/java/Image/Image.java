@@ -147,7 +147,7 @@ public class Image {
     /**
      * Given path, created an Image and the Model inside it.
      * @param path path to file
-     */
+     *//*
     public Image(String path) {
         this.activeParams = new HashSet<>();
         constraintsModules = new HashMap<>();
@@ -155,6 +155,18 @@ public class Image {
         activeVariables = new HashSet<>();
         activeSets = new HashSet<>();
         this.model = new Model(path);
+    }*/
+    /**
+     * Given code, created an Image and the Model inside it.
+     * @param code source zpl code
+     */
+    public Image(String code) {
+        this.activeParams = new HashSet<>();
+        constraintsModules = new HashMap<>();
+        preferenceModules = new HashMap<>();
+        activeVariables = new HashSet<>();
+        activeSets = new HashSet<>();
+        this.model = new Model(code);
     }
 
     public String getName() {

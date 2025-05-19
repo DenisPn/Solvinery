@@ -8,7 +8,7 @@ import Persistence.Entities.Image.Operational.ConstraintModuleEntity;
 import Persistence.Entities.Image.Operational.PreferenceEntity;
 import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
 import Persistence.Repositories.ImageRepository;
-import Utilities.TestsConfiguration;
+import Utilities.PersistenceTestsConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureDataJpa
-@ContextConfiguration(classes = {TestsConfiguration.class})
+@ContextConfiguration(classes = {PersistenceTestsConfiguration.class})
 class ImageEntityTest {
 
     @Autowired

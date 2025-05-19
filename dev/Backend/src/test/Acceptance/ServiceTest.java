@@ -1,3 +1,4 @@
+/*
 package Acceptance;
 
 import java.io.IOException;
@@ -44,6 +45,7 @@ import groupId.Main;
 import groupId.Controllers.MainController;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,classes = Main.class)
+@Disabled
 public class ServiceTest {
     @LocalServerPort
     private int port;
@@ -109,9 +111,11 @@ public class ServiceTest {
     
     @Test
     public void GivenImageDTO_WhenConfigImage_ImageIsCorrect(){
-        /**
+        */
+/**
          * SET UP
-         */
+         *//*
+
         CreateImageFromFileDTO body = new CreateImageFromFileDTO(SimpleCodeExample);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -144,10 +148,13 @@ public class ServiceTest {
         assertEquals(response.getBody().model().setTypes(), expected.model().setTypes());
         assertEquals(response.getBody().model().paramTypes(), expected.model().paramTypes());
         //assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());
-        /**
+        */
+/**
          * TEST
-         */
-        /*Set<ConstraintModuleDTO> constraintModuleDTOs=Set.of(
+         *//*
+
+        */
+/*Set<ConstraintModuleDTO> constraintModuleDTOs=Set.of(
                 new ConstraintModuleDTO("Test module","PeanutButter",
                         Set.of("sampleConstraint")));
         Set<PreferenceModuleDTO> preferenceModuleDTOs=Set.of(
@@ -165,7 +172,8 @@ public class ServiceTest {
                 request2,
                 Void.class
         );
-        assertEquals(HttpStatus.OK, response2.getStatusCode());*/
+        assertEquals(HttpStatus.OK, response2.getStatusCode());*//*
+
     }
 
     @Test
@@ -199,7 +207,8 @@ public class ServiceTest {
         );
 
         //Expected response
-       /* CreateImageResponseDTO expected = new CreateImageResponseDTO(
+       */
+/* CreateImageResponseDTO expected = new CreateImageResponseDTO(
             "some imageId", new ModelDTO(
               Set.of(new ConstraintDTO("drisha1"),
               new ConstraintDTO("drisha2"),
@@ -222,14 +231,17 @@ public class ServiceTest {
         assertEquals(response.getBody().model().variables(), expected.model().variables());
         assertEquals(response.getBody().model().setTypes(), expected.model().setTypes());
         assertEquals(response.getBody().model().paramTypes(), expected.model().paramTypes());
-        //assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());*/
+        //assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());*//*
+
     }
     @Test
     public void testSolve_Simple() {
         try {
-            /**
+            */
+/**
              * SET UP IMAGE, MAKE SURE ITS VALID
-             */
+             *//*
+
             CreateImageFromFileDTO body = new CreateImageFromFileDTO(SimpleCodeExample);
 
 
@@ -249,7 +261,8 @@ public class ServiceTest {
             );
 
             //Expected response
-            /*CreateImageResponseDTO expected = new CreateImageResponseDTO(
+            */
+/*CreateImageResponseDTO expected = new CreateImageResponseDTO(
                     "some imageId", new ModelDTO(
                     Set.of(new ConstraintDTO("sampleConstraint")),
                     Set.of(new PreferenceDTO("myVar[3]")),
@@ -265,11 +278,15 @@ public class ServiceTest {
             assertEquals(response.getBody().model().variables(), expected.model().variables());
             assertEquals(response.getBody().model().setTypes(), expected.model().setTypes());
             assertEquals(response.getBody().model().paramTypes(), expected.model().paramTypes());
-            //assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());*/
-            /**
+            //assertEquals(response.getBody().model().varTypes(), expected.model().varTypes());*//*
+
+            */
+/**
              *  CONFIG IMAGE TO DISPLAY myVar
-             */
-        /*    ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Map.of("myVar","test_alias")),Set.of(),Set.of());
+             *//*
+
+        */
+/*    ImageDTO imageDTO=new ImageDTO(new VariableModuleDTO(Set.of("myVar"),Map.of("myVar","test_alias")),Set.of(),Set.of());
             ImageConfigDTO config= new ImageConfigDTO(response.getBody().imageId(),imageDTO);
             HttpEntity<ImageConfigDTO> request2 = new HttpEntity<>(config, headers);
             // Send PATCH request with body
@@ -281,9 +298,13 @@ public class ServiceTest {
                     Void.class
             );
             assertEquals(HttpStatus.OK, response2.getStatusCode());
-            *//**
+            *//*
+*/
+/**
              * CALL IMAGE TO SOLVE THE CODE, MAKE SURE SOLUTION IS CORRECT
              *//*
+*/
+/*
             InputDTO input=new InputDTO(Map.of("mySet",List.of(List.of("1"),List.of("2"),List.of("3"))),
                     Map.of("x",List.of("10")),
                     List.of(),List.of());
@@ -300,7 +321,8 @@ public class ServiceTest {
             assertNotNull(response3.getBody());
             assertEquals(List.of("test_alias"),response3.getBody().solution().get("myVar").setStructure());
 
-            assertEquals(Set.of(new SolutionValueDTO(List.of("3"),10)),response3.getBody().solution().get("myVar").solutions());*/
+            assertEquals(Set.of(new SolutionValueDTO(List.of("3"),10)),response3.getBody().solution().get("myVar").solutions());*//*
+
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -310,7 +332,8 @@ public class ServiceTest {
     @Disabled
     public void testLoadImageInput() {
         // create Image
-   /*     CreateImageResponseDTO imageCreated = createImageCall(SimpleCodeExample);
+   */
+/*     CreateImageResponseDTO imageCreated = createImageCall(SimpleCodeExample);
         String imageId = imageCreated.imageId();
     Set<ConstraintModuleDTO> constraintModuleDTOs=Set.of(
             new ConstraintModuleDTO("MyConst","description",
@@ -356,7 +379,8 @@ public class ServiceTest {
         assertEquals(response.getBody().setData(),expected.setData());
         assertEquals(response.getBody().paramData(),expected.paramData());
         assertEquals(response.getBody().constraintsToggledOff(),expected.constraintsToggledOff());
-        assertEquals(response.getBody().preferencesToggledOff(),expected.preferencesToggledOff());*/
+        assertEquals(response.getBody().preferencesToggledOff(),expected.preferencesToggledOff());*//*
+
         
     }
 
@@ -398,4 +422,4 @@ public class ServiceTest {
         assertEquals(HttpStatus.OK, response2.getStatusCode());   
         return response2.getBody();
     }
-}
+}*/

@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class EntityMapper {
 
     public static User toDomain(UserEntity entity){
-        return new User(entity.getUsername(),entity.getEmail());
+        return new User(entity.getId(),entity.getUsername(),entity.getEmail(),entity.getNickname());
     }
 
     /**
@@ -83,14 +83,14 @@ public class EntityMapper {
     }
     public static SetEntity toEntity(SetModule set, UUID imageId){
         ImageComponentKey key= new ImageComponentKey(imageId,set.getSet().getName());
-        return new SetEntity(key,toEntity(set.getSet().getType()),set.getSet().getData(), set.getAlias());
+        return new SetEntity(key,toEntity(set.getSet().getDataType()),set.getSet().getData(), set.getAlias());
     }
     public static SetModule toDomain(SetEntity entity){
         return new SetModule(new ModelSet(entity.getModelDataKey().getName(),
                 toDomain(entity.getType()),entity.getData()),entity.getAlias());
     }
     public static ParameterEntity toEntity(ParameterModule parameter, UUID imageId){
-        return new ParameterEntity(imageId, parameter.getParameter().getName(), parameter.getParameter().getType().toString(), parameter.getParameter().getData(), parameter.getAlias());
+        return new ParameterEntity(imageId, parameter.getParameter().getName(), parameter.getParameter().getDataType().toString(), parameter.getParameter().getData(), parameter.getAlias());
     }
     public static ParameterModule toDomain(ParameterEntity entity){
         return new ParameterModule(new ModelParameter(entity.getName(),toDomain(entity.getType()),entity.getData()),entity.getAlias());

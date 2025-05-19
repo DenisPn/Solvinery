@@ -1,11 +1,9 @@
 package Model;
 
-import Exceptions.InternalErrors.BadRequestException;
-import Exceptions.InternalErrors.ModelExceptions.EngineErrorException;
 import Exceptions.InternalErrors.ModelExceptions.InvalidModelInputException;
-import Exceptions.InternalErrors.ModelExceptions.Parsing.ParsingException;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
+import Model.Data.Elements.Element;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.OperationalElement;
 import Model.Data.Elements.Operational.Preference;
@@ -22,15 +20,12 @@ import parser.FormulationParser;
 
 import java.io.*;
 import java.nio.file.*;
+import java.io.*;
+import java.nio.file.*;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class Model implements ModelInterface {
-    private final String sourceFilePath;
+    //private final String sourceFilePath;
     ParseTree tree;
     private CommonTokenStream tokens;
     private final Map<String, ModelSet> sets = new HashMap<>();
@@ -40,11 +35,12 @@ public class Model implements ModelInterface {
     private final Map<String, Variable> variables = new HashMap<>();
     private final Set<String> uneditedPreferences = new HashSet<>();
     private final Map<Preference,ModelParameter> preferenceToScalar = new HashMap<>();
-  // private final Set<String> toggledOffFunctionalities = new HashSet<>();
+    private final Set<Element> modifiedElements= new HashSet<>();
 
-    public String getSourceFilePath () {
+    /*public String getSourceFilePath () {
         return sourceFilePath;
-    }
+    }*/
+    
 
     public Map<String,ModelSet> getSetsMap(){
         return sets;
@@ -94,10 +90,10 @@ public class Model implements ModelInterface {
     private final String zimplSolveScript = "src/main/resources/zimpl/solve.sh" ;
     private String originalSource;
     private String currentSource;
-    
-    public Model(String sourceFilePath) {
-        try {
-            if (!Files.exists(Paths.get(sourceFilePath))) {
+    @Deprecated
+    public Model(Path sourceFilePath) {
+        /*try {
+            if (!Files.exists(sourceFilePath)) {
                 throw new ParsingException("File does not exist: " + sourceFilePath);
             }
             this.sourceFilePath = sourceFilePath;
@@ -105,11 +101,15 @@ public class Model implements ModelInterface {
         }
         catch (IOException e) {
             throw new ParsingException("I/O error parsing source file: " + e.getMessage());
-        }
+        }*/
+    }
+    public Model(String sourceCode) {
+            this.originalSource = sourceCode;
+            parseSource();
     }
     
-    private void parseSource() throws IOException {
-        originalSource = new String(Files.readAllBytes(Paths.get(sourceFilePath)));
+    private void parseSource() {
+        //originalSource = new String(Files.readAllBytes(Paths.get(sourceFilePath)));
         CharStream charStream = CharStreams.fromString(originalSource);
         FormulationLexer lexer = new FormulationLexer(charStream);
         tokens = new CommonTokenStream(lexer);
@@ -139,6 +139,7 @@ public class Model implements ModelInterface {
             params.put(paramName,preferenceScalar);
             preferenceToScalar.put(editedPreference,preferenceScalar);
         }
+        //updateParser();
     }
 
     public static String hashPreference(String input) {
@@ -146,22 +147,62 @@ public class Model implements ModelInterface {
     }
 
     @Override
+    public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Set<Preference> preferencesScalars) {
+        //set values in model
+        sets.forEach(set ->
+        {
+            this.sets.get(set.getName()).setData(set.getData());
+            this.modifiedElements.add(set);
+        });
+        params.forEach(param ->
+        {
+            this.params.get(param.getName()).setData(param.getData());
+            this.modifiedElements.add(param);
+        });
+        disabledConstraints.forEach(constraint ->
+        {
+            this.constraints.get(constraint.getName()).toggle(false);
+            this.modifiedElements.add(constraint);
+        });
+        preferencesScalars.forEach(preference ->
+        {
+            ModelParameter scalar=this.preferenceToScalar.get(preference);
+            scalar.setData(Float.toString(preference.getScalar()));
+            this.modifiedElements.add(scalar);
+        });
+        //wrtie to file
+        updateParser();
+        ModifierVisitor modifier = new ModifierVisitor(this, currentSource);
+        modifier.visit(tree);
+        currentSource = modifier.getModifiedSource();
+        /*try {
+               *//* // Write the modified source back to file
+                String modifiedSource = modifier.getModifiedSource();
+                Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
+                parseSource();*//*
+            }
+            catch (IOException e) {
+                throw new ParsingException("Error writing to source file: " + e.getMessage());
+            }*/
+        return currentSource;
+    }
+    @Override
     public String getSourceCode () {
         return originalSource;
     }
-
+    @Deprecated(forRemoval = true)
     public void appendToSet(ModelSet set, String value) {
         // if (!sets.containsKey(setName)) {
         //     throw new IllegalArgumentException("Set " + setName + " not found");
         // }
         if(!set.isCompatible(value))
-            throw new InvalidModelInputException("set "+set.getName()+" is incompatible with given input: "+value+" , expected type: "+set.getType());
+            throw new InvalidModelInputException("set "+set.getName()+" is incompatible with given input: "+value+" , expected type: "+set.getDataType());
         
         ModifierVisitor modifier = new ModifierVisitor(this, tokens, set.getName(), value, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
-            try {
+           /* try {
                 // Write modified source back to file, preserving original formatting
                 String modifiedSource = modifier.getModifiedSource();
                 Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
@@ -170,21 +211,22 @@ public class Model implements ModelInterface {
             catch (IOException e) {
                 throw new ParsingException("Error writing to source file: " + e.getMessage());
             }
+        */
         }
     }
-    
+    @Deprecated(forRemoval = true)
     public void removeFromSet(ModelSet set, String value) {
         // if (!sets.containsKey(setName)) {
         //     throw new IllegalArgumentException("Set " + setName + " not found");
         // }
         if(!set.isCompatible(value))
-            throw new InvalidModelInputException("set "+set.getName()+" is incompatible with given input: "+value+" , expected type: "+set.getType());
+            throw new InvalidModelInputException("set "+set.getName()+" is incompatible with given input: "+value+" , expected type: "+set.getDataType());
 
         ModifierVisitor modifier = new ModifierVisitor(this, tokens, set.getName(), value, originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
-
+/*
             try {
                 // Write modified source back to file, preserving original formatting
                 String modifiedSource = modifier.getModifiedSource();
@@ -192,35 +234,36 @@ public class Model implements ModelInterface {
                 parseSource();
             } catch (IOException e) {
                 throw new ParsingException("Error writing to source file: " + e.getMessage());
-            }
+            }*/
         }
     }
-
+    @Deprecated(forRemoval = true)
     public void setInput(ModelParameter parameter){
 
         if(!parameter.isCompatible(parameter.getData()))
-            throw new InvalidModelInputException("parameter "+parameter.getName()+" is incompatible with given input: "+parameter.getData() +" expected type: "+parameter.getType());
+            throw new InvalidModelInputException("parameter "+parameter.getName()+" is incompatible with given input: "+parameter.getData() +" expected type: "+parameter.getDataType());
         
         ModifierVisitor modifier = new ModifierVisitor(this, tokens, parameter.getName(), parameter.getData(), originalSource);
         modifier.visit(tree);
         
         if (modifier.isModified()) {
-            try {
+           /* try {
                 // Write modified source back to file, preserving original formatting
                 String modifiedSource = modifier.getModifiedSource();
                 Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
                 parseSource();
             } catch (IOException e) {
                 throw new ParsingException("Error writing to source file: " + e.getMessage());
-            }
+            }*/
         }
     }
     @Override
+    @Deprecated(forRemoval = true)
     public void setInput(ModelSet modelSet) {
 
         for(String str : modelSet.getData()){
             if(!modelSet.isCompatible(str))
-                throw new InvalidModelInputException("set "+modelSet.getName()+" is incompatible with given input: "+str+" , expected type: "+modelSet.getType());
+                throw new InvalidModelInputException("set "+modelSet.getName()+" is incompatible with given input: "+str+" , expected type: "+modelSet.getDataType());
 
         }
         
@@ -229,19 +272,19 @@ public class Model implements ModelInterface {
         modifier.visit(tree);
         
         if (modifier.isModified()) {
-            try {
+            /*try {
                 // Write the modified source back to file, preserving its original formatting
                 String modifiedSource = modifier.getModifiedSource();
                 Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
                 parseSource();
             } catch (IOException e) {
                 throw new ParsingException("Error writing to source file: " + e.getMessage());
-            }
+            }*/
         }
     }
     
-    //TODO: the design is fucked up, and it's apparent in getInput methods. I need to make a better design of things.
     @Override
+    @Deprecated(forRemoval = true) //real values are held directly in image
     public List<String> getInput(ModelParameter parameter) {
         if(parameter == null)
             throw new InvalidModelInputException("Trying to get input of a null parameter!");
@@ -256,6 +299,7 @@ public class Model implements ModelInterface {
     }
 
     @Override
+    @Deprecated(forRemoval = true) //real values are held directly in image
     public List<List<String>> getInput(ModelSet set) {
         if(set == null || set.getName() == null)
             throw new InvalidModelInputException("Trying to get input of a null set!");
@@ -283,9 +327,9 @@ public class Model implements ModelInterface {
         );
 
     }
-
+    @Deprecated(forRemoval = true) //done in
     private void commentOutToggledFunctionalities() throws IOException {
-        HashSet<String> toToggle = new HashSet<>();
+        /*HashSet<String> toToggle = new HashSet<>();
         constraints.values().stream()
                 .filter(Constraint::isOn)
                 .forEach(constraint -> toToggle.add(constraint.getName()));
@@ -298,7 +342,7 @@ public class Model implements ModelInterface {
             String modifiedSource = modifier.getModifiedSource();
             Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
         //    parseSource();
-        }
+        }*/
     }
     @Deprecated
     private void restoreToggledFunctionalities() throws IOException {
@@ -311,9 +355,10 @@ public class Model implements ModelInterface {
         parseSource();*/
     }
     
-
+    @Deprecated(forRemoval = true)
+    //to be implement as a Kafka event
     public boolean isCompiling(float timeout) {
-        boolean ans = false;
+        /*boolean ans = false;
         try {
             commentOutToggledFunctionalities();
     
@@ -377,7 +422,8 @@ public class Model implements ModelInterface {
             
             e.printStackTrace();
             return false;
-        }
+        }*/
+        return false;
     }
     
     public Solution solve(float timeout, String solutionFileSuffix) {
@@ -521,12 +567,16 @@ public class Model implements ModelInterface {
         return sets.get(identifier);
     }
     
+    public ModelParameter getParameterFromAll(String identifier) {
+        return Optional.ofNullable(params.get(identifier))
+                .orElseThrow(() -> new InvalidModelInputException("Parameter " + identifier + " not found"));
+    }
     public ModelParameter getParameter(String identifier) {
         if(!params.containsKey(identifier))
             return null; //don't like this, but this has to be here due to legacy code (max)
         ModelParameter param= params.get(identifier);
         if(param.isAuxiliary())
-            throw new InvalidModelInputException("parameter "+identifier+" not user defined, and can not be used in image.");
+            throw new InvalidModelInputException("parameter "+ identifier +" not user defined, and can not be used in image.");
         return param;
     }
     
@@ -541,6 +591,9 @@ public class Model implements ModelInterface {
 
     public Preference getPreference(String identifier) {
         return preferences.get(identifier);
+    }
+    public boolean hasPreference(String identifier) {
+        return preferences.containsKey(identifier);
     }
 
     @Override
@@ -572,9 +625,11 @@ public class Model implements ModelInterface {
     }
 
     @Override
-    public String getCode() {
+    public String modifySource() {
         return originalSource;
     }
+
+
 
     @Override
     public Collection<Variable> getVariables(Collection<String> identifiers){
@@ -583,6 +638,22 @@ public class Model implements ModelInterface {
             set.add(getVariable(identifier));
         }
         return set;
+    }
+    public boolean isModified(String name, Element.ElementType type) {
+        return switch(type) {
+            case MODEL_PARAMETER -> params.containsKey(name) && modifiedElements.contains(params.get(name));
+            case MODEL_SET -> sets.containsKey(name) && modifiedElements.contains(sets.get(name));
+            case CONSTRAINT -> constraints.containsKey(name) && modifiedElements.contains(constraints.get(name));
+            case PREFERENCE -> preferences.containsKey(name) && modifiedElements.contains(preferences.get(name));
+            case VARIABLE -> variables.containsKey(name) && modifiedElements.contains(variables.get(name));
+        };
+    }
+    private void updateParser(){
+        CharStream charStream = CharStreams.fromString(currentSource);
+        FormulationLexer lexer = new FormulationLexer(charStream);
+        tokens = new CommonTokenStream(lexer);
+        FormulationParser parser = new FormulationParser(tokens);
+        tree = parser.program();
     }
 
 

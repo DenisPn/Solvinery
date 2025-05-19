@@ -4,6 +4,7 @@ import Model.Data.Types.ModelType;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.SequencedCollection;
 
 
@@ -28,7 +29,22 @@ public class ModelSet extends DataElement {
         return data;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        ModelSet modelSet = (ModelSet) o;
+        return isPrimitive == modelSet.isPrimitive && Objects.equals(data, modelSet.data);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), data, isPrimitive);
+    }
+    @Override
+    public ElementType getType() {
+        return ElementType.MODEL_SET;
+    }
     public boolean isEmpty () {
         return data.isEmpty();
     }

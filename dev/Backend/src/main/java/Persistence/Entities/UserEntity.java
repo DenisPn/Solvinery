@@ -137,7 +137,7 @@ public class UserEntity {
                 String hashStr = Base64.getEncoder().encodeToString(hash);
                 return this.password.equals(hashStr);
             } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Critical error during user creation: "+e);
+                throw new RuntimeException("Critical error during user entity creation: "+e);
             }
         }
     }
@@ -152,5 +152,9 @@ public class UserEntity {
     @Override
     public int hashCode() {
         return Objects.hash(id, username, email, password);
+    }
+
+    public String getNickname() {
+        return nickname;
     }
 }

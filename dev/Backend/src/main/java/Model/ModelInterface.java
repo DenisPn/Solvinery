@@ -2,6 +2,7 @@ package Model;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import Model.Data.Elements.Data.ModelParameter;
@@ -39,6 +40,7 @@ public interface ModelInterface {
      * 
      * @param identifier The input identifier
      */
+    @Deprecated
     void setInput(ModelParameter identifier);
 
     /**
@@ -46,6 +48,7 @@ public interface ModelInterface {
      * 
      * @param identifier The input identifier
      */
+    @Deprecated
     void setInput(ModelSet identifier);
 
     /**
@@ -151,6 +154,17 @@ public interface ModelInterface {
      * Commits all changes done in the image into zimpl code and returns the code.
      * @return zimpl code, with all changes done in the image.
      */
-    String getCode();
+    @Deprecated
+    String modifySource();
+
+    /**
+     * Write into a source file all the changed in input and return code after write.
+     * @param sets valiues to write into sets. Write always overrides current data.
+     * @param params parameter values to write into parameters. Write always overrides current data.
+     * @param disabledConstraints constraints to disable.
+     * @param preferencesScalars preferences that need their scalar to change. in practice changes the parameter of the preference's scalar.
+     * @return zimpl code, with all changes done in the image.
+     */
+    String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Set<Preference> preferencesScalars);
 
 }
