@@ -20,8 +20,8 @@ public class ImageController {
         this.imageService = imageService;
     }
     @PostMapping("/image")
-    public ResponseEntity<CreateImageResponseDTO> createImage(@Valid @RequestBody CreateImageFromFileDTO data) throws Exception {
-        CreateImageResponseDTO response = imageService.createImageFromFile(data.code(),data.userId());
+    public ResponseEntity<CreateImageResponseDTO> createImage(@Valid @RequestBody CreateImageFromFileDTO data) {
+        CreateImageResponseDTO response = imageService.createImageFromCode(data.code(),data.userId());
         return ResponseEntity.ok(response);
     }
 

@@ -25,6 +25,7 @@ public interface ModelInterface {
      * @param set The set to append to
      * @param value The value to append
      */
+    @Deprecated
     void appendToSet(ModelSet set, String value);
 
     /**
@@ -33,6 +34,7 @@ public interface ModelInterface {
      * @param set The set to remove from
      * @param value The value to remove
      */
+    @Deprecated
     void removeFromSet(ModelSet set, String value);
 
     /**
@@ -57,6 +59,7 @@ public interface ModelInterface {
      * @param parameter The model parameter whose input values are to be retrieved.
      * @return A list of input values associated with the specified model parameter.
      */
+    @Deprecated
     List<String> getInput(ModelParameter parameter);
 
     /**
@@ -65,6 +68,7 @@ public interface ModelInterface {
      * @param set The model set whose input values are to be retrieved.
      * @return A list of input values associated with the specified model set.
      */
+    @Deprecated
     List<List<String>> getInput(ModelSet set);
 
     
@@ -73,6 +77,7 @@ public interface ModelInterface {
      * 
      * @param turnOn true to enable, false to disable
      */
+    @Deprecated
     void toggleFunctionality(OperationalElement operationalElement, boolean turnOn);
 
     /**
@@ -81,6 +86,7 @@ public interface ModelInterface {
      * @param timeout Maximum time in seconds to wait for compilation
      * @return true if compilation succeeds, false otherwise
      */
+    @Deprecated
     boolean isCompiling(float timeout);
 
     /**

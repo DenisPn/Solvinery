@@ -24,7 +24,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     private final String originalSource;
     private boolean modified = false;
     private final StringBuilder modifiedSource;
-
+    private int shift = 0;
   /*  public enum Action {
         APPEND,
         DELETE,
@@ -73,26 +73,14 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         int stopIndex = ctx.stop.getStopIndex();
         String originalLine = originalSource.substring(startIndex, stopIndex + 1);
 
-        // Preserve indentation
-        String indentation = "";
-        int lineStart = originalSource.lastIndexOf('\n', startIndex);
-        if (lineStart != -1) {
-            indentation = originalSource.substring(lineStart + 1, startIndex);
-        }
 
-       /* // Modify the set content while preserving formatting
-        // targetValues is expected to have at exactly one element
-        String modifiedLine = originalLine.replaceFirst(ctx.getText(),
-                targetValues.stream()
-                        .findFirst()
-                        .orElseThrow(() ->
-                                new InvalidModelStateException("Target value is null in modifyParamContent method.\n" +
-                                "This should never happen and is a bug.")));*/
-        String modifiedLine = originalLine.replaceFirst(ctx.getText(),value);
+        String modifiedLine = originalLine.replace(ctx.getText(),value);
 
         if (!originalLine.equals(modifiedLine)) {
-            modifiedSource.replace(startIndex, stopIndex + 1, modifiedLine);
+            modifiedSource.replace(startIndex+shift, stopIndex + 1 + shift, value);
             modified = true;
+            shift += modifiedLine.length() - originalLine.length();
+
         }
     }
 
@@ -112,8 +100,9 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         }
         String modifiedLine = modifySetLine(originalLine, values);
         if (!originalLine.equals(modifiedLine)) {
-            modifiedSource.replace(startIndex, stopIndex + 1, indentation + modifiedLine);
+            modifiedSource.replace(startIndex + shift, stopIndex + 1 + shift, indentation + modifiedLine);
             modified = true;
+            shift += modifiedLine.length() - originalLine.length();
         }
     }
     @Deprecated
@@ -200,7 +189,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
                         .filter(pref -> pref.getName().contains(preferenceName))
                         .findFirst()
                         .orElse(null);
-                Objects.requireNonNull(preference, "Invalid Preference call in model: " + preferenceName);
+                Objects.requireNonNull(preference, "Invalid Preference call in model:\n" + preferenceName);
                 replacePreference(subCtx,preference.getName());
             }
         }
@@ -263,16 +252,17 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
             }
         }
 
-        modifiedSource.replace(startIndex, stopIndex + 1, commentedOut.toString());
+        modifiedSource.replace(startIndex + shift, stopIndex + 1 + shift, commentedOut.toString());
+        shift += commentedOut.length() - fullStatement.length();
         modified = true;
     }
     private void replacePreference(FormulationParser.UExprContext ctx, String newPreference) {
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
-        String txt= ctx.getText();
-        int index1 = ctx.getRuleIndex();
-        String txt1= modifiedSource.substring(startIndex,stopIndex+1);
-        modifiedSource.replace(startIndex, stopIndex + 1, newPreference);
+        String existingPreference= ctx.getText();
+        modifiedSource.replace(startIndex + shift, stopIndex + 1 + shift, newPreference);
+        shift += newPreference.length() - existingPreference.length();
+
     }
     @Deprecated
     private void commentOutPreference (FormulationParser.UExprContext ctx) {

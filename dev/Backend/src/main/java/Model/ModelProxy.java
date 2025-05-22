@@ -82,21 +82,25 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
+    @Deprecated
     public void appendToSet (ModelSet set, String value) {
         getModel().appendToSet(set,value);
     }
-
+    @Deprecated
     @Override
     public void removeFromSet (ModelSet set, String value) {
         getModel().removeFromSet(set,value);
     }
 
     @Override
+    @Deprecated
+
     public void setInput (ModelParameter identifier) {
         getModel().setInput(identifier);
     }
 
     @Override
+    @Deprecated
     public void setInput (ModelSet identifier) {
         getModel().setInput(identifier);
     }

@@ -35,18 +35,13 @@ public class UserEntity {
     private String email;
 
     @Column(name = "password",nullable = false)
-    @NotBlank(message = "Invalid password")
+    @NotBlank(message = "Password cannot be blank")
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ImageEntity> images = new HashSet<>();
 
     public UserEntity () {
-    }
-    public UserEntity (String username,String email) {
-        this.username = username;
-        this.email = email;
-        this.password = null;
     }
     public UserEntity (String username,String nickname,String email,
                        String rawPassword) {
