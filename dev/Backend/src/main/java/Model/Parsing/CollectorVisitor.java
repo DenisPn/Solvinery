@@ -54,7 +54,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         }
         else {
             model.getSetsMap().computeIfAbsent(setName,
-                    ignored -> new ModelSet(setName, typer.getType()));
+                    ignored -> new ModelSet(setName, typer.getType(),false));
         }
         return super.visitSetDefExpr(ctx);
     }

@@ -7,6 +7,7 @@ import Model.Model;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.misc.Interval;
 import parser.FormulationBaseVisitor;
 import parser.FormulationLexer;
@@ -16,94 +17,43 @@ import java.util.*;
 
 public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     private final Model model;
-   // private final CommonTokenStream tokens;
-   /* private final String targetIdentifier; // For single-target operations
-    private final Set<String> targetValues; // For single-target operations
-    private Set<String> targetFunctionalities; // For multi-target operations*/
-  //  private final Action act;
+
     private final String originalSource;
     private boolean modified = false;
-    private final StringBuilder modifiedSource;
-    private int shift = 0;
-  /*  public enum Action {
-        APPEND,
-        DELETE,
-        SET,
-        COMMENT_OUT,
-        UNCOMMENT
-    }*/
+    private final TokenStreamRewriter rewriter;
 
     // Original constructor for backward compatibility
     public ModifierVisitor(Model model, String originalSource){
         this.model = model;
-       // this.tokens = tokens;
+        this.rewriter = new TokenStreamRewriter(model.getTokens());
         this.originalSource = originalSource;
-        this.modifiedSource = new StringBuilder(originalSource);
     }
+
+
     @Deprecated
     public ModifierVisitor (Model model, CommonTokenStream tokens, String targetIdentifier, String value,/* Action act,*/ String originalSource) {
         this.model = model;
-       // this.tokens = tokens;
-        /*this.targetIdentifier = targetIdentifier;
-        this.targetValues = new HashSet<>();
-        this.targetValues.add(value);*/
-   //     this.act = act;
+        this.rewriter = new TokenStreamRewriter(model.getTokens());
         this.originalSource = originalSource;
-        this.modifiedSource = new StringBuilder(originalSource);
     }
     @Deprecated
     public ModifierVisitor (Model model, CommonTokenStream tokens, String targetIdentifier, String[] values, /*Action act,*/ String originalSource) {
         this.model = model;
-     //   this.tokens = tokens;
-        /*this.targetIdentifier = targetIdentifier;
-        this.targetValues = new HashSet<>(Arrays.asList(values));*/
-      //  this.act = act;
+        this.rewriter = new TokenStreamRewriter(model.getTokens());
         this.originalSource = originalSource;
-        this.modifiedSource = new StringBuilder(originalSource);
     }
 
-   /* // Method to set target functionalities for commenting out
-    public void setTargetFunctionalities (Set<String> functionalities) {
-        this.targetFunctionalities = functionalities;
-    }*/
-
     private void modifyParamContent (FormulationParser.ExprContext ctx, String value) {
-        // Get the original text with its formatting
-        int startIndex = ctx.start.getStartIndex();
-        int stopIndex = ctx.stop.getStopIndex();
-        String originalLine = originalSource.substring(startIndex, stopIndex + 1);
-
-
-        String modifiedLine = originalLine.replace(ctx.getText(),value);
-
-        if (!originalLine.equals(modifiedLine)) {
-            modifiedSource.replace(startIndex+shift, stopIndex + 1 + shift, value);
-            modified = true;
-            shift += modifiedLine.length() - originalLine.length();
-
-        }
+        rewriter.replace(ctx.start,ctx.stop,value);
     }
 
     private void modifySetContent (FormulationParser.SetDefExprContext ctx,
-                                   List<String> values
-                                   /*FormulationParser.SetExprStackContext stackCtx*/) {
-        // Get the original text with its formatting
+                                   List<String> values) {
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
         String originalLine = originalSource.substring(startIndex, stopIndex + 1);
-
-        // Preserve indentation
-        String indentation = "";
-        int lineStart = originalSource.lastIndexOf('\n', startIndex);
-        if (lineStart != -1) {
-            indentation = originalSource.substring(lineStart + 1, startIndex);
-        }
         String modifiedLine = modifySetLine(originalLine, values);
-        if (!originalLine.equals(modifiedLine)) {
-            modifiedSource.replace(startIndex + shift, stopIndex + 1 + shift, indentation + modifiedLine);
-            modified = true;
-            shift += modifiedLine.length() - originalLine.length();
-        }
+        rewriter.replace(ctx.start,ctx.stop,modifiedLine);
     }
     @Deprecated
     //not in use, no idea if works
@@ -112,18 +62,12 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
         String originalLine = originalSource.substring(startIndex, stopIndex + 1);
-
         // Preserve indentation
         String indentation = "";
         int lineStart = originalSource.lastIndexOf('\n', startIndex);
         if (lineStart != -1) {
             indentation = originalSource.substring(lineStart + 1, startIndex);
         }
-
-        // Add comment marker while preserving indentation
-        modifiedSource.replace(startIndex, stopIndex + 1,
-                indentation + "# " + originalLine.substring(indentation.length()));
-        modified = true;
     }
     @Deprecated //don't need this?
     private void commentOutSet (FormulationParser.SetDefExprContext ctx) {
@@ -138,11 +82,6 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         if (lineStart != -1) {
             indentation = originalSource.substring(lineStart + 1, startIndex);
         }
-
-        // Add comment marker while preserving indentation
-        modifiedSource.replace(startIndex, stopIndex + 1,
-                indentation + "# " + originalLine.substring(indentation.length()));
-        modified = true;
     }
 
     @Override
@@ -183,12 +122,11 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
             String preferenceName = subCtx.start.getInputStream()
                     .getText(new Interval(subCtx.start.getStartIndex(),
                             subCtx.stop.getStopIndex()));
-           // String preferenceName = subCtx.getText();
             if (!model.hasPreference(preferenceName)) {
                 Preference preference = model.getPreferences().stream()
                         .filter(pref -> pref.getName().contains(preferenceName))
                         .findFirst()
-                        .orElse(null);
+                        .orElse(null); //the new preference is: `(preferenceName) * someScalar`, stream finds a pref that contains preferenceName
                 Objects.requireNonNull(preference, "Invalid Preference call in model:\n" + preferenceName);
                 replacePreference(subCtx,preference.getName());
             }
@@ -252,17 +190,11 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
             }
         }
 
-        modifiedSource.replace(startIndex + shift, stopIndex + 1 + shift, commentedOut.toString());
-        shift += commentedOut.length() - fullStatement.length();
+        rewriter.replace(ctx.start, ctx.stop, commentedOut.toString());
         modified = true;
     }
     private void replacePreference(FormulationParser.UExprContext ctx, String newPreference) {
-        int startIndex = ctx.start.getStartIndex();
-        int stopIndex = ctx.stop.getStopIndex();
-        String existingPreference= ctx.getText();
-        modifiedSource.replace(startIndex + shift, stopIndex + 1 + shift, newPreference);
-        shift += newPreference.length() - existingPreference.length();
-
+        rewriter.replace(ctx.start, ctx.stop, newPreference);
     }
     @Deprecated
     private void commentOutPreference (FormulationParser.UExprContext ctx) {
@@ -276,7 +208,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
             indentation = originalSource.substring(lineStart + 1, startIndex);
         }
 
-        modifiedSource.replace(startIndex, stopIndex + 1,
+        rewriter.replace(startIndex, stopIndex + 1,
                 indentation + "# " + originalLine.substring(indentation.length()));
         modified = true;
     }
@@ -286,7 +218,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         int stopIndex = ctx.stop.getStopIndex();
         String originalLine = originalSource.substring(startIndex, stopIndex + 1);
 
-        modifiedSource.replace(startIndex, stopIndex + 1,
+        rewriter.replace(startIndex, stopIndex + 1,
                 "((" + originalLine + ")*0)");
         modified = true;
     }
@@ -302,7 +234,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
 
     public String getModifiedSource () {
-        return modifiedSource.toString();
+        return rewriter.getText();
     }
 
     /**

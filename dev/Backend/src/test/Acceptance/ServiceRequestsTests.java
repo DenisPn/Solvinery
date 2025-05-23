@@ -30,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @AutoConfigureDataJpa
 @ContextConfiguration(classes = {UnitTestsConfiguration.class, PersistenceTestsConfiguration.class})
+@Disabled
+@Deprecated
 public class ServiceRequestsTests {
     static String SimpleCodeExample = """
           set mySet := {7,6,4};

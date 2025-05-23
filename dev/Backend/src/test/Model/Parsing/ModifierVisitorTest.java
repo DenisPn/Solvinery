@@ -2,96 +2,347 @@ package Model.Parsing;
 
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
+import Model.Data.Elements.Element;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Types.ModelPrimitives;
 import Model.Model;
-import com.jayway.jsonpath.internal.function.text.Concatenate;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import parser.FormulationLexer;
+import parser.FormulationParser;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashSet;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@Tag("Unit")
 class ModifierVisitorTest {
-    private String exampleCode;
+
     private Model model;
+    private ModifierVisitor visitor;
+    private String originalSource;
+
     @BeforeEach
     void setUp() {
-        try {
-            Path path = Paths.get("src/test/Utilities/ZimplExamples/ExampleZimplProgram.zpl");
-            this.exampleCode = Files.readString(path);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        originalSource =
+                        """
+                        #processed_flag = true
+                        param p1 := 10;
+                        set C := {"Soldier1", "Soldier2"};
+                        subto constraint1: x + y <= 5;
+                        maximize obj: p1 * sum <i> in C : x[i];
+                        """;
+        
+        model = mock(Model.class);
+        CommonTokenStream tokens = setupTokens(originalSource);
+        when(model.getTokens()).thenReturn(tokens);
+    }
+
+    private CommonTokenStream setupTokens(String source) {
+        CharStream charStream = CharStreams.fromString(source);
+        FormulationLexer lexer = new FormulationLexer(charStream);
+        return new CommonTokenStream(lexer);
+    }
+
+    @Nested
+    @DisplayName("Parameter Modification Tests")
+    class ParameterModificationTests {
+        
+        @ParameterizedTest
+        @ValueSource(strings = {"8",""+Integer.MAX_VALUE,""+Integer.MIN_VALUE, "0", "-1", "-9342433"})
+        @DisplayName("Given a modified parameter, when modifyParamContent is called, then parameter value should be updated")
+        void givenModifiedParameter_whenVisitParamDecl_thenParameterValueShouldBeUpdated(String newValue) {
+            // Given
+            String paramName = "p1";
+            String testSource = "param p1 := 10;";
+            Model realModel = new Model(testSource);
+            ModelParameter parameter = new ModelParameter(paramName, ModelPrimitives.INT, newValue);
+            Model spyModel = spy(realModel);
+            when(spyModel.isModified(paramName, Element.ElementType.MODEL_PARAMETER)).thenReturn(true);
+            when(spyModel.getParameterFromAll(paramName)).thenReturn(parameter);
+            ModifierVisitor testVisitor = new ModifierVisitor(spyModel, testSource);
+
+            // When - parse and visit
+            CharStream charStream = CharStreams.fromString(testSource);
+            FormulationLexer lexer = new FormulationLexer(charStream);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            FormulationParser parser = new FormulationParser(tokens);
+            FormulationParser.ProgramContext programContext = parser.program();
+
+            testVisitor.visit(programContext);
+
+            // Then
+            String modifiedSource = testVisitor.getModifiedSource();
+            assertTrue(modifiedSource.contains("param p1 := " + newValue),
+        "Modified source should have an updated parameter value");
         }
-        model = new Model(exampleCode);
-    }
-    /*
-    param weight := 10;
-    param absoluteMinimalSpacing := 8;
-    param soldiers := 10;
+        
+        @Test
+        @DisplayName("Given an unmodified parameter, when modifyParamContent is called, then parameter value should remain unchanged")
+        void givenUnmodifiedParameter_whenVisitParamDecl_thenParameterValueShouldRemainUnchanged() {
+            // Given
+            String testSource = "param p1 := 10;";
 
-    set C := {"Ben","Dan","Ron","Nir","Niv","Avi","Shlomo"};
-    set Stations := {"Shin Gimel", "Fillbox"};
-    #Hours from 0:00 to 20:00 in 4 hour intervals
-    set Times := {0,4,8,12,16,20};
-    set S := Stations * Times;
-    set Possible_Soldier_Shifts := C * S; # [<Ben, <Fillbox, 4>> , <Ron, 8>]
-    set Possible_Transitions := {<i,a,b,c,d> in C * S * S | b < d };
-     */
-    @Test
-    void givenParamEdit_WhenModifying_FileCorrect() {
-        HashSet<ModelSet> sets= new HashSet<>();
-        HashSet<ModelParameter> params= new HashSet<>();
-        HashSet<Constraint> constraints= new HashSet<>();
-        HashSet<Preference> preferences= new HashSet<>();
-        params.add(new ModelParameter("soldiers",ModelPrimitives.INT,"8"));
-        String output= model.writeToSource(sets,params,constraints,preferences);
-        assertFalse(output.contains("soldiers := 10;"));
-        assertTrue(output.contains("soldiers := 8;"));
-    }
-    @Test
-    void givenSameParamEdit_WhenModifying_FileCorrect() {
-        HashSet<ModelSet> sets= new HashSet<>();
-        HashSet<ModelParameter> params= new HashSet<>();
-        HashSet<Constraint> constraints= new HashSet<>();
-        HashSet<Preference> preferences= new HashSet<>();
-        params.add(new ModelParameter("soldiers",ModelPrimitives.INT,"8"));
-        String output1= model.writeToSource(sets,params,constraints,preferences);
-        String output2= model.writeToSource(sets,params,constraints,preferences);
-        assertFalse(output1.contains("soldiers := 10;"));
-        assertTrue(output1.contains("soldiers := 8;"));
-        assertFalse(output2.contains("soldiers := 10;"));
-        assertTrue(output2.contains("soldiers := 8;"));
-    }
-    @Test
-    void givenSomeParamEdit_WhenModifying_FileCorrect() {
-        HashSet<ModelSet> sets= new HashSet<>();
-        HashSet<ModelParameter> params= new HashSet<>();
-        HashSet<Constraint> constraints= new HashSet<>();
-        HashSet<Preference> preferences= new HashSet<>();
-        params.add(new ModelParameter("soldiers",ModelPrimitives.INT,"8"));
-        params.add(new ModelParameter("absoluteMinimalSpacing",ModelPrimitives.INT,"6"));
-        params.add(new ModelParameter("weight",ModelPrimitives.INT,"5"));
-        String output= model.writeToSource(sets,params,constraints,preferences);
-        assertFalse(output.contains("soldiers := 10;"));
-        assertTrue(output.contains("soldiers := 8;"));
-        assertFalse(output.contains("absoluteMinimalSpacing := 8;"));
-        assertTrue(output.contains("absoluteMinimalSpacing := 6;"));
-        assertFalse(output.contains("weight := 10;"));
-        assertTrue(output.contains("weight := 5;"));
-    }
+            // Create a real Model instance for this specific test rather than using mocks
+            Model realModel = new Model(testSource);
+            // Create the visitor with the real model
+            ModifierVisitor testVisitor = new ModifierVisitor(realModel, testSource);
 
-    @Test
-    void visitSetDefExpr() {
-    }
+            // When - parse and visit
+            CharStream charStream = CharStreams.fromString(testSource);
+            FormulationLexer lexer = new FormulationLexer(charStream);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            FormulationParser parser = new FormulationParser(tokens);
+            FormulationParser.ProgramContext programContext = parser.program();
 
-    @Test
-    void visitConstraint() {
+            testVisitor.visit(programContext);
+            
+            // Then
+            String modifiedSource = testVisitor.getModifiedSource();
+            assertEquals(testSource, modifiedSource,
+                "Source should remain unchanged when parameter is not modified");
+        }
+    }
+    
+    @Nested
+    @DisplayName("Set Modification Tests")
+    class SetModificationTests {
+        
+        @ParameterizedTest
+        @CsvSource({
+                "\"NewSoldier1\", \"NewSoldier2\"",
+
+                "\"Test@#$\", \"!&*\"",
+
+                "\"123\", \"ABC123\"",
+
+                "\"שלום\", \"你好\"",
+
+                "\"     \", \"     \"",
+
+                "\"VeryVeryVeryLongSoldierName1\", \"VeryVeryVeryLongSoldierName2\"",
+
+                "\"Soldier\\\"Quote\", \"Another\\\"Quote\"",
+
+                "\"Soldier,1\", \"Soldier,2\"",
+
+                // Empty strings
+                "\"\", \"\"",
+        })
+        @DisplayName("Given a modified set, when modifySetContent is called, then set content should be updated")
+        void givenModifiedSet_whenVisitSetDefExpr_thenSetContentShouldBeUpdated(String val1, String val2) {
+            // Given
+            String testSource = "set C := {\"Soldier1\", \"Soldier2\"};";
+            String setName = "C";
+            List<String> newData = Arrays.asList(val1, val2);
+            ModelSet modelSet = new ModelSet(setName, ModelPrimitives.TEXT,true);
+            modelSet.setData(newData);
+
+
+            Model realModel = new Model(testSource);
+            Model spyModel = spy(realModel);
+            when(spyModel.isModified(setName, Element.ElementType.MODEL_SET)).thenReturn(true);
+            when(spyModel.getSet(setName)).thenReturn(modelSet);
+            ModifierVisitor testVisitor = new ModifierVisitor(spyModel, testSource);
+            
+            // When
+            CharStream charStream = CharStreams.fromString(testSource);
+            FormulationLexer lexer = new FormulationLexer(charStream);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            FormulationParser parser = new FormulationParser(tokens);
+            FormulationParser.ProgramContext programContext = parser.program();
+
+            testVisitor.visit(programContext);
+            
+            // Then
+            String expectedModified= "set C := {"+val1+", "+val2+"};";
+            String modifiedSource = testVisitor.getModifiedSource();
+            assertEquals(expectedModified,modifiedSource,
+                "Modified source should have updated set content");
+        }
+        
+        @Test
+        @DisplayName("Given an unmodified set, when modifySetContent is called, then set content should remain unchanged")
+        void givenUnmodifiedSet_whenVisitSetDefExpr_thenSetContentShouldRemainUnchanged() {
+            // Given
+            String setName = "C";
+            String testSource = "set C := {\"Soldier1\", \"Soldier2\"};";
+
+            Model realModel = new Model(testSource);
+            Model spyModel = spy(realModel);
+            when(spyModel.isModified(setName, Element.ElementType.MODEL_SET)).thenReturn(false);
+            ModifierVisitor testVisitor = new ModifierVisitor(spyModel, testSource);
+
+            // When
+            CharStream charStream = CharStreams.fromString(testSource);
+            FormulationLexer lexer = new FormulationLexer(charStream);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            FormulationParser parser = new FormulationParser(tokens);
+            FormulationParser.ProgramContext programContext = parser.program();
+
+            testVisitor.visit(programContext);
+            
+            // Then
+            String modifiedSource = testVisitor.getModifiedSource();
+            assertEquals(testSource, modifiedSource,
+                "Source should remain unchanged when set is not modified");
+        }
+    }
+    
+    @Nested
+    @DisplayName("Constraint Modification Tests")
+    class ConstraintModificationTests {
+        
+        @Test
+        @DisplayName("Given a modified constraint, when commentOutConstraint is called, then constraint should be commented out")
+        void givenModifiedConstraint_whenVisitConstraint_thenConstraintShouldBeCommentedOut() {
+            // Given
+            String constraintName = "constraint1";
+            String testSource = "subto constraint1: x + y <= 5;";
+            Constraint constraint = new Constraint(constraintName);
+            Model realModel = new Model(testSource);
+            Model spyModel = spy(realModel);
+            when(spyModel.getConstraint(constraintName)).thenReturn(constraint);
+            when(spyModel.isModified(constraintName, Element.ElementType.CONSTRAINT)).thenReturn(true);
+            ModifierVisitor testVisitor = new ModifierVisitor(spyModel, testSource);
+
+            // When
+            CharStream charStream = CharStreams.fromString(testSource);
+            FormulationLexer lexer = new FormulationLexer(charStream);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            FormulationParser parser = new FormulationParser(tokens);
+            FormulationParser.ProgramContext programContext = parser.program();
+
+            testVisitor.visit(programContext);
+            
+            // Then
+            String modifiedSource = testVisitor.getModifiedSource();
+            assertEquals("# subto constraint1: x + y <= 5;", modifiedSource,
+                "Modified source should be commented out constraint");
+        }
+        
+        @Test
+        @DisplayName("Given an unmodified constraint, when commentOutConstraint is called, then constraint should remain unchanged")
+        void givenUnmodifiedConstraint_whenVisitConstraint_thenConstraintShouldRemainUnchanged() {
+            // Given
+            String constraintName = "constraint1";
+            String testSource = "subto constraint1: x + y <= 5;";
+            Model realModel = new Model(testSource);
+            Model spyModel = spy(realModel);
+            when(spyModel.isModified(constraintName, Element.ElementType.CONSTRAINT)).thenReturn(false);
+            ModifierVisitor testVisitor = new ModifierVisitor(spyModel,testSource);
+
+            // When
+            CharStream charStream = CharStreams.fromString(testSource);
+            FormulationLexer lexer = new FormulationLexer(charStream);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            FormulationParser parser = new FormulationParser(tokens);
+            FormulationParser.ProgramContext programContext = parser.program();
+            testVisitor.visit(programContext);
+            
+            // Then
+            String modifiedSource = testVisitor.getModifiedSource();
+            assertEquals(testSource, modifiedSource,
+                "Source should remain unchanged when constraint is not modified");
+        }
+    }
+    
+    @Nested
+    @DisplayName("Preference Replacement Tests")
+    class PreferenceReplacementTests {
+        
+        @Test
+        @DisplayName("Given a preference not in model, when replacePreference is called, then preference should be replaced")
+        void givenPreferenceNotInModel_whenVisitObjective_thenPreferenceShouldBeReplaced() {
+            // Given
+            String oldPreference = "p1 * sum <i> in C : x[i]";
+            String newPreference = "(p1 * sum <i> in C : x[i]) * scalar123";
+            String testSource = "maximize obj: p1 * sum <i> in C : x[i];";
+
+            Preference preference = new Preference(newPreference);
+            List<Preference> preferences = Collections.singletonList(preference);
+
+            Model realModel = new Model(testSource);
+            Model spyModel = spy(realModel);
+            when(spyModel.hasPreference(oldPreference)).thenReturn(false);
+            when(spyModel.getPreferences()).thenReturn(preferences);
+            when(spyModel.getPreference(oldPreference)).thenReturn(preference);
+            ModifierVisitor testVisitor = new ModifierVisitor(spyModel, testSource);
+            
+            //When
+
+            CharStream charStream = CharStreams.fromString(testSource);
+            FormulationLexer lexer = new FormulationLexer(charStream);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            FormulationParser parser = new FormulationParser(tokens);
+            FormulationParser.ProgramContext programContext = parser.program();
+            testVisitor.visit(programContext);
+
+            //Then
+            String expected = "maximize obj: (p1 * sum <i> in C : x[i]) * scalar123;";
+            String modifiedSource = testVisitor.getModifiedSource();
+            assertEquals(expected,modifiedSource);
+        }
+        @Test
+        @DisplayName("Given a preference not in model, when replacePreference is called, then preference should be replaced")
+        void givenPreferenceInModel_whenVisitObjective_thenPreferenceShouldNot() {
+            // Given
+            String preferenceBody = "(p1 * sum <i> in C : x[i]) * scalar123";
+            String testSource = "maximize obj: (p1 * sum <i> in C : x[i]) * scalar123;";
+
+            Model realModel = new Model(testSource);
+            Model spyModel = spy(realModel);
+            when(spyModel.hasPreference(preferenceBody)).thenReturn(true);
+            ModifierVisitor testVisitor = new ModifierVisitor(spyModel, testSource);
+
+            //When
+
+            CharStream charStream = CharStreams.fromString(testSource);
+            FormulationLexer lexer = new FormulationLexer(charStream);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            FormulationParser parser = new FormulationParser(tokens);
+            FormulationParser.ProgramContext programContext = parser.program();
+            testVisitor.visit(programContext);
+
+            //Then
+            String modifiedSource = testVisitor.getModifiedSource();
+            assertEquals(testSource,modifiedSource);
+        }
+    }
+    
+    @Nested
+    @DisplayName("Utility Method Tests")
+    class UtilityMethodTests {
+
+        
+        @Test
+        @DisplayName("Given an unmodified source, when isModified is called, then should return false")
+        void givenUnmodifiedSource_whenIsModified_thenShouldReturnFalse() {
+            // Given
+            visitor = new ModifierVisitor(model, originalSource);
+            
+            // Then
+            assertFalse(visitor.isModified(), "isModified should return false for unmodified source");
+        }
+    }
+    
+    private FormulationParser getParser(String source) {
+        CharStream charStream = CharStreams.fromString(source);
+        FormulationLexer lexer = new FormulationLexer(charStream);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        return new FormulationParser(tokens);
     }
 }

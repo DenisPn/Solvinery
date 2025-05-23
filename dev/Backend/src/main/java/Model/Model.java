@@ -25,22 +25,22 @@ import java.nio.file.*;
 import java.util.*;
 
 public class Model implements ModelInterface {
-    //private final String sourceFilePath;
+    private static final String PROCESSED_FLAG="#processed_flag = true\n";
+    private static final String USER_NOTE="#This file has been parsed and processed by the Solvinery educational project.\n#Not all code is human written.\n";
+
     ParseTree tree;
     private CommonTokenStream tokens;
+
     private final Map<String, ModelSet> sets = new HashMap<>();
     private final Map<String, ModelParameter> params = new HashMap<>();
     private final Map<String, Constraint> constraints = new HashMap<>();
     private final Map<String, Preference> preferences = new HashMap<>();
     private final Map<String, Variable> variables = new HashMap<>();
+
     private final Set<String> uneditedPreferences = new HashSet<>();
     private final Map<Preference,ModelParameter> preferenceToScalar = new HashMap<>();
     private final Set<Element> modifiedElements= new HashSet<>();
 
-    /*public String getSourceFilePath () {
-        return sourceFilePath;
-    }*/
-    
 
     public Map<String,ModelSet> getSetsMap(){
         return sets;
@@ -70,26 +70,13 @@ public class Model implements ModelInterface {
         return tokens;
     }
 
-   /* public Set<String> getToggledOffFunctionalities () {
-        return toggledOffFunctionalities;
-    }*/
-
-    public String getZimplCompilationScript () {
-        return zimplCompilationScript;
-    }
-
-    public String getZimplSolveScript () {
-        return zimplSolveScript;
-    }
-
     public String getOriginalSource () {
         return originalSource;
     }
 
-    private final String zimplCompilationScript = "src/main/resources/zimpl/checkCompilation.sh";
-    private final String zimplSolveScript = "src/main/resources/zimpl/solve.sh" ;
-    private String originalSource;
+    private final String originalSource;
     private String currentSource;
+
     @Deprecated
     public Model(Path sourceFilePath) {
         /*try {
@@ -102,6 +89,7 @@ public class Model implements ModelInterface {
         catch (IOException e) {
             throw new ParsingException("I/O error parsing source file: " + e.getMessage());
         }*/
+        this.originalSource= null;
     }
     public Model(String sourceCode) {
             this.originalSource = sourceCode;
@@ -119,8 +107,10 @@ public class Model implements ModelInterface {
         CollectorVisitor collector = new CollectorVisitor(this);
         collector.visit(tree);
         currentSource = originalSource;
-        parsePreferences();
-
+        if(!uneditedPreferences.isEmpty() && !currentSource.startsWith(PROCESSED_FLAG)) {
+            parsePreferences();
+            currentSource = PROCESSED_FLAG.concat(USER_NOTE).concat(currentSource);
+        }
     }
 
 
@@ -139,7 +129,6 @@ public class Model implements ModelInterface {
             params.put(paramName,preferenceScalar);
             preferenceToScalar.put(editedPreference,preferenceScalar);
         }
-        //updateParser();
     }
 
     public static String hashPreference(String input) {
@@ -522,22 +511,15 @@ public class Model implements ModelInterface {
         }*/
     }
 
-    public List<FormulationParser.UExprContext> findComponentContexts(FormulationParser.NExprContext ctx) {
+    /*public List<FormulationParser.UExprContext> findComponentContexts(FormulationParser.NExprContext ctx) {
         List<FormulationParser.UExprContext> components = new ArrayList<>();
         findComponentContextsRecursive(ctx.uExpr(), components);
         return components;
     }
 
     private void findComponentContextsRecursive(FormulationParser.UExprContext ctx, List<FormulationParser.UExprContext> components) {
-        String all = ctx == null ? null : ctx.getText();
         if(ctx == null)
             return;
-        // if(ctx.basicExpr() != null){
-        //     components.add(ctx);
-        //     return;
-        // }
-        // findComponentContextsRecursive(ctx.uExpr(0), components);
-        // findComponentContextsRecursive(ctx.uExpr(1), components);
         if (components.isEmpty() && ctx.uExpr() != null && ctx.uExpr(1) != null) {
             String a = ctx.uExpr(1).getText();
             components.add(ctx.uExpr(1));
@@ -560,7 +542,30 @@ public class Model implements ModelInterface {
         }
         
         findComponentContextsRecursive(ctx.uExpr(0), components);
+    }*/
+    public List<FormulationParser.UExprContext> findComponentContexts(FormulationParser.NExprContext ctx) {
+        List<FormulationParser.UExprContext> components = new ArrayList<>();
+        findComponentContextsRecursive(ctx.uExpr(), components);
+        return components;
     }
+
+    private void findComponentContextsRecursive(FormulationParser.UExprContext ctx, List<FormulationParser.UExprContext> components) {
+        if (ctx == null) {
+            return;
+        }
+        // Check if this is a + or - operation
+        if (ctx.op != null && (ctx.op.getText().equals("+") || ctx.op.getText().equals("-"))) {
+            // Process left side recursively
+            findComponentContextsRecursive(ctx.uExpr(0), components);
+            // Add right side as a component
+            components.add(ctx.uExpr(1));
+        } else if (components.isEmpty()) {
+            // If this is not a + or - operation and we haven't added any components yet,
+            // add the entire expression as one component
+            components.add(ctx);
+        }
+    }
+
 
 
     public ModelSet getSet(String identifier) {
@@ -656,5 +661,11 @@ public class Model implements ModelInterface {
         tree = parser.program();
     }
 
+    public Map<String, ModelParameter> getParams() {
+        return params;
+    }
 
+    public Set<Element> getModifiedElements() {
+        return modifiedElements;
+    }
 }
