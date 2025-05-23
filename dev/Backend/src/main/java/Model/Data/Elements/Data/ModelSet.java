@@ -17,6 +17,7 @@ public class ModelSet extends DataElement {
         this.data = data;
         isPrimitive=true;
     }
+
     public ModelSet (String name, ModelType type, boolean isPrimitive) {
         super(name,type);
         this.data = null;

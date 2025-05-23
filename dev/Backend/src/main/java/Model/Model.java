@@ -1,6 +1,7 @@
 package Model;
 
 import Exceptions.InternalErrors.ModelExceptions.InvalidModelInputException;
+import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Element;
@@ -23,6 +24,8 @@ import java.nio.file.*;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Model implements ModelInterface {
     private static final String PROCESSED_FLAG="#processed_flag = true\n";
@@ -107,13 +110,44 @@ public class Model implements ModelInterface {
         CollectorVisitor collector = new CollectorVisitor(this);
         collector.visit(tree);
         currentSource = originalSource;
-        if(!uneditedPreferences.isEmpty() && !currentSource.startsWith(PROCESSED_FLAG)) {
+        if(!currentSource.startsWith(PROCESSED_FLAG)) {
             parsePreferences();
             currentSource = PROCESSED_FLAG.concat(USER_NOTE).concat(currentSource);
         }
+        else {
+            readPreferences();
+        }
     }
 
-
+    private void readPreferences(){
+        for(Preference preference: preferences.values()){
+            String paramName=extractScalarParam(preference.getName());
+            if(!params.containsKey(paramName)){
+                throw new InvalidModelInputException(String.format("Scalar parameters don't match preferences in previously parsed code, " +
+                        "Preference %s does not have corresponding scalar param",preference.getName()));
+            }
+            ModelParameter scalarParam= params.get(paramName);
+            preferenceToScalar.put(preference,scalarParam);
+        }
+    }
+    private String extractScalarParam(String preferenceBody){
+        // Matches pattern: (<anything>) * scalar<numbers>
+        Pattern pattern = Pattern.compile("\\(([^)]+)\\)\\s*\\*\\s*(scalar\\d+)");
+        Matcher matcher = pattern.matcher(preferenceBody);
+        if (!matcher.find()) {
+            throw new InvalidModelInputException(
+                    "Previously parsed preferences must be in format '(<expression>) * scalar<number>', got: " + preferenceBody);
+        }
+        String originalBody = matcher.group(1);
+        String scalarParam = matcher.group(2);
+        String existingHash= scalarParam.substring(6);
+        String expectedHash= hashPreference(originalBody);
+        if(!expectedHash.equals(existingHash)){
+            throw new InvalidModelInputException(String.format("Scalar parameters don't match preferences in previously parsed code, " +
+                    "expected: %s, got: %s\n","scalar"+expectedHash,scalarParam));
+        }
+        return scalarParam;
+    }
     private void parsePreferences(){
         for(String body : uneditedPreferences){
             //build new data
@@ -628,7 +662,9 @@ public class Model implements ModelInterface {
     public Collection<ModelParameter> getAllParameters(){
         return this.params.values();
     }
-
+    public boolean containsParameter(String paramName){
+        return this.params.containsKey(paramName);
+    }
     @Override
     public String modifySource() {
         return originalSource;
@@ -667,5 +703,8 @@ public class Model implements ModelInterface {
 
     public Set<Element> getModifiedElements() {
         return modifiedElements;
+    }
+    public boolean hasScalar(Preference preference){
+        return preferenceToScalar.containsKey(preference);
     }
 }

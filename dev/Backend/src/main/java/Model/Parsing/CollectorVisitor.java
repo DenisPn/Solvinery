@@ -46,6 +46,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
 
         TypeVisitor typer = new TypeVisitor(model);
         typer.visit(ctx.setExpr());
+        String expr= ctx.setExpr().getText();
         List<String> elements = parseSetElements(ctx.setExpr());
         if(elements != null) {
             //compute if absent is same as putIfAbsent, but creates a new set if key is absent
@@ -161,7 +162,11 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         return elements;
     }
     private List<String> parseSetElements (FormulationParser.SetExprContext ctx) {
+
         if (ctx instanceof FormulationParser.SetExprStackContext stackCtx) {
+            if (stackCtx.setDesc() instanceof FormulationParser.SetDescEmptyContext) {
+                return new ArrayList<>();
+            }
             if (stackCtx.setDesc() instanceof FormulationParser.SetDescStackContext descCtx) {
                 if (descCtx.csv() != null) {
                     String csvText = descCtx.csv().getText();
