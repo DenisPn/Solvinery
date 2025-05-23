@@ -9,6 +9,10 @@ public class Constraint extends OperationalElement {
         super(name);
         isOn=true;
     }
+    public Constraint (String name,boolean toggle) {
+        super(name);
+        isOn=toggle;
+    }
     public boolean isOn() {
         return isOn;
     }

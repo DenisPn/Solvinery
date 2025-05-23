@@ -9,6 +9,10 @@ public class Preference extends OperationalElement {
         super(body);
         scalar=1;
     }
+    public Preference (String body,float scalar) {
+        super(body);
+        this.scalar=scalar;
+    }
 
     public void setScalar(float scalar) {
         if(scalar>=0 && scalar<=1)

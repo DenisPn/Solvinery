@@ -120,19 +120,26 @@ public class Model implements ModelInterface {
     }
 
     private void readPreferences(){
-        for(Preference preference: preferences.values()){
-            String paramName=extractScalarParam(preference.getName());
+        for(String preferenceBody: uneditedPreferences){
+            String paramName=extractScalarParam(preferenceBody);
             if(!params.containsKey(paramName)){
                 throw new InvalidModelInputException(String.format("Scalar parameters don't match preferences in previously parsed code, " +
-                        "Preference %s does not have corresponding scalar param",preference.getName()));
+                        "Preference %s does not have corresponding scalar param",preferenceBody));
             }
             ModelParameter scalarParam= params.get(paramName);
+            Preference preference=new Preference(preferenceBody);
+            try {
+                preference.setScalar(Float.parseFloat(scalarParam.getData()));
+            } catch (NumberFormatException e) {
+                throw new InvalidModelInputException("Invalid scalar parameter value while parsing: "+e.getMessage());
+            }
             preferenceToScalar.put(preference,scalarParam);
+            preferences.put(preference.getName(),preference);
         }
     }
     private String extractScalarParam(String preferenceBody){
         // Matches pattern: (<anything>) * scalar<numbers>
-        Pattern pattern = Pattern.compile("\\(([^)]+)\\)\\s*\\*\\s*(scalar\\d+)");
+        Pattern pattern = Pattern.compile("\\((.+?)\\)\\s*\\*\\s*(scalar\\d+)");
         Matcher matcher = pattern.matcher(preferenceBody);
         if (!matcher.find()) {
             throw new InvalidModelInputException(
@@ -140,11 +147,10 @@ public class Model implements ModelInterface {
         }
         String originalBody = matcher.group(1);
         String scalarParam = matcher.group(2);
-        String existingHash= scalarParam.substring(6);
         String expectedHash= hashPreference(originalBody);
-        if(!expectedHash.equals(existingHash)){
+        if(!expectedHash.equals(scalarParam)){
             throw new InvalidModelInputException(String.format("Scalar parameters don't match preferences in previously parsed code, " +
-                    "expected: %s, got: %s\n","scalar"+expectedHash,scalarParam));
+                    "expected: %s, got: %s\n",expectedHash,scalarParam));
         }
         return scalarParam;
     }
@@ -184,8 +190,10 @@ public class Model implements ModelInterface {
         });
         disabledConstraints.forEach(constraint ->
         {
-            this.constraints.get(constraint.getName()).toggle(false);
-            this.modifiedElements.add(constraint);
+            if(!constraint.isOn()) {
+                this.constraints.get(constraint.getName()).toggle(false);
+                this.modifiedElements.add(constraint);
+            }
         });
         preferencesScalars.forEach(preference ->
         {

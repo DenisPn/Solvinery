@@ -51,6 +51,9 @@ public class ModelModifierIntegrationTest {
     set S := Stations * Times;
     set Possible_Soldier_Shifts := C * S; # [<Ben, <Fillbox, 4>> , <Ron, 8>]
     set Possible_Transitions := {<i,a,b,c,d> in C * S * S | b < d };
+    (((maxGuards-minGuards)+weight)**3) * scalar1354200841
+    ((minimalSpacing)**2) * scalar1883673267
+    (sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))) * scalar692447860
      */
     @ParameterizedTest
     @MethodSource("testCaseStream")
@@ -159,6 +162,85 @@ public class ModelModifierIntegrationTest {
                             Set.of(new ModelSet("C",ModelPrimitives.TEXT, List.of("1","2","3","4","5","6","7","8","9","0","11","12","13","14","15","16","17","18","19","000"))), //sets
                             Set.of(), //constraints
                             Set.of(), //scalars
+                            SoldiersExampleCode),
+                    new TestInput(
+                            Set.of(), //params
+                            Set.of(), //sets
+                            Set.of(new Constraint("trivial1",false)), //constraints
+                            Set.of(), //scalars
+                            SoldiersExampleCode),
+                    new TestInput(
+                            Set.of(), //params
+                            Set.of(), //sets
+                            Set.of(new Constraint("trivial1",true)), //constraints
+                            Set.of(), //scalars
+                            SoldiersExampleCode),
+                    new TestInput(
+                            Set.of(), //params
+                            Set.of(), //sets
+                            Set.of(new Constraint("minGuardsCons",true),new Constraint("maxGuardsCons",false)), //constraints
+                            Set.of(), //scalars
+                            SoldiersExampleCode),
+                    new TestInput(
+                            Set.of(), //params
+                            Set.of(), //sets
+                            Set.of(new Constraint("minGuardsCons",false),new Constraint("maxGuardsCons",false),
+                                    new Constraint("trivial1",false),new Constraint("trivial2",false),
+                                    new Constraint("trivial3",false),new Constraint("trivial4",false),
+                                    new Constraint("trivial5",false),new Constraint("Soldier_Not_In_Two_Stations_Concurrently",false),
+                                    new Constraint("All_Stations_One_Soldier",false),new Constraint("minimalSpacingCons",false)), //constraints
+                            Set.of(), //scalars
+                            SoldiersExampleCode),
+                    new TestInput(
+                            Set.of(), //params
+                            Set.of(), //sets
+                            Set.of(new Constraint("minGuardsCons",true),new Constraint("maxGuardsCons",true),
+                                    new Constraint("trivial1",true),new Constraint("trivial2",true),
+                                    new Constraint("trivial3",true),new Constraint("trivial4",true),
+                                    new Constraint("trivial5",true),new Constraint("Soldier_Not_In_Two_Stations_Concurrently",true),
+                                    new Constraint("All_Stations_One_Soldier",true),new Constraint("minimalSpacingCons",true)), //constraints
+                            Set.of(), //scalars
+                            SoldiersExampleCode),
+                    new TestInput(
+                            Set.of(), //params
+                            Set.of(), //sets
+                            Set.of(), //constraints
+                            Set.of(new Preference("(((maxGuards-minGuards)+weight)**3) * scalar1354200841", 0.5F)), //scalars
+                            SoldiersExampleCode),
+                    new TestInput(
+                            Set.of(), //params
+                            Set.of(), //sets
+                            Set.of(), //constraints
+                            Set.of(new Preference("(((maxGuards-minGuards)+weight)**3) * scalar1354200841", 0F)), //scalars
+                            SoldiersExampleCode),
+                    new TestInput(
+                            Set.of(), //params
+                            Set.of(), //sets
+                            Set.of(), //constraints
+                            Set.of(new Preference("(((maxGuards-minGuards)+weight)**3) * scalar1354200841", 1F)), //scalars
+                            SoldiersExampleCode),
+                    new TestInput(
+                            Set.of(), //params
+                            Set.of(), //sets
+                            Set.of(), //constraints
+                            Set.of(new Preference("(((maxGuards-minGuards)+weight)**3) * scalar1354200841", 0.5F),
+                                    new Preference("((minimalSpacing)**2) * scalar1883673267", 0.5F),
+                                    new Preference("(sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))) * scalar692447860", 0.5F)),//scalars
+                            SoldiersExampleCode),
+                    new TestInput(
+                            Set.of(new ModelParameter("soldiers", ModelPrimitives.INT, "0"),
+                                    new ModelParameter("absoluteMinimalSpacing", ModelPrimitives.INT, "1")), //params
+                            Set.of(new ModelSet("C",ModelPrimitives.TEXT, List.of("1","2","3","4","5","6","7","8","9","0","11","12","13","14","15","16","17","18","19","000")),
+                                    new ModelSet("Stations",ModelPrimitives.TEXT, List.of("1","2","3","4","5","6","7","8","9","0","11","12","13","14","15","16","17","18","19","000")),
+                                    new ModelSet("Times",ModelPrimitives.INT, List.of("1","2","3","4","5","6","7","8","9","0","11","12","13","14","15","16","17","18","19","000"))),//sets
+                            Set.of(new Constraint("minGuardsCons",false),new Constraint("maxGuardsCons",false),
+                                    new Constraint("trivial1",false),new Constraint("trivial2",true),
+                                    new Constraint("trivial3",false),new Constraint("trivial4",true),
+                                    new Constraint("trivial5",true),new Constraint("Soldier_Not_In_Two_Stations_Concurrently",true),
+                                    new Constraint("All_Stations_One_Soldier",true),new Constraint("minimalSpacingCons",false)), //constraints
+                            Set.of(new Preference("(((maxGuards-minGuards)+weight)**3) * scalar1354200841", 0.5F),
+                                    new Preference("((minimalSpacing)**2) * scalar1883673267", 0.5F),
+                                    new Preference("(sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))) * scalar692447860", 0.5F)),//scalars
                             SoldiersExampleCode)
             );
         } catch (IOException e) {
@@ -219,7 +301,7 @@ public class ModelModifierIntegrationTest {
             try {
                 ModelParameter existingParam = model.getParameterFromAll(param.getName());
                 assertNotNull(existingParam,
-                        String.format("Parameter '%s' should exist in original model", param.getName()));
+                        String.format("Parameter '%s' should exist in modified model", param.getName()));
                 assertEquals(existingParam.getData(),param.getData(),
                         String.format("Parameter '%s' value of '%s' should be %s.", param.getName(),existingParam.getData(),param.getData()));
             } catch (Exception e) {
@@ -231,7 +313,7 @@ public class ModelModifierIntegrationTest {
             try {
                 ModelSet existingSet = model.getSet(set.getName());
                 assertNotNull(existingSet,
-                        String.format("Set '%s' should exist in original model", set.getName()));
+                        String.format("Set '%s' should exist in modified model", set.getName()));
                 assertEquals(existingSet.getData(),set.getData(),
                         String.format("Set '%s' value of '%s' should be %s.", set.getName(),existingSet.getData(),set.getData()));
             } catch (Exception e) {
@@ -242,9 +324,12 @@ public class ModelModifierIntegrationTest {
         input.constraints().forEach(constraint -> {
             try {
                 Constraint existingConstraint = model.getConstraint(constraint.getName());
-                assertNotNull(existingConstraint,
-                        String.format("Constraint '%s' should exist in original model", constraint.getName()));
-                assertEquals(existingConstraint.isOn(),constraint.isOn());
+                if(constraint.isOn()) {
+                    assertNotNull(existingConstraint,
+                            String.format("Constraint '%s' should exist in modified model", constraint.getName()));
+                    assertEquals(existingConstraint.isOn(), constraint.isOn());
+                }
+                else assertNull(existingConstraint);
             } catch (Exception e) {
                 fail("Error thrown: "+ e.getMessage()+ String.format("\nWhen checking post-condition for constraint: %s", constraint.getName()));
             }
@@ -254,9 +339,9 @@ public class ModelModifierIntegrationTest {
             try {
                 Preference existingPreference = model.getPreference(preference.getName());
                 assertTrue(model.hasScalar(preference),
-                        String.format("Preference '%s' should have a scalar in original model", preference.getName()));
+                        String.format("Preference '%s' should have a scalar in modified model", preference.getName()));
                 assertNotNull(existingPreference,
-                        String.format("Preference '%s' should exist in original model", preference.getName()));
+                        String.format("Preference '%s' should exist in modified model", preference.getName()));
                 assertEquals(existingPreference.getScalar(),preference.getScalar(),
                         String.format("Preference '%s' scalar should be %s, got: %s",existingPreference.getName(),preference.getScalar(),existingPreference.getScalar()));
             } catch (Exception e) {
