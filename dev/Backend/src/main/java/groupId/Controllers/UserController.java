@@ -4,6 +4,7 @@ package groupId.Controllers;
 import groupId.DTO.Records.Requests.Commands.LoginDTO;
 import groupId.DTO.Records.Requests.Commands.RegisterDTO;
 import groupId.DTO.Records.Requests.Responses.ConfirmationDTO;
+import groupId.DTO.Records.Requests.Responses.LoginResponseDTO;
 import groupId.Services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +22,8 @@ public class UserController {
         this.userService = userService;
     }
     @GetMapping("/user")
-    public ResponseEntity<ConfirmationDTO> logIn(@Valid @RequestBody LoginDTO data) {
-        userService.loginUser(data);
-        return ResponseEntity.ok(new ConfirmationDTO("Login Successful."));
+    public ResponseEntity<LoginResponseDTO> logIn(@Valid @RequestBody LoginDTO data) {
+        return ResponseEntity.ok(userService.loginUser(data));
     }
     @PostMapping("/user")
     public ResponseEntity<ConfirmationDTO> register(@Valid @RequestBody RegisterDTO data) {

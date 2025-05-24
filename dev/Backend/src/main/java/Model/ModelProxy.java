@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -32,7 +33,7 @@ public class ModelProxy implements ModelInterface{
     public ModelProxy(String code){
         this.code=code;
     }
-    private Model getModel(){
+    /*private Model getModel(){
         if(model==null) {
             try {
                 // Get application directory
@@ -62,6 +63,17 @@ public class ModelProxy implements ModelInterface{
         else {
             return model;
         }
+    }*/
+
+    /**
+     * Get the model, create a new instance (and in turn, parse the model) if it doesn't exist.
+     * @return new or existing model instance.
+     */
+    private Model getModel(){
+        if(model==null) {
+                this.model = new Model(code);
+        }
+        return model;
     }
 
     @Override
@@ -70,21 +82,25 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
+    @Deprecated
     public void appendToSet (ModelSet set, String value) {
         getModel().appendToSet(set,value);
     }
-
+    @Deprecated
     @Override
     public void removeFromSet (ModelSet set, String value) {
         getModel().removeFromSet(set,value);
     }
 
     @Override
+    @Deprecated
+
     public void setInput (ModelParameter identifier) {
         getModel().setInput(identifier);
     }
 
     @Override
+    @Deprecated
     public void setInput (ModelSet identifier) {
         getModel().setInput(identifier);
     }
@@ -170,7 +186,12 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
-    public String getCode () {
-        return getModel().getCode();
+    public String modifySource() {
+        return getModel().modifySource();
+    }
+
+    @Override
+    public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Set<Preference> preferencesScalars) {
+        return getModel().writeToSource(sets,params,disabledConstraints,preferencesScalars);
     }
 }

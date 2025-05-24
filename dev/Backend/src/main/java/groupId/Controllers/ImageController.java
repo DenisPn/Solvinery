@@ -1,5 +1,6 @@
 package groupId.Controllers;
 
+import Persistence.EntityMapper;
 import groupId.DTO.Records.Requests.Commands.CreateImageFromFileDTO;
 import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
@@ -19,8 +20,8 @@ public class ImageController {
         this.imageService = imageService;
     }
     @PostMapping("/image")
-    public ResponseEntity<CreateImageResponseDTO> createImage(@Valid @RequestBody CreateImageFromFileDTO data) throws Exception {
-        CreateImageResponseDTO response = imageService.createImageFromFile(data.code());
+    public ResponseEntity<CreateImageResponseDTO> createImage(@Valid @RequestBody CreateImageFromFileDTO data) {
+        CreateImageResponseDTO response = imageService.createImageFromCode(data.code(),data.userId());
         return ResponseEntity.ok(response);
     }
 
@@ -29,5 +30,7 @@ public class ImageController {
         imageService.overrideImage(imgConfig);
         return ResponseEntity.ok().build();
     }
+
+
 
 }

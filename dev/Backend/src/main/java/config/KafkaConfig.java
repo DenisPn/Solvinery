@@ -1,6 +1,7 @@
 package config;
 
 import groupId.DTO.Records.Events.SolveRequest;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -22,6 +24,18 @@ public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootStrapServer;
 
+    private static final String SOLVE_REQUEST_TOPIC = "solve-requests";
+    private static final int NUM_PARTITIONS = 4;
+
+    @Bean
+    public NewTopic solveRequestTopic() {
+        return TopicBuilder.name(SOLVE_REQUEST_TOPIC)
+                .partitions(NUM_PARTITIONS)
+                .replicas(1)
+                .build();
+    }
+
+
     /**
      * Configures and provides a Kafka {@link ProducerFactory} for producing messages.
      *
@@ -32,10 +46,9 @@ public class KafkaConfig {
     public ProducerFactory<String, SolveRequest> producerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServer);
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         return new DefaultKafkaProducerFactory<>(config);
     }
+
 
     /**
      * Provides a KafkaTemplate bean configured for sending messages with a key of type {@link String}
@@ -59,8 +72,6 @@ public class KafkaConfig {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServer);
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "problem-solving-group");
-        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
@@ -75,6 +86,7 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, SolveRequest> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setConcurrency(NUM_PARTITIONS);
         return factory;
     }
 

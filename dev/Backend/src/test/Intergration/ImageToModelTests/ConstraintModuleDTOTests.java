@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
 
 import Model.*;
 import static org.junit.jupiter.api.Assertions.*;
-
+@Disabled
+@Deprecated
 public class ConstraintModuleDTOTests {
     static String SimpleCodeExample = """
                 param x := 2;

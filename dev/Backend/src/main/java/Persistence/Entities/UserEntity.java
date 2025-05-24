@@ -2,7 +2,6 @@ package Persistence.Entities;
 
 import Persistence.Entities.Image.ImageEntity;
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -26,13 +25,17 @@ public class UserEntity {
     @NotBlank(message = "Username cannot be blank")
     private String username;
 
+    @Size(min = 3, max = 20, message = "Nickname must be between 3 and 20 characters")
+    @NotBlank(message = "Nickname cannot be blank")
+    private String nickname;
+
     @Column(name ="email", nullable = false, unique = true)
     @Email(message = "Email is not valid")
     @NotBlank(message = "Email cannot be blank")
     private String email;
 
     @Column(name = "password",nullable = false)
-    @NotBlank(message = "Invalid password")
+    @NotBlank(message = "Password cannot be blank")
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -40,16 +43,24 @@ public class UserEntity {
 
     public UserEntity () {
     }
-    public UserEntity (String username,String email) {
+    public UserEntity (String username,String nickname,String email,
+                       String rawPassword) {
         this.username = username;
         this.email = email;
-        this.password = null;
+        if(nickname == null)
+            this.nickname = username;
+        else
+            this.nickname = nickname;
+        setPassword(rawPassword);
+
     }
     public UserEntity (String username,String email,
                        String rawPassword) {
         this.username = username;
         this.email = email;
+        this.nickname = username;
         setPassword(rawPassword);
+
     }
 
     public Set<ImageEntity> getImages() {
@@ -121,7 +132,7 @@ public class UserEntity {
                 String hashStr = Base64.getEncoder().encodeToString(hash);
                 return this.password.equals(hashStr);
             } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Critical error during user creation: "+e);
+                throw new RuntimeException("Critical error during user entity creation: "+e);
             }
         }
     }
@@ -136,5 +147,9 @@ public class UserEntity {
     @Override
     public int hashCode() {
         return Objects.hash(id, username, email, password);
+    }
+
+    public String getNickname() {
+        return nickname;
     }
 }

@@ -12,5 +12,5 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 })
 @EntityScan(basePackages = "Persistence.Entities") // Specify where entities are located
 @ComponentScan(basePackages = "Persistence")
-public class TestsConfiguration {
+public class PersistenceTestsConfiguration {
 }

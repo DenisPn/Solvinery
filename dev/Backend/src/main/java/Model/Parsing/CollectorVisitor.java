@@ -3,10 +3,10 @@ package Model.Parsing;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
-import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
 import Model.Data.Types.ModelPrimitives;
 import Model.Model;
+import org.antlr.v4.runtime.misc.Interval;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
 
@@ -46,6 +46,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
 
         TypeVisitor typer = new TypeVisitor(model);
         typer.visit(ctx.setExpr());
+        String expr= ctx.setExpr().getText();
         List<String> elements = parseSetElements(ctx.setExpr());
         if(elements != null) {
             //compute if absent is same as putIfAbsent, but creates a new set if key is absent
@@ -54,7 +55,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         }
         else {
             model.getSetsMap().computeIfAbsent(setName,
-                    ignored -> new ModelSet(setName, typer.getType()));
+                    ignored -> new ModelSet(setName, typer.getType(),false));
         }
         return super.visitSetDefExpr(ctx);
     }
@@ -73,13 +74,17 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         List<FormulationParser.UExprContext> components = model.findComponentContexts(ctx.nExpr());
 
         for (FormulationParser.UExprContext expressionComponent : components) {
-            String body = expressionComponent.getText();
+       //     String body = expressionComponent.getText();
+            String body = expressionComponent.start.getInputStream()
+                    .getText(new Interval(expressionComponent.start.getStartIndex(),
+                            expressionComponent.stop.getStopIndex()));
+
             // Create a parse tree for the specific component
             //ParseTree componentParseTree = parseComponentExpression(expressionComponent);
             TypeVisitor visitor = new TypeVisitor(model);
             visitor.visit(expressionComponent);
 
-            model.getUneditedPreferences().add(expressionComponent.getText());
+            model.getUneditedPreferences().add(body);
         }
 
         return super.visitObjective(ctx);
@@ -91,7 +96,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         visitor.visit(ctx);
         List<String> types = new LinkedList<>();
         for(ModelSet set : visitor.getBasicSets()) {
-         types.addAll(set.getType().typeList());
+         types.addAll(set.getDataType().typeList());
         }
         model.getVariablesMap().put(varName, new Variable(varName,types));
         return super.visitVariable(ctx);
@@ -157,7 +162,11 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         return elements;
     }
     private List<String> parseSetElements (FormulationParser.SetExprContext ctx) {
+
         if (ctx instanceof FormulationParser.SetExprStackContext stackCtx) {
+            if (stackCtx.setDesc() instanceof FormulationParser.SetDescEmptyContext) {
+                return new ArrayList<>();
+            }
             if (stackCtx.setDesc() instanceof FormulationParser.SetDescStackContext descCtx) {
                 if (descCtx.csv() != null) {
                     String csvText = descCtx.csv().getText();

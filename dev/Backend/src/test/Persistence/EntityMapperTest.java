@@ -24,7 +24,7 @@ import Persistence.Entities.UserEntity;
 import Persistence.Repositories.ImageRepository;
 import Persistence.Repositories.UserRepository;
 import User.User;
-import Utilities.TestsConfiguration;
+import Utilities.PersistenceTestsConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SpringBootTest
 @AutoConfigureDataJpa
-@ContextConfiguration(classes = {TestsConfiguration.class})
+@ContextConfiguration(classes = {PersistenceTestsConfiguration.class})
 public class EntityMapperTest {
     @Autowired
     private UserRepository userRepository;
@@ -212,7 +212,7 @@ public class EntityMapperTest {
     @Test
     public void givenUser_whenPersistedThroughEntityMapper_thenShouldMatch () {
         // Given
-        User user = new User("testUser", "testUser@example.com");
+        User user = new User(UUID.randomUUID(),"testUser", "testUser@example.com");
         UserEntity userEntity = EntityMapper.toEntity(user, "password123");
 
         // When

@@ -11,6 +11,7 @@ import Persistence.Entities.Image.ImageEntity;
 import Persistence.Entities.UserEntity;
 import Persistence.EntityMapper;
 import Persistence.Repositories.ImageRepository;
+import User.User;
 import groupId.DTO.Factories.RecordFactory;
 import groupId.DTO.Records.Image.ConstraintModuleDTO;
 import groupId.DTO.Records.Image.ImageDTO;
@@ -41,19 +42,23 @@ public class ImageService {
 
     private final ImageRepository imageRepository;
 
+    private final UserService userService;
+
     @Autowired
-    public ImageService (ImageRepository imageRepository){
+    public ImageService (UserService userService, ImageRepository imageRepository){
         this.imageRepository = imageRepository;
+        this.userService = userService;
     }
 
     /**
      * For use in tests only.
      * @param path file storage path
-     */
+     *//*
     public ImageService (String path){
         this.storageDir = path;
         imageRepository = null; //should be mocked/used elsewhere, tests don't use the core database
-    }
+        this.userService = null;
+    }*/
 
 
 
@@ -65,7 +70,8 @@ public class ImageService {
      * @throws IOException in case any IO errors happen during execution
      * @see CreateImageResponseDTO
      */
-    public CreateImageResponseDTO createImageFromFile(String code) throws IOException {
+    @Deprecated(forRemoval = true)
+    public CreateImageResponseDTO createImageFromFile(String code,String userId) throws IOException {
         UUID tmpId = UUID.randomUUID();
         String tmpName = tmpId.toString();
 
@@ -91,9 +97,24 @@ public class ImageService {
         // Create a new image, model is created as well.
         // The code is parsed and image validity is verified at this point.
         //persist image
+        UserEntity user= userService.getUser(userId);
         Image image = new Image(filePath.toAbsolutePath().toString());
-        //TODO: ADD USER OWNERSHIP HERE AFTER USER DATA ADDED TO DTO
-        ImageEntity imageEntity= EntityMapper.toEntity(new UserEntity("dumyuser","dummy@mail.com","dummypass"),image, null);
+        ImageEntity imageEntity= EntityMapper.toEntity(user,image, null);
+        assert imageRepository != null;
+        imageEntity = imageRepository.save(imageEntity);
+        Objects.requireNonNull(imageEntity,"ImageEntity from EntityMapper is null while creating new image");
+        UUID generatedId = imageEntity.getId();
+        return RecordFactory.makeDTO(generatedId, image.getModel());
+    }
+    /**
+     * @param code string of zimpl code.
+     * @return a new DTO of the new image
+     * @see CreateImageResponseDTO
+     */
+    public CreateImageResponseDTO createImageFromCode(String code,String userId)  {
+        UserEntity user= userService.getUser(userId);
+        Image image = new Image(code);
+        ImageEntity imageEntity= EntityMapper.toEntity(user,image, null);
         assert imageRepository != null;
         imageEntity = imageRepository.save(imageEntity);
         Objects.requireNonNull(imageEntity,"ImageEntity from EntityMapper is null while creating new image");
@@ -105,6 +126,7 @@ public class ImageService {
      * @param imgConfig DTO object parsed from HTTP JSON request.
      */
     public void overrideImage(ImageConfigDTO imgConfig) {
+        UserEntity user=userService.getUser(imgConfig.userUUID()); //TODO: PROPER IMAGE OWNERSHIP VERIFICATION
         ImageDTO imageDTO= imgConfig.image();
         ImageEntity imageEntity=imageRepository.findById(UUID.fromString(imgConfig.imageId()))
                 .orElseThrow(()->new ClientSideError("Invalid image ID during override image"));
@@ -129,5 +151,8 @@ public class ImageService {
             image.addPreferenceModule(preferenceModule.moduleName(), preferenceModule.description(),
                     preferenceModule.preferences());
         } */
+    }
+    public Image getImage(String id){
+        return EntityMapper.toDomain(imageRepository.getReferenceById(UUID.fromString(id)));
     }
 }

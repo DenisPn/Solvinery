@@ -1,12 +1,18 @@
 package groupId.Services;
 
+import Exceptions.InternalErrors.ClientSideError;
 import Exceptions.UserErrors.UserDataException;
 import Persistence.Entities.UserEntity;
+import Persistence.EntityMapper;
 import Persistence.Repositories.UserRepository;
+import User.User;
 import groupId.DTO.Records.Requests.Commands.LoginDTO;
 import groupId.DTO.Records.Requests.Commands.RegisterDTO;
+import groupId.DTO.Records.Requests.Responses.LoginResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -26,14 +32,16 @@ public class UserService {
      * @throws UserDataException if the email already exists in the system or the username is already taken.
      */
     public void registerUser (RegisterDTO registerData) throws UserDataException {
-        UserEntity entity= new UserEntity(registerData.userName(), registerData.email(), registerData.password());
+        UserEntity entity= new UserEntity(registerData.userName(),registerData.nickname(), registerData.email(), registerData.password());
         if(userRepository.existsByEmail(entity.getEmail()))
             throw new UserDataException("Email already exists");
         if(userRepository.existsByUsername(entity.getUsername()))
             throw new UserDataException("Username already exists");
         userRepository.save(entity);
     }
-
+    public UserEntity getUser(String id) {
+        return userRepository.findById(UUID.fromString(id)).orElseThrow(()-> new ClientSideError("User id not found"));
+    }
     /**
      * Authenticates a user by validating the provided username and password.
      * Throws an exception if the username or password is invalid.
@@ -41,10 +49,13 @@ public class UserService {
      * @param loginData an instance of {@code LoginDTO} containing the username and password provided by the user
      * @throws UserDataException if the username does not exist or the password is incorrect
      */
-    public void loginUser (LoginDTO loginData) throws UserDataException {
+    public LoginResponseDTO loginUser (LoginDTO loginData) throws UserDataException {
         UserEntity user = userRepository.findByUsername(loginData.userName())
                 .orElseThrow(() -> new UserDataException("Invalid username or password."));
         if(!user.checkPassword(loginData.password()))
             throw new UserDataException("Invalid username or password.");
+        else {
+            return new LoginResponseDTO(user.getId().toString());
+        }
     }
 }

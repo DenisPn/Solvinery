@@ -2,7 +2,7 @@ package Persistence.Entities.Image.Data;
 
 import Persistence.Entities.Image.ImageComponentKey;
 import Persistence.Entities.Image.Repositories.ParamRepository;
-import Utilities.TestsConfiguration;
+import Utilities.PersistenceTestsConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.fail;
 
 @SpringBootTest
 @AutoConfigureDataJpa
-@ContextConfiguration(classes = {TestsConfiguration.class})
+@ContextConfiguration(classes = {PersistenceTestsConfiguration.class})
 public class ParameterEntityTest {
 
     @Autowired

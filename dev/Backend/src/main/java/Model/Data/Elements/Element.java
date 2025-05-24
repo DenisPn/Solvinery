@@ -5,6 +5,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.Objects;
+
 public abstract class Element {
 
     protected final String name;
@@ -15,4 +17,25 @@ public abstract class Element {
     public String getName () {
         return name;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Element element = (Element) o;
+        return Objects.equals(name, element.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name);
+    }
+    public abstract ElementType getType();
+    public enum ElementType {
+        MODEL_SET,
+        MODEL_PARAMETER,
+        CONSTRAINT,
+        PREFERENCE,
+        VARIABLE
+    }
+
 }

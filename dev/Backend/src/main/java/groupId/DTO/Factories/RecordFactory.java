@@ -14,15 +14,12 @@ import groupId.DTO.Records.Model.ModelData.ParameterDTO;
 import groupId.DTO.Records.Model.ModelData.ParameterDefinitionDTO;
 import groupId.DTO.Records.Model.ModelData.SetDTO;
 import groupId.DTO.Records.Model.ModelData.SetDefinitionDTO;
-import groupId.DTO.Records.Requests.Commands.CreateImageFromFileDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import groupId.DTO.Records.Requests.Responses.ImageResponseDTO;
 import Image.Image;
 import Image.Modules.Grouping.ConstraintModule;
 import Image.Modules.Grouping.PreferenceModule;
 import Model.*;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.yaml.snakeyaml.util.Tuple;
 
 import java.util.*;
@@ -126,11 +123,11 @@ public class RecordFactory {
      */
     public static SetDTO makeDTO (SetModule set) {
 
-        return new SetDTO(new SetDefinitionDTO(set.getSet().getName(), set.getSet().getType().typeList(), set.getAlias()),set.getSet().getData());
+        return new SetDTO(new SetDefinitionDTO(set.getSet().getName(), set.getSet().getDataType().typeList(), set.getAlias()),set.getSet().getData());
     }
     public static SetDefinitionDTO makeDTO (ModelSet set) {
 
-        return new SetDefinitionDTO(set.getName(), set.getType().typeList(), null);
+        return new SetDefinitionDTO(set.getName(), set.getDataType().typeList(), null);
     }
 
     /**
@@ -159,10 +156,10 @@ public class RecordFactory {
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
     public static ParameterDTO makeDTO (ParameterModule parameter) {
-        return new ParameterDTO(new ParameterDefinitionDTO(parameter.getParameter().getName(), parameter.getParameter().getType().toString(), parameter.getAlias()),parameter.getParameter().getData());
+        return new ParameterDTO(new ParameterDefinitionDTO(parameter.getParameter().getName(), parameter.getParameter().getDataType().toString(), parameter.getAlias()),parameter.getParameter().getData());
     }
     public static ParameterDefinitionDTO makeDTO (ModelParameter parameter) {
-        return new ParameterDefinitionDTO(parameter.getName(), parameter.getType().toString(), null);
+        return new ParameterDefinitionDTO(parameter.getName(), parameter.getDataType().toString(), null);
     }
 
 
@@ -268,10 +265,10 @@ public class RecordFactory {
             variables.add(makeDTO(variable));
         }
         for (ModelSet set : modelInterface.getSets()) {
-            sets.put(set.getName(),set.getType().typeList());
+            sets.put(set.getName(),set.getDataType().typeList());
         }
         for (ModelParameter parameter: modelInterface.getParameters()) {
-            params.put(parameter.getName(),parameter.getType().toString());
+            params.put(parameter.getName(),parameter.getDataType().toString());
         }
 
         }
@@ -296,15 +293,6 @@ public class RecordFactory {
         }
         //return new DependenciesDTO(resS, resP);*/
         return new DependenciesDTO();
-    }
-
-    /**
-     * DTOs should be created using these methods only.
-     * To avoid bloat while reducing coupling between the object and its DTO
-     * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
-     */
-    public static CreateImageFromFileDTO makeDTO (String code) {
-        return new CreateImageFromFileDTO(code);
     }
 
 }
