@@ -12,16 +12,16 @@ const LogInPage = () => {
 
   const handleLogin = async () => {
     try {
-      const requestData = { userName : username, password : password };
-  
+      const requestData = { userName: username, password: password };
+
       const response = await axios.post("/login", requestData, {
         headers: { "Content-Type": "application/json" },
       });
-  
+
       console.log("Login successful:", response.data);
       setErrorMessage(""); // Clear any previous error
       navigate("/");
-  
+
     } catch (error) {
       if (error.response) {
         // Server responded but with a non-2xx status
@@ -36,12 +36,11 @@ const LogInPage = () => {
       }
     }
   };
-  
 
   return (
     <div className="background">
-      {/* Back Button */}
-      <button className="back-button" onClick={() => navigate("/")}>Back</button>
+      {/* Register Button */}
+      <button className="back-button" onClick={() => navigate("/register")}>Register</button>
 
       <div className="form-container">
         <h1 className="main-login-title">Log In</h1>
