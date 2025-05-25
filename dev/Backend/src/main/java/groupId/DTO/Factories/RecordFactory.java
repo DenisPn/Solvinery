@@ -14,7 +14,7 @@ import groupId.DTO.Records.Model.ModelData.ParameterDTO;
 import groupId.DTO.Records.Model.ModelData.ParameterDefinitionDTO;
 import groupId.DTO.Records.Model.ModelData.SetDTO;
 import groupId.DTO.Records.Model.ModelData.SetDefinitionDTO;
-import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
+import groupId.DTO.Records.Requests.Responses.ParseModelResponseDTO;
 import groupId.DTO.Records.Requests.Responses.ImageResponseDTO;
 import Image.Image;
 import Image.Modules.Grouping.ConstraintModule;
@@ -226,7 +226,7 @@ public class RecordFactory {
         for (VariableModule variableModule:image.getActiveVariables()){
             variables.add(makeDTO(variableModule));
         }
-        return new ImageDTO(variables, constraintModules, preferenceModules, sets, parameter);
+        return new ImageDTO(variables, constraintModules, preferenceModules, sets, parameter,image.getName(),image.getDescription(),image.getSourceCode());
     }
 
 
@@ -240,8 +240,10 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    public static CreateImageResponseDTO makeDTO (UUID id, ModelInterface md) {
-        return new CreateImageResponseDTO(id.toString(), makeDTO(md));
+    @Deprecated
+    public static ParseModelResponseDTO makeDTO (UUID id, ModelInterface md) {
+        //return new CreateImageResponseDTO(id.toString(), makeDTO(md));
+        return null;
     }
 
     /**
@@ -249,7 +251,7 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    private static ModelDTO makeDTO (ModelInterface modelInterface) {
+    public static ModelDTO makeDTO (ModelInterface modelInterface) {
         Set<ConstraintDTO> constraints = new HashSet<>();
         Set<PreferenceDTO> preferences = new HashSet<>();
         Set<VariableDTO> variables = new HashSet<>();

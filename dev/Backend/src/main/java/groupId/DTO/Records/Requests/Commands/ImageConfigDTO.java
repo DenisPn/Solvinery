@@ -12,6 +12,4 @@ import jakarta.validation.constraints.NotNull;
  * @param image {@link ImageDTO} object containing the details of the image.
  */
 public record ImageConfigDTO(
-        @NotBlank String userUUID,
-        @NotBlank String imageId,
         @Valid @NotNull ImageDTO image) { }

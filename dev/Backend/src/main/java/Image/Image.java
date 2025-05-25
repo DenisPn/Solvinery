@@ -58,6 +58,66 @@ public class Image {
         this.model = model;
     }
 
+    public Image(ImageDTO imageDTO) {
+        this.activeParams = new HashSet<>();
+        this.constraintsModules = new HashMap<>();
+        this.preferenceModules = new HashMap<>();
+        this.activeVariables = new HashSet<>();
+        this.activeSets = new HashSet<>();
+        this.model = new Model(imageDTO.code());
+        this.name = imageDTO.name();
+        this.description = imageDTO.description();
+        this.creationDate = LocalDateTime.now();
+        for (VariableDTO variableDTO: imageDTO.variables()){
+            String variableName= variableDTO.identifier();
+            Variable variable = model.getVariable(variableName);
+            if(variable==null)
+                throw new IllegalArgumentException("No variable with name: " + variableName);
+            this.activeVariables.add(new VariableModule(variable, variableDTO.alias()));
+        }
+        for (ConstraintModuleDTO constraintModuleDTO : imageDTO.constraintModules()) {
+            Set<Constraint> constraints = constraintModuleDTO.constraints().stream()
+                    .map(constraintName -> {
+                        Constraint constraint = model.getConstraint(constraintName);
+                        if (constraint == null) {
+                            throw new IllegalArgumentException("No constraint with name: " + constraintName);
+                        }
+                        return constraint;
+                    }).collect(Collectors.toSet());
+            this.constraintsModules.put(constraintModuleDTO.moduleName(), new ConstraintModule(
+                    constraintModuleDTO.moduleName(),
+                    constraintModuleDTO.description(),
+                    constraints
+            ));
+        }
+        for (PreferenceModuleDTO preferenceModuleDTO : imageDTO.preferenceModules()) {
+            Set<Preference> preferences = preferenceModuleDTO.preferences().stream()
+                    .map(preferenceName -> {
+                        Preference preference = model.getPreference(preferenceName);
+                        if (preference == null) {
+                            throw new IllegalArgumentException("No preference with name: " + preferenceName);
+                        }
+                        return preference;
+                    }).collect(Collectors.toSet());
+            this.preferenceModules.put(preferenceModuleDTO.moduleName(), new PreferenceModule(
+                    preferenceModuleDTO.moduleName(),
+                    preferenceModuleDTO.description(),
+                    preferences
+            ));
+        }
+        for (SetDTO setDTO: imageDTO.sets()){
+            ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
+            //modelSet.setData(setDTO.values());
+            activeSets.add(new SetModule(modelSet,setDTO.setDefinition().alias()));
+            //model.setInput(modelSet);
+        }
+        for (ParameterDTO parameterDTO: imageDTO.parameters()){
+            ModelParameter modelParameter= model.getParameter(parameterDTO.parameterDefinition().name());
+            //modelParameter.setData(parameterDTO.value());
+            activeParams.add(new ParameterModule(modelParameter,parameterDTO.parameterDefinition().alias()));
+            //model.setInput(modelParameter);
+        }
+    }
     /**
      * Given source code and all Image components, creates an image object. This is intended for images loaded from persistence.
      * For runtime concerns, the Model object is created on get, meaning the source code isn't parsed until the Image needs it.

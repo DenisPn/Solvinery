@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * User-related operations.
+ */
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -21,11 +24,12 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    @PostMapping("/user/login")
+    @PostMapping("/session")
     public ResponseEntity<LoginResponseDTO> logIn(@Valid @RequestBody LoginDTO data) {
         return ResponseEntity.ok(userService.loginUser(data));
     }
-    @PostMapping("/user")
+
+    @PostMapping
     public ResponseEntity<ConfirmationDTO> register(@Valid @RequestBody RegisterDTO data) {
         userService.registerUser(data);
         return ResponseEntity.ok(new ConfirmationDTO("Registration Successful."));

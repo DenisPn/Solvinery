@@ -12,6 +12,7 @@ import groupId.DTO.Records.Requests.Responses.LoginResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -54,8 +55,8 @@ public class UserService {
             throw new UserDataException("Username already exists");
         userRepository.save(entity);
     }
-    public UserEntity getUser(String id) {
-        return userRepository.findById(UUID.fromString(id)).orElseThrow(()-> new ClientSideError("User id not found"));
+    public Optional<UserEntity> getUser(String id) {
+        return userRepository.findById(UUID.fromString(id));
     }
     /**
      * Authenticates a user by validating the provided username and password.

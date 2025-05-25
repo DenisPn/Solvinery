@@ -96,7 +96,6 @@ public class ImageEntity {
         this.user = user;
         this.name = name;
         this.description = description;
-        this.creationDate = LocalDateTime.now();
         this.creationDate = creationDate;
     }
 

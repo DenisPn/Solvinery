@@ -1,0 +1,60 @@
+### Parse Model
+POST http://localhost:4000/user/{{userId}}/image/model
+Content-Type: application/json
+
+{
+  "code": "param x := 2;\r\nset mySet := {1,2,3};\r\n\r\nvar myVar[mySet];\r\n\r\nsubto sampleConstraint:\r\n    myVar[x] == mySet[1];\r\n\r\nmaximize myObjective:\r\n                    1;"
+}
+
+### Create Image
+POST http://localhost:4000/user/{{userId}}/image
+Content-Type: application/json
+
+{
+  "variables": [
+    {
+      "identifier": "myVar",
+      "structure": ["INT"],
+      "alias": "Bob Jones's var"
+    }
+  ],
+  "constraintModules": [
+    {
+      "moduleName": "module1",
+      "description": "description example",
+      "constraints": [
+        "sampleConstraint"
+      ]
+    }
+  ],
+  "preferenceModules": [
+    {
+      "moduleName": "module2",
+      "description": "pref description example",
+      "preferences": [
+        "(1) * scalar49"
+      ]
+    }
+  ],
+  "sets": [
+    {
+      "setDefinition": {
+        "name": "mySet",
+        "type": ["INT"]
+      },
+      "values": ["3", "1", "2"]
+    }
+  ],
+  "parameters": [
+    {
+      "parameterDefinition": {
+        "name": "x",
+        "type": "INT"
+      },
+      "value": "10"
+    }
+  ],
+  "name": "test image",
+  "description" : "test desc",
+  "code": "param x := 2;\r\nset mySet := {1,2,3};\r\n\r\nvar myVar[mySet];\r\n\r\nsubto sampleConstraint:\r\n    myVar[x] == mySet[1];\r\n\r\nmaximize myObjective:\r\n                    1;"
+}

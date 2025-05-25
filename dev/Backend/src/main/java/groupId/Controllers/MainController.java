@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import groupId.DTO.Records.Image.SolutionDTO;
 import jakarta.validation.Valid;
 
-
+/**
+ * Global controller for serving static files and debugging.
+ */
 @RestController
 @RequestMapping("/")
 public class MainController {
