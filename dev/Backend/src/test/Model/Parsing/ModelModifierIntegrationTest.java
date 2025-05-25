@@ -156,7 +156,7 @@ public class ModelModifierIntegrationTest {
                             Set.of(new ModelSet("C",ModelPrimitives.TEXT, List.of("Ben","Dan"))), //sets
                             Set.of(), //constraints
                             Set.of(), //scalars
-                            SoldiersExampleCode), //scalars
+                            SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
                             Set.of(new ModelSet("C",ModelPrimitives.TEXT, List.of())), //sets

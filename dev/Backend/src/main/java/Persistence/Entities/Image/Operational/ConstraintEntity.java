@@ -22,16 +22,16 @@ public class ConstraintEntity {
     public void setName (String name) {
         this.constraintName = name;
     }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ConstraintEntity that = (ConstraintEntity) o;
-        return constraintName.equals(that.constraintName);
+        return Objects.equals(constraintName, that.constraintName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(constraintName);
+        return Objects.hashCode(constraintName);
     }
 }

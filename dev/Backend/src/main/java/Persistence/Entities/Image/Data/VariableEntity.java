@@ -40,16 +40,14 @@ public class VariableEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         VariableEntity that = (VariableEntity) o;
-        return imageComponentKey.equals(that.imageComponentKey) &&
-                alias.equals(that.alias);
+        return Objects.equals(imageComponentKey, that.imageComponentKey) && Objects.equals(alias, that.alias) && Objects.equals(structure, that.structure);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(imageComponentKey, alias);
+        return Objects.hash(imageComponentKey, alias, structure);
     }
 
     public List<String> getStructure () {

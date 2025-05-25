@@ -16,12 +16,23 @@ import java.util.UUID;
 
 @Service
 public class UserService {
+    private static final int MIN_PASSWORD_LENGTH = 8;
+    private static final int MAX_PASSWORD_LENGTH = 16;
 
     private final UserRepository userRepository;
 
     @Autowired
     public UserService (UserRepository userRepository) {
         this.userRepository = userRepository;
+        if(!userRepository.existsByUsername("admin")){
+            try {
+                UserEntity entity = new UserEntity("admin", "admin", "admin@admin.com", "admin12345");
+                userRepository.save(entity);
+            }
+            catch (RuntimeException e){
+                throw new RuntimeException("Fatal error occurred while initializing User Service: "+ e.getMessage());
+            }
+        }
     }
 
     /**
@@ -32,6 +43,10 @@ public class UserService {
      * @throws UserDataException if the email already exists in the system or the username is already taken.
      */
     public void registerUser (RegisterDTO registerData) throws UserDataException {
+        int passwordLength = registerData.password().length();
+        if(passwordLength > MAX_PASSWORD_LENGTH || passwordLength < MIN_PASSWORD_LENGTH)
+            throw new UserDataException("Password should be between 8 and 16 in length.");
+
         UserEntity entity= new UserEntity(registerData.userName(),registerData.nickname(), registerData.email(), registerData.password());
         if(userRepository.existsByEmail(entity.getEmail()))
             throw new UserDataException("Email already exists");
