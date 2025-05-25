@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
-import { useZPL } from "../context/ZPLContext";
+import { useZPL } from "../context/ZPLContext"; // Import the context to get userId
 import { useNavigate } from "react-router-dom";
 import "./UploadZPLPage.css";
 import "../Themes/MainTheme.css";
@@ -12,11 +12,13 @@ const UploadZPLPage = () => {
     setTypes, setSetTypes,
     paramTypes, setParamTypes,
     constraints, setConstraints,
-    preferences, setPreferences
+    preferences, setPreferences,
+    userId // Destructure userId from context
   } = useZPL();
 
   const [fileContent, setFileContent] = useState("");
   const [message, setMessage] = useState("");
+
   const navigate = useNavigate();
   const fileInputRef = useRef(null); // 👈 Ref to the hidden file input
 
@@ -36,7 +38,10 @@ const UploadZPLPage = () => {
   };
 
   const handleUpload = async () => {
-    const requestData = { code: fileContent };
+    const requestData = {
+      code: fileContent,
+      userId: userId // Add userId from context to the request payload
+    };
 
     try {
       const response = await axios.post("/images/image", requestData, {
