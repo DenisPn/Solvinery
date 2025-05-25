@@ -39,7 +39,7 @@ const UploadZPLPage = () => {
     const requestData = { code: fileContent };
 
     try {
-      const response = await axios.post("/images", requestData, {
+      const response = await axios.post("/images/image", requestData, {
         headers: { "Content-Type": "application/json" },
       });
 

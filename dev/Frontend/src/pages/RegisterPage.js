@@ -1,0 +1,129 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import '../Themes/MainTheme.css';
+import './RegisterPage.css';
+
+const RegisterPage = () => {
+  const [userName, setUserName] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); 
+  const navigate = useNavigate();
+
+  const handleRegister = async () => {
+    if (password !== confirmPassword) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+
+    try {
+      const requestData = { userName, nickname, password, email };
+
+      // Send the POST request to "/users/user"
+      const response = await axios.post("/users/user", requestData, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      console.log("Registration successful:", response.data);
+      setErrorMessage(""); // Clear any previous error
+      navigate("/login"); // Navigate to login page after successful registration
+
+    } catch (error) {
+      if (error.response) {
+        // Server responded but with a non-2xx status
+        const errorMsg = error.response.data?.msg || error.response.data?.message || "Unknown error occurred";
+        setErrorMessage(`Server Error: ${error.response.status} - ${errorMsg}`);
+      } else if (error.request) {
+        // Request was made but no response received
+        setErrorMessage("Network Error: No response from server. Please check your internet connection or if the backend is running.");
+      } else {
+        // Something went wrong while setting up the request
+        setErrorMessage(`Error: ${error.message}`);
+      }
+    }
+  };
+
+  return (
+    <div className="register-background">
+      <button className="back-button" onClick={() => navigate("/")}>Back</button>
+
+      <div className="register-form-container">
+        <h1 className="main-register-title">Register</h1>
+
+        <form>
+          <div className="group">
+            <input
+              type="text"
+              placeholder="User Name"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              className="input-box-register"
+            />
+            <span className="highlight-register"></span>
+            <span className="bar-register"></span>
+          </div>
+          <br />
+          <div className="group">
+            <input
+              type="text"
+              placeholder="Nickname"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              className="input-box-register"
+            />
+            <span className="highlight-register"></span>
+            <span className="bar-register"></span>
+          </div>
+          <br />
+          <div className="group">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input-box-register"
+            />
+            <span className="highlight-register"></span>
+            <span className="bar-register"></span>
+          </div>
+          <br />
+          <div className="group">
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="input-box-register"
+            />
+            <span className="highlight-register"></span>
+            <span className="bar-register"></span>
+          </div>
+          <br />
+          <div className="group">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input-box-register"
+            />
+            <span className="highlight-register"></span>
+            <span className="bar-register"></span>
+          </div>
+        </form>
+
+        <br />
+        {errorMessage && (
+          <div className="error-message">{errorMessage}</div>
+        )}
+        <br />
+        <button className="button" onClick={handleRegister}>Register</button>
+      </div>
+    </div>
+  );
+};
+
+export default RegisterPage;
