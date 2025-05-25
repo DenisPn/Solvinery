@@ -10,12 +10,12 @@ const RegisterPage = () => {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); 
+  const [message, setMessage] = useState(""); // Renamed to message to handle both error and success messages
   const navigate = useNavigate();
 
   const handleRegister = async () => {
     if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match.");
+      setMessage("Passwords do not match.");
       return;
     }
 
@@ -28,20 +28,22 @@ const RegisterPage = () => {
       });
 
       console.log("Registration successful:", response.data);
-      setErrorMessage(""); // Clear any previous error
-      navigate("/login"); // Navigate to login page after successful registration
+      setMessage("Registration successful!"); // Success message
+
+      // Optionally navigate to another page or reset form fields
+      // navigate("/login");
 
     } catch (error) {
       if (error.response) {
         // Server responded but with a non-2xx status
         const errorMsg = error.response.data?.msg || error.response.data?.message || "Unknown error occurred";
-        setErrorMessage(`Server Error: ${error.response.status} - ${errorMsg}`);
+        setMessage(`Server Error: ${error.response.status} - ${errorMsg}`); // Error message
       } else if (error.request) {
         // Request was made but no response received
-        setErrorMessage("Network Error: No response from server. Please check your internet connection or if the backend is running.");
+        setMessage("Network Error: No response from server. Please check your internet connection or if the backend is running.");
       } else {
         // Something went wrong while setting up the request
-        setErrorMessage(`Error: ${error.message}`);
+        setMessage(`Error: ${error.message}`);
       }
     }
   };
@@ -116,8 +118,8 @@ const RegisterPage = () => {
         </form>
 
         <br />
-        {errorMessage && (
-          <div className="error-message">{errorMessage}</div>
+        {message && (
+          <div className="message">{message}</div> 
         )}
         <br />
         <button className="button" onClick={handleRegister}>Register</button>
