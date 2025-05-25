@@ -133,6 +133,12 @@ public class ModelModifierIntegrationTest {
                             Set.of(), //scalars
                             SoldiersExampleCode),
                     new TestInput(
+                            Set.of(), //params
+                            Set.of(), //sets
+                            Set.of(), //constraints
+                            Set.of(), //scalars
+                            ""),
+                    new TestInput(
                             Set.of(new ModelParameter("soldiers", ModelPrimitives.INT, "8")), //params
                             Set.of(), //sets
                             Set.of(), //constraints
