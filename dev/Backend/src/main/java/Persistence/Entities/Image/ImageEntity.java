@@ -64,7 +64,16 @@ public class ImageEntity {
             columnDefinition = "TEXT")
     @Basic(fetch = FetchType.LAZY)
     private String original_code;
-    public ImageEntity () {}
+    public ImageEntity () {
+        this.activeSets = new HashSet<>();
+        this.activeParams = new HashSet<>();
+        this.variables = new HashSet<>();
+        this.constraintModules = new HashSet<>();
+        this.preferenceModules = new HashSet<>();
+        this.zimplCode = "";
+        this.original_code = "";
+        this.user = null;
+    }
     public ImageEntity (UserEntity user) {
         this.activeSets = new HashSet<>();
         this.activeParams = new HashSet<>();
@@ -200,29 +209,27 @@ public class ImageEntity {
     public void setPreferenceModules (Set<PreferenceModuleEntity> preferenceModules) {
         this.preferenceModules = preferenceModules;
     }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ImageEntity that = (ImageEntity) o;
-        return id.equals(that.id) &&
-                activeSets.equals(that.activeSets) &&
-                activeParams.equals(that.activeParams) &&
-                variables.equals(that.variables) &&
-                constraintModules.equals(that.constraintModules) &&
-                preferenceModules.equals(that.preferenceModules) &&
-                user.equals(that.user) &&
-                original_code.equals(that.original_code) &&
-                zimplCode.equals(that.zimplCode);
-
-
-
-
-
+        return Objects.equals(id, that.id)
+                && Objects.equals(name, that.name)
+                && Objects.equals(description, that.description)
+                && Objects.equals(creationDate, that.creationDate)
+                && Objects.equals(activeSets, that.activeSets)
+                && Objects.equals(activeParams, that.activeParams)
+                && Objects.equals(variables, that.variables)
+                && Objects.equals(constraintModules, that.constraintModules)
+                && Objects.equals(preferenceModules, that.preferenceModules)
+                && Objects.equals(user, that.user)
+                && Objects.equals(zimplCode, that.zimplCode)
+                && Objects.equals(original_code, that.original_code);
     }
+
     @Override
     public int hashCode() {
-        return Objects.hash(id, activeSets, activeParams, variables, constraintModules, preferenceModules, user, original_code, zimplCode);
+        return Objects.hash(id, name, description, creationDate, activeSets, activeParams, variables, constraintModules, preferenceModules, user, zimplCode, original_code);
     }
-
 }

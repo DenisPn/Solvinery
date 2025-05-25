@@ -1,5 +1,6 @@
 package Persistence.Entities;
 
+import Exceptions.UserErrors.UserInputException;
 import Persistence.Entities.Image.ImageEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -101,7 +102,8 @@ public class UserEntity {
      */
     public void setPassword(String rawPassword) {
         if (rawPassword == null || rawPassword.length() > 16 || rawPassword.length() < 8 || rawPassword.isBlank()) {
-            this.password = null; //set password as an invalid null to throw error on save, not here.
+            throw new IllegalArgumentException("Password must be 8-16 in length. Password should be valid at this point, this is a server error.");
+            //this.password = null; //set password as an invalid null to throw error on save, not here.
         }
         else {
             try {
