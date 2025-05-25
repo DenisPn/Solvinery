@@ -12,6 +12,7 @@ import ConfigurePreferencesPage from './pages/ConfigurePreferencesPage';
 import SolutionPreviewPage from './pages/SolutionPreviewPage';
 import SolutionResultsPage from "./pages/SolutionResultsPage";
 import LogInPage from "./pages/LogInPage";
+import RegisterPage from "./pages/RegisterPage";
 import ViewImagesPage from "./pages/ViewImagesPage";
 import MyImagesPage from "./pages/MyImagesPage";
 
@@ -22,6 +23,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<MainPage />} />
                     <Route path="/log-in" element={<LogInPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
                     <Route path="/work-assignment" element={<WorkAssignmentPage />} />
                     <Route path="/upload-zpl" element={<UploadZPLPage />} />
                     <Route path="/view-images" element={<ViewImagesPage />} />
