@@ -3,6 +3,9 @@ package groupId.Controllers;
 
 import groupId.DTO.Records.Model.ModelDefinition.ModelDTO;
 import groupId.DTO.Records.Requests.Commands.CreateImageFromFileDTO;
+import groupId.DTO.Records.Requests.Commands.LoginDTO;
+import groupId.DTO.Records.Requests.Responses.LoginResponseDTO;
+import groupId.DTO.Records.Requests.Responses.PublishedImagesDTO;
 import groupId.Services.ImageService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,5 +27,8 @@ public class ImageController {
         this.imageService = imageService;
     }
 
-
+    @GetMapping("/view/{page}")
+    public ResponseEntity<PublishedImagesDTO> fetchPublishedImages(@PathVariable int page) {
+        return ResponseEntity.ok(imageService.fetchPublishedImages(page));
+    }
 }

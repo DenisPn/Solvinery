@@ -24,6 +24,7 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
+
     @PostMapping("/session")
     public ResponseEntity<LoginResponseDTO> logIn(@Valid @RequestBody LoginDTO data) {
         return ResponseEntity.ok(userService.loginUser(data));

@@ -28,7 +28,7 @@ public class VariableEntity {
     }
     )
     @Column(name = "structure_part")
-    @NotNull(message = "Structure can't be null.")
+    //@NotNull(message = "Structure can't be null.")
     private List<String> structure;
     public VariableEntity() {}
 

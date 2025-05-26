@@ -28,13 +28,11 @@ public class ImageComponentKey implements Serializable {
 
     public ImageComponentKey () {}
 
-    // Constructor
     public ImageComponentKey (UUID imageId, String name) {
         this.imageId = imageId;
         this.name = name;
     }
 
-    // Getters and Setters
     public UUID getImageId() {
         return imageId;
     }
