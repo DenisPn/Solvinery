@@ -18,9 +18,8 @@ export const ZPLProvider = ({ children }) => {
         variablesConfigurableParams: []
     });
     const [setAliases, setSetAliases] = useState({});
-
-    // Add userId state
     const [userId, setUserId] = useState(null);
+    const [selectedVars, setSelectedVars] = useState([]); 
 
     return (
         <ZPLContext.Provider value={{
@@ -35,7 +34,8 @@ export const ZPLProvider = ({ children }) => {
             solutionResponse, setSolutionResponse,
             variablesModule, setVariablesModule,
             setAliases, setSetAliases,
-            userId, setUserId, // Provide userId and setUserId
+            userId, setUserId,
+            selectedVars, setSelectedVars,
         }}>
             {children}
         </ZPLContext.Provider>

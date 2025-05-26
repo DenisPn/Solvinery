@@ -20,7 +20,7 @@ const LogInPage = () => {
   const requestData = { userName, password };
 
   // Use POST for sending login data to the updated backend endpoint
-  const response = await axios.post("/users/user/login", requestData, {
+  const response = await axios.post("/users/session", requestData, {
     headers: { "Content-Type": "application/json" }, // Ensure content-type is set for JSON
   });
 

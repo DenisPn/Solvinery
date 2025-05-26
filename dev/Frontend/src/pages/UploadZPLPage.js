@@ -39,22 +39,21 @@ const UploadZPLPage = () => {
 
   const handleUpload = async () => {
     const requestData = {
-      code: fileContent,
-      userId: userId // Add userId from context to the request payload
+      code: fileContent
     };
 
     try {
-      const response = await axios.post("/images/image", requestData, {
+      const response = await axios.post("/user/"+userId+"/image/model", requestData, {
         headers: { "Content-Type": "application/json" },
       });
 
       const responseData = response.data;
-      setImageId(responseData.imageId);
-      setVariables(responseData.model.variables);
-      setConstraints(responseData.model.constraints);
-      setPreferences(responseData.model.preferences);
-      setSetTypes(responseData.model.setTypes);
-      setParamTypes(responseData.model.paramTypes);
+      //setImageId(responseData.imageId);
+      setVariables(responseData.variables);
+      setConstraints(responseData.constraints);
+      setPreferences(responseData.preferences);
+      setSetTypes(responseData.setTypes);
+      setParamTypes(responseData.paramTypes);
 
       console.log("Full Response Data:", responseData);
 
