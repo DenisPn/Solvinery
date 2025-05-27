@@ -38,38 +38,41 @@ const UploadZPLPage = () => {
   };
 
   const handleUpload = async () => {
-    const requestData = {
-      code: fileContent
-    };
-
-    try {
-      const response = await axios.post("/user/"+userId+"/image/model", requestData, {
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const responseData = response.data;
-      //setImageId(responseData.imageId);
-      setVariables(responseData.variables);
-      setConstraints(responseData.constraints);
-      setPreferences(responseData.preferences);
-      setSetTypes(responseData.setTypes);
-      setParamTypes(responseData.paramTypes);
-
-      console.log("Full Response Data:", responseData);
-
-      setMessage("File uploaded successfully!");
-      navigate("/configure-variables");
-    } catch (error) {
-      if (error.response) {
-        const errorMsg = error.response.data?.msg || "Unknown error occurred";
-        setMessage(`Error: ${error.response.status} - ${errorMsg}`);
-      } else if (error.request) {
-        setMessage("Error: No response from server. Check if backend is running.");
-      } else {
-        setMessage(`Error: ${error.message}`);
-      }
-    }
+  const requestData = {
+    code: fileContent
   };
+
+  try {
+    const response = await axios.post("/user/" + userId + "/image/model", requestData, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const responseData = response.data;
+
+    // Update imageId in the context
+    setImageId(responseData.imageId);
+
+    setVariables(responseData.variables);
+    setConstraints(responseData.constraints);
+    setPreferences(responseData.preferences);
+    setSetTypes(responseData.setTypes);
+    setParamTypes(responseData.paramTypes);
+
+    console.log("Full Response Data:", responseData);
+
+    setMessage("File uploaded successfully!");
+    navigate("/configure-variables");
+  } catch (error) {
+    if (error.response) {
+      const errorMsg = error.response.data?.msg || "Unknown error occurred";
+      setMessage(`Error: ${error.response.status} - ${errorMsg}`);
+    } else if (error.request) {
+      setMessage("Error: No response from server. Check if backend is running.");
+    } else {
+      setMessage(`Error: ${error.message}`);
+    }
+  }
+};
 
   return (
     <div className="upload-zpl-page background">
