@@ -23,13 +23,11 @@ import Persistence.Entities.Image.Operational.ConstraintEntity;
 import Persistence.Entities.Image.Operational.ConstraintModuleEntity;
 import Persistence.Entities.Image.Operational.PreferenceEntity;
 import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
+import Persistence.Entities.Image.PublishedImageEntity;
 import Persistence.Entities.UserEntity;
 import User.User;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class EntityMapper {
@@ -213,6 +211,117 @@ public class EntityMapper {
                 toParamEntities(image.getActiveParams(),imageId),
                 toSetEntities(image.getActiveSets(),imageId),
                 image.getSourceCode(),user);
+    }
+    public static void setEntity(ImageEntity existingEntity,UserEntity user,Image image){
+        UUID imageId=existingEntity.getId();
+        existingEntity.setAll(image.getName(),image.getDescription(),image.getCreationDate(),
+                toPreferenceModuleEntities(image.getPreferenceModules().values(),imageId),
+                toConstraintModuleEntities(image.getConstraintsModules().values(), imageId),
+                toVariableEntities(image.getActiveVariables(),imageId),
+                toParamEntities(image.getActiveParams(),imageId),
+                toSetEntities(image.getActiveSets(),imageId),
+                image.getSourceCode(),user);
+    }
+    public static PublishedImageEntity publishImage(ImageEntity imageEntity, UUID imageId) {
+        return new PublishedImageEntity(
+                imageEntity.getName(),
+                imageEntity.getDescription(),
+                imageEntity.getCreationDate(),
+                imageEntity.getPreferenceModules().stream()
+                        .map(pref -> new PreferenceModuleEntity(
+                                imageId,
+                                pref.getName(),
+                                pref.getDescription(),
+                                new HashSet<>(pref.getPreferences())
+                        ))
+                        .collect(Collectors.toSet()),
+                imageEntity.getConstraintModules().stream()
+                        .map(cons -> new ConstraintModuleEntity(
+                                imageId,
+                                cons.getName(),
+                                cons.getDescription(),
+                                new HashSet<>(cons.getConstraints())
+                        ))
+                        .collect(Collectors.toSet()),
+                imageEntity.getVariables().stream()
+                        .map(var -> new VariableEntity(
+                                imageId,
+                                var.getName(),
+                                var.getStructure(),
+                                var.getAlias()
+                        ))
+                        .collect(Collectors.toSet()),
+                imageEntity.getActiveParams().stream()
+                        .map(param -> new ParameterEntity(
+                                imageId,
+                                param.getName(),
+                                param.getType(),
+                                param.getData(),
+                                param.getAlias()
+                        ))
+                        .collect(Collectors.toSet()),
+                imageEntity.getActiveSets().stream()
+                        .map(set -> new SetEntity(
+                                new ImageComponentKey(imageId, set.getName()),
+                                set.getType(),
+                                new ArrayList<>(set.getData()),
+                                set.getAlias()
+                        ))
+                        .collect(Collectors.toSet()),
+                imageEntity.getOriginal_code(),
+                imageEntity.getUser().getUsername()
+        );
+    }
+        public static void setEntity(PublishedImageEntity existingEntity, ImageEntity imageEntity){
+            UUID imageId=existingEntity.getId();
+            existingEntity.setAll(
+                    imageEntity.getName(),
+                    imageEntity.getDescription(),
+                    imageEntity.getCreationDate(),
+                    imageEntity.getPreferenceModules().stream()
+                            .map(pref -> new PreferenceModuleEntity(
+                                    imageId,
+                                    pref.getName(),
+                                    pref.getDescription(),
+                                    new HashSet<>(pref.getPreferences())
+                            ))
+                            .collect(Collectors.toSet()),
+                    imageEntity.getConstraintModules().stream()
+                            .map(cons -> new ConstraintModuleEntity(
+                                    imageId,
+                                    cons.getName(),
+                                    cons.getDescription(),
+                                    new HashSet<>(cons.getConstraints())
+                            ))
+                            .collect(Collectors.toSet()),
+                    imageEntity.getVariables().stream()
+                            .map(var -> new VariableEntity(
+                                    imageId,
+                                    var.getName(),
+                                    var.getStructure(),
+                                    var.getAlias()
+                            ))
+                            .collect(Collectors.toSet()),
+                    imageEntity.getActiveParams().stream()
+                            .map(param -> new ParameterEntity(
+                                    imageId,
+                                    param.getName(),
+                                    param.getType(),
+                                    param.getData(),
+                                    param.getAlias()
+                            ))
+                            .collect(Collectors.toSet()),
+                    imageEntity.getActiveSets().stream()
+                            .map(set -> new SetEntity(
+                                    new ImageComponentKey(imageId, set.getName()),
+                                    set.getType(),
+                                    new ArrayList<>(set.getData()),
+                                    set.getAlias()
+                            ))
+                            .collect(Collectors.toSet()),
+                    imageEntity.getOriginal_code(),
+                    imageEntity.getUser().getUsername()
+            );
     }
 
 }

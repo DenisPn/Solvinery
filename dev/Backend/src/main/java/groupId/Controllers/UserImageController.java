@@ -45,6 +45,12 @@ public class UserImageController {
         imageService.overrideImage(userId,imageId,imgConfig);
         return ResponseEntity.ok().build();
     }
+    @PatchMapping("/{imageId}/publish")
+    public ResponseEntity<Void> publishImage(@PathVariable String userId,
+                                               @PathVariable String imageId){
+        imageService.publishImage(userId,imageId);
+        return ResponseEntity.ok().build();
+    }
 
 
 

@@ -58,7 +58,7 @@ public class ExceptionRecordFactory {
     public static ExceptionDTO makeDTO(HttpRequestMethodNotSupportedException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
-        return new ExceptionDTO(String.format("An server communication error occurred, HTTP request is invalid. Current method:%s\n" +
+        return new ExceptionDTO(String.format("A server communication error occurred, HTTP request is invalid. Current method:%s\n" +
                 "Supported methods:%s",exception.getMethod(), Arrays.toString(exception.getSupportedMethods())));
     }
     public static ExceptionDTO makeDTO(HttpMediaTypeNotSupportedException exception) {

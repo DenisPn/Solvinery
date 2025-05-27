@@ -17,16 +17,16 @@ public class ImageEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false, updatable = false)
+    @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "name", nullable = false, updatable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description", nullable = false, updatable = false)
+    @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "creation_date", nullable = false, updatable = false)
+    @Column(name = "creation_date", nullable = false)
     private LocalDateTime creationDate;
 
     @OneToMany(mappedBy = "imageComponentKey.imageId",
@@ -64,6 +64,7 @@ public class ImageEntity {
             columnDefinition = "TEXT")
     @Basic(fetch = FetchType.LAZY)
     private String original_code;
+
     public ImageEntity () {
         this.activeSets = new HashSet<>();
         this.activeParams = new HashSet<>();
@@ -72,6 +73,9 @@ public class ImageEntity {
         this.preferenceModules = new HashSet<>();
         this.zimplCode = "";
         this.original_code = "";
+        this.name = "";
+        this.description = "";
+        this.creationDate = LocalDateTime.now();
         this.user = null;
     }
     public ImageEntity (UserEntity user) {
@@ -82,9 +86,11 @@ public class ImageEntity {
         this.preferenceModules = new HashSet<>();
         this.zimplCode = "";
         this.original_code = "";
+        this.name = "";
+        this.description = "";
+        this.creationDate = LocalDateTime.now();
         this.user = user;
     }
-
     public ImageEntity (String name,String description,LocalDateTime creationDate,Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String zimplCode,UserEntity user) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
@@ -102,6 +108,7 @@ public class ImageEntity {
     public UUID getId () {
         return id;
     }
+    @Deprecated(forRemoval = true) //use updated one
     public void setAll (Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String zimplCode) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
@@ -109,6 +116,19 @@ public class ImageEntity {
         this.activeParams = activeParams;
         this.activeSets = activeSets;
         this.zimplCode = zimplCode;
+    }
+    public void setAll(String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModuleEntities, Set<ConstraintModuleEntity> constraintModuleEntities, Set<VariableEntity> variableEntities, Set<ParameterEntity> paramEntities, Set<SetEntity> setEntities, String sourceCode, UserEntity user) {
+        this.preferenceModules = preferenceModuleEntities;
+        this.constraintModules = constraintModuleEntities;
+        this.variables = variableEntities;
+        this.activeParams = paramEntities;
+        this.activeSets = setEntities;
+        this.zimplCode = sourceCode;
+        this.name = name;
+        this.description = description;
+        this.creationDate = creationDate;
+        this.user = user;
+        this.original_code = sourceCode;
     }
 
     public UserEntity getUser() {
@@ -203,6 +223,26 @@ public class ImageEntity {
 
     public void setConstraintModules (Set<ConstraintModuleEntity> constraintModules) {
         this.constraintModules = constraintModules;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setPreferenceModules (Set<PreferenceModuleEntity> preferenceModules) {
