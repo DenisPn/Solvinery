@@ -24,7 +24,7 @@ import Persistence.Entities.UserEntity;
 import Persistence.Repositories.ImageRepository;
 import Persistence.Repositories.UserRepository;
 import User.User;
-import Utilities.PersistenceTestsConfiguration;
+import Utilities.Configs.PersistenceTestsConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;

@@ -8,7 +8,7 @@ import Persistence.Entities.Image.Operational.ConstraintModuleEntity;
 import Persistence.Entities.Image.Operational.PreferenceEntity;
 import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
 import Persistence.Repositories.ImageRepository;
-import Utilities.PersistenceTestsConfiguration;
+import Utilities.Configs.PersistenceTestsConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;

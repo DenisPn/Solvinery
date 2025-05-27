@@ -1,4 +1,4 @@
-package Utilities;
+package Utilities.Configs;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;

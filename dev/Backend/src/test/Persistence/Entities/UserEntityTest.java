@@ -1,7 +1,7 @@
 package Persistence.Entities;
 
 import Persistence.Repositories.UserRepository;
-import Utilities.PersistenceTestsConfiguration;
+import Utilities.Configs.PersistenceTestsConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

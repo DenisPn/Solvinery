@@ -68,6 +68,7 @@ public class ImageService {
         UUID generatedId = imageEntity.getId();
         return RecordFactory.makeDTO(generatedId, image.getModel());
     }
+
     public ModelDTO parseImage(String code, String userId)  {
         userService.getUser(userId).orElseThrow(() -> new ClientSideError("User id not found"));
         Image image = new Image(code);
@@ -97,15 +98,6 @@ public class ImageService {
         ImageEntity imageEntity = new ImageEntity(user);
         imageEntity = imageRepository.save(imageEntity);
         EntityMapper.setEntity(imageEntity,user,image);
-        /*ImageEntity fullEntity = EntityMapper.toEntity(user,image, generatedId);
-        imageEntity.setAll(
-                fullEntity.getPreferenceModules(),
-                fullEntity.getConstraintModules(),
-                fullEntity.getVariables(),
-                fullEntity.getActiveParams(),
-                fullEntity.getActiveSets(),
-                fullEntity.getZimplCode()
-        );*/
         imageRepository.save(imageEntity);
         return new CreateImageResponseDTO(imageEntity.getId().toString());
     }
@@ -121,6 +113,7 @@ public class ImageService {
      * if the page doesn't exist, returns an empty DTO. is the page is the last one, returns a possibly partially filled DTO.
      * @see PublishedImagesDTO
      */
+    @Transactional
     public PublishedImagesDTO fetchPublishedImages(@Min(0) int pageNumber) {
 
         PageRequest pageRequest = PageRequest.of(
@@ -141,7 +134,7 @@ public class ImageService {
 
         return new PublishedImagesDTO(imageDTOs);
     }
-
+    @Transactional
     public void publishImage(String userId, String imageId) {
         UserEntity user=userService.getUser(userId).orElseThrow(()-> new ClientSideError("Invalid User id during publish image."));
         ImageEntity imageEntity=imageRepository.findById(UUID.fromString(imageId))

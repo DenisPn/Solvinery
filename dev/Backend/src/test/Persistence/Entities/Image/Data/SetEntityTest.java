@@ -2,7 +2,7 @@ package Persistence.Entities.Image.Data;
 
 import Persistence.Entities.Image.ImageComponentKey;
 import Persistence.Entities.Image.Repositories.SetRepository;
-import Utilities.PersistenceTestsConfiguration;
+import Utilities.Configs.PersistenceTestsConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
