@@ -1,0 +1,227 @@
+/* Image Settings Page Layout */
+.image-setting-page {
+    display: flex;
+    flex-direction: column; /* Stack the sections vertically */
+    align-items: center;
+    padding: 20px;
+    background-color: #f4f4f4; /* Same background color as before */
+    min-height: 100vh;
+}
+
+/* Title Styling */
+.page-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.top-buttons {
+    display: flex;
+    justify-content: space-between; /* Spread buttons across the page */
+    padding: 10px 20px; /* Padding for the buttons */
+    position: fixed;
+    top: 20px;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.left-buttons {
+    display: flex;
+    gap: 20px; /* Space between Quit and Continue buttons */
+}
+
+.right-buttons {
+    margin-left: auto; /* Pushes the Back button to the right side */
+}
+
+.quit-button,
+.continue-button,
+.back-button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.quit-button:hover,
+.continue-button:hover,
+.back-button:hover {
+    background-color: #0056b3;
+}
+
+/* Button for Quit to navigate to home */
+.quit-button {
+    margin-left: 20px;
+}
+
+/* Set and Parameters Sections */
+.sets-section, .parameters-section {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px;
+    margin: 30px 60px 30px 40px;
+    min-height: 500px;
+    height: auto;
+    border-radius: 0px;
+    box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.slider-container {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.slider {
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    overflow-x: auto;
+    margin: auto;
+    padding: 20px;
+}
+
+/* Box Styling */
+.slide {
+    width: 250px;
+    height: 300px;
+    background-color: #fff;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    transition: 0.3s ease;
+    padding: 20px;
+}
+
+.slide:hover {
+    scale: 1.1;
+}
+
+/* Data in the box */
+.slide h4, .slide p {
+    font-size: 16px;
+    margin: 5px 0;
+    text-align: center;
+}
+
+/* Inputs for Description */
+.set-input, .param-input {
+    width: 200px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1.5px solid #B0BEC5;
+    border-radius: 6px;
+    background-color: #F8F9FA;
+    outline: none;
+    transition: border 0.2s ease-in-out;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.set-input:focus, .param-input:focus {
+    border-color: #007BFF;
+    background-color: white;
+}
+
+/* Buttons (Edit and Delete) */
+.edit-image, .delete-image {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+/* Buttons container */
+.buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    position: absolute;
+    bottom: 20px;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+/* Modal */
+.modal {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal input spacing */
+.modal-input-group {
+    margin-bottom: 20px;
+}
+
+.modal-input-group input {
+    width: 80%;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1.5px solid #B0BEC5;
+    border-radius: 6px;
+    background-color: #F8F9FA;
+    outline: none;
+}
+
+/* Modal buttons */
+.modal-buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
+.save-button,
+.cancel-button {
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.save-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.save-button:hover {
+    background-color: #45a049;
+}
+
+.cancel-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+}
+
+.cancel-button:hover {
+    background-color: #e53935;
+}

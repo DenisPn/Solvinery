@@ -274,13 +274,12 @@ const SolutionPreviewPage = () => {
                 </div>
             )}
 
-            {/* Save Image Button */}
             <button
-                className="save-image-button"
-                onClick={() => window.location.href = '/'} // Navigate to home
-            >
-                Save Image
-            </button>
+    className="save-image-button"
+    onClick={() => window.location.href = '/image-setting-set-and-params'} // Redirects to ImageSettingSetAndParams page
+>
+    Continue
+</button>
 
             {/* Back Button */}
             <Link to="/configure-variables" className="back-button">Back</Link>
