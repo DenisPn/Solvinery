@@ -44,6 +44,20 @@
     -webkit-overflow-scrolling: touch; /* Enables smooth scrolling */
 }
 
+/* Preferences Section */
+.preferences-section {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px;
+    margin: 30px 60px 30px 40px; /* 30px top/bottom, 60px right, 40px left */
+    min-height: 500px; /* Ensures minimum height */
+    height: auto; /* Allows it to expand if necessary */
+    border-radius: 0px;
+    box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* Enables vertical scroll when the content overflows */
+    -webkit-overflow-scrolling: touch; /* Enables smooth scrolling */
+}
+
 /* Slider container for the variable boxes */
 .slider-container {
     max-width: 100%; /* Ensure it doesn’t stretch beyond the viewport */
@@ -91,33 +105,6 @@
     text-align: center;
 }
 
-/* Alias and Structure inputs */
-.variable-input {
-    width: 200px;
-    padding: 8px 12px;
-    font-size: 14px;
-    border: 1.5px solid #B0BEC5;
-    border-radius: 6px;
-    background-color: #F8F9FA;
-    outline: none;
-    transition: border 0.2s ease-in-out;
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.variable-input:focus {
-    border-color: #007BFF;
-    background-color: white;
-}
-
-/* Buttons (Edit and Delete) */
-.edit-image, .delete-image {
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    margin-left: 10px;
-}
-
 /* Buttons container at the bottom of each variable box */
 .buttons-container {
     display: flex;
@@ -127,77 +114,43 @@
     bottom: 20px;
 }
 
-/* Modal Overlay */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+/* Section Toggle Button */
+.toggle-section {
     display: flex;
     justify-content: center;
-    align-items: center;
-    z-index: 999;
+    margin-top: 20px;
 }
 
-/* Modal */
-.modal {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    width: 400px;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Modal input spacing */
-.modal-input-group {
-    margin-bottom: 20px;
-}
-
-.modal-input-group input {
-    width: 80%;
-    padding: 8px 12px;
-    font-size: 14px;
-    border: 1.5px solid #B0BEC5;
-    border-radius: 6px;
-    background-color: #F8F9FA;
-    outline: none;
-}
-
-/* Modal buttons */
-.modal-buttons {
-    display: flex;
-    justify-content: space-around;
-}
-
-.save-button,
-.cancel-button {
-    padding: 8px 16px;
+.toggle-button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    font-size: 16px;
+    border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.toggle-button:hover {
+    background-color: #0056b3;
+}
+
+/* Save Image Button */
+.save-image-button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
     font-size: 16px;
-}
-
-.save-button {
-    background-color: #4CAF50;
-    color: white;
     border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    position: absolute;
+    left: 20px;
+    top: 20px;
 }
 
-.save-button:hover {
-    background-color: #45a049;
-}
-
-.cancel-button {
-    background-color: #f44336;
-    color: white;
-    border: none;
-}
-
-.cancel-button:hover {
-    background-color: #e53935;
+.save-image-button:hover {
+    background-color: #0056b3;
 }
 
 /* Back Button */
@@ -213,17 +166,4 @@
 
 .back-button:hover {
     background-color: #0056b3;
-}
-
-/* Scrollbar for the slider */
-.slider-container::-webkit-scrollbar{
-    height: 9px;
-}
-.slider-container::-webkit-scrollbar-track{
- background: none;   
- border-radius: 10px;
-}
-.slider-container::-webkit-scrollbar-thumb{
-    background: #007BFF;
-    border-radius: 10px;
 }

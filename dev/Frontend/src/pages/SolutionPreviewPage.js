@@ -4,12 +4,11 @@ import { Link } from "react-router-dom";
 import "./SolutionPreviewPage.css"; // Assuming you have your CSS
 
 const SolutionPreviewPage = () => {
-    const { selectedVars, setSelectedVars, constraintsModules } = useZPL(); // Access selectedVars and constraintsModules from context
+    const { selectedVars, setSelectedVars, constraintsModules, preferenceModules } = useZPL(); // Access selectedVars, constraintsModules, and preferenceModules from context
     const [editingVariable, setEditingVariable] = useState(null); // To keep track of the variable being edited
     const [editedAlias, setEditedAlias] = useState("");
     const [editedStructure, setEditedStructure] = useState("");
-
-    const [isVariablesSectionVisible, setIsVariablesSectionVisible] = useState(true); // State to toggle visibility between sections
+    const [activeSection, setActiveSection] = useState("variables"); // Default to "variables" section
 
     const handleEditClick = (variable) => {
         setEditingVariable(variable); // Set the variable being edited
@@ -42,23 +41,41 @@ const SolutionPreviewPage = () => {
         setSelectedVars(updatedVars); // Update the context with the new list
     };
 
-    const toggleSectionVisibility = () => {
-        setIsVariablesSectionVisible(!isVariablesSectionVisible); // Toggle the visibility state
+    const handleToggleSection = (section) => {
+        setActiveSection(section); // Switch between "variables", "constraints", "preferences"
     };
 
     return (
         <div className="solution-preview-page background">
+            {/* Title Section */}
             <h1 className="page-title">Solution Preview</h1>
 
-            {/* Toggle button to switch between sections */}
-            <button onClick={toggleSectionVisibility}>
-                {isVariablesSectionVisible ? "Show Constraints Section" : "Show Variables Section"}
-            </button>
+            {/* Button to Toggle Sections */}
+            <div className="toggle-section">
+                <button
+                    onClick={() => handleToggleSection("variables")}
+                    className="toggle-button"
+                >
+                    Show Variables
+                </button>
+                <button
+                    onClick={() => handleToggleSection("constraints")}
+                    className="toggle-button"
+                >
+                    Show Constraints
+                </button>
+                <button
+                    onClick={() => handleToggleSection("preferences")}
+                    className="toggle-button"
+                >
+                    Show Preferences
+                </button>
+            </div>
 
-            {/* Conditionally render the Variables Section or Constraints Section */}
-            {isVariablesSectionVisible ? (
+            {/* Conditional Rendering of Sections */}
+            {activeSection === "variables" && (
                 <div className="variables-section">
-                    <h2 className="section-title">Selected Variables</h2>
+                    <h2 className="section-title">Variables</h2>
 
                     {/* Slider container for the variable boxes */}
                     <div className="slider-container">
@@ -86,7 +103,6 @@ const SolutionPreviewPage = () => {
                                                 value={variable.structure || ""}
                                                 readOnly
                                             />
-                                            <br />
                                             <br />
                                         </div>
 
@@ -116,9 +132,11 @@ const SolutionPreviewPage = () => {
                         </div>
                     </div>
                 </div>
-            ) : (
+            )}
+
+            {activeSection === "constraints" && (
                 <div className="constraints-section">
-                    <h2 className="section-title">Selected Constraint Modules</h2>
+                    <h2 className="section-title">Constraints</h2>
 
                     {/* Slider container for the constraint boxes */}
                     <div className="slider-container">
@@ -126,8 +144,8 @@ const SolutionPreviewPage = () => {
                             {constraintsModules.length > 0 ? (
                                 constraintsModules.map((module, index) => (
                                     <div key={index} className="slide">
-                                        <div className="constraint-details">
-                                            <h4>Constraint Module Name</h4>
+                                        <div className="variable-details">
+                                            <h4>Module Name</h4>
                                             <p>{module.name}</p>
                                             <br />
                                             <h4>Description</h4>
@@ -135,7 +153,7 @@ const SolutionPreviewPage = () => {
                                             <br />
                                         </div>
 
-                                        {/* Buttons container at the bottom of each constraint module box */}
+                                        {/* Buttons container at the bottom of each variable box */}
                                         <div className="buttons-container">
                                             {/* Edit button with pencil image */}
                                             <img
@@ -154,7 +172,52 @@ const SolutionPreviewPage = () => {
                                     </div>
                                 ))
                             ) : (
-                                <p>No constraint modules selected yet.</p>
+                                <p>No constraints modules selected yet.</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {activeSection === "preferences" && (
+                <div className="preferences-section">
+                    <h2 className="section-title">Preferences</h2>
+
+                    {/* Slider container for the preference modules */}
+                    <div className="slider-container">
+                        <div className="slider">
+                            {preferenceModules.length > 0 ? (
+                                preferenceModules.map((module, index) => (
+                                    <div key={index} className="slide">
+                                        <div className="variable-details">
+                                            <h4>Module Name</h4>
+                                            <p>{module.name}</p>
+                                            <br />
+                                            <h4>Description</h4>
+                                            <p>{module.description || "No description"}</p>
+                                            <br />
+                                        </div>
+
+                                        {/* Buttons container at the bottom of each variable box */}
+                                        <div className="buttons-container">
+                                            {/* Edit button with pencil image */}
+                                            <img
+                                                src="/images/edit-button.png" // Path to the pencil image in the public folder
+                                                alt="Edit"
+                                                className="edit-image"
+                                            />
+
+                                            {/* Delete button with delete image */}
+                                            <img
+                                                src="/images/delete.png" // Path to the delete image in the public folder
+                                                alt="Delete"
+                                                className="delete-image"
+                                            />
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No preference modules selected yet.</p>
                             )}
                         </div>
                     </div>
@@ -169,8 +232,6 @@ const SolutionPreviewPage = () => {
 
                         <div className="modal-input-group">
                             <label>Alias</label>
-                            <br />
-                            <br />
                             <input
                                 type="text"
                                 value={editedAlias}
@@ -181,8 +242,6 @@ const SolutionPreviewPage = () => {
 
                         <div className="modal-input-group">
                             <label>Structure</label>
-                            <br />
-                            <br />
                             <input
                                 type="text"
                                 value={editedStructure}
@@ -202,6 +261,14 @@ const SolutionPreviewPage = () => {
                     </div>
                 </div>
             )}
+
+            {/* Save Image Button */}
+            <button
+                className="save-image-button"
+                onClick={() => window.location.href = '/'} // Navigate to home
+            >
+                Save Image
+            </button>
 
             {/* Back Button */}
             <Link to="/configure-variables" className="back-button">
