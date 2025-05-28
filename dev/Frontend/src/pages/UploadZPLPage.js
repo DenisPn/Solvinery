@@ -7,12 +7,12 @@ import "../Themes/MainTheme.css";
 
 const UploadZPLPage = () => {
   const {
-    imageId, setImageId,
-    variables, setVariables,
-    setTypes, setSetTypes,
-    paramTypes, setParamTypes,
-    constraints, setConstraints,
-    preferences, setPreferences,
+    setVariables,
+    setConstraints,
+    setPreferences,
+    setSetTypes,
+    setParamTypes,
+    setZplCode,  // Import setZplCode to save zplCode to context
     userId // Destructure userId from context
   } = useZPL();
 
@@ -39,22 +39,26 @@ const UploadZPLPage = () => {
 
   const handleUpload = async () => {
     const requestData = {
-      code: fileContent,
-      userId: userId // Add userId from context to the request payload
+      code: fileContent
     };
 
     try {
-      const response = await axios.post("/images/image", requestData, {
+      const response = await axios.post("/user/" + userId + "/image/model", requestData, {
         headers: { "Content-Type": "application/json" },
       });
+      console.log("UploadZPL user ID :"+userId);
 
       const responseData = response.data;
-      setImageId(responseData.imageId);
-      setVariables(responseData.model.variables);
-      setConstraints(responseData.model.constraints);
-      setPreferences(responseData.model.preferences);
-      setSetTypes(responseData.model.setTypes);
-      setParamTypes(responseData.model.paramTypes);
+
+      // Save zplCode in context
+      setZplCode(fileContent); // Save the ZPL code into the context
+
+      // Update other context values as required (variables, constraints, preferences, etc.)
+      setVariables(responseData.variables);
+      setConstraints(responseData.constraints);
+      setPreferences(responseData.preferences);
+      setSetTypes(responseData.setTypes);
+      setParamTypes(responseData.paramTypes);
 
       console.log("Full Response Data:", responseData);
 

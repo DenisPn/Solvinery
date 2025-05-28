@@ -22,6 +22,7 @@ const ConfigurePreferencesPage = () => {
 
     // Add a new module
     const addPreferenceModule = () => {
+        
         if (moduleName.trim() !== '') {
             setPreferenceModules((prevModules) => [
                 ...prevModules,

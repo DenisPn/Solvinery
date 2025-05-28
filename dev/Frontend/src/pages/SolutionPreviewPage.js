@@ -1,546 +1,287 @@
 import React, { useState } from "react";
+import { useZPL } from "../context/ZPLContext"; // Import useZPL
 import { Link } from "react-router-dom";
-import { useZPL } from "../context/ZPLContext";
-import "./SolutionPreviewPage.css";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import "./SolutionPreviewPage.css"; // Assuming you have your CSS
 
 const SolutionPreviewPage = () => {
-  const {
-    constraints,
-    preferences,
-    modules,
-    preferenceModules,
-    variables,
-    types,
-    imageId,
-    setSolutionResponse,
-    setTypes,
-    paramTypes,
-    setSolutionData,
-    variablesModule,
-    setAliases,
-  } = useZPL();
+    const {selectedVars, setSelectedVars, constraintsModules, preferenceModules, setConstraintsModules, setPreferenceModules } = useZPL(); // Access selectedVars, constraintsModules, and preferenceModules from context
+    const [editingVariable, setEditingVariable] = useState(null); // To keep track of the variable being edited
+    const [editedAlias, setEditedAlias] = useState("");
+    const [editedStructure, setEditedStructure] = useState("");
+    const [editingConstraint, setEditingConstraint] = useState(null); // To keep track of the constraint being edited
+    const [editingPreference, setEditingPreference] = useState(null); // To keep track of the preference being edited
+    const [editedConstraintDescription, setEditedConstraintDescription] = useState("");
+    const [editedPreferenceDescription, setEditedPreferenceDescription] = useState("");
+    const [activeSection, setActiveSection] = useState("variables"); // Default to "variables" section
 
-  const allSets = variables.flatMap(
-    (variable) => variable.dep?.setDependencies ?? []
-  );
-  const [variableValues, setVariableValues] = useState({});
-  const [paramValues, setParamValues] = useState({});
-  const [constraintsToggledOff, setConstraintsToggledOff] = useState([]);
-
-  const navigate = useNavigate(); // Initialize navigation
-  const handleAddValue = (setName) => {
-    setVariableValues((prev) => ({
-      ...prev,
-      [setName]: [...(prev[setName] || []), ""],
-    }));
-  };
-
-  const handleValueChange = (setName, index, value) => {
-    setVariableValues((prev) => {
-      const newValues = [...prev[setName]];
-      newValues[index] = value;
-      return { ...prev, [setName]: newValues };
-    });
-  };
-
-  const handleParamChange = (paramName, value) => {
-    setParamValues((prev) => ({
-      ...prev,
-      [paramName]: value,
-    }));
-  };
-
-  const getNumTypes = (typeInfo) => {
-    if (!typeInfo) {
-      console.warn("⚠️ Warning: getNumTypes received undefined typeInfo.");
-      return 1; // Default to 1 to prevent errors
-    }
-
-    return Array.isArray(typeInfo) ? typeInfo.length : 1;
-  };
-
-  const handleAddVariable = (setName) => {
-    console.log("Adding Variable for:", setName);
-    console.log("Available setTypes:", setTypes);
-
-    if (!setTypes[setName]) {
-      console.error(`❌ Error: setTypes does not contain ${setName}`);
-      return; // Prevent further execution
-    }
-
-    const numTypes = getNumTypes(setTypes[setName]); // Function to extract type count
-
-    setVariableValues((prev) => ({
-      ...prev,
-      [setName]: [...(prev[setName] || []), new Array(numTypes).fill("")],
-    }));
-  };
-
-  const handleVariableChange = (setName, rowIndex, typeIndex, value) => {
-    setVariableValues((prev) => {
-      const updatedValues = [...(prev[setName] || [])];
-      updatedValues[rowIndex] = [...updatedValues[rowIndex]]; // Copy row to avoid mutation
-      updatedValues[rowIndex][typeIndex] = value; // Update only the correct type input
-      return { ...prev, [setName]: updatedValues };
-    });
-  };
-
-  const handleToggleConstraint = (moduleName) => {
-    setConstraintsToggledOff((prev) =>
-      prev.includes(moduleName)
-        ? prev.filter((name) => name !== moduleName)
-        : [...prev, moduleName]
-    );
-  };
-  const [preferencesToggledOff, setPreferencesToggledOff] = useState([]);
-
-  const handleTogglePreference = (preferenceName) => {
-    setPreferencesToggledOff(
-      (prev) =>
-        prev.includes(preferenceName)
-          ? prev.filter((name) => name !== preferenceName) // Remove if exists
-          : [...prev, preferenceName] // Add if not exists
-    );
-  };
-
-  const handleSolve = async () => {
-    setErrorMessage(null);
-    setResponseData(null);
-
-    // Construct the PATCH request body
-    const patchRequestBody = {
-      imageId,
-      image: {
-        // Wrap everything under "image"
-        variablesModule, // Assumed to be available in context
-        constraintModules: modules.map((module) => ({
-          moduleName: module.name,
-          constraints: module.constraints.map((c) => c.identifier),
-          inputSets: module.involvedSets,
-          inputParams: module.involvedParams,
-          description: module.description, // 🔹 Renamed from "moduleDescription"
-        })),
-        preferenceModules: preferenceModules.map((module) => ({
-          moduleName: module.name,
-          preferences: module.preferences.map((p) => p.identifier),
-          inputSets: module.involvedSets,
-          inputParams: module.involvedParams,
-          description: module.description, // 🔹 Renamed from "moduleDescription"
-        })),
-      },
+    // Handle editing variable data
+    const handleEditVariableClick = (variable) => {
+        setEditingVariable(variable); // Set the variable being edited
+        setEditedAlias(variable.alias || ""); // Pre-fill alias if available
+        setEditedStructure(variable.structure || ""); // Pre-fill structure if available
     };
 
-    console.log(
-      "Sending PATCH request:",
-      JSON.stringify(patchRequestBody, null, 2)
-    );
-
-    try {
-      // PATCH request to /Images
-      const patchResponse = await fetch("/images", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(patchRequestBody),
-      });
-
-      if (!patchResponse.ok) {
-        throw new Error(
-          `PATCH request failed! Status: ${patchResponse.status}`
-        );
-      }
-
-      console.log("✅ PATCH request successful!");
-    } catch (error) {
-      console.error("Error sending PATCH request:", error);
-      setErrorMessage(`Failed to update image metadata: ${error.message}`);
-      return; // Stop execution if PATCH fails
-    }
-
-    // Extract only the **names** of toggled-off constraints
-    const constraintsToggledOffNames = modules
-      .filter((module) => constraintsToggledOff.includes(module.name))
-      .flatMap((module) => module.constraints.map((c) => c.identifier));
-
-    // Extract only the **names** of toggled-off preferences
-    const preferencesToggledOffNames = preferenceModules
-      .filter((module) => preferencesToggledOff.includes(module.name))
-      .flatMap((module) => module.preferences.map((p) => p.identifier));
-
-    // Construct the POST request body for solving
-    const transformedParamValues = Object.fromEntries(
-      Object.entries(paramValues).map(([key, value]) => [
-        key,
-        [parseFloat(value) || 0],
-      ])
-    );
-
-    const requestBody = {
-      imageId,
-      input: {
-        setsToValues: variableValues,
-        paramsToValues: transformedParamValues,
-        constraintsToggledOff: constraintsToggledOffNames,
-        preferencesToggledOff: preferencesToggledOffNames,
-      },
-      timeout: 30,
+    const handleSaveVariableEdit = () => {
+        const updatedVars = selectedVars.map((variable) => {
+            if (variable === editingVariable) {
+                return {
+                    ...variable,
+                    alias: editedAlias,
+                    structure: editedStructure,
+                };
+            }
+            return variable;
+        });
+        setSelectedVars(updatedVars); // Save the edited data to context
+        setEditingVariable(null); // Close the modal
     };
 
-    console.log("Sending POST request:", JSON.stringify(requestBody, null, 2));
+    const handleCancelVariableEdit = () => {
+        setEditingVariable(null); // Close the modal without saving
+    };
 
-    try {
-      const response = await fetch("/solve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
-      });
+    const handleDeleteVariable = (variable) => {
+        const updatedVars = selectedVars.filter((v) => v !== variable);
+        setSelectedVars(updatedVars); // Update the context with the new list
+    };
 
-      const responseText = await response.text();
+    // Handle editing constraint data
+    const handleEditConstraintClick = (constraint) => {
+        setEditingConstraint(constraint);
+        setEditedConstraintDescription(constraint.description || ""); // Pre-fill description if available
+    };
 
-      if (!response.ok) {
-        console.error("Server returned an error:", responseText);
-        throw new Error(
-          `HTTP Error! Status: ${response.status} - ${responseText}`
-        );
-      }
+    const handleSaveConstraintEdit = () => {
+        const updatedConstraints = constraintsModules.map((module) => {
+            if (module.constraints.some(c => c.identifier === editingConstraint.identifier)) {
+                return {
+                    ...module,
+                    constraints: module.constraints.map(c => 
+                        c.identifier === editingConstraint.identifier ? 
+                        { ...c, description: editedConstraintDescription } : c
+                    ),
+                };
+            }
+            return module;
+        });
+        setConstraintsModules(updatedConstraints); // Save the edited constraint
+        setEditingConstraint(null); // Close the modal
+    };
 
-      const data = JSON.parse(responseText);
-      console.log("Data :", data);
-      console.log("Response : ", response);
-      console.log("Response Text :", responseText);
-      setSolutionResponse(data);
-      navigate("/solution-results");
-    } catch (error) {
-      console.error("Error solving problem:", error);
-      setErrorMessage(`Failed to solve. ${error.message}`);
-    }
-  };
+    const handleDeleteConstraint = (constraint) => {
+        const updatedConstraints = constraintsModules.filter(c => c.identifier !== constraint.identifier);
+        setConstraintsModules(updatedConstraints); // Remove the deleted constraint from context
+    };
 
-  const [responseData, setResponseData] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
+    // Handle editing preference data
+    const handleEditPreferenceClick = (preference) => {
+        setEditingPreference(preference);
+        setEditedPreferenceDescription(preference.description || ""); // Pre-fill description if available
+    };
 
-  const fakeResponse = {
-    solved: true,
-    solvingTime: 12.5,
-    objectiveValue: 100.23,
-    solution: {
-      Soldier_shift: {
-        setStructure: ["C", "Stations", "Times"],
-        typeStructure: ["INT", "TEXT", "INT"],
-        solutions: [
-          {
-            values: ["1", "Fillbox", "8"],
-            objectiveValue: 1,
-          },
-          {
-            values: ["2", "Fillbox", "16"],
-            objectiveValue: 1,
-          },
-          {
-            values: ["3", "Fillbox", "0"],
-            objectiveValue: 1,
-          },
-          {
-            values: ["4", "Fillbox", "20"],
-            objectiveValue: 1,
-          },
-          {
-            values: ["2", "Shin Gimel", "16"],
-            objectiveValue: 1,
-          },
-          {
-            values: ["3", "Shin Gimel", "16"],
-            objectiveValue: 1,
-          },
-          {
-            values: ["4", "Shin Gimel", "16"],
-            objectiveValue: 1,
-          },
-          {
-            values: ["5", "Shin Gimel", "16"],
-            objectiveValue: 1,
-          },
-        ],
-      },
-      minGuards: {
-        setStructure: ["X", "Y"],
-        typeStructure: ["INT"],
-        solutions: [
-          {
-            values: ["X val", "Y val"],
-            objectiveValue: 30,
-          },
-        ],
-      },
-    },
-  };
-  const handleFakeResponse = () => {
-    console.log("Fake solution : ", fakeResponse);
-    setSolutionResponse(fakeResponse); // ✅ Store the fake response in context
-    navigate("/solution-results"); // ✅ Redirect to the next screen
-  };
+    const handleSavePreferenceEdit = () => {
+        const updatedPreferences = preferenceModules.map((module) => {
+            if (module.preferences.some(p => p.identifier === editingPreference.identifier)) {
+                return {
+                    ...module,
+                    preferences: module.preferences.map(p =>
+                        p.identifier === editingPreference.identifier ? 
+                        { ...p, description: editedPreferenceDescription } : p
+                    ),
+                };
+            }
+            return module;
+        });
+        setPreferenceModules(updatedPreferences); // Save the edited preference
+        setEditingPreference(null); // Close the modal
+    };
 
-  const selectedParams = variablesModule?.variablesConfigurableParams ?? [];
+    const handleDeletePreference = (preference) => {
+        const updatedPreferences = preferenceModules.filter(p => p.identifier !== preference.identifier);
+        setPreferenceModules(updatedPreferences); // Remove the deleted preference from context
+    };
 
+    const handleToggleSection = (section) => {
+       
+        setActiveSection(section); // Switch between "variables", "constraints", "preferences"
+    };
 
-  return (
-    <div className="solution-preview-page background">
-      <h1 className="page-title">Solution Preview</h1>
-      <div className="modules-container">
-        {/* Constraints Section */}
-        <div className="module-section">
-          <h2 className="section-title">Constraints</h2>
-          {modules.length > 0 ? (
-            modules.map((module, index) => (
-              <div key={index} className="module-box">
-                {/* Toggle Button Positioned Correctly */}
-                <div className="toggle-container">
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!constraintsToggledOff.includes(module.name)}
-                      onChange={() => handleToggleConstraint(module.name)}
-                    />
-                    <span className="slider round"></span>
-                  </label>
+    return (
+        <div className="solution-preview-page background">
+            <h1 className="page-title">Solution Preview</h1>
+
+            {/* Button to Toggle Sections */}
+            <div className="toggle-section">
+                <button onClick={() => handleToggleSection("variables")} className="toggle-button">
+                    Show Variables
+                </button>
+                <button onClick={() => handleToggleSection("constraints")} className="toggle-button">
+                    Show Constraints
+                </button>
+                <button onClick={() => handleToggleSection("preferences")} className="toggle-button">
+                    Show Preferences
+                </button>
+            </div>
+
+            {/* Conditional Rendering of Sections */}
+            {activeSection === "variables" && (
+                <div className="variables-section">
+                    <h2 className="section-title">Variables</h2>
+
+                    <div className="slider-container">
+                        <div className="slider">
+                            {selectedVars.length > 0 ? (
+                                selectedVars.map((variable, index) => (
+                                    <div key={index} className="slide">
+                                        <div className="variable-details">
+                                            <h4>Variable's name</h4>
+                                            <p>{variable.identifier}</p>
+                                            <br />
+                                            <h4>Alias</h4>
+                                            <input type="text" id={`alias-${index}`} className="variable-input" value={variable.alias || ""} readOnly />
+                                            <h4>Structure</h4>
+                                            <input type="text" id={`structure-${index}`} className="variable-input" value={variable.structure || ""} readOnly />
+                                        </div>
+
+                                        {/* Edit/Delete buttons */}
+                                        <div className="buttons-container">
+                                            <img src="/images/edit-button.png" alt="Edit" className="edit-image" onClick={() => handleEditVariableClick(variable)} />
+                                            <img src="/images/delete.png" alt="Delete" className="delete-image" onClick={() => handleDeleteVariable(variable)} />
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No variables selected yet.</p>
+                            )}
+                        </div>
+                    </div>
                 </div>
+            )}
 
-                <h3 className="module-title">{module.name}</h3>
-                <p className="module-description">
-                  <strong>Module Description:</strong> {module.description}
-                </p>
+            {activeSection === "constraints" && (
+                <div className="constraints-section">
+                    <h2 className="section-title">Constraints</h2>
 
-                <h4 className="module-subtitle">Constraints</h4>
-                {module.constraints.length > 0 ? (
-                  module.constraints.map((constraint, cIndex) => (
-                    <div key={cIndex} className="module-item">
-                      <p>{constraint.identifier}</p>{" "}
-                      {/* Only displaying the identifier value */}
+                    <div className="slider-container">
+                        <div className="slider">
+                            {constraintsModules.length > 0 ? (
+                                constraintsModules.map((module, index) => (
+                                    <div key={index} className="slide">
+                                        <div className="variable-details">
+                                            <h4>Module Name</h4>
+                                            <p>{module.name}</p>
+                                            <h4>Description</h4>
+                                            <input type="text" value={module.description} readOnly className="variable-input" />
+                                        </div>
+
+                                        {/* Edit/Delete buttons */}
+                                        <div className="buttons-container">
+                                            <img src="/images/edit-button.png" alt="Edit" className="edit-image" onClick={() => handleEditConstraintClick(module)} />
+                                            <img src="/images/delete.png" alt="Delete" className="delete-image" onClick={() => handleDeleteConstraint(module)} />
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No constraints modules selected yet.</p>
+                            )}
+                        </div>
                     </div>
-                  ))
-                ) : (
-                  <p className="empty-message">
-                    No constraints in this module.
-                  </p>
-                )}
-
-                <h4 className="module-subtitle">Involved Sets</h4>
-                {module.involvedSets.length > 0 ? (
-                  module.involvedSets.map((set, sIndex) => (
-                    <div key={sIndex} className="module-item">
-                      {set}
-                    </div>
-                  ))
-                ) : (
-                  <p className="empty-message">No involved sets.</p>
-                )}
-
-                <h4 className="module-subtitle">Involved Parameters</h4>
-                {module.involvedParams.length > 0 ? (
-                  module.involvedParams.map((param, pIndex) => (
-                    <div key={pIndex} className="module-item">
-                      {param}
-                    </div>
-                  ))
-                ) : (
-                  <p className="empty-message">No involved parameters.</p>
-                )}
-              </div>
-            ))
-          ) : (
-            <p className="empty-message">No constraint modules available.</p>
-          )}
-        </div>
-
-        {/* Preferences Section */}
-        <div className="module-section">
-          <h2 className="section-title">Preferences</h2>
-          {preferenceModules.length > 0 ? (
-            preferenceModules.map((module, index) => (
-              <div key={index} className="module-box">
-                {/* Toggle Button Positioned Correctly */}
-                <div className="toggle-container">
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!preferencesToggledOff.includes(module.name)}
-                      onChange={() => handleTogglePreference(module.name)}
-                    />
-                    <span className="slider round"></span>
-                  </label>
                 </div>
+            )}
 
-                <h3 className="module-title">{module.name}</h3>
-                <p className="module-description">
-                  <strong>Module Description:</strong> {module.description}
-                </p>
+            {activeSection === "preferences" && (
+                <div className="preferences-section">
+                    <h2 className="section-title">Preferences</h2>
 
-                <h4 className="module-subtitle">Preferences</h4>
-                {module.preferences.length > 0 ? (
-                  module.preferences.map((preference, pIndex) => (
-                    <div key={pIndex} className="module-item">
-                      <p>{preference.identifier}</p>{" "}
-                      {/* Removed "Identifier:" */}
+                    <div className="slider-container">
+                        <div className="slider">
+                            {preferenceModules.length > 0 ? (
+                                preferenceModules.map((module, index) => (
+                                    <div key={index} className="slide">
+                                        <div className="variable-details">
+                                            <h4>Module Name</h4>
+                                            <p>{module.name}</p>
+                                            <h4>Description</h4>
+                                            <input type="text" value={module.description} readOnly className="variable-input" />
+                                        </div>
+
+                                        {/* Edit/Delete buttons */}
+                                        <div className="buttons-container">
+                                            <img src="/images/edit-button.png" alt="Edit" className="edit-image" onClick={() => handleEditPreferenceClick(module)} />
+                                            <img src="/images/delete.png" alt="Delete" className="delete-image" onClick={() => handleDeletePreference(module)} />
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No preference modules selected yet.</p>
+                            )}
+                        </div>
                     </div>
-                  ))
-                ) : (
-                  <p className="empty-message">
-                    No preferences in this module.
-                  </p>
-                )}
+                </div>
+            )}
 
-                <h4 className="module-subtitle">Involved Sets</h4>
-                {module.involvedSets.length > 0 ? (
-                  module.involvedSets.map((set, sIndex) => (
-                    <div key={sIndex} className="module-item">
-                      {set}
+            {/* Modal for Editing Variable */}
+            {editingVariable && (
+                <div className="modal-overlay">
+                    <div className="modal">
+                        <h2>Edit Variable</h2>
+                        <div className="modal-input-group">
+                            <label>Alias</label>
+                            <input type="text" value={editedAlias} onChange={(e) => setEditedAlias(e.target.value)} className="variable-input" />
+                        </div>
+                        <div className="modal-input-group">
+                            <label>Structure</label>
+                            <input type="text" value={editedStructure} onChange={(e) => setEditedStructure(e.target.value)} className="variable-input" />
+                        </div>
+                        <div className="modal-buttons">
+                            <button className="save-button" onClick={handleSaveVariableEdit}>Save</button>
+                            <button className="cancel-button" onClick={handleCancelVariableEdit}>Cancel</button>
+                        </div>
                     </div>
-                  ))
-                ) : (
-                  <p className="empty-message">No involved sets.</p>
-                )}
+                </div>
+            )}
 
-                <h4 className="module-subtitle">Involved Parameters</h4>
-                {module.involvedParams.length > 0 ? (
-                  module.involvedParams.map((param, pIndex) => (
-                    <div key={pIndex} className="module-item">
-                      {param}
+            {/* Modal for Editing Constraint */}
+            {editingConstraint && (
+                <div className="modal-overlay">
+                    <div className="modal">
+                        <h2>Edit Constraint</h2>
+                        <div className="modal-input-group">
+                            <label>Description</label>
+                            <input type="text" value={editedConstraintDescription} onChange={(e) => setEditedConstraintDescription(e.target.value)} className="variable-input" />
+                        </div>
+                        <div className="modal-buttons">
+                            <button className="save-button" onClick={handleSaveConstraintEdit}>Save</button>
+                            <button className="cancel-button" onClick={() => setEditingConstraint(null)}>Cancel</button>
+                        </div>
                     </div>
-                  ))
-                ) : (
-                  <p className="empty-message">No involved parameters.</p>
-                )}
-              </div>
-            ))
-          ) : (
-            <p className="empty-message">No preference modules available.</p>
-          )}
+                </div>
+            )}
+
+            {/* Modal for Editing Preference */}
+            {editingPreference && (
+                <div className="modal-overlay">
+                    <div className="modal">
+                        <h2>Edit Preference</h2>
+                        <div className="modal-input-group">
+                            <label>Description</label>
+                            <input type="text" value={editedPreferenceDescription} onChange={(e) => setEditedPreferenceDescription(e.target.value)} className="variable-input" />
+                        </div>
+                        <div className="modal-buttons">
+                            <button className="save-button" onClick={handleSavePreferenceEdit}>Save</button>
+                            <button className="cancel-button" onClick={() => setEditingPreference(null)}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+    
+ <Link to="/image-setting-set-and-params" className="save-image-button">Continue</Link>
+
+            {/* Back Button */}
+            <Link to="/configure-variables" className="back-button">Back</Link>
         </div>
-
-        {/* Variable Sets Section */}
-        {/* Variable Sets Section */}
-<div className="module-section">
-  <h2 className="section-title">Variable Sets</h2>
-  {Array.from(new Set(Object.keys(setTypes)))
-    .filter((set) => variablesModule?.variablesConfigurableSets.includes(set))
-    .map((set, index) => {
-      // Fetch type from setTypes
-      const typeList = setTypes[set]
-        ? Array.isArray(setTypes[set])
-          ? setTypes[set]
-          : [setTypes[set]]
-        : ["Unknown"];
-
-      return (
-        <div key={index} className="module-box">
-          {/* Display Variable Name */}
-          <h3 className="module-title">{set}</h3>
-
-          {/* Display Type from setTypes */}
-          <p className="variable-type">
-            <strong>Type:</strong> {typeList.join(", ")}
-          </p>
-
-          {/* Add Button */}
-          <button
-            className="add-button"
-            onClick={() => handleAddVariable(set, typeList)}
-          ></button>
-
-          {/* Input Fields - Each type gets its own separate textbox */}
-          {variableValues[set]?.map((row, rowIndex) => (
-            <div key={rowIndex} className="input-row">
-              {row.map((value, typeIndex) => {
-                return (
-                  <input
-                    key={typeIndex}
-                    type="text"
-                    value={value}
-                    onChange={(e) =>
-                      handleVariableChange(
-                        set,
-                        rowIndex,
-                        typeIndex,
-                        e.target.value
-                      )
-                    }
-                    className="variable-input"
-                    placeholder={`Enter ${typeList[typeIndex] || "value"}:`}
-                  />
-                );
-              })}
-
-              {/* Add a divider after each row */}
-              <hr className="input-divider" />
-            </div>
-          ))}
-        </div>
-      );
-    })}
-</div>
-
-        {/* Variable Parameters Section */}
-         {/* Parameters Section */}
-      <div className="module-section">
-        <h2 className="section-title">Parameters</h2>
-        {Object.keys(paramTypes)
-          .filter((param) => selectedParams.includes(param))
-          .map((param, index) => (
-            <div key={index} className="module-box">
-              <h3 className="module-title">{param}</h3>
-              <p className="variable-type">
-                <strong>Type:</strong> {paramTypes[param] || "Unknown"}
-              </p>
-              {/* Input field for each parameter */}
-              <input
-                type="text"
-                value={paramValues[param] || ""}
-                onChange={(e) => handleParamChange(param, e.target.value)}
-                className="variable-input"
-                placeholder={`Enter ${paramTypes[param] || "value"}...`}
-              />
-            </div>
-          ))}
-      </div>
-
-        {/* Error Message */}
-        {errorMessage && (
-          <div className="error-container">
-            <p className="error-message">{errorMessage}</p>
-          </div>
-        )}
-
-        {/* Solve Button */}
-
-        <button className="button" onClick={handleSolve}>
-          Solve
-        </button>
-
- 
-
-        {/* Modal for Response */}
-        {showModal && (
-          <div className="response-modal">
-            <div className="modal-content">
-              <span
-                className="close-button"
-                onClick={() => setShowModal(false)}
-              >
-                ×
-              </span>
-              <h2>Solution Response</h2>
-              <pre>{JSON.stringify(responseData, null, 2)}</pre>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <Link to="/configure-constraints" className="back-button">
-        Back
-      </Link>
-    </div>
-  );
+    );
 };
 
 export default SolutionPreviewPage;
