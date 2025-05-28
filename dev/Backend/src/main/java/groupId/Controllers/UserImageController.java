@@ -5,6 +5,7 @@ import groupId.DTO.Records.Model.ModelDefinition.ModelDTO;
 import groupId.DTO.Records.Requests.Commands.CreateImageFromFileDTO;
 import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
+import groupId.DTO.Records.Requests.Responses.ImagesDTO;
 import groupId.Services.ImageService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,12 @@ public class UserImageController {
         CreateImageResponseDTO response = imageService.createImage(image,userId);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/{page}")
+    public ResponseEntity<ImagesDTO> getImage(@PathVariable String userId,
+                                              @PathVariable int page) {
+        ImagesDTO response = imageService.fetchUserImages(page,userId);
+        return ResponseEntity.ok(response);
+    }
 
     @PatchMapping("/{imageId}")
     public ResponseEntity<Void> configureImage(@PathVariable String userId,
@@ -51,7 +58,4 @@ public class UserImageController {
         imageService.publishImage(userId,imageId);
         return ResponseEntity.ok().build();
     }
-
-
-
 }

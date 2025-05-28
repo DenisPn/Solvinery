@@ -40,21 +40,23 @@ public class Image {
     private final Set<ParameterModule> activeParams;
     private final Set<VariableModule> activeVariables;
     private final ModelInterface model;
-    String name;
-    String description;
-    LocalDateTime creationDate;
+    private final String name;
+    private final String description;
+    private final LocalDateTime creationDate;
 
     /**
-     * Constructs a new empty image, given a Model. It's implied from the existence of Model that there is a file on
-     * In the filesystem with the source code on it.
+     * Constructs a new empty image, given a Model.
      * @param model The already initialized model.
      */
-    public Image(ModelInterface model) {
+    public Image(ModelInterface model,String name,String description) {
         this.activeParams = new HashSet<>();
         this.constraintsModules = new HashMap<>();
         this.preferenceModules = new HashMap<>();
         this.activeVariables = new HashSet<>();
         this.activeSets = new HashSet<>();
+        this.name = name;
+        this.description = description;
+        this.creationDate = LocalDateTime.now();
         this.model = model;
     }
 
@@ -129,15 +131,34 @@ public class Image {
      * @param activeParams       The active parameters used in the model.
      * @param activeVariables    The active variables used in the model.
      */
-    public Image (String code, Set<ConstraintModule> constraintsModules, Set<PreferenceModule> preferenceModules, Set<SetModule> activeSets, Set<ParameterModule> activeParams, Set<VariableModule> activeVariables) {
+    public Image (String code,String name,String description,LocalDateTime creationDate, Set<ConstraintModule> constraintsModules, Set<PreferenceModule> preferenceModules, Set<SetModule> activeSets, Set<ParameterModule> activeParams, Set<VariableModule> activeVariables) {
         this.constraintsModules = constraintsModules.stream().collect(Collectors.toMap(ConstraintModule::getName, constraintModule -> constraintModule));
         this.preferenceModules = preferenceModules.stream().collect(Collectors.toMap(PreferenceModule::getName, preferenceModule -> preferenceModule));
         this.activeSets = activeSets;
         this.activeParams = activeParams;
         this.activeVariables = activeVariables;
         this.model = new ModelProxy(code);
+        this.name = name;
+        this.description = description;
+        this.creationDate = creationDate;
     }
 
+    /**
+     * Given code, created an Image and the Model inside it.
+     * @param code source zpl code
+     */
+    @Deprecated(forRemoval = true)
+    public Image(String code) {
+        this.activeParams = new HashSet<>();
+        constraintsModules = new HashMap<>();
+        preferenceModules = new HashMap<>();
+        activeVariables = new HashSet<>();
+        activeSets = new HashSet<>();
+        this.model = new Model(code);
+        creationDate = null;
+        this.name = null;
+        this.description = null;
+    }
     /**
      * Overrides the image with new fields from the DTO data.
      * Ideally this should be replaced with a diff,
@@ -203,30 +224,6 @@ public class Image {
             activeParams.add(new ParameterModule(modelParameter,parameterDTO.parameterDefinition().alias()));
             model.setInput(modelParameter);
         }
-    }
-    /**
-     * Given path, created an Image and the Model inside it.
-     * @param path path to file
-     *//*
-    public Image(String path) {
-        this.activeParams = new HashSet<>();
-        constraintsModules = new HashMap<>();
-        preferenceModules = new HashMap<>();
-        activeVariables = new HashSet<>();
-        activeSets = new HashSet<>();
-        this.model = new Model(path);
-    }*/
-    /**
-     * Given code, created an Image and the Model inside it.
-     * @param code source zpl code
-     */
-    public Image(String code) {
-        this.activeParams = new HashSet<>();
-        constraintsModules = new HashMap<>();
-        preferenceModules = new HashMap<>();
-        activeVariables = new HashSet<>();
-        activeSets = new HashSet<>();
-        this.model = new Model(code);
     }
 
     public String getName() {

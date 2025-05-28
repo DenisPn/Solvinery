@@ -2,6 +2,7 @@ package groupId.Services;
 
 import Exceptions.InternalErrors.ClientSideError;
 import Image.Image;
+import Model.Model;
 import Persistence.Entities.Image.ImageEntity;
 import Persistence.Entities.Image.PublishedImageEntity;
 import Persistence.Entities.UserEntity;
@@ -12,10 +13,7 @@ import groupId.DTO.Factories.RecordFactory;
 import groupId.DTO.Records.Image.ImageDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ModelDTO;
 import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
-import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
-import groupId.DTO.Records.Requests.Responses.ImageDataDTO;
-import groupId.DTO.Records.Requests.Responses.ParseModelResponseDTO;
-import groupId.DTO.Records.Requests.Responses.PublishedImagesDTO;
+import groupId.DTO.Records.Requests.Responses.*;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,19 +58,21 @@ public class ImageService {
      */
     @Deprecated(forRemoval = true)
     public ParseModelResponseDTO createImageFromCode(String code, String userId)  {
-        UserEntity user= userService.getUser(userId).orElseThrow(()-> new ClientSideError("User id not found"));
+        /*UserEntity user= userService.getUser(userId).orElseThrow(()-> new ClientSideError("User id not found"));
         Image image = new Image(code);
         ImageEntity imageEntity= EntityMapper.toEntity(user,image, null);
         imageEntity = imageRepository.save(imageEntity);
         Objects.requireNonNull(imageEntity,"ImageEntity from EntityMapper is null while creating new image");
         UUID generatedId = imageEntity.getId();
-        return RecordFactory.makeDTO(generatedId, image.getModel());
+        return RecordFactory.makeDTO(generatedId, image.getModel());*/
+        return null;
     }
 
     public ModelDTO parseImage(String code, String userId)  {
         userService.getUser(userId).orElseThrow(() -> new ClientSideError("User id not found"));
-        Image image = new Image(code);
-        return RecordFactory.makeDTO(image.getModel());
+        Model model= new Model(code);
+        //Image image = new Image(code);
+        return RecordFactory.makeDTO(model);
     }
     /**
      * Given DTO object representing an image and an id, overrides the image with the associated ID with the image.
@@ -145,5 +145,18 @@ public class ImageService {
         publishedImageEntity = publishedImagesRepository.save(publishedImageEntity);
         EntityMapper.setEntity(publishedImageEntity,imageEntity);
         publishedImagesRepository.save(publishedImageEntity);
+    }
+    @Transactional
+    public ImagesDTO fetchUserImages(@Min(0) int pageNumber, String userId) {
+        UserEntity user = userService.getUser(userId)
+                .orElseThrow(() -> new ClientSideError("User id not found"));
+
+        Page<ImageEntity> userImages = imageRepository.findByUser(user, PageRequest.of(pageNumber, PAGE_SIZE) );
+
+        Set<ImageDTO> imageDTOs = userImages.stream()
+                .map(image -> RecordFactory.makeDTO(EntityMapper.toDomain(image)))
+                .collect(Collectors.toSet());
+        return new ImagesDTO(imageDTOs);
+
     }
 }
