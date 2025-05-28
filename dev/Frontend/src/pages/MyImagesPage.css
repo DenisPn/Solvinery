@@ -176,7 +176,18 @@
   z-index: 10;
 }
 
+.modal-close-button {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 100;
+}
+
 .modal-content {
+  position: relative; /* Needed for absolute positioning of close button */
   background: white;
   padding: 30px;
   border-radius: 12px;

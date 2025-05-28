@@ -165,7 +165,14 @@ const MyImagesPage = () => {
               <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
                 <button onClick={handleCopyCode}>Copy ZPL Code</button>
                 <button onClick={() => alert("Publish action coming soon!")}>Publish Image</button>
-                <button onClick={() => setSelectedImage(null)}>Close</button>
+               <img
+  src="/images/ExitButton2.png"
+  alt="Close"
+  className="modal-close-button"
+  onClick={() => setSelectedImage(null)}
+/>
+
+
               </div>
             </div>
           </div>
