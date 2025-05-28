@@ -4,7 +4,7 @@ import { useZPL } from "../context/ZPLContext";
 import "./ImageSettingSetAndParams.css"; // Assuming you have your CSS file for this page
 
 const ImageSettingSetAndParams = () => {
-  const { userId,setTypes, paramTypes } = useZPL(); // Accessing data from the context
+  const { setTypes, paramTypes } = useZPL(); // Accessing data from the context
   const navigate = useNavigate();
 
   const [activeSection, setActiveSection] = useState("sets"); // Tracks the active section (sets or params)
@@ -89,7 +89,7 @@ const ImageSettingSetAndParams = () => {
 
       <div className="toggle-section">
         <button
-          onClick={() => {console.log("ISSAP user ID :"+userId);setActiveSection("sets")}}
+          onClick={() => setActiveSection("sets")}
           className="toggle-button"
         >
           Show Sets

@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 import "./ImageSettingReview.css"; // Assuming you have your CSS
 
 const ImageSettingReview = () => {
-  const { userId, zplCode, setTypes, paramTypes, constraintsModules, preferenceModules } = useZPL(); // Destructure from context
+  const { selectedVars,userId, zplCode, setTypes, paramTypes, constraintsModules, preferenceModules } = useZPL(); // Destructure from context
   const [imageName, setImageName] = useState("");
-  const [imageDescription, setImageDescription] = useState("");
+  const [imageDescription, setImageDescription] =  useState("");
   const [isZplCodeVisible, setIsZplCodeVisible] = useState(false);
 
   // Handle Show ZPL Code
@@ -15,12 +15,12 @@ const ImageSettingReview = () => {
   };
 
   // Handle Save Image (post to server)
- const handleSaveImage = async () => {
+const handleSaveImage = async () => {
   const requestData = {
-    variables: Object.keys(setTypes).map((set) => ({
-      identifier: set,
-      structure: setTypes[set],
-      alias: set, // For simplicity, using set as alias, you can adjust this logic.
+    variables: selectedVars.map((variable) => ({
+      identifier: variable.identifier,
+      structure: variable.structure,
+      alias: variable.alias || "", // Default to empty string if alias is missing
     })),
     constraintModules: constraintsModules.map((module) => ({
       moduleName: module.name,
@@ -47,8 +47,7 @@ const ImageSettingReview = () => {
 
   // Send POST request with the data
   try {
-    //const response = await fetch("/user/"+userId+"/image+", {
-    console.log(userId);
+    console.log("Request Data : ", requestData);
     const response = await fetch(`/user/${userId}/image`, {
       method: "POST",
       headers: {
@@ -72,6 +71,7 @@ const ImageSettingReview = () => {
     alert(`Error: ${error.message}`);
   }
 };
+
 
   return (
     <div className="image-setting-page background">
