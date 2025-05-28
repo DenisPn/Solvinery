@@ -1,19 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import '../Themes/MainTheme.css';
-import './MyImagesPage.css';  // New CSS file for MyImagesPage
+import './MyImagesPage.css';
 
 const MyImagesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [images, setImages] = useState([]); // This will store the fetched images (for now it's empty)
+  const [images, setImages] = useState([]);
   const navigate = useNavigate();
+
+  // Fetch images on component mount
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const response = await axios.get("/images"); // Relative path
+        setImages(response.data);
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      }
+    };
+
+    fetchImages();
+  }, []);
 
   // Handle search query change
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
 
-  // Handle the back button click to navigate to the previous page
+  // Handle the back button click
   const handleBack = () => {
     navigate("/");
   };
@@ -45,12 +60,19 @@ const MyImagesPage = () => {
           {images.length === 0 ? (
             <p>No images available.</p>
           ) : (
-            images.map((image, index) => (
-              <div key={index} className="image-item">
-                {/* Display image thumbnail */}
-                <img src={image.url} alt={`Image ${index}`} className="image-thumbnail" />
-              </div>
-            ))
+            images
+              .filter(image =>
+                image.name.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+              .map((image, index) => (
+                <div key={index} className="image-item">
+                  <img
+                    src={image.url}
+                    alt={image.name}
+                    className="image-thumbnail"
+                  />
+                </div>
+              ))
           )}
         </div>
       </div>
