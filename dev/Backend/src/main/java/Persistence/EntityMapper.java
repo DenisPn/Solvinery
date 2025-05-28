@@ -199,7 +199,7 @@ public class EntityMapper {
         return new VariableEntity(imageId,variable.getVariable().getName(),variable.getVariable().getStructure(),variable.getAlias());
     }
     public static Image toDomain(ImageEntity imageEntity){
-        return new Image(imageEntity.getZimplCode(),toConstraintModules(imageEntity.getConstraintModules()),
+        return new Image(imageEntity.getZimplCode(),imageEntity.getName(),imageEntity.getDescription(),imageEntity.getCreationDate(),toConstraintModules(imageEntity.getConstraintModules()),
                 toPreferenceModules(imageEntity.getPreferenceModules()), toSets(imageEntity.getActiveSets()),
                 toParams(imageEntity.getActiveParams()), toVariables(imageEntity.getVariables()));
     }
