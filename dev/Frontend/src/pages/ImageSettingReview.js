@@ -15,54 +15,63 @@ const ImageSettingReview = () => {
   };
 
   // Handle Save Image (post to server)
-  const handleSaveImage = async () => {
-    const requestData = {
-      variables: Object.keys(setTypes).map((set) => ({
-        identifier: set,
-        structure: setTypes[set],
-        alias: set, // For simplicity, using set as alias, you can adjust this logic.
-      })),
-      constraintModules: constraintsModules.map((module) => ({
-        moduleName: module.name,
-        description: module.description,
-        constraints: module.constraints, // Constraints inside each module
-      })),
-      preferenceModules: preferenceModules.map((module) => ({
-        moduleName: module.name,
-        description: module.description,
-        preferences: module.preferences, // Preferences inside each module
-      })),
-      sets: Object.keys(setTypes).map((set) => ({
-        setDefinition: { name: set, type: setTypes[set] },
-        values: [], // Add your logic for values
-      })),
-      parameters: Object.keys(paramTypes).map((param) => ({
-        parameterDefinition: { name: param, type: paramTypes[param] },
-        value: "", // Default value, adjust based on your need
-      })),
-      name: imageName,
-      description: imageDescription,
-      code: zplCode, // The zpl code from context
-    };
-
-    // Send POST request with the data
-    try {
-      const response = await fetch(`/user/${userId}/image`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
-
-      const data = await response.json();
-      console.log("Image saved successfully:", data);
-      alert("Image saved successfully!");
-    } catch (error) {
-      console.error("Error saving image:", error);
-      alert("Failed to save image");
-    }
+ const handleSaveImage = async () => {
+  const requestData = {
+    variables: Object.keys(setTypes).map((set) => ({
+      identifier: set,
+      structure: setTypes[set],
+      alias: set, // For simplicity, using set as alias, you can adjust this logic.
+    })),
+    constraintModules: constraintsModules.map((module) => ({
+      moduleName: module.name,
+      description: module.description,
+      constraints: module.constraints, // Constraints inside each module
+    })),
+    preferenceModules: preferenceModules.map((module) => ({
+      moduleName: module.name,
+      description: module.description,
+      preferences: module.preferences, // Preferences inside each module
+    })),
+    sets: Object.keys(setTypes).map((set) => ({
+      setDefinition: { name: set, type: setTypes[set] },
+      values: [], // Add your logic for values
+    })),
+    parameters: Object.keys(paramTypes).map((param) => ({
+      parameterDefinition: { name: param, type: paramTypes[param] },
+      value: "", // Default value, adjust based on your need
+    })),
+    name: imageName,
+    description: imageDescription,
+    code: zplCode, // The zpl code from context
   };
+
+  // Send POST request with the data
+  try {
+    //const response = await fetch("/user/"+userId+"/image+", {
+    console.log(userId);
+    const response = await fetch(`/user/${userId}/image`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestData),
+    });
+
+    if (!response.ok) {
+      // If status code is not 2xx, handle the error
+      const errorMsg = await response.text(); // Get the error message from response
+      alert(`Failed to save image. Error: ${errorMsg || 'Unknown error occurred'}`);
+      return;
+    }
+
+    const data = await response.json();
+    console.log("Image saved successfully:", data);
+    alert("Image saved successfully!");
+  } catch (error) {
+    console.error("Error saving image:", error);
+    alert(`Error: ${error.message}`);
+  }
+};
 
   return (
     <div className="image-setting-page background">

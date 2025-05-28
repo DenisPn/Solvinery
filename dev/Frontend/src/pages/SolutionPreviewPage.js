@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import "./SolutionPreviewPage.css"; // Assuming you have your CSS
 
 const SolutionPreviewPage = () => {
-    const { selectedVars, setSelectedVars, constraintsModules, preferenceModules, setConstraintsModules, setPreferenceModules } = useZPL(); // Access selectedVars, constraintsModules, and preferenceModules from context
+    const {userId, selectedVars, setSelectedVars, constraintsModules, preferenceModules, setConstraintsModules, setPreferenceModules } = useZPL(); // Access selectedVars, constraintsModules, and preferenceModules from context
     const [editingVariable, setEditingVariable] = useState(null); // To keep track of the variable being edited
     const [editedAlias, setEditedAlias] = useState("");
     const [editedStructure, setEditedStructure] = useState("");
@@ -102,6 +102,7 @@ const SolutionPreviewPage = () => {
     };
 
     const handleToggleSection = (section) => {
+        console.log("SPP user ID :"+userId);
         setActiveSection(section); // Switch between "variables", "constraints", "preferences"
     };
 
@@ -274,12 +275,8 @@ const SolutionPreviewPage = () => {
                 </div>
             )}
 
-            <button
-    className="save-image-button"
-    onClick={() => window.location.href = '/image-setting-set-and-params'} // Redirects to ImageSettingSetAndParams page
->
-    Continue
-</button>
+    
+ <Link to="/image-setting-set-and-params" className="save-image-button">Continue</Link>
 
             {/* Back Button */}
             <Link to="/configure-variables" className="back-button">Back</Link>

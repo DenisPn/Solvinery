@@ -23,32 +23,42 @@ export const ZPLProvider = ({ children }) => {
     const [userId, setUserId] = useState(null);
     const [selectedVars, setSelectedVars] = useState([]); 
 
+    // Add imageName, imageDescription, and zplCode to the context
+    const [imageName, setImageName] = useState('');
+    const [imageDescription, setImageDescription] = useState('');
+    const [zplCode, setZplCode] = useState('');
+
     return (
         <ZPLContext.Provider value={{
 
-            //variables
+            // Variables
             variables, setVariables,
             selectedVars, setSelectedVars,
             variablesModule, setVariablesModule,
             setAliases, setSetAliases,
 
-            //constraints
+            // Constraints
             constraints, setConstraints,
             constraintsModules, setConstraintsModules,
 
-            //preferences
+            // Preferences
             preferences, setPreferences,
             preferenceModules, setPreferenceModules,
 
-            //sets and params
+            // Sets and Params
             setTypes, setSetTypes,
             paramTypes, setParamTypes,
 
-            //image and user
+            // Image and User
             imageId, setImageId,
             userId, setUserId,
-            
-            //solution
+
+            // Image name, description, and ZPL code
+            imageName, setImageName,
+            imageDescription, setImageDescription,
+            zplCode, setZplCode,
+
+            // Solution
             solutionResponse, setSolutionResponse,
         }}>
             {children}

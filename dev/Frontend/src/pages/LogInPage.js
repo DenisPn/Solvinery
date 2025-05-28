@@ -34,6 +34,7 @@ const LogInPage = () => {
     // Save the userId in the context
     setUserId(response.data.userId);
     setErrorMessage(""); // Clear any previous error
+    console.log(response.data.userId);
     navigate("/"); // Redirect to home page or dashboard
   } else {
     setErrorMessage("Invalid username or password.");
