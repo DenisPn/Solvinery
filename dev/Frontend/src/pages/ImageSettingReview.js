@@ -1,64 +1,84 @@
-import React, { useState } from 'react';
-import { useZPL } from "../context/ZPLContext";  // Import context to get ZPL data
-import { useNavigate } from 'react-router-dom';
-import './ImageSettingReview.css';  // Your custom styles
+import React, { useState } from "react";
+import { useZPL } from "../context/ZPLContext"; // Import the useZPL hook
+import { Link } from "react-router-dom";
+import "./ImageSettingReview.css"; // Assuming you have your CSS
 
 const ImageSettingReview = () => {
-  const { userId, imageId, zplCode } = useZPL();  // Destructure the context for userId, imageId, and zplCode
+  const { userId, zplCode, setTypes, paramTypes, constraintsModules, preferenceModules } = useZPL(); // Destructure from context
   const [imageName, setImageName] = useState("");
   const [imageDescription, setImageDescription] = useState("");
-  const [showZplModal, setShowZplModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");  // To hold the error message in case of a failed request
-  const navigate = useNavigate();
+  const [isZplCodeVisible, setIsZplCodeVisible] = useState(false);
 
-  // Handle the "Save Image" functionality (Updated to PATCH)
+  // Handle Show ZPL Code
+  const handleShowZplCode = () => {
+    setIsZplCodeVisible(!isZplCodeVisible);
+  };
+
+  // Handle Save Image (post to server)
   const handleSaveImage = async () => {
+    const requestData = {
+      variables: Object.keys(setTypes).map((set) => ({
+        identifier: set,
+        structure: setTypes[set],
+        alias: set, // For simplicity, using set as alias, you can adjust this logic.
+      })),
+      constraintModules: constraintsModules.map((module) => ({
+        moduleName: module.name,
+        description: module.description,
+        constraints: module.constraints, // Constraints inside each module
+      })),
+      preferenceModules: preferenceModules.map((module) => ({
+        moduleName: module.name,
+        description: module.description,
+        preferences: module.preferences, // Preferences inside each module
+      })),
+      sets: Object.keys(setTypes).map((set) => ({
+        setDefinition: { name: set, type: setTypes[set] },
+        values: [], // Add your logic for values
+      })),
+      parameters: Object.keys(paramTypes).map((param) => ({
+        parameterDefinition: { name: param, type: paramTypes[param] },
+        value: "", // Default value, adjust based on your need
+      })),
+      name: imageName,
+      description: imageDescription,
+      code: zplCode, // The zpl code from context
+    };
+
+    // Send POST request with the data
     try {
-      const response = await fetch(`/user/${userId}/image/${imageId}/publish`, {
-        method: "PATCH",  // Changed from POST to PATCH
+      const response = await fetch(`/user/${userId}/image`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          imageName,
-          imageDescription,
-        }),
+        body: JSON.stringify(requestData),
       });
 
-      if (response.ok) {
-        alert("Your image has been saved!");
-        navigate("/");  // Redirect to home page or wherever necessary
-      } else {
-        // If the response is not ok, get the error message from the response
-        const errorData = await response.json();
-        setErrorMessage(errorData.msg || "Unknown error occurred while saving the image.");
-        alert(`Error: ${errorData.msg || "Unknown error occurred."}`);
-      }
+      const data = await response.json();
+      console.log("Image saved successfully:", data);
+      alert("Image saved successfully!");
     } catch (error) {
-      console.error("Error:", error);
-      setErrorMessage(error.message || "An unexpected error occurred while saving the image.");
-      alert(`Error: ${error.message || "An unexpected error occurred."}`);
+      console.error("Error saving image:", error);
+      alert("Failed to save image");
     }
   };
 
   return (
-    <div className="image-setting-review-page background">
-      <h1>Image Setting Review</h1>
+    <div className="image-setting-page background">
+      <h1 className="page-title">Image Setting: Sets and Parameters</h1>
 
-      <div className="input-container">
-        <label>Image Name:</label>
+      {/* Image Name and Description Fields */}
+      <div className="image-details">
+        <label>Image Name</label>
         <input
           type="text"
           value={imageName}
           onChange={(e) => setImageName(e.target.value)}
           placeholder="Enter image name"
         />
-      </div>
-
-      <div className="input-container">
-        <label>Image Description:</label>
-        <input
-          type="text"
+        <label>Image Description</label>
+        <textarea
           value={imageDescription}
           onChange={(e) => setImageDescription(e.target.value)}
           placeholder="Enter image description"
@@ -66,37 +86,24 @@ const ImageSettingReview = () => {
       </div>
 
       {/* Show ZPL Code Button */}
-      <button className="show-zpl-button" onClick={() => setShowZplModal(true)}>
-        Show ZPL Code for this image
+      <button onClick={handleShowZplCode} className="show-zpl-button">
+        Show ZPL Code for this Image
       </button>
 
-      {/* Save Image Button */}
-      <button className="save-image-button" onClick={handleSaveImage}>
-        Save Image
-      </button>
-
-      {/* Modal for ZPL Code */}
-      {showZplModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h2>ZPL Code</h2>
-            <textarea
-              readOnly
-              value={zplCode || ""}
-              rows="10"
-              cols="80"
-              style={{ width: "100%", resize: "none" }}
-            ></textarea>
-            <button className="close-modal-button" onClick={() => setShowZplModal(false)}>
-              Close
-            </button>
-          </div>
+      {isZplCodeVisible && (
+        <div className="zpl-code-modal">
+          <h2>ZPL Code</h2>
+          <pre>{zplCode}</pre>
         </div>
       )}
 
-      <button className="back-button" onClick={() => navigate("/image-setting-set-and-params")}>
-        Back
+      {/* Save Image Button */}
+      <button onClick={handleSaveImage} className="save-image-button">
+        Save Image
       </button>
+
+      {/* Back Button */}
+      <Link to="/solution-preview" className="back-button">Back</Link>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+/* Image Setting Review Page Layout */
 .image-setting-review-page {
     display: flex;
     flex-direction: column;
@@ -7,48 +8,88 @@
     min-height: 100vh;
 }
 
-h1 {
+/* Title Styling */
+.image-setting-review-page h1 {
     font-size: 28px;
     font-weight: bold;
     margin-bottom: 20px;
+    text-align: center;
 }
 
-.input-container {
+/* Image Settings Form */
+.image-settings-form {
     width: 100%;
     max-width: 600px;
-    margin-bottom: 15px;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.input-container input {
+/* Input Groups */
+.input-group {
+    margin-bottom: 20px;
+}
+
+/* Label for inputs */
+.input-group label {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Image Name and Description Inputs */
+input, textarea {
     width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    margin-top: 5px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1.5px solid #B0BEC5;
+    border-radius: 6px;
+    background-color: #F8F9FA;
+    outline: none;
+    transition: border 0.2s ease-in-out;
+    margin-bottom: 10px;
 }
 
-.button-container {
-    margin-top: 20px;
-    display: flex;
-    gap: 20px;
+input:focus, textarea:focus {
+    border-color: #007BFF;
+    background-color: white;
 }
 
-.image-setting-button {
-    padding: 10px 20px;
-    font-size: 16px;
+/* Show ZPL Code Button */
+.show-zpl-button {
     background-color: #007BFF;
     color: white;
     border: none;
+    padding: 10px 20px;
     border-radius: 5px;
+    font-size: 16px;
     cursor: pointer;
+    margin-bottom: 20px;
 }
 
-.image-setting-button:hover {
+.show-zpl-button:hover {
     background-color: #0056b3;
 }
 
-/* Modal Styles */
+/* Save Image Button */
+.save-image-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.save-image-button:hover {
+    background-color: #45a049;
+}
+
+/* Modal for ZPL Code */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -66,39 +107,86 @@ h1 {
     background-color: white;
     padding: 20px;
     border-radius: 8px;
-    width: 400px;
+    width: 80%;
+    max-width: 600px;
     text-align: center;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-textarea {
-    width: 100%;
-    height: 150px;
-    resize: none;
-    margin-top: 10px;
+.modal-input-group {
+    margin-bottom: 20px;
 }
 
-.navigation-buttons {
+.modal-input-group input {
+    width: 80%;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1.5px solid #B0BEC5;
+    border-radius: 6px;
+    background-color: #F8F9FA;
+    outline: none;
+}
+
+/* Modal Buttons */
+.modal-buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
+.save-button,
+.cancel-button {
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.save-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.save-button:hover {
+    background-color: #45a049;
+}
+
+.cancel-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+}
+
+.cancel-button:hover {
+    background-color: #e53935;
+}
+
+/* Style for Back, Quit, and Continue buttons at the top */
+.top-buttons {
     display: flex;
     justify-content: space-between;
     width: 100%;
-    max-width: 600px;
-    margin-top: 20px;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    right: 20px;
 }
 
-.back-button, .quit-button {
+.quit-button, .continue-button, .back-button {
     padding: 10px 20px;
-    font-size: 16px;
     background-color: #007BFF;
     color: white;
+    border: none;
     border-radius: 5px;
-    text-decoration: none;
+    cursor: pointer;
 }
 
-.quit-button {
-    background-color: #f44336;
-}
-
-.quit-button:hover, .back-button:hover {
+.quit-button:hover, .continue-button:hover, .back-button:hover {
     background-color: #0056b3;
 }
+
+/* Ensure buttons are aligned properly in the top-buttons container */
+.top-buttons button {
+    width: 30%;
+}
+

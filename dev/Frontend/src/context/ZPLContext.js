@@ -26,22 +26,30 @@ export const ZPLProvider = ({ children }) => {
     return (
         <ZPLContext.Provider value={{
 
-            constraints, setConstraints,
-            preferences, setPreferences,
+            //variables
+            variables, setVariables,
+            selectedVars, setSelectedVars,
+            variablesModule, setVariablesModule,
+            setAliases, setSetAliases,
 
+            //constraints
+            constraints, setConstraints,
             constraintsModules, setConstraintsModules,
+
+            //preferences
+            preferences, setPreferences,
             preferenceModules, setPreferenceModules,
 
-            variables, setVariables,
+            //sets and params
             setTypes, setSetTypes,
             paramTypes, setParamTypes,
 
+            //image and user
             imageId, setImageId,
-            solutionResponse, setSolutionResponse,
-            variablesModule, setVariablesModule,
-            setAliases, setSetAliases,
             userId, setUserId,
-            selectedVars, setSelectedVars,
+            
+            //solution
+            solutionResponse, setSolutionResponse,
         }}>
             {children}
         </ZPLContext.Provider>
