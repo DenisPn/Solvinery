@@ -5,8 +5,7 @@ import "./ConfigureVariablesPage.css";
 
 const ConfigureVariablesPage = () => {
     const { variables, variablesModule, setVariablesModule } = useZPL();
-
-    const [selectedVars, setSelectedVars] = useState([]);  // Stores selected variables
+    const { setSelectedVars, selectedVars } = useZPL();
     const [selectedSets, setSelectedSets] = useState([]);  // Stores selected sets
     const [selectedParams, setSelectedParams] = useState([]); // Stores selected params
     const [displaySets, setDisplaySets] = useState([]);    // Stores sets that should be displayed
@@ -39,6 +38,7 @@ const ConfigureVariablesPage = () => {
             if (prevSelectedVars.includes(variable)) {
                 return prevSelectedVars.filter(v => v !== variable);
             } else {
+                console.log("Added variable "+variable+" to selectedVars");
                 return [...prevSelectedVars, variable];
             }
         });

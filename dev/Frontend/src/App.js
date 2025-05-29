@@ -15,6 +15,8 @@ import LogInPage from "./pages/LogInPage";
 import RegisterPage from "./pages/RegisterPage";
 import ViewImagesPage from "./pages/ViewImagesPage";
 import MyImagesPage from "./pages/MyImagesPage";
+import ImageSettingSetAndParams from "./pages/ImageSettingSetAndParams";
+import ImageSettingReview from "./pages/ImageSettingReview";
 
 function App() {
     return (
@@ -33,6 +35,9 @@ function App() {
                     <Route path="/configure-preferences" element={<ConfigurePreferencesPage />} />
                     <Route path="/solution-preview" element={<SolutionPreviewPage />} />
                     <Route path="/solution-results" element={<SolutionResultsPage />} />
+                    <Route path="/image-setting-set-and-params" element={<ImageSettingSetAndParams />} />
+                    <Route path="/image-setting-review" element={<ImageSettingReview />} />
+
                 </Routes>
             </DndProvider>
         </Router>

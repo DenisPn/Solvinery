@@ -20,7 +20,7 @@ const LogInPage = () => {
   const requestData = { userName, password };
 
   // Use POST for sending login data to the updated backend endpoint
-  const response = await axios.post("/users/user/login", requestData, {
+  const response = await axios.post("/users/session", requestData, {
     headers: { "Content-Type": "application/json" }, // Ensure content-type is set for JSON
   });
 
@@ -34,6 +34,7 @@ const LogInPage = () => {
     // Save the userId in the context
     setUserId(response.data.userId);
     setErrorMessage(""); // Clear any previous error
+    console.log(response.data.userId);
     navigate("/"); // Redirect to home page or dashboard
   } else {
     setErrorMessage("Invalid username or password.");
