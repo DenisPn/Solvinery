@@ -222,6 +222,17 @@ public class EntityMapper {
                 toSetEntities(image.getActiveSets(),imageId),
                 image.getSourceCode(),user);
     }
+    public static void setEntity(ImageEntity existingEntity,UserEntity user,ImageEntity entity){
+        UUID imageId=existingEntity.getId();
+        Image image=toDomain(entity);
+        existingEntity.setAll(image.getName(),image.getDescription(),image.getCreationDate(),
+                toPreferenceModuleEntities(image.getPreferenceModules().values(),imageId),
+                toConstraintModuleEntities(image.getConstraintsModules().values(), imageId),
+                toVariableEntities(image.getActiveVariables(),imageId),
+                toParamEntities(image.getActiveParams(),imageId),
+                toSetEntities(image.getActiveSets(),imageId),
+                image.getSourceCode(),user);
+    }
     public static PublishedImageEntity publishImage(ImageEntity imageEntity, UUID imageId) {
         return new PublishedImageEntity(
                 imageEntity.getName(),
@@ -272,13 +283,13 @@ public class EntityMapper {
                 imageEntity.getUser().getUsername()
         );
     }
-        public static void setEntity(PublishedImageEntity existingEntity, ImageEntity imageEntity){
+        public static void setEntity(PublishedImageEntity existingEntity, UserEntity user, ImageEntity toCopy){
             UUID imageId=existingEntity.getId();
             existingEntity.setAll(
-                    imageEntity.getName(),
-                    imageEntity.getDescription(),
-                    imageEntity.getCreationDate(),
-                    imageEntity.getPreferenceModules().stream()
+                    toCopy.getName(),
+                    toCopy.getDescription(),
+                    toCopy.getCreationDate(),
+                    toCopy.getPreferenceModules().stream()
                             .map(pref -> new PreferenceModuleEntity(
                                     imageId,
                                     pref.getName(),
@@ -286,7 +297,7 @@ public class EntityMapper {
                                     new HashSet<>(pref.getPreferences())
                             ))
                             .collect(Collectors.toSet()),
-                    imageEntity.getConstraintModules().stream()
+                    toCopy.getConstraintModules().stream()
                             .map(cons -> new ConstraintModuleEntity(
                                     imageId,
                                     cons.getName(),
@@ -294,7 +305,7 @@ public class EntityMapper {
                                     new HashSet<>(cons.getConstraints())
                             ))
                             .collect(Collectors.toSet()),
-                    imageEntity.getVariables().stream()
+                    toCopy.getVariables().stream()
                             .map(var -> new VariableEntity(
                                     imageId,
                                     var.getName(),
@@ -302,7 +313,7 @@ public class EntityMapper {
                                     var.getAlias()
                             ))
                             .collect(Collectors.toSet()),
-                    imageEntity.getActiveParams().stream()
+                    toCopy.getActiveParams().stream()
                             .map(param -> new ParameterEntity(
                                     imageId,
                                     param.getName(),
@@ -311,7 +322,7 @@ public class EntityMapper {
                                     param.getAlias()
                             ))
                             .collect(Collectors.toSet()),
-                    imageEntity.getActiveSets().stream()
+                    toCopy.getActiveSets().stream()
                             .map(set -> new SetEntity(
                                     new ImageComponentKey(imageId, set.getName()),
                                     set.getType(),
@@ -319,9 +330,60 @@ public class EntityMapper {
                                     set.getAlias()
                             ))
                             .collect(Collectors.toSet()),
-                    imageEntity.getOriginal_code(),
-                    imageEntity.getUser().getUsername()
+                    toCopy.getOriginal_code(),
+                    user.getNickname()
             );
+    }
+    public static void setEntity(ImageEntity existingEntity, UserEntity user, PublishedImageEntity toCopy){
+        UUID imageId=existingEntity.getId();
+        existingEntity.setAll(
+                toCopy.getName(),
+                toCopy.getDescription(),
+                toCopy.getCreationDate(),
+                toCopy.getPreferenceModules().stream()
+                        .map(pref -> new PreferenceModuleEntity(
+                                imageId,
+                                pref.getName(),
+                                pref.getDescription(),
+                                new HashSet<>(pref.getPreferences())
+                        ))
+                        .collect(Collectors.toSet()),
+                toCopy.getConstraintModules().stream()
+                        .map(cons -> new ConstraintModuleEntity(
+                                imageId,
+                                cons.getName(),
+                                cons.getDescription(),
+                                new HashSet<>(cons.getConstraints())
+                        ))
+                        .collect(Collectors.toSet()),
+                toCopy.getVariables().stream()
+                        .map(var -> new VariableEntity(
+                                imageId,
+                                var.getName(),
+                                var.getStructure(),
+                                var.getAlias()
+                        ))
+                        .collect(Collectors.toSet()),
+                toCopy.getActiveParams().stream()
+                        .map(param -> new ParameterEntity(
+                                imageId,
+                                param.getName(),
+                                param.getType(),
+                                param.getData(),
+                                param.getAlias()
+                        ))
+                        .collect(Collectors.toSet()),
+                toCopy.getActiveSets().stream()
+                        .map(set -> new SetEntity(
+                                new ImageComponentKey(imageId, set.getName()),
+                                set.getType(),
+                                new ArrayList<>(set.getData()),
+                                set.getAlias()
+                        ))
+                        .collect(Collectors.toSet()),
+                toCopy.getOriginal_code(),
+                user
+        );
     }
 
 }

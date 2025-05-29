@@ -82,7 +82,7 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public void appendToSet (ModelSet set, String value) {
         getModel().appendToSet(set,value);
     }

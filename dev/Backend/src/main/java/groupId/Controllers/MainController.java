@@ -66,5 +66,4 @@ public class MainController {
             return "Connection failed: " + e.getMessage();
         }
     }
-
 }

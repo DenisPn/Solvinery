@@ -24,10 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -123,14 +120,12 @@ public class ImageService {
         );
 
         Page<PublishedImageEntity> imagesPage = publishedImagesRepository.findAll(pageRequest);
-        Set<ImageDataDTO> imageDTOs = imagesPage.getContent().stream()
-                .map(image -> new ImageDataDTO(
+        Map<UUID,ImageDataDTO> imageDTOs = imagesPage.getContent().stream()
+                .collect(Collectors.toMap(PublishedImageEntity::getId,image -> new ImageDataDTO(
                         image.getName(),
                         image.getDescription(),
                         image.getCreationDate(),
-                        image.getAuthor()
-                ))
-                .collect(Collectors.toSet());
+                        image.getAuthor())));
 
         return new PublishedImagesDTO(imageDTOs);
     }
@@ -143,7 +138,7 @@ public class ImageService {
             throw new ClientSideError("User does not own the image to publish.");
         PublishedImageEntity publishedImageEntity= new PublishedImageEntity();
         publishedImageEntity = publishedImagesRepository.save(publishedImageEntity);
-        EntityMapper.setEntity(publishedImageEntity,imageEntity);
+        EntityMapper.setEntity(publishedImageEntity,user,imageEntity);
         publishedImagesRepository.save(publishedImageEntity);
     }
     @Transactional
@@ -153,10 +148,23 @@ public class ImageService {
 
         Page<ImageEntity> userImages = imageRepository.findByUser(user, PageRequest.of(pageNumber, PAGE_SIZE) );
 
-        Set<ImageDTO> imageDTOs = userImages.stream()
-                .map(image -> RecordFactory.makeDTO(EntityMapper.toDomain(image)))
-                .collect(Collectors.toSet());
+        Map<UUID,ImageDTO> imageDTOs = userImages.stream()
+                .collect(Collectors.toMap(
+                        ImageEntity::getId,
+                        image -> RecordFactory.makeDTO(EntityMapper.toDomain(image))
+                ));
         return new ImagesDTO(imageDTOs);
-
+    }
+    @Transactional
+    public CreateImageResponseDTO addPublishedImage(String userId, String imageId) {
+        UserEntity user = userService.getUser(userId)
+                .orElseThrow(() -> new ClientSideError("User id not found"));
+        PublishedImageEntity publishedImageEntity = publishedImagesRepository.findById(UUID.fromString(imageId))
+                .orElseThrow(()->new ClientSideError("Invalid image ID: image not published."));
+        ImageEntity imageEntity = new ImageEntity(user);
+        imageEntity = imageRepository.save(imageEntity);
+        EntityMapper.setEntity(imageEntity,user,publishedImageEntity);
+        imageRepository.save(imageEntity);
+        return new CreateImageResponseDTO(imageEntity.getId().toString());
     }
 }

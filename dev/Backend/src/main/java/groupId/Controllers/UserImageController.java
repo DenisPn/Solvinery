@@ -39,7 +39,7 @@ public class UserImageController {
         return ResponseEntity.ok(response);
     }
     @GetMapping("/{page}")
-    public ResponseEntity<ImagesDTO> getImage(@PathVariable String userId,
+    public ResponseEntity<ImagesDTO> getImages(@PathVariable String userId,
                                               @PathVariable int page) {
         ImagesDTO response = imageService.fetchUserImages(page,userId);
         return ResponseEntity.ok(response);
@@ -57,5 +57,12 @@ public class UserImageController {
                                                @PathVariable String imageId){
         imageService.publishImage(userId,imageId);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{imageId}/get")
+    public ResponseEntity<CreateImageResponseDTO> getPublishedImage(@PathVariable String userId,
+                                             @PathVariable String imageId){
+        CreateImageResponseDTO response = imageService.addPublishedImage(userId,imageId);
+        return ResponseEntity.ok(response);
     }
 }

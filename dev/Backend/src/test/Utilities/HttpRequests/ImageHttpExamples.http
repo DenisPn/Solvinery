@@ -5,6 +5,9 @@ GET http://localhost:4000/image/view/0
 ### Publish Image
 PATCH http://localhost:4000/user/{{userId}}/image/{{imageId}}/publish
 
+### Add Published Image to User
+PATCH http://localhost:4000/user/{{userId}}/image/{{publishedImage}}/get
+
 ### Get User Images
 GET  http://localhost:4000/user/{{userId}}/image/{{page}}
 
