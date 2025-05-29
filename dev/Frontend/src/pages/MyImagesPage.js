@@ -163,14 +163,38 @@ const MyImagesPage = () => {
 
               {/* Action Buttons */}
               <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-                <button onClick={handleCopyCode}>Copy ZPL Code</button>
-                <button onClick={() => alert("Publish action coming soon!")}>Publish Image</button>
-               <img
+             <img
   src="/images/ExitButton2.png"
   alt="Close"
   className="modal-close-button"
   onClick={() => setSelectedImage(null)}
+  title="Close"
 />
+
+<img
+  src="/images/CopyZPLButton.png"
+  alt="Copy ZPL"
+  className="modal-copy-button"
+  onClick={handleCopyCode}
+  title="Copy ZPL code to clipboard"
+/>
+
+<img
+  src="/images/PublishButton.png"
+  alt="Publish"
+  className="modal-publish-button"
+  onClick={() => alert("Publish action coming soon!")}
+  title="Publish this image"
+/>
+
+<img
+  src="/images/EditButton.png"
+  alt="Edit"
+  className="modal-edit-button"
+  onClick={() => {}} 
+  title="Edit this image"
+/>
+
 
 
               </div>
