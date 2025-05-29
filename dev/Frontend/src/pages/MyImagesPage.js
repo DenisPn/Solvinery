@@ -62,7 +62,13 @@ const MyImagesPage = () => {
 
   return (
     <div className="my-images-background">
-      <button className="back-button" onClick={handleBack}>Back</button>
+<img
+  src="/images/HomeButton.png"
+  alt="Home"
+  className="home-button"
+  onClick={handleBack}
+  title="Go to Home"
+/>
 
       <div className="my-images-form-container">
         <h1 className="main-my-images-title">My Images</h1>
@@ -102,9 +108,24 @@ const MyImagesPage = () => {
 
         {/* Pagination */}
         <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-          <button onClick={handlePrevPage} disabled={page === 0}>Previous</button>
+          <img
+  src="/images/LeftArrowButton.png"
+  alt="Previous Page"
+  className="prev-page-button"
+  onClick={handlePrevPage}
+  title="Previous Page"
+  style={{ opacity: page === 0 ? 0.3 : 1, pointerEvents: page === 0 ? "none" : "auto" }}
+/>
+
           <span>Page {page + 1}</span>
-          <button onClick={handleNextPage}>Next</button>
+          <img
+  src="/images/RightArrowButton.png"
+  alt="Next Page"
+  className="next-page-button"
+  onClick={handleNextPage}
+  title="Next Page"
+/>
+
         </div>
 
         {/* Modal View */}
