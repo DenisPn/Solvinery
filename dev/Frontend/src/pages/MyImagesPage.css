@@ -176,7 +176,18 @@
   z-index: 10;
 }
 
+.modal-close-button {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 100;
+}
+
 .modal-content {
+  position: relative; /* Needed for absolute positioning of close button */
   background: white;
   padding: 30px;
   border-radius: 12px;
@@ -184,4 +195,66 @@
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+}
+
+.modal-publish-button {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 100;
+}
+
+.modal-copy-button {
+  position: absolute;
+  top: 25px;
+  right: 80px; /* Previously 75px — now slightly more */
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 100;
+}
+
+.modal-edit-button {
+  position: absolute;
+  top: 25px;
+  right: 125px; /* 25px (margin) + 3 icons of 40px each + spacing */
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 100;
+}
+
+.home-button {
+  position: absolute;
+  top: 50px;
+  left: 30px;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.next-page-button {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.prev-page-button {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.modal-solve-button {
+  position: absolute;
+  top: 25px;
+  right: 170px; /* Leaves room for 4 icons: 40x4 + gaps */
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 100;
 }

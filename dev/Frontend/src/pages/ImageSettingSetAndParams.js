@@ -58,32 +58,32 @@ const ImageSettingSetAndParams = () => {
   return (
     <div className="image-setting-page background">
       {/* Top Buttons */}
-      <div className="top-buttons">
-        {/* Left Buttons (Quit and Continue) */}
-        <div className="left-buttons">
-          <button
-            className="quit-button"
-            onClick={() => navigate("/")} // Quit button to navigate to home
-          >
-            Quit
-          </button>
-          <button
-            className="continue-button"
-            onClick={() => navigate("/image-setting-review")} // Navigate to the new ImageSettingReview page
-          >
-            Continue
-          </button>
-        </div>
-        {/* Right Buttons (Back) */}
-        <div className="right-buttons">
-          <button
-            className="back-button"
-            onClick={() => navigate("/solution-preview")} // Back button to navigate to SPP
-          >
-            Back
-          </button>
-        </div>
-      </div>
+     {/* Top Navigation Icons */}
+<img
+  src="/images/HomeButton.png"
+  alt="Home"
+  className="image-setting-home-button"
+  onClick={() => navigate("/")}
+  title="Go to Home"
+/>
+
+<img
+  src="/images/LeftArrowButton.png"
+  alt="Continue"
+  className="image-setting-continue-button"
+  onClick={() => navigate("/image-setting-review")}
+  title="Continue"
+/>
+
+<img
+  src="/images/RightArrowButton.png"
+  alt="Back"
+  className="image-setting-back-button"
+  onClick={() => navigate("/solution-preview")}
+  title="Back"
+/>
+
+
 
       <h1 className="page-title">Image Settings - Sets and Parameters</h1>
 

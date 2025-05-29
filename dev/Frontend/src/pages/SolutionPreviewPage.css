@@ -215,3 +215,33 @@
     background: #007BFF;
     border-radius: 10px;
 }
+
+.solution-home-button {
+  position: absolute;
+  top: 50px;
+  left: 30px;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.continue-button-image {
+  position: absolute;
+  top: 50px;
+  left: 75px; /* 30px (home button) + 35px (width) + 10px spacing */
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.back-button-image {
+  position: absolute;
+  top: 50px;
+  right: 30px;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  z-index: 10;
+}

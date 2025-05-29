@@ -66,6 +66,35 @@ const ConfigureConstraintsPage = () => {
 
     return (
         <div className="configure-constraints-page background">
+            <div className="top-bar">
+  <div className="top-bar-left">
+    <Link to="/" title="Home">
+      <img
+        src="/images/HomeButton.png"
+        alt="Home"
+        className="top-bar-button"
+      />
+    </Link>
+    <img
+      src="/images/LeftArrowButton.png"
+      alt="Continue"
+      className="top-bar-button"
+      onClick={() => navigate("/configure-preferences")}
+      title="Continue"
+    />
+  </div>
+
+  <div className="top-bar-right">
+    <Link to="/configure-variables" title="Back">
+      <img
+        src="/images/RightArrowButton.png"
+        alt="Back"
+        className="top-bar-button"
+      />
+    </Link>
+  </div>
+</div>
+
             <h1 className="page-title">Configure High-Level Constraints</h1>
 
             <div className="constraints-layout">
@@ -141,16 +170,8 @@ const ConfigureConstraintsPage = () => {
                 </div>
             </div>
 
-            <button
-                className="button"
-                onClick={() => navigate('/configure-preferences')}
-            >
-                Continue
-            </button>
-
-            <Link to="/" className="back-button">
-                Back
-            </Link>
+       
+         
         </div>
     );
 };

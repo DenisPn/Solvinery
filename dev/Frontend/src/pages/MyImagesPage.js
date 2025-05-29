@@ -62,7 +62,13 @@ const MyImagesPage = () => {
 
   return (
     <div className="my-images-background">
-      <button className="back-button" onClick={handleBack}>Back</button>
+<img
+  src="/images/HomeButton.png"
+  alt="Home"
+  className="home-button"
+  onClick={handleBack}
+  title="Go to Home"
+/>
 
       <div className="my-images-form-container">
         <h1 className="main-my-images-title">My Images</h1>
@@ -102,9 +108,24 @@ const MyImagesPage = () => {
 
         {/* Pagination */}
         <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-          <button onClick={handlePrevPage} disabled={page === 0}>Previous</button>
+          <img
+  src="/images/LeftArrowButton.png"
+  alt="Previous Page"
+  className="prev-page-button"
+  onClick={handlePrevPage}
+  title="Previous Page"
+  style={{ opacity: page === 0 ? 0.3 : 1, pointerEvents: page === 0 ? "none" : "auto" }}
+/>
+
           <span>Page {page + 1}</span>
-          <button onClick={handleNextPage}>Next</button>
+          <img
+  src="/images/RightArrowButton.png"
+  alt="Next Page"
+  className="next-page-button"
+  onClick={handleNextPage}
+  title="Next Page"
+/>
+
         </div>
 
         {/* Modal View */}
@@ -163,9 +184,48 @@ const MyImagesPage = () => {
 
               {/* Action Buttons */}
               <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-                <button onClick={handleCopyCode}>Copy ZPL Code</button>
-                <button onClick={() => alert("Publish action coming soon!")}>Publish Image</button>
-                <button onClick={() => setSelectedImage(null)}>Close</button>
+             <img
+  src="/images/ExitButton2.png"
+  alt="Close"
+  className="modal-close-button"
+  onClick={() => setSelectedImage(null)}
+  title="Close"
+/>
+
+<img
+  src="/images/CopyZPLButton.png"
+  alt="Copy ZPL"
+  className="modal-copy-button"
+  onClick={handleCopyCode}
+  title="Copy ZPL code to clipboard"
+/>
+
+<img
+  src="/images/PublishButton.png"
+  alt="Publish"
+  className="modal-publish-button"
+  onClick={() => alert("Publish action coming soon!")}
+  title="Publish this image"
+/>
+
+<img
+  src="/images/Solve.png"
+  alt="Solve"
+  className="modal-solve-button"
+  onClick={() => {}}
+  title="Solve this image"
+/>
+
+<img
+  src="/images/EditButton.png"
+  alt="Edit"
+  className="modal-edit-button"
+  onClick={() => {}} 
+  title="Edit this image"
+/>
+
+
+
               </div>
             </div>
           </div>

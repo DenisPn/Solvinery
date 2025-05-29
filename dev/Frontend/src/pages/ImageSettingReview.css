@@ -190,3 +190,27 @@ input:focus, textarea:focus {
     width: 30%;
 }
 
+.image-setting-home-button {
+  position: fixed;
+  top: 50px;
+  left: 30px;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.image-setting-save-button {
+  position: fixed;
+  top: 50px;
+  left: 75px; /* 30 (home left) + 35 (home width) + 10 spacing */
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+
+
+
+

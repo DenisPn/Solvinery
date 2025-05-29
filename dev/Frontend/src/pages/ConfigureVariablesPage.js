@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, redirect } from "react-router-dom";
 import { useZPL } from "../context/ZPLContext";
+import { useNavigate } from "react-router-dom";
+
 import "./ConfigureVariablesPage.css";
 
 const ConfigureVariablesPage = () => {
@@ -10,6 +12,7 @@ const ConfigureVariablesPage = () => {
     const [selectedParams, setSelectedParams] = useState([]); // Stores selected params
     const [displaySets, setDisplaySets] = useState([]);    // Stores sets that should be displayed
     const [displayParams, setDisplayParams] = useState([]); // Stores params that should be displayed
+ const navigate = useNavigate();
 
     // State for storing aliases for each selected set
     const [setAliases, setSetAliases] = useState({});
@@ -76,6 +79,7 @@ const ConfigureVariablesPage = () => {
 
     // Save selected variables, sets, parameters, and aliases in context when navigating
     const handleContinue = () => {
+       
         const variablesOfInterest = selectedVars.map(v => v.identifier);
     
         // Create a map where each variable is mapped to an array of corresponding set aliases
@@ -94,12 +98,47 @@ const ConfigureVariablesPage = () => {
         });
     
         setSetAliases(setAliases); // Ensure the latest aliases are saved globally
+        console.log("Test");
+        navigate("/configure-constraints");
     };
     
     
 
     return (
         <div className="configure-variables-page background">
+           {/* Top Navigation Buttons */}
+{/* Top Navigation Row */}
+<div className="top-bar">
+  <div className="top-bar-left">
+    <Link to="/" title="Home">
+      <img
+        src="/images/HomeButton.png"
+        alt="Home"
+        className="top-bar-button"
+      />
+    </Link>
+    <img
+      src="/images/LeftArrowButton.png"
+      alt="Continue"
+      className="top-bar-button"
+      onClick={handleContinue}
+      title="Continue"
+    />
+  </div>
+  <div className="top-bar-right">
+    <Link to="/upload-zpl" title="Back">
+      <img
+        src="/images/RightArrowButton.png"
+        alt="Back"
+        className="top-bar-button"
+      />
+    </Link>
+  </div>
+</div>
+
+
+
+
             <div className="MainDiv">
             <h1 className="page-title">Configure Variables</h1>
             <div className="variables-layout">
@@ -136,10 +175,7 @@ const ConfigureVariablesPage = () => {
                 
             
             </div>
-            
-            <Link to="/configure-constraints" className="button" onClick={handleContinue}>
-                Continue
-            </Link>
+         
         </div>
         </div>
     );

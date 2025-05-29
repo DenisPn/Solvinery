@@ -34,7 +34,7 @@ export const ZPLProvider = ({ children }) => {
             // Variables
             variables, setVariables,
             selectedVars, setSelectedVars,
-            variablesModule, setVariablesModule,
+            variablesModule, setVariablesModule, //check this one
             setAliases, setSetAliases,
 
             // Constraints
