@@ -209,6 +209,14 @@ const MyImagesPage = () => {
 />
 
 <img
+  src="/images/Solve.png"
+  alt="Solve"
+  className="modal-solve-button"
+  onClick={() => {}}
+  title="Solve this image"
+/>
+
+<img
   src="/images/EditButton.png"
   alt="Edit"
   className="modal-edit-button"

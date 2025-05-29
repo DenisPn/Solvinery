@@ -225,3 +225,33 @@
 .cancel-button:hover {
     background-color: #e53935;
 }
+
+.image-setting-home-button {
+  position: fixed;
+  top: 50px;
+  left: 30px;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.image-setting-continue-button {
+  position: fixed;
+  top: 50px;
+  left: 75px; /* 30px + 35px + spacing */
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.image-setting-back-button {
+  position: fixed;
+  top: 50px;
+  right: 30px;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  z-index: 10;
+}

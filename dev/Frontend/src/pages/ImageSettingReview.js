@@ -75,6 +75,27 @@ const handleSaveImage = async () => {
 
   return (
     <div className="image-setting-page background">
+
+{/* Top Left Buttons */}
+<div className="image-setting-top-left-buttons">
+  <Link to="/" title="Go to Home">
+    <img
+      src="/images/HomeButton.png"
+      alt="Home"
+      className="image-setting-home-button"
+    />
+  </Link>
+
+  <img
+    src="/images/SaveButton.png"
+    alt="Save"
+    className="image-setting-save-button"
+    onClick={handleSaveImage}
+    title="Save Image"
+  />
+</div>
+
+
       <h1 className="page-title">Image Setting: Sets and Parameters</h1>
 
       {/* Image Name and Description Fields */}
@@ -106,13 +127,21 @@ const handleSaveImage = async () => {
         </div>
       )}
 
-      {/* Save Image Button */}
-      <button onClick={handleSaveImage} className="save-image-button">
-        Save Image
-      </button>
+
+
+
+
 
       {/* Back Button */}
-      <Link to="/solution-preview" className="back-button">Back</Link>
+      <Link to="/image-setting-set-and-params" title="Back">
+  <img
+    src="/images/RightArrowButton.png"
+    alt="Back"
+    className="image-setting-back-button"
+  />
+</Link>
+
+
     </div>
   );
 };

@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useZPL } from "../context/ZPLContext"; // Import useZPL
-import { Link } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 import "./SolutionPreviewPage.css"; // Assuming you have your CSS
 
 const SolutionPreviewPage = () => {
+     const navigate = useNavigate();
     const {selectedVars, setSelectedVars, constraintsModules, preferenceModules, setConstraintsModules, setPreferenceModules } = useZPL(); // Access selectedVars, constraintsModules, and preferenceModules from context
     const [editingVariable, setEditingVariable] = useState(null); // To keep track of the variable being edited
     const [editedAlias, setEditedAlias] = useState("");
@@ -108,6 +109,15 @@ const SolutionPreviewPage = () => {
 
     return (
         <div className="solution-preview-page background">
+
+<img
+  src="/images/HomeButton.png"
+  alt="Home"
+  className="solution-home-button"
+  onClick={() => navigate("/")}
+  title="Go to Home"
+/>
+
             <h1 className="page-title">Solution Preview</h1>
 
             {/* Button to Toggle Sections */}
@@ -276,10 +286,24 @@ const SolutionPreviewPage = () => {
             )}
 
     
- <Link to="/image-setting-set-and-params" className="save-image-button">Continue</Link>
+<Link to="/image-setting-set-and-params" title="Continue">
+  <img
+    src="/images/LeftArrowButton.png"
+    alt="Continue"
+    className="continue-button-image"
+  />
+</Link>
+
 
             {/* Back Button */}
-            <Link to="/configure-variables" className="back-button">Back</Link>
+            <Link to="/configure-preferences" title="Back">
+  <img
+    src="/images/RightArrowButton.png"
+    alt="Back"
+    className="back-button-image"
+  />
+</Link>
+
         </div>
     );
 };
