@@ -20,7 +20,7 @@ const MainPage = () => {
                 </Link>
         
                 <Link to="/view-images" className="button">
-                    View Images
+                    Public Images
                 </Link>
                 <Link to="/upload-zpl" className="button">
                     Create New Image
