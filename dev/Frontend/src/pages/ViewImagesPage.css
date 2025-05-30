@@ -151,3 +151,14 @@
   cursor: pointer;
   z-index: 5;
 }
+
+.modal-save-button {
+  position: absolute;
+  top: 25px;
+  right: 215px; /* Adjust based on spacing from other icons */
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 100;
+}
+

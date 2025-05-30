@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../Themes/MainTheme.css";
 import "./ViewImagesPage.css";
+import { useZPL } from "../context/ZPLContext";
+
 
 const ViewImagesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -10,6 +12,8 @@ const ViewImagesPage = () => {
   const [page, setPage] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
   const navigate = useNavigate();
+  const { userId } = useZPL();
+
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -46,6 +50,21 @@ const ViewImagesPage = () => {
         .catch(() => alert("Failed to copy ZPL code."));
     }
   };
+
+  const handleSaveImage = async () => {
+  if (!selectedImage || !selectedImage.imageId || !userId) {
+    alert("Missing image or user information.");
+    return;
+  }
+
+  try {
+    const response = await axios.patch(`/user/${userId}/image/${selectedImage.imageId}/get`);
+    alert(`Response: ${JSON.stringify(response.data)}`);
+  } catch (error) {
+    alert(`Error: ${error.response?.data?.message || error.message}`);
+  }
+};
+
 
   const handlePublish = async () => {
     if (!selectedImage?.imageId) return;
@@ -126,6 +145,15 @@ const ViewImagesPage = () => {
           onClick={() => setSelectedImage(null)}
           title="Close"
         />
+
+
+<img
+  src="/images/downloadButton.png"
+  alt="Save to My Images"
+  className="modal-save-button"
+  onClick={handleSaveImage}
+  title="Save image in My Images"
+/>
 
         <img
           src="/images/CopyZPLButton.png"
