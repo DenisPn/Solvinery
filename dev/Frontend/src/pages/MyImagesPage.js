@@ -15,7 +15,6 @@ const MyImagesPage = () => {
 
   const navigate = useNavigate();
   const { userId } = useZPL();
-  
 
   useEffect(() => {
     if (!userId) return;
@@ -32,18 +31,19 @@ const MyImagesPage = () => {
     fetchImages();
   }, [userId, page]);
 
-const handlePublishImage = async () => {
-  if (!selectedImageId || !userId) return;
+  const handlePublishImage = async () => {
+    if (!selectedImageId || !userId) return;
 
-  try {
-    const response = await axios.patch(`/user/${userId}/image/${selectedImageId}/publish`);
-    alert(`Publish Success: ${JSON.stringify(response.data)}`);
-  } catch (error) {
-    const errMsg = error.response?.data || error.message || "Unknown error";
-    alert(`Publish Failed: ${JSON.stringify(errMsg)}`);
-  }
-};
-
+    try {
+      const response = await axios.patch(
+        `/user/${userId}/image/${selectedImageId}/publish`
+      );
+      alert(`Publish Success: ${JSON.stringify(response.data)}`);
+    } catch (error) {
+      const errMsg = error.response?.data || error.message || "Unknown error";
+      alert(`Publish Failed: ${JSON.stringify(errMsg)}`);
+    }
+  };
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -67,18 +67,47 @@ const handlePublishImage = async () => {
 
   const handleCopyCode = () => {
     if (selectedImage?.code) {
-      navigator.clipboard.writeText(selectedImage.code).then(() => {
-        alert("ZPL code copied to clipboard!");
-      }).catch(err => {
-        alert("Failed to copy ZPL code.");
-      });
+      navigator.clipboard
+        .writeText(selectedImage.code)
+        .then(() => {
+          alert("ZPL code copied to clipboard!");
+        })
+        .catch((err) => {
+          alert("Failed to copy ZPL code.");
+        });
     }
   };
+
+
+
+
+// Optional placeholders
+const handleSolve = () => alert("Solve not available yet.");
+const handleEdit = () => alert("Edit not available yet.");
+
+const getViewData = () => {
+  if (!selectedImage) return null;
+  switch (viewSection) {
+    case "sets":
+      return JSON.stringify(selectedImage.sets, null, 2);
+    case "params":
+      return JSON.stringify(selectedImage.parameters, null, 2);
+    case "constraints":
+      return JSON.stringify(selectedImage.constraintModules, null, 2);
+    case "preferences":
+      return JSON.stringify(selectedImage.preferenceModules, null, 2);
+    default:
+      return null;
+  }
+};
 
   const imageEntries = Object.entries(imagesMap);
   const filteredEntries = imageEntries.filter(([_, img]) =>
     img.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+
+
 
   return (
     <div className="my-images-background">
@@ -149,46 +178,79 @@ const handlePublishImage = async () => {
           />
         </div>
 
-    {selectedImage && (
-  <div className="modal-overlay" onClick={() => setSelectedImage(null)}>
-    <div className="modal-content"onClick={(e) => e.stopPropagation()} >
+        {selectedImage && (
+  <div className="modal-overlay" onClick={() => { setSelectedImage(null); setViewSection(null); }}>
+    <div className="modal-content-fixed" onClick={(e) => e.stopPropagation()}>
+      
 
-  {/* Close button (top-left) */}
+      {/* Top-left: Close or Back — same style and icon */}
+{viewSection === null ? (
   <img
     src="/images/ExitButton2.png"
     alt="Close"
-    className="modal-close-button"
-    onClick={() => setSelectedImage(null)}
+    className="modal-corner-button"
+    onClick={() => { setSelectedImage(null); setViewSection(null); }}
     title="Close"
   />
-
-  {/* Optional top actions (Edit, Publish, etc.) */}
-
-  <h2>{selectedImage.name}</h2>
-  <p>{selectedImage.description}</p>
-
-  {/* Button Grid OR Section Content */}
-  {viewSection === null ? (
-    <div className="modal-grid-buttons">
-      <button className="modal-square-button" onClick={() => setViewSection("sets")}>Sets</button>
-      <button className="modal-square-button" onClick={() => setViewSection("params")}>Parameters</button>
-      <button className="modal-square-button" onClick={() => setViewSection("constraints")}>Constraints</button>
-      <button className="modal-square-button" onClick={() => setViewSection("preferences")}>Preferences</button>
-    </div>
-  ) : (
-    <div className="modal-section-content">
-      <h3>{viewSection.charAt(0).toUpperCase() + viewSection.slice(1)}</h3>
-      <pre style={{ maxHeight: "400px", overflowY: "auto" }}>
-        {JSON.stringify(selectedImage[viewSection], null, 2)}
-      </pre>
-      <button className="modal-back-button" onClick={() => setViewSection(null)}>Back</button>
-    </div>
-  )}
-</div>
-  </div>
+) : (
+  <img
+    src="/images/ExitButton2.png"
+    alt="Back"
+    className="modal-corner-button"
+    onClick={() => setViewSection(null)}
+    title="Back"
+  />
 )}
 
 
+      {/* Top-right Action Buttons */}
+      <img
+        src="/images/PublishButton.png"
+        alt="Publish"
+        className="modal-publish-button"
+        onClick={handlePublishImage}
+        title="Publish"
+      />
+      <img
+        src="/images/Solve.png"
+        alt="Solve"
+        className="modal-solve-button"
+        onClick={handleSolve}
+        title="Solve"
+      />
+      <img
+        src="/images/EditButton.png"
+        alt="Edit"
+        className="modal-edit-button"
+        onClick={handleEdit}
+        title="Edit"
+      />
+      <img
+        src="/images/CopyZPLButton.png"
+        alt="Copy ZPL"
+        className="modal-copy-button"
+        onClick={handleCopyCode}
+        title="Copy ZPL"
+      />
+
+      {/* Main Modal vs Submodal */}
+      {viewSection === null ? (
+        <>
+          <p><strong>Description:</strong> {selectedImage.description}</p>
+          <div className="grid-button-section">
+            <button className="modal-square-button" onClick={() => setViewSection("sets")}>Sets</button>
+            <button className="modal-square-button" onClick={() => setViewSection("params")}>Parameters</button>
+            <button className="modal-square-button" onClick={() => setViewSection("constraints")}>Constraints</button>
+            <button className="modal-square-button" onClick={() => setViewSection("preferences")}>Preferences</button>
+          </div>
+        </>
+      ) : (
+        <pre className="modal-section-data">{getViewData()}</pre>
+      )}
+
+    </div>
+  </div>
+)}
 
       </div>
     </div>
