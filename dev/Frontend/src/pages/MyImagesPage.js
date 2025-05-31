@@ -11,8 +11,11 @@ const MyImagesPage = () => {
   const [page, setPage] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedImageId, setSelectedImageId] = useState(null);
+  const [viewSection, setViewSection] = useState(null);
+
   const navigate = useNavigate();
   const { userId } = useZPL();
+  
 
   useEffect(() => {
     if (!userId) return;
@@ -148,104 +151,43 @@ const handlePublishImage = async () => {
 
     {selectedImage && (
   <div className="modal-overlay" onClick={() => setSelectedImage(null)}>
-    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-      <h2>{selectedImage.name}</h2>
-      <p><strong>ID:</strong> {selectedImageId}</p>
-      <p><strong>Description:</strong> {selectedImage.description}</p>
+    <div className="modal-content"onClick={(e) => e.stopPropagation()} >
 
-      <h3>Variables</h3>
-      <ul>
-        {selectedImage.variables.map((v, i) => (
-          <li key={i}>
-            {v.identifier} ({v.structure.join(", ")}) — {v.alias}
-          </li>
-        ))}
-      </ul>
+  {/* Close button (top-left) */}
+  <img
+    src="/images/ExitButton2.png"
+    alt="Close"
+    className="modal-close-button"
+    onClick={() => setSelectedImage(null)}
+    title="Close"
+  />
 
-      <h3>Constraints</h3>
-      <ul>
-        {selectedImage.constraintModules.map((mod, i) => (
-          <li key={i}>
-            <strong>{mod.moduleName}</strong>: {mod.description}<br />
-            Constraints: {mod.constraints.join(", ")}
-          </li>
-        ))}
-      </ul>
+  {/* Optional top actions (Edit, Publish, etc.) */}
 
-      <h3>Preferences</h3>
-      <ul>
-        {selectedImage.preferenceModules.map((mod, i) => (
-          <li key={i}>
-            <strong>{mod.moduleName}</strong>: {mod.description}<br />
-            Preferences: {mod.preferences.join(", ")}
-          </li>
-        ))}
-      </ul>
+  <h2>{selectedImage.name}</h2>
+  <p>{selectedImage.description}</p>
 
-      <h3>Sets</h3>
-      <ul>
-        {selectedImage.sets.map((s, i) => (
-          <li key={i}>
-            {s.setDefinition.name} ({s.setDefinition.type.join(", ")}) = [{s.values.join(", ")}]
-          </li>
-        ))}
-      </ul>
-
-      <h3>Parameters</h3>
-      <ul>
-        {selectedImage.parameters.map((p, i) => (
-          <li key={i}>
-            {p.parameterDefinition.name} = {p.value}
-          </li>
-        ))}
-      </ul>
-
-      {/* Action Buttons */}
-      <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-        <img
-          src="/images/ExitButton2.png"
-          alt="Close"
-          className="modal-close-button"
-          onClick={() => setSelectedImage(null)}
-          title="Close"
-        />
-
-        <img
-          src="/images/CopyZPLButton.png"
-          alt="Copy ZPL"
-          className="modal-copy-button"
-          onClick={handleCopyCode}
-          title="Copy ZPL code to clipboard"
-        />
-
-       <img
-  src="/images/PublishButton.png"
-  alt="Publish"
-  className="modal-publish-button"
-  onClick={handlePublishImage}
-  title="Publish this image"
-/>
-
-
-        <img
-          src="/images/Solve.png"
-          alt="Solve"
-          className="modal-solve-button"
-          onClick={() => {}}
-          title="Solve this image"
-        />
-
-        <img
-          src="/images/EditButton.png"
-          alt="Edit"
-          className="modal-edit-button"
-          onClick={() => {}}
-          title="Edit this image"
-        />
-      </div>
+  {/* Button Grid OR Section Content */}
+  {viewSection === null ? (
+    <div className="modal-grid-buttons">
+      <button className="modal-square-button" onClick={() => setViewSection("sets")}>Sets</button>
+      <button className="modal-square-button" onClick={() => setViewSection("params")}>Parameters</button>
+      <button className="modal-square-button" onClick={() => setViewSection("constraints")}>Constraints</button>
+      <button className="modal-square-button" onClick={() => setViewSection("preferences")}>Preferences</button>
     </div>
+  ) : (
+    <div className="modal-section-content">
+      <h3>{viewSection.charAt(0).toUpperCase() + viewSection.slice(1)}</h3>
+      <pre style={{ maxHeight: "400px", overflowY: "auto" }}>
+        {JSON.stringify(selectedImage[viewSection], null, 2)}
+      </pre>
+      <button className="modal-back-button" onClick={() => setViewSection(null)}>Back</button>
+    </div>
+  )}
+</div>
   </div>
 )}
+
 
 
       </div>
