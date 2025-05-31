@@ -5,7 +5,6 @@ import "../Themes/MainTheme.css";
 import "./ViewImagesPage.css";
 import { useZPL } from "../context/ZPLContext";
 
-
 const ViewImagesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [imageMap, setImageMap] = useState({});
@@ -14,12 +13,10 @@ const ViewImagesPage = () => {
   const navigate = useNavigate();
   const { userId } = useZPL();
 
-
   useEffect(() => {
     const fetchImages = async () => {
       try {
         const response = await axios.get(`/image/view/${page}`);
-        console.log("Fetched view images:", response.data);
         setImageMap(response.data.images || {});
       } catch (error) {
         console.error("Error fetching view images:", error);
@@ -42,6 +39,16 @@ const ViewImagesPage = () => {
     navigate("/");
   };
 
+  const handleNextPage = () => {
+    setPage((prev) => prev + 1);
+    setSelectedImage(null);
+  };
+
+  const handlePrevPage = () => {
+    setPage((prev) => Math.max(prev - 1, 0));
+    setSelectedImage(null);
+  };
+
   const handleCopyCode = () => {
     if (selectedImage?.code) {
       navigator.clipboard
@@ -52,29 +59,16 @@ const ViewImagesPage = () => {
   };
 
   const handleSaveImage = async () => {
-  if (!selectedImage || !selectedImage.imageId || !userId) {
-    alert("Missing image or user information.");
-    return;
-  }
+    if (!selectedImage || !selectedImage.imageId || !userId) {
+      alert("Missing image or user information.");
+      return;
+    }
 
-  try {
-    const response = await axios.patch(`/user/${userId}/image/${selectedImage.imageId}/get`);
-    alert(`Response: ${JSON.stringify(response.data)}`);
-  } catch (error) {
-    alert(`Error: ${error.response?.data?.message || error.message}`);
-  }
-};
-
-
-  const handlePublish = async () => {
-    if (!selectedImage?.imageId) return;
     try {
-      const response = await axios.patch(
-        `/user/${selectedImage.authorId}/image/${selectedImage.imageId}/publish`
-      );
-      alert(JSON.stringify(response.data));
-    } catch (err) {
-      alert("Error: " + (err.response?.data?.message || err.message));
+      const response = await axios.patch(`/user/${userId}/image/${selectedImage.imageId}/get`);
+      alert(`Response: ${JSON.stringify(response.data)}`);
+    } catch (error) {
+      alert(`Error: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -85,13 +79,12 @@ const ViewImagesPage = () => {
   return (
     <div className="view-images-background">
       <img
-  src="/images/HomeButton.png"
-  alt="Home"
-  className="home-button"
-  onClick={() => navigate("/")}
-  title="Go to Home"
-/>
-
+        src="/images/HomeButton.png"
+        alt="Home"
+        className="home-button"
+        onClick={handleBack}
+        title="Go to Home"
+      />
 
       <div className="view-images-form-container">
         <h1 className="main-view-images-title">Public Images</h1>
@@ -115,11 +108,11 @@ const ViewImagesPage = () => {
             filteredImages.map((image, index) => (
               <div
                 key={index}
-                className="image-item clickable"
+                className="image-item"
                 onClick={() => setSelectedImage(image)}
               >
                 <div className="image-thumbnail-text">
-                  <strong>{image.name}</strong>
+                  <h4>{image.name}</h4>
                   <p>{image.description}</p>
                 </div>
               </div>
@@ -127,54 +120,69 @@ const ViewImagesPage = () => {
           )}
         </div>
 
+        {/* Pagination */}
+        <div style={{ marginTop: "20px", display: "flex", gap: "10px", alignItems: "center" }}>
+          <img
+            src="/images/LeftArrowButton.png"
+            alt="Previous Page"
+            className="prev-page-button"
+            onClick={handlePrevPage}
+            title="Previous Page"
+            style={{
+              opacity: page === 0 ? 0.3 : 1,
+              pointerEvents: page === 0 ? "none" : "auto",
+            }}
+          />
+          <span>Page {page + 1}</span>
+          <img
+            src="/images/RightArrowButton.png"
+            alt="Next Page"
+            className="next-page-button"
+            onClick={handleNextPage}
+            title="Next Page"
+          />
+        </div>
+
         {/* Modal */}
         {selectedImage && (
-  <div className="modal-overlay" onClick={() => setSelectedImage(null)}>
-    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-      <h2>{selectedImage.name}</h2>
-      <p><strong>Description:</strong> {selectedImage.description}</p>
-      <p><strong>Author:</strong> {selectedImage.authorName}</p>
-      <p><strong>Creation Date:</strong> {new Date(selectedImage.creationDate).toLocaleString()}</p>
+          <div className="modal-overlay" onClick={() => setSelectedImage(null)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h2>{selectedImage.name}</h2>
+              <p><strong>Description:</strong> {selectedImage.description}</p>
+              <p><strong>Author:</strong> {selectedImage.authorName}</p>
+              <p><strong>Creation Date:</strong> {new Date(selectedImage.creationDate).toLocaleString()}</p>
 
-      {/* Action Buttons */}
-      <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-        <img
-          src="/images/ExitButton2.png"
-          alt="Close"
-          className="modal-close-button"
-          onClick={() => setSelectedImage(null)}
-          title="Close"
-        />
-
-
-<img
-  src="/images/downloadButton.png"
-  alt="Save to My Images"
-  className="modal-save-button"
-  onClick={handleSaveImage}
-  title="Save image in My Images"
-/>
-
-        <img
-          src="/images/CopyZPLButton.png"
-          alt="Copy ZPL"
-          className="modal-copy-button"
-          onClick={() => {
-            navigator.clipboard.writeText(selectedImage.description || "").then(() => {
-              alert("Description copied!");
-            }).catch(() => {
-              alert("Failed to copy description.");
-            });
-          }}
-          title="Copy image description"
-        />
-      </div>
-    </div>
-  </div>
-)}
-
-
-
+              <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+                <img
+                  src="/images/ExitButton2.png"
+                  alt="Close"
+                  className="modal-close-button"
+                  onClick={() => setSelectedImage(null)}
+                  title="Close"
+                />
+                <img
+                  src="/images/downloadButton.png"
+                  alt="Save to My Images"
+                  className="modal-save-button"
+                  onClick={handleSaveImage}
+                  title="Save image in My Images"
+                />
+                <img
+                  src="/images/CopyZPLButton.png"
+                  alt="Copy ZPL"
+                  className="modal-copy-button"
+                  onClick={() => {
+                    navigator.clipboard
+                      .writeText(selectedImage.description || "")
+                      .then(() => alert("Description copied!"))
+                      .catch(() => alert("Failed to copy description."));
+                  }}
+                  title="Copy image description"
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
