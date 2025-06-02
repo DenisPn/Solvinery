@@ -283,86 +283,6 @@ const MyImagesPage = () => {
                     ))}
                   </select>
 
-                  <h4>Values:</h4>
-                  <ul className="set-values-list">
-                    {selectedImage.sets[selectedSetIndex]?.values.map(
-                      (val, i) => {
-                        const editingIndex =
-                          selectedImage.sets[selectedSetIndex].editingIndex;
-                        const editingValue =
-                          selectedImage.sets[selectedSetIndex].editingValue ||
-                          "";
-                        return (
-                          <li key={i} className="set-value-item">
-                            {editingIndex === i ? (
-                              <>
-                                <input
-                                  type="text"
-                                  value={editingValue}
-                                  onChange={(e) => {
-                                    const newImage = { ...selectedImage };
-                                    newImage.sets[
-                                      selectedSetIndex
-                                    ].editingValue = e.target.value;
-                                    setSelectedImage(newImage);
-                                  }}
-                                />
-                                <button
-                                  onClick={() => {
-                                    const newImage = { ...selectedImage };
-                                    newImage.sets[selectedSetIndex].values[i] =
-                                      editingValue;
-                                    newImage.sets[
-                                      selectedSetIndex
-                                    ].editingIndex = null;
-                                    newImage.sets[
-                                      selectedSetIndex
-                                    ].editingValue = "";
-                                    setSelectedImage(newImage);
-                                  }}
-                                >
-                                  ✅
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                {val}
-                                <button
-                                  className="edit-value-button"
-                                  onClick={() => {
-                                    const newImage = { ...selectedImage };
-                                    newImage.sets[
-                                      selectedSetIndex
-                                    ].editingIndex = i;
-                                    newImage.sets[
-                                      selectedSetIndex
-                                    ].editingValue = val;
-                                    setSelectedImage(newImage);
-                                  }}
-                                >
-                                  ✎
-                                </button>
-                                <button
-                                  className="remove-value-button"
-                                  onClick={() => {
-                                    const newImage = { ...selectedImage };
-                                    newImage.sets[selectedSetIndex].values =
-                                      newImage.sets[
-                                        selectedSetIndex
-                                      ].values.filter((_, idx) => idx !== i);
-                                    setSelectedImage(newImage);
-                                  }}
-                                >
-                                  ✕
-                                </button>
-                              </>
-                            )}
-                          </li>
-                        );
-                      }
-                    )}
-                  </ul>
-
                   <div className="add-value-section">
                     <input
                       type="text"
@@ -393,6 +313,91 @@ const MyImagesPage = () => {
                       Add
                     </button>
                   </div>
+
+                  <h4>Values:</h4>
+                  <ul className="set-values-list">
+                    {selectedImage.sets[selectedSetIndex]?.values.map(
+                      (val, i) => {
+                        const editingIndex =
+                          selectedImage.sets[selectedSetIndex].editingIndex;
+                        const editingValue =
+                          selectedImage.sets[selectedSetIndex].editingValue ||
+                          "";
+                        return (
+                          <li key={i} className="set-value-item">
+                            <div className="value-text">
+                              {editingIndex === i ? (
+                                <>
+                                  <input
+                                    type="text"
+                                    value={editingValue}
+                                    onChange={(e) => {
+                                      const newImage = { ...selectedImage };
+                                      newImage.sets[
+                                        selectedSetIndex
+                                      ].editingValue = e.target.value;
+                                      setSelectedImage(newImage);
+                                    }}
+                                  />
+                                  <button
+                                    onClick={() => {
+                                      const newImage = { ...selectedImage };
+                                      newImage.sets[selectedSetIndex].values[
+                                        i
+                                      ] = editingValue;
+                                      newImage.sets[
+                                        selectedSetIndex
+                                      ].editingIndex = null;
+                                      newImage.sets[
+                                        selectedSetIndex
+                                      ].editingValue = "";
+                                      setSelectedImage(newImage);
+                                    }}
+                                  >
+                                    ✅
+                                  </button>
+                                </>
+                              ) : (
+                                <span>{val}</span>
+                              )}
+                            </div>
+                            {editingIndex !== i && (
+                              <div className="value-buttons">
+                                <button
+                                  className="edit-value-button"
+                                  onClick={() => {
+                                    const newImage = { ...selectedImage };
+                                    newImage.sets[
+                                      selectedSetIndex
+                                    ].editingIndex = i;
+                                    newImage.sets[
+                                      selectedSetIndex
+                                    ].editingValue = val;
+                                    setSelectedImage(newImage);
+                                  }}
+                                >
+                                  ✎
+                                </button>
+                                <button
+                                  className="remove-value-button"
+                                  onClick={() => {
+                                    const newImage = { ...selectedImage };
+                                    newImage.sets[selectedSetIndex].values =
+                                      newImage.sets[
+                                        selectedSetIndex
+                                      ].values.filter((_, idx) => idx !== i);
+                                    setSelectedImage(newImage);
+                                  }}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            )}
+                          </li>
+                        );
+                      }
+                    )}
+                  </ul>
                 </div>
               ) : (
                 <pre className="modal-section-data">{getViewData()}</pre>
