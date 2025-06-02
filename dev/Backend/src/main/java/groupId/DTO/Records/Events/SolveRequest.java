@@ -18,7 +18,8 @@ public class SolveRequest {
 
 public record SolveRequest(
     String userId,
-    String problemId,
-    String zimplContent)
+    String imageId,
+    String zimplContent,
+    int timeoutSeconds)
 { }
 

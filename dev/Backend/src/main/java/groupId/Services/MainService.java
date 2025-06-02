@@ -76,7 +76,7 @@ public class MainService {
     }
 
     public void sendSolveRequest(String userId, String problemId, String zimplContent) {
-        SolveRequest request = new SolveRequest(userId, problemId, zimplContent);
+        SolveRequest request = new SolveRequest(userId, problemId, zimplContent,30);
         kafkaTemplate.send(TOPIC_NAME, request);
     }
 
@@ -84,7 +84,7 @@ public class MainService {
     public void handleSolveRequest(SolveRequest request) {
         System.out.println("Received solve request:");
         System.out.println("User ID: " + request.userId());
-        System.out.println("Problem ID: " + request.problemId());
+        System.out.println("Problem ID: " + request.imageId());
         System.out.println("Zimpl Content: " + request.zimplContent());
     }
 

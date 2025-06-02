@@ -1,7 +1,6 @@
 ### Fetch Images
 GET http://localhost:4000/image/view/0
 
-
 ### Publish Image
 PATCH http://localhost:4000/user/{{userId}}/image/{{imageId}}/publish
 
