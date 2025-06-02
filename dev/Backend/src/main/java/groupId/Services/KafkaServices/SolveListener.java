@@ -34,22 +34,20 @@ public class SolveListener {
     private String baseStorageDir;
     private static final int MAX_TIMEOUT_SECONDS = 300;
 @KafkaListener(
-        topics = "solve-requests",
+        topics = "solve-requests-1",
         containerFactory = "kafkaListenerContainerFactory",
-        groupId = "problem-solving-group"
+        groupId = "problem-solving-group-1"
 )
 public void handleSolveRequest(@Payload SolveRequest request,
-                               Acknowledgment ack,
                                @Header(KafkaHeaders.RECEIVED_PARTITION) int partition) {
-    log.info("Received solve request: {}", request);
     try {
+        log.info("New ver--------------------------------------------------------------------------");
+        log.info("Received solve request: {}", request.requestId());
         Path codeFile = createCodeFile(request);
         Solution solution = solveProblem(request, codeFile);
         log.info("Solution found: {}", solution);
-        ack.acknowledge();
     } catch (Exception e) {
         log.error("Error while solving: {}", e.getMessage());
-        ack.nack(Duration.ofSeconds(3));
         }
     }
 

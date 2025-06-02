@@ -24,7 +24,7 @@ import java.util.concurrent.TimeoutException;
 @Service
 public class SolveService {
     private final ConcurrentHashMap<String, CompletableFuture<Solution>> pendingRequests = new ConcurrentHashMap<>();
-    private static final String TOPIC_NAME = "solve-requests";
+    private static final String TOPIC_NAME = "solve-requests-1";
 
     private final KafkaTemplate<String, SolveRequest> kafkaTemplate;
     private final ImageService imageService;

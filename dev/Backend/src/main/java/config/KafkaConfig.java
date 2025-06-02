@@ -12,11 +12,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.*;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Configuration
 public class KafkaConfig {
@@ -24,7 +26,7 @@ public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootStrapServer;
 
-    private static final String SOLVE_REQUEST_TOPIC = "solve-requests";
+    private static final String SOLVE_REQUEST_TOPIC = "solve-requests-1";
     private static final int NUM_PARTITIONS = 4;
 
     @Bean
@@ -71,9 +73,22 @@ public class KafkaConfig {
     public ConsumerFactory<String, SolveRequest> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServer);
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, "problem-solving-group");
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, "problem-solving-group-1" + UUID.randomUUID());
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         return new DefaultKafkaConsumerFactory<>(config);
     }
+/*    @Bean
+    public ConsumerFactory<String, SolveRequest> consumerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServer);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, "problem-solving-group");
+        return new DefaultKafkaConsumerFactory<>(config);
+    }*/
+
 
     /**
      * Configures and provides a Kafka {@link ConcurrentKafkaListenerContainerFactory} bean,
@@ -89,5 +104,6 @@ public class KafkaConfig {
         factory.setConcurrency(NUM_PARTITIONS);
         return factory;
     }
+
 
 }
