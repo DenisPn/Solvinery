@@ -11,6 +11,7 @@ import groupId.DTO.Records.Requests.Commands.RegisterDTO;
 import groupId.DTO.Records.Requests.Responses.LoginResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -43,6 +44,7 @@ public class UserService {
      * @param registerData an instance of {@code RegisterDTO} containing the user's registration details
      * @throws UserDataException if the email already exists in the system or the username is already taken.
      */
+    @Transactional
     public void registerUser (RegisterDTO registerData) throws UserDataException {
         int passwordLength = registerData.password().length();
         if(passwordLength > MAX_PASSWORD_LENGTH || passwordLength < MIN_PASSWORD_LENGTH)
@@ -55,6 +57,7 @@ public class UserService {
             throw new UserDataException("Username already exists");
         userRepository.save(entity);
     }
+    @Transactional(readOnly = true)
     public Optional<UserEntity> getUser(String id) {
         return userRepository.findById(UUID.fromString(id));
     }
@@ -65,6 +68,7 @@ public class UserService {
      * @param loginData an instance of {@code LoginDTO} containing the username and password provided by the user
      * @throws UserDataException if the username does not exist or the password is incorrect
      */
+    @Transactional(readOnly = true)
     public LoginResponseDTO loginUser (LoginDTO loginData) throws UserDataException {
         UserEntity user = userRepository.findByUsername(loginData.userName())
                 .orElseThrow(() -> new UserDataException("Invalid username or password."));

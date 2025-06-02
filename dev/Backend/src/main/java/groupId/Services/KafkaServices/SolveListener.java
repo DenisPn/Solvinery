@@ -3,9 +3,9 @@ package groupId.Services.KafkaServices;
 import Exceptions.SolverExceptions.SolverException;
 import Model.Solution;
 import groupId.DTO.Records.Events.SolveRequest;
+import groupId.Services.SolveService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -14,25 +14,25 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.concurrent.Future;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class SolveListener {
 
+    private final SolveService solveService;
+
     @Value("${app.file.storage-dir}")
     private String baseStorageDir;
-    private static final int DEFAULT_TIMEOUT_SECONDS = 300;
-
+    private static final int MAX_TIMEOUT_SECONDS = 300;
 @KafkaListener(
         topics = "solve-requests",
         containerFactory = "kafkaListenerContainerFactory",
@@ -43,29 +43,29 @@ public void handleSolveRequest(@Payload SolveRequest request,
                                @Header(KafkaHeaders.RECEIVED_PARTITION) int partition) {
     log.info("Received solve request: {}", request);
     try {
-        String workDir = createWorkDirectory(request);
-        Solution solution = solveProblem(request, workDir);
+        Path codeFile = createCodeFile(request);
+        Solution solution = solveProblem(request, codeFile);
         log.info("Solution found: {}", solution);
         ack.acknowledge();
     } catch (Exception e) {
         log.error("Error while solving: {}", e.getMessage());
-        ack.nack(Duration.ofSeconds(10));
+        ack.nack(Duration.ofSeconds(3));
+        }
     }
 
-    }
 
 
-
-    private Solution solveProblem(SolveRequest request, String workDir) {
+    private Solution solveProblem(SolveRequest request, Path codeFile) {
         Process process = null;
         try {
-            ProcessBuilder pb = new ProcessBuilder("scip", "-c",
-                    String.format("read %s optimize display solution quit", request.getModelPath()));
-            pb.directory(new File(workDir));
-            pb.redirectErrorStream(true);
+            int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
+            ProcessBuilder processBuilder = new ProcessBuilder("scip", "-c",
+                    String.format("read %s optimize display solution quit", codeFile.toString()));
+            processBuilder.directory(codeFile.getParent().toFile());
+            processBuilder.redirectErrorStream(true);
+            process = processBuilder.start();
 
-            process = pb.start();
-            boolean completed = process.waitFor(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            boolean completed = process.waitFor(timeout, TimeUnit.SECONDS);
             if (!completed) {
                 process.destroyForcibly();
                 throw new SolverException("SCIP solver timed out");
@@ -85,22 +85,43 @@ public void handleSolveRequest(@Payload SolveRequest request,
                 process.destroyForcibly();
             }
 
-            cleanupWorkDirectory(workDir);
+            cleanupFile(codeFile);
         }
     }
 
-    private String createWorkDirectory(SolveRequest request) throws IOException {
-        String dirPath = baseStorageDir + "/solve_" + request.userId()+request.imageId() + "_" + System.currentTimeMillis();
-        Files.createDirectory(Paths.get(dirPath));
-        return dirPath;
+    private Path createCodeFile(SolveRequest request) throws IOException {
+        if(request == null){
+            log.error("Null request while creating code file");
+            throw new SolverException("Null request while solving");
+        }
+
+        String sessionId = UUID.randomUUID().toString();
+        Path directory = Paths.get(baseStorageDir);
+        Path filePath = directory.resolve("session_" + sessionId + ".zpl");
+        Files.createDirectories(directory);
+        return Files.writeString(
+                Files.createFile(filePath),
+                request.zimplContent(),
+                StandardOpenOption.CREATE_NEW
+        );
+
     }
 
-    private void cleanupWorkDirectory(String workDir) {
+    private void cleanupFile(Path workDir) {
+        if (workDir == null) {
+            log.error("Null path while cleaning up work directory");
+            throw new SolverException("Null path while solving");
+        }
+
         try {
-            FileUtils.deleteDirectory(new File(workDir));
+            boolean deleted = Files.deleteIfExists(workDir);
+            if (!deleted) {
+                log.warn("File {} was already deleted or doesn't exist", workDir);
+            }
         } catch (IOException e) {
-            log.warn("Failed to cleanup work directory: {}", workDir, e);
+            log.warn("Failed to cleanup code session file: {} ({})", workDir, e.getMessage(), e);
         }
+
     }
 
 

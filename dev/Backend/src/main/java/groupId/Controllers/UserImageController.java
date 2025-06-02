@@ -1,12 +1,14 @@
 package groupId.Controllers;
 
 import groupId.DTO.Records.Image.ImageDTO;
+import groupId.DTO.Records.Image.SolutionDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ModelDTO;
 import groupId.DTO.Records.Requests.Commands.CreateImageFromFileDTO;
 import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import groupId.DTO.Records.Requests.Responses.ImagesDTO;
 import groupId.Services.ImageService;
+import groupId.Services.SolveService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +22,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserImageController {
 
     private final ImageService imageService;
+
+    private final SolveService solveService;
     @Autowired
-    public UserImageController(ImageService imageService) {
+    public UserImageController(ImageService imageService,SolveService solveService) {
         this.imageService = imageService;
+        this.solveService = solveService;
     }
 
     @PostMapping("/model")
@@ -61,8 +66,15 @@ public class UserImageController {
 
     @PatchMapping("/{imageId}/get")
     public ResponseEntity<CreateImageResponseDTO> getPublishedImage(@PathVariable String userId,
-                                             @PathVariable String imageId){
+                                                                    @PathVariable String imageId){
         CreateImageResponseDTO response = imageService.addPublishedImage(userId,imageId);
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/{imageId}/solver/t={timeout}")
+    public ResponseEntity<SolutionDTO> solve(@PathVariable String userId,
+                                             @PathVariable String imageId,
+                                             @PathVariable int timeout){
+        SolutionDTO response = solveService.solve(userId,imageId,timeout);
         return ResponseEntity.ok(response);
     }
 }

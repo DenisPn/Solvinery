@@ -17,9 +17,8 @@ public class SolveRequest {
 */
 
 public record SolveRequest(
-    String userId,
-    String imageId,
-    String zimplContent,
-    int timeoutSeconds)
+        String requestId,
+        String zimplContent,
+        int timeoutSeconds)
 { }
 
