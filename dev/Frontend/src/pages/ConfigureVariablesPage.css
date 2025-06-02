@@ -261,3 +261,29 @@ code {
   background-color: #9AA3AC;
   padding: 0 8px;
 }
+
+/* Shared top bar for layout */
+.top-bar {
+  position: fixed;
+  top: 50px;
+  left: 30px;
+  right: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 999;
+}
+
+/* Grouped buttons on each side */
+.top-bar-left,
+.top-bar-right {
+  display: flex;
+  gap: 10px;
+}
+
+/* Shared style for all top buttons */
+.top-bar-button {
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+}

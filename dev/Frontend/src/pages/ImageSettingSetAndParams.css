@@ -1,10 +1,10 @@
-/* Solution Preview Page Layout */
-.solution-preview-page {
+/* Image Settings Page Layout */
+.image-setting-page {
     display: flex;
     flex-direction: column; /* Stack the sections vertically */
     align-items: center;
     padding: 20px;
-    background-color: #f4f4f4;
+    background-color: #f4f4f4; /* Same background color as before */
     min-height: 100vh;
 }
 
@@ -16,27 +16,68 @@
     text-align: center;
 }
 
-/* New Variables Section */
-.variables-section {
+.top-buttons {
+    display: flex;
+    justify-content: space-between; /* Spread buttons across the page */
+    padding: 10px 20px; /* Padding for the buttons */
+    position: fixed;
+    top: 20px;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.left-buttons {
+    display: flex;
+    gap: 20px; /* Space between Quit and Continue buttons */
+}
+
+.right-buttons {
+    margin-left: auto; /* Pushes the Back button to the right side */
+}
+
+.quit-button,
+.continue-button,
+.back-button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.quit-button:hover,
+.continue-button:hover,
+.back-button:hover {
+    background-color: #0056b3;
+}
+
+/* Button for Quit to navigate to home */
+.quit-button {
+    margin-left: 20px;
+}
+
+/* Set and Parameters Sections */
+.sets-section, .parameters-section {
     width: 100%;
     max-width: 100%;
     padding: 20px;
-    margin: 30px 60px 30px 40px; /* 30px top/bottom, 60px right, 40px left */
-    min-height: 500px; /* Ensures minimum height */
-    height: auto; /* Allows it to expand if necessary */
+    margin: 30px 60px 30px 40px;
+    min-height: 500px;
+    height: auto;
     border-radius: 0px;
     box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
-    overflow-y: auto; /* Enables vertical scroll when the content overflows */
-    -webkit-overflow-scrolling: touch; /* Enables smooth scrolling */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* Slider container for the variable boxes */
 .slider-container {
-    max-width: 100%; /* Ensure it doesn’t stretch beyond the viewport */
-    overflow-x: auto; /* Enables horizontal scroll */
+    max-width: 100%;
+    overflow-x: auto;
 }
 
-/* Container for the slider (variable boxes) */
 .slider {
     display: flex;
     width: fit-content;
@@ -48,9 +89,9 @@
     padding: 20px;
 }
 
-/* Box (variable) Styling */
+/* Box Styling */
 .slide {
-    width: 250px;  
+    width: 250px;
     height: 300px;
     background-color: #fff;
     border-radius: 2px;
@@ -65,22 +106,19 @@
     padding: 20px;
 }
 
-/* Hover effect for variable boxes */
 .slide:hover {
     scale: 1.1;
 }
 
-/* Data in the box (Variable name, Alias, Structure) */
+/* Data in the box */
 .slide h4, .slide p {
     font-size: 16px;
     margin: 5px 0;
     text-align: center;
 }
 
-
-
-/* Alias and Structure inputs */
-.variable-input {
+/* Inputs for Description */
+.set-input, .param-input {
     width: 200px;
     padding: 8px 12px;
     font-size: 14px;
@@ -93,7 +131,7 @@
     margin-bottom: 10px;
 }
 
-.variable-input:focus {
+.set-input:focus, .param-input:focus {
     border-color: #007BFF;
     background-color: white;
 }
@@ -106,14 +144,13 @@
     margin-left: 10px;
 }
 
-/* Buttons container at the bottom of each variable box */
+/* Buttons container */
 .buttons-container {
     display: flex;
     justify-content: center;
     gap: 10px;
     position: absolute;
     bottom: 20px;
-
 }
 
 /* Modal Overlay */
@@ -189,35 +226,8 @@
     background-color: #e53935;
 }
 
-/* Back Button */
-.back-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-.back-button:hover {
-    background-color: #0056b3;
-}
-
-.slider-container::-webkit-scrollbar{
-    height: 9px;
-}
-.slider-container::-webkit-scrollbar-track{
- background: none;   
- border-radius: 10px;
-}
-.slider-container::-webkit-scrollbar-thumb{
-    background: #007BFF;
-    border-radius: 10px;
-}
-
-.solution-home-button {
-  position: absolute;
+.image-setting-home-button {
+  position: fixed;
   top: 50px;
   left: 30px;
   width: 35px;
@@ -226,18 +236,18 @@
   z-index: 10;
 }
 
-.continue-button-image {
-  position: absolute;
+.image-setting-continue-button {
+  position: fixed;
   top: 50px;
-  left: 75px; /* 30px (home button) + 35px (width) + 10px spacing */
+  left: 75px; /* 30px + 35px + spacing */
   width: 35px;
   height: 35px;
   cursor: pointer;
   z-index: 10;
 }
 
-.back-button-image {
-  position: absolute;
+.image-setting-back-button {
+  position: fixed;
   top: 50px;
   right: 30px;
   width: 35px;

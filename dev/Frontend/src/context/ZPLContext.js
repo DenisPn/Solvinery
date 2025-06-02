@@ -5,8 +5,10 @@ const ZPLContext = createContext();
 export const ZPLProvider = ({ children }) => {
     const [constraints, setConstraints] = useState([]);
     const [preferences, setPreferences] = useState([]);
-    const [modules, setModules] = useState([]);
+
+    const [constraintsModules, setConstraintsModules] = useState([]);
     const [preferenceModules, setPreferenceModules] = useState([]);
+    
     const [variables, setVariables] = useState([]);
     const [setTypes, setSetTypes] = useState({});
     const [paramTypes, setParamTypes] = useState({});
@@ -18,24 +20,46 @@ export const ZPLProvider = ({ children }) => {
         variablesConfigurableParams: []
     });
     const [setAliases, setSetAliases] = useState({});
-
-    // Add userId state
     const [userId, setUserId] = useState(null);
+    const [selectedVars, setSelectedVars] = useState([]); 
+
+    // Add imageName, imageDescription, and zplCode to the context
+    const [imageName, setImageName] = useState('');
+    const [imageDescription, setImageDescription] = useState('');
+    const [zplCode, setZplCode] = useState('');
 
     return (
         <ZPLContext.Provider value={{
-            constraints, setConstraints,
-            preferences, setPreferences,
-            modules, setModules,
-            preferenceModules, setPreferenceModules,
+
+            // Variables
             variables, setVariables,
+            selectedVars, setSelectedVars,
+            variablesModule, setVariablesModule, //check this one
+            setAliases, setSetAliases,
+
+            // Constraints
+            constraints, setConstraints,
+            constraintsModules, setConstraintsModules,
+
+            // Preferences
+            preferences, setPreferences,
+            preferenceModules, setPreferenceModules,
+
+            // Sets and Params
             setTypes, setSetTypes,
             paramTypes, setParamTypes,
+
+            // Image and User
             imageId, setImageId,
+            userId, setUserId,
+
+            // Image name, description, and ZPL code
+            imageName, setImageName,
+            imageDescription, setImageDescription,
+            zplCode, setZplCode,
+
+            // Solution
             solutionResponse, setSolutionResponse,
-            variablesModule, setVariablesModule,
-            setAliases, setSetAliases,
-            userId, setUserId, // Provide userId and setUserId
         }}>
             {children}
         </ZPLContext.Provider>

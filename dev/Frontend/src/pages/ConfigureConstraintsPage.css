@@ -114,3 +114,29 @@
     background-color: #20C4A4;
     color: white;
 }
+
+/* Top horizontal button bar */
+.top-bar {
+  position: fixed;
+  top: 50px;
+  left: 30px;
+  right: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 999;
+}
+
+/* Grouped button sections */
+.top-bar-left,
+.top-bar-right {
+  display: flex;
+  gap: 10px;
+}
+
+/* Button image styling */
+.top-bar-button {
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+}

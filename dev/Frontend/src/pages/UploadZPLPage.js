@@ -1,29 +1,29 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
-import { useZPL } from "../context/ZPLContext"; // Import the context to get userId
-import { useNavigate } from "react-router-dom";
+import { useZPL } from "../context/ZPLContext";
+import { useNavigate, Link } from "react-router-dom";
 import "./UploadZPLPage.css";
 import "../Themes/MainTheme.css";
 
 const UploadZPLPage = () => {
   const {
-    imageId, setImageId,
-    variables, setVariables,
-    setTypes, setSetTypes,
-    paramTypes, setParamTypes,
-    constraints, setConstraints,
-    preferences, setPreferences,
-    userId // Destructure userId from context
+    setVariables,
+    setConstraints,
+    setPreferences,
+    setSetTypes,
+    setParamTypes,
+    setZplCode,
+    userId
   } = useZPL();
 
   const [fileContent, setFileContent] = useState("");
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
-  const fileInputRef = useRef(null); // 👈 Ref to the hidden file input
+  const fileInputRef = useRef(null);
 
   const handleSelectFile = () => {
-    fileInputRef.current.click(); // 👈 Trigger the file input click
+    fileInputRef.current.click();
   };
 
   const handleFileChange = (event) => {
@@ -38,25 +38,20 @@ const UploadZPLPage = () => {
   };
 
   const handleUpload = async () => {
-    const requestData = {
-      code: fileContent,
-      userId: userId // Add userId from context to the request payload
-    };
+    const requestData = { code: fileContent };
 
     try {
-      const response = await axios.post("/images/image", requestData, {
+      const response = await axios.post(`/user/${userId}/image/model`, requestData, {
         headers: { "Content-Type": "application/json" },
       });
 
       const responseData = response.data;
-      setImageId(responseData.imageId);
-      setVariables(responseData.model.variables);
-      setConstraints(responseData.model.constraints);
-      setPreferences(responseData.model.preferences);
-      setSetTypes(responseData.model.setTypes);
-      setParamTypes(responseData.model.paramTypes);
-
-      console.log("Full Response Data:", responseData);
+      setZplCode(fileContent);
+      setVariables(responseData.variables);
+      setConstraints(responseData.constraints);
+      setPreferences(responseData.preferences);
+      setSetTypes(responseData.setTypes);
+      setParamTypes(responseData.paramTypes);
 
       setMessage("File uploaded successfully!");
       navigate("/configure-variables");
@@ -72,11 +67,55 @@ const UploadZPLPage = () => {
     }
   };
 
+  const handleDrop = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === "text/plain") {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setFileContent(event.target.result);
+    };
+    reader.readAsText(file);
+  } else {
+    alert("Please drop a valid .zpl or .txt file.");
+  }
+};
+
+const handleDragOver = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+};
+
+
   return (
     <div className="upload-zpl-page background">
+      {/* Home Button */}
+      <div className="top-left-buttons">
+        <Link to="/" title="Home">
+          <img
+            src="/images/HomeButton.png"
+            alt="Home"
+            className="home-button-image"
+          />
+        </Link>
+      </div>
+
       <div className="upload-container">
-        <h1 className="page-title">Upload ZPL File</h1>
+
+   <h1 className="page-title">Upload ZPL File</h1>
         <br />
+
+        <div
+  className="drop-zone"
+  onDrop={handleDrop}
+  onDragOver={handleDragOver}
+>
+  <p>Drag & drop your ZPL file here</p>
+</div>
+
+     
         <button className="upload-button" onClick={handleSelectFile}>
           Select File
         </button>
@@ -88,17 +127,20 @@ const UploadZPLPage = () => {
           onChange={handleFileChange}
         />
         <br />
-        <textarea
-          value={fileContent}
-          onChange={(e) => setFileContent(e.target.value)}
-          rows={20}
-          cols={80}
-        />
+       <textarea
+  value={fileContent}
+  onChange={(e) => setFileContent(e.target.value)}
+  rows={15}
+  cols={60}
+  className="zpl-textarea"
+/>
+
         <br />
-        <button className="button" onClick={handleUpload}>
+        <button className="upload-button" onClick={handleUpload}>
           Upload
         </button>
       </div>
+
       {message && <p className="upload-message">{message}</p>}
     </div>
   );
