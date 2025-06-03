@@ -26,7 +26,7 @@ public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootStrapServer;
 
-    private static final String SOLVE_REQUEST_TOPIC = "solve-requests-1";
+    private static final String SOLVE_REQUEST_TOPIC = "solve-requests";
     private static final int NUM_PARTITIONS = 4;
 
     @Bean

@@ -11,6 +11,7 @@ import groupId.DTO.Factories.RecordFactory;
 import groupId.DTO.Records.Events.SolveRequest;
 import groupId.DTO.Records.Image.SolutionDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +21,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
+@Slf4j
 @Service
 public class SolveService {
     private final ConcurrentHashMap<String, CompletableFuture<Solution>> pendingRequests = new ConcurrentHashMap<>();
-    private static final String TOPIC_NAME = "solve-requests-1";
+    private static final String TOPIC_NAME = "solve-requests";
 
     private final KafkaTemplate<String, SolveRequest> kafkaTemplate;
     private final ImageService imageService;
@@ -51,6 +52,7 @@ public class SolveService {
             kafkaTemplate.send(TOPIC_NAME, solveRequest);
 
             Solution solution = future.get(timeout+5, TimeUnit.SECONDS);
+            log.info("Solve request completed successfully at Service level.");
             return RecordFactory.makeDTO(solution);
         } catch (TimeoutException e) {
             throw new RuntimeException("Solution timed out", e);

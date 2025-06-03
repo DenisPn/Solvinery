@@ -30,25 +30,33 @@ public class SolveListener {
 
     private final SolveService solveService;
 
-    @Value("${app.file.storage-dir}")
-    private String baseStorageDir;
-    private static final int MAX_TIMEOUT_SECONDS = 300;
+    //@Value("${app.file.storage-dir}")
+    private final String baseStorageDir = Paths.get(System.getProperty("user.dir")).toAbsolutePath() + "/User/Models";
+    private static final int MAX_TIMEOUT_SECONDS = 30;
 @KafkaListener(
-        topics = "solve-requests-1",
+        topics = "solve-requests",
         containerFactory = "kafkaListenerContainerFactory",
-        groupId = "problem-solving-group-1"
+        groupId = "problem-solving-group-9"
 )
 public void handleSolveRequest(@Payload SolveRequest request,
                                @Header(KafkaHeaders.RECEIVED_PARTITION) int partition) {
+    Path codeFile = null;
     try {
-        log.info("New ver--------------------------------------------------------------------------");
+        log.info("---------------------------Attempt 9-------------------------------");
         log.info("Received solve request: {}", request.requestId());
-        Path codeFile = createCodeFile(request);
+        codeFile = createCodeFile(request);
         Solution solution = solveProblem(request, codeFile);
         log.info("Solution found: {}", solution);
+        solveService.completeSolution(request.requestId(), solution);
+        log.info("Completed solve request: {}", request.requestId());
     } catch (Exception e) {
+        log.info("Caught exception of type: {}",e.getClass());
         log.error("Error while solving: {}", e.getMessage());
+        solveService.completeWithError(request.requestId(), e);
         }
+    finally {
+       // cleanupFile(codeFile);
+    }
     }
 
 
@@ -56,9 +64,11 @@ public void handleSolveRequest(@Payload SolveRequest request,
     private Solution solveProblem(SolveRequest request, Path codeFile) {
         Process process = null;
         try {
+            log.info("Got path: {}", codeFile.toAbsolutePath());
             int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
             ProcessBuilder processBuilder = new ProcessBuilder("scip", "-c",
-                    String.format("read %s optimize display solution quit", codeFile.toString()));
+                    String.format("read %s optimize display solution q", codeFile));
+            //"scip", "-c", "read " + sourceFilePath + " optimize display solution q"
             processBuilder.directory(codeFile.getParent().toFile());
             processBuilder.redirectErrorStream(true);
             process = processBuilder.start();
@@ -72,8 +82,9 @@ public void handleSolveRequest(@Payload SolveRequest request,
             if (process.exitValue() != 0) {
                 throw new SolverException("SCIP process failed with exit code: " + process.exitValue());
             }
-
+            log.info("SCIP process successfully completed.");
             byte[] outputBytes = process.getInputStream().readAllBytes();
+            log.info("\n-------------------OUTPUT----------------\n{}\n-------------------END--------------------\n",new String(outputBytes));
             return new Solution(new String(outputBytes));
 
         } catch (InterruptedException | IOException e) {
@@ -82,8 +93,6 @@ public void handleSolveRequest(@Payload SolveRequest request,
             if (process != null && process.isAlive()) {
                 process.destroyForcibly();
             }
-
-            cleanupFile(codeFile);
         }
     }
 
@@ -95,20 +104,21 @@ public void handleSolveRequest(@Payload SolveRequest request,
 
         String sessionId = UUID.randomUUID().toString();
         Path directory = Paths.get(baseStorageDir);
-        Path filePath = directory.resolve("session_" + sessionId + ".zpl");
         Files.createDirectories(directory);
         return Files.writeString(
-                Files.createFile(filePath),
+                directory.resolve("session_" + sessionId + ".zpl"),
                 request.zimplContent(),
                 StandardOpenOption.CREATE_NEW
         );
+
 
     }
 
     private void cleanupFile(Path workDir) {
         if (workDir == null) {
-            log.error("Null path while cleaning up work directory");
-            throw new SolverException("Null path while solving");
+            log.warn("Null path while cleaning up work directory");
+//            throw new SolverException("Null path while solving");
+            return;
         }
 
         try {
