@@ -1,10 +1,6 @@
 package groupId.DTO.Records.Events;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 /*
 @Data
 @AllArgsConstructor
@@ -17,8 +13,10 @@ public class SolveRequest {
 */
 
 public record SolveRequest(
-    String userId,
-    String problemId,
-    String zimplContent)
+        String requestId,
+        String zimplContent,
+        int timeoutSeconds,
+        boolean validationOnly
+        )
 { }
 

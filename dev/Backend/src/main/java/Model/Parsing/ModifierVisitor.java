@@ -4,16 +4,14 @@ import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
 import Model.Data.Elements.Element;
 import Model.Data.Elements.Operational.Preference;
 import Model.Model;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.misc.Interval;
 import parser.FormulationBaseVisitor;
-import parser.FormulationLexer;
 import parser.FormulationParser;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     private final Model model;

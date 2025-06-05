@@ -7,7 +7,9 @@ import Persistence.Entities.Image.Operational.ConstraintEntity;
 import Persistence.Entities.Image.Operational.ConstraintModuleEntity;
 import Persistence.Entities.Image.Operational.PreferenceEntity;
 import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
+import Persistence.Entities.UserEntity;
 import Persistence.Repositories.ImageRepository;
+import Persistence.Repositories.UserRepository;
 import Utilities.Configs.PersistenceTestsConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,14 +31,24 @@ class ImageEntityTest {
 
     @Autowired
     ImageRepository imageRepository;
+    @Autowired
+    UserRepository userRepository;
 
+    public UserEntity makeUserStub () {
+        String username = "stub username";
+        String email = "stub@stubber.stubbinson";
+        String password = "stubpass123456";
+        UserEntity userEntity= new UserEntity(username, email, password);
+        userEntity= userRepository.save(userEntity);
+        return userEntity;
+    }
 
     public ImageEntity makeStub () {
         // Persist parent entity without child entities to generate ID
         ImageEntity stub = new ImageEntity();
         imageRepository.save(stub); // Save empty image to generate id
         UUID imageId = stub.getId();
-
+        UserEntity userStub = makeUserStub();
         // Validate entity is saved correctly
         assertNotNull(imageRepository.findById(imageId).orElse(null));
 
@@ -46,7 +59,9 @@ class ImageEntityTest {
         SetEntity set = new SetEntity(imageId, "setName", "s-type", setData, "s-alias");
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
-        VariableEntity var = new VariableEntity(imageId, "varName",structure, "v-alias");
+        List<String> basicSets= new ArrayList<>();
+        basicSets.add("set1"); basicSets.add("set2");
+        VariableEntity var = new VariableEntity(imageId, "varName",structure,basicSets, "v-alias");
         ConstraintEntity constraint = new ConstraintEntity("constraint");
         PreferenceEntity preference = new PreferenceEntity("preference");
         HashSet<SetEntity> sets= new HashSet<>();
@@ -66,8 +81,11 @@ class ImageEntityTest {
         constraintModules.add(constraintModule);
         preferenceModules.add(preferenceModule);
         String emptyZimplCode= "";
+        String nameStub = "stub name";
+        String descriptionStub = "stub description";
+        LocalDateTime dateStub = LocalDateTime.now();
         // Add children to the parent
-        stub.setAll(preferenceModules, constraintModules, variables, params, sets,emptyZimplCode);
+        stub.setAll(nameStub,descriptionStub,dateStub,preferenceModules, constraintModules, variables, params, sets,emptyZimplCode,userStub);
         return stub;
     }
     @Test
@@ -132,12 +150,14 @@ class ImageEntityTest {
         structure.add("structure1"); structure.add("structure2");
         List<String> structure1= new ArrayList<>();
         structure1.add("structure1"); structure1.add("structure2");
+        List<String> basicSets= new ArrayList<>();
+        basicSets.add("set1"); basicSets.add("set2");
         UUID imageId = UUID.randomUUID();
         ImageEntity entity1 = new ImageEntity();
-        entity1.addVariable(new VariableEntity(imageId, "varName",structure, "varAlias") );
+        entity1.addVariable(new VariableEntity(imageId, "varName",structure,basicSets, "varAlias") );
 
         ImageEntity entity2 = new ImageEntity();
-        entity2.addVariable(new VariableEntity(imageId, "varName",structure1,"varAlias") );
+        entity2.addVariable(new VariableEntity(imageId, "varName",structure1,basicSets,"varAlias") );
 
         // Act & Assert
         assertEquals(entity1, entity2);
@@ -151,12 +171,14 @@ class ImageEntityTest {
         structure.add("structure1"); structure.add("structure2");
         List<String> structure1= new ArrayList<>();
         structure1.add("structure1"); structure1.add("structure2");
+        List<String> basicSets= new ArrayList<>();
+        basicSets.add("set1"); basicSets.add("set2");
         UUID imageId = UUID.randomUUID();
         ImageEntity entity1 = new ImageEntity();
-        entity1.addVariable(new VariableEntity(imageId, "varName1",structure, "varAlias1") );
+        entity1.addVariable(new VariableEntity(imageId, "varName1",structure,basicSets, "varAlias1") );
 
         ImageEntity entity2 = new ImageEntity();
-        entity2.addVariable(new VariableEntity(imageId, "varName2",structure1, "varAlias2") );
+        entity2.addVariable(new VariableEntity(imageId, "varName2",structure1, basicSets,"varAlias2") );
 
         // Act & Assert
         assertNotEquals(entity1, entity2);
@@ -266,7 +288,7 @@ class ImageEntityTest {
         imageRepository.save(validEntity);
 
         // Act - remove all child entities from parent
-        validEntity.setAll(new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(),"");
+        validEntity.setAll("","",LocalDateTime.now(),new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(),"",makeUserStub());
         imageRepository.save(validEntity);
 
         ImageEntity retrievedEntity = imageRepository.findById(validEntity.getId()).orElse(null);

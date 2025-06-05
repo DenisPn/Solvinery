@@ -1,5 +1,8 @@
 package groupId.DTO.Factories;
 
+import Image.Image;
+import Image.Modules.Grouping.ConstraintModule;
+import Image.Modules.Grouping.PreferenceModule;
 import Image.Modules.Single.ParameterModule;
 import Image.Modules.Single.SetModule;
 import Image.Modules.Single.VariableModule;
@@ -8,18 +11,16 @@ import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
+import Model.ModelInterface;
+import Model.Solution;
 import groupId.DTO.Records.Image.*;
-import groupId.DTO.Records.Model.ModelDefinition.*;
 import groupId.DTO.Records.Model.ModelData.ParameterDTO;
 import groupId.DTO.Records.Model.ModelData.ParameterDefinitionDTO;
 import groupId.DTO.Records.Model.ModelData.SetDTO;
 import groupId.DTO.Records.Model.ModelData.SetDefinitionDTO;
-import groupId.DTO.Records.Requests.Responses.ParseModelResponseDTO;
+import groupId.DTO.Records.Model.ModelDefinition.*;
 import groupId.DTO.Records.Requests.Responses.ImageResponseDTO;
-import Image.Image;
-import Image.Modules.Grouping.ConstraintModule;
-import Image.Modules.Grouping.PreferenceModule;
-import Model.*;
+import groupId.DTO.Records.Requests.Responses.ParseModelResponseDTO;
 import org.yaml.snakeyaml.util.Tuple;
 
 import java.util.*;
@@ -37,21 +38,20 @@ public class RecordFactory {
      */
     public static SolutionDTO makeDTO (Solution solution) {
         Objects.requireNonNull(solution, "Null Solution in DTO map");
-        if (!solution.parsed())
-            throw new RuntimeException("Solution must be parsed before attempting to convert to DTO.");
+        /*if (!solution.parsed())
+            throw new RuntimeException("Solution must be parsed before attempting to convert to DTO.");*/
         if (!solution.isSolved())
             return new SolutionDTO(false, -1, -1, "", new HashMap<>());
         double solvingTime = solution.getSolvingTime();
         double objectiveValue = solution.getObjectiveValue();
         boolean solved = true;
         HashMap<String, SolutionVariable> variables = new HashMap<>();
-        for (Variable variable : solution.getVariables()) {
-            String variableName = variable.getName();
+        for (String variableName : solution.getActiveVariables()) {
             Set<SolutionValueDTO> variableValues = new HashSet<>();
             List<String> variableStructure = List.copyOf(solution.getVariableStructure(variableName));
             List<String> variableTypes = List.copyOf(solution.getVariableTypes(variableName));
-            for (Tuple<List<String>, Integer> value : solution.getVariableSolution(variableName)) {
-                variableValues.add(new SolutionValueDTO(value._1(), value._2()));
+            for (Solution.VariableSolution variableSolution: solution.getVariableSolution(variableName)) {
+                variableValues.add(new SolutionValueDTO(variableSolution.solution(), variableSolution.objectiveValue()));
             }
             variables.put(variableName, new SolutionVariable(variableStructure, variableTypes, variableValues));
         }

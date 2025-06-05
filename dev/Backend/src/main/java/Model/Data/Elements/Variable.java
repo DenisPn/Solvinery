@@ -2,29 +2,32 @@ package Model.Data.Elements;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.SequencedCollection;
 
 public class Variable extends Element {
     private final List<String> structure;
-    //private final String alias;
+    private final List<String> basicSets;
 
-   /* public Variable (String name, List<String> structure, String alias) {
+    public Variable (String name, List<String> structure,List<String> basicSets) {
         super(name);
         this.structure = structure;
-        this.alias = alias;
-    }*/
+        this.basicSets = basicSets;
+    }
+    @Deprecated(forRemoval = true)
     public Variable (String name, List<String> structure) {
         super(name);
         this.structure = structure;
-     //   this.alias = null;
+        this.basicSets = null;
     }
+
+    public List<String> getBasicSets() {
+        return basicSets;
+    }
+
     public List<String> getStructure() {
         return structure;
     }
 
-    /*public String getAlias () {
-        return alias;
-    }*/
+
 
     @Override
     public boolean equals(Object o) {

@@ -1,8 +1,6 @@
 package groupId.DTO.Records.Model.ModelDefinition;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 /**
  * represents a constraint parsed from zimpl code

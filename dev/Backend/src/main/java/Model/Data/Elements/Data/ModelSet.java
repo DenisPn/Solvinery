@@ -1,11 +1,9 @@
 package Model.Data.Elements.Data;
 
 import Model.Data.Types.ModelType;
-import jakarta.persistence.*;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.SequencedCollection;
 
 
 public class ModelSet extends DataElement {

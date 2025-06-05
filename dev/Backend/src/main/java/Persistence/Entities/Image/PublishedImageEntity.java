@@ -5,7 +5,6 @@ import Persistence.Entities.Image.Data.SetEntity;
 import Persistence.Entities.Image.Data.VariableEntity;
 import Persistence.Entities.Image.Operational.ConstraintModuleEntity;
 import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
-import Persistence.Entities.UserEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;

@@ -1,7 +1,10 @@
 package Persistence.Entities.Image.Data;
 
 import Persistence.Entities.Image.ImageComponentKey;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

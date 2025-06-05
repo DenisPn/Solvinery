@@ -2,7 +2,9 @@ package Image.Modules.Grouping;
 
 import Model.Data.Elements.Operational.Constraint;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConstraintModule extends OperationalModule {
     /**

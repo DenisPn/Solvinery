@@ -3,6 +3,7 @@ package groupId.DTO.Records.Model.ModelData;
 import groupId.DTO.Records.Image.SolutionDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+
 import java.util.List;
 import java.util.Map;
 
