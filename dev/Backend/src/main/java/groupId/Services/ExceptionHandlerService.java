@@ -1,4 +1,5 @@
 package groupId.Services;
+import Exceptions.SolverExceptions.ValidationException;
 import Exceptions.UserErrors.UserDataException;
 import groupId.DTO.Factories.ExceptionRecordFactory;
 import Exceptions.InternalErrors.BadRequestException;
@@ -83,5 +84,9 @@ public class ExceptionHandlerService {
         ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
         return ResponseEntity.status(400).body(errorResponse);
     }
-    // Catch-all fallback for uncaught exceptions
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ExceptionDTO> handleException(ValidationException ex) {
+        ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
+        return ResponseEntity.status(400).body(errorResponse);
+    }
 }

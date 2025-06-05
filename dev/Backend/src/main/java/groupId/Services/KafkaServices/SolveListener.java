@@ -1,14 +1,13 @@
 package groupId.Services.KafkaServices;
 
 import Exceptions.SolverExceptions.SolverException;
+import Exceptions.SolverExceptions.ValidationException;
 import Model.Solution;
 import groupId.DTO.Records.Events.SolveRequest;
 import groupId.Services.SolveService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -19,9 +18,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -36,15 +35,19 @@ public class SolveListener {
 @KafkaListener(
         topics = "solve-requests",
         containerFactory = "kafkaListenerContainerFactory",
-        groupId = "problem-solving-group-9"
+        groupId = "problem-solving-group-20"
 )
-public void handleSolveRequest(@Payload SolveRequest request,
-                               @Header(KafkaHeaders.RECEIVED_PARTITION) int partition) {
+public void handleSolveRequest(@Payload SolveRequest request) {
     Path codeFile = null;
     try {
-        log.info("---------------------------Attempt 9-------------------------------");
+        log.info("---------------------------Attempt 18-------------------------------");
         log.info("Received solve request: {}", request.requestId());
         codeFile = createCodeFile(request);
+        validateZimplCode(codeFile);
+        if(request.validationOnly()){
+            log.info("Validation only, returning solution.");
+            solveService.completeSolution(request.requestId(), null);
+        }
         Solution solution = solveProblem(request, codeFile);
         log.info("Solution found: {}", solution);
         solveService.completeSolution(request.requestId(), solution);
@@ -62,36 +65,46 @@ public void handleSolveRequest(@Payload SolveRequest request,
 
 
     private Solution solveProblem(SolveRequest request, Path codeFile) {
-        Process process = null;
+        Process scipProcess = null;
         try {
             log.info("Got path: {}", codeFile.toAbsolutePath());
             int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
             ProcessBuilder processBuilder = new ProcessBuilder("scip", "-c",
-                    String.format("read %s optimize display solution q", codeFile));
+                    String.format("\"read %s optimize display solution quit\"", codeFile));
             //"scip", "-c", "read " + sourceFilePath + " optimize display solution q"
             processBuilder.directory(codeFile.getParent().toFile());
             processBuilder.redirectErrorStream(true);
-            process = processBuilder.start();
+            log.info("Executing command: {}", processBuilder.command());
+            scipProcess = processBuilder.start();
 
-            boolean completed = process.waitFor(timeout, TimeUnit.SECONDS);
+            boolean completed = scipProcess.waitFor(timeout, TimeUnit.SECONDS);
             if (!completed) {
-                process.destroyForcibly();
-                throw new SolverException("SCIP solver timed out");
+                String output = new String(scipProcess.getInputStream().readAllBytes());
+                output = startFromStatus(output);
+                String prunedOutput = output.lines()
+                        .filter(line -> !line.startsWith("@@"))
+                        .collect(Collectors.joining("\n"));
+                throw new SolverException(prunedOutput);
             }
 
-            if (process.exitValue() != 0) {
-                throw new SolverException("SCIP process failed with exit code: " + process.exitValue());
+            if (scipProcess.exitValue() != 0) {
+                throw new SolverException("SCIP solver execution failed with exit code: " + scipProcess.exitValue());
             }
             log.info("SCIP process successfully completed.");
-            byte[] outputBytes = process.getInputStream().readAllBytes();
-            log.info("\n-------------------OUTPUT----------------\n{}\n-------------------END--------------------\n",new String(outputBytes));
-            return new Solution(new String(outputBytes));
+            String output = new String(scipProcess.getInputStream().readAllBytes());
+            output = startFromStatus(output);
+            String prunedOutput = output.lines()
+                    .filter(line -> !line.startsWith("@@"))
+                    .collect(Collectors.joining("\n"));
+
+            log.info("\n-------------------OUTPUT----------------\n{}\n-------------------END--------------------\n",prunedOutput);
+            return new Solution(prunedOutput);
 
         } catch (InterruptedException | IOException e) {
             throw new SolverException("Error during SCIP execution: " + e.getMessage());
         } finally {
-            if (process != null && process.isAlive()) {
-                process.destroyForcibly();
+            if (scipProcess != null && scipProcess.isAlive()) {
+                scipProcess.destroyForcibly();
             }
         }
     }
@@ -113,11 +126,41 @@ public void handleSolveRequest(@Payload SolveRequest request,
 
 
     }
+    private void validateZimplCode(Path codeFile) throws SolverException {
+        log.info("Validating code file: {}", codeFile.toAbsolutePath());
+        Process zimplProcess = null;
+        try{
+            ProcessBuilder processBuilder = new ProcessBuilder("zimpl",
+                    "-v","0",
+                    "-o", "/dev/null",
+                    codeFile.toAbsolutePath().toString());
+            processBuilder.directory(codeFile.getParent().toFile());
+            processBuilder.redirectErrorStream(true);
+            zimplProcess = processBuilder.start();
+            boolean completed = zimplProcess.waitFor(5, TimeUnit.SECONDS);
+            if (!completed) {
+                log.info("Code file validation timed out");
+                throw new SolverException("Zimpl validation timed out");
+            }
+            if (zimplProcess.exitValue() != 0) {
+                log.info("Code validation failed with exit code: {}", zimplProcess.exitValue());
+                throw new ValidationException("Error while validating code:\n" + new String(zimplProcess.getInputStream().readAllBytes()));
+            }
+            log.info("Code file successfully validated.");
 
+        }
+        catch (Exception e){
+            throw new SolverException("Error while validating code: " + e.getMessage());
+        }
+        finally {
+            if (zimplProcess != null && zimplProcess.isAlive()) {
+                zimplProcess.destroyForcibly();
+            }
+        }
+    }
     private void cleanupFile(Path workDir) {
         if (workDir == null) {
             log.warn("Null path while cleaning up work directory");
-//            throw new SolverException("Null path while solving");
             return;
         }
 
@@ -132,5 +175,11 @@ public void handleSolveRequest(@Payload SolveRequest request,
 
     }
 
+    private static String startFromStatus(String original) {
+    String from = "SCIP Status";
+        if(original.contains(from))
+            return original.substring(original.indexOf(from));
+        else return original;
+    }
 
 }
