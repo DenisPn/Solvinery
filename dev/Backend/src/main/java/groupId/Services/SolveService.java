@@ -106,8 +106,8 @@ public class SolveService {
 
             Solution solution = future.get(timeout + 20, TimeUnit.SECONDS);
             log.info("Solve request completed successfully at Service level.");
-
-            solution.parseSolution(EntityMapper.toDomain(imageEntity));
+            solution.postProcessSolution(EntityMapper.toDomain(imageEntity));
+            //solution.parseSolution(EntityMapper.toDomain(imageEntity));
             return RecordFactory.makeDTO(solution);
         } catch (TimeoutException e) {
             throw new RuntimeException("Solution timed out" );

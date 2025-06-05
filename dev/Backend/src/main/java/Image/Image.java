@@ -320,4 +320,10 @@ public class Image {
     public String getSourceCode() {
         return model.getSourceCode();
     }
+    public Map<String,String> variableAliasMap(){
+        return activeVariables.stream()
+                .collect(Collectors.toMap(
+                        variableModule ->
+                                variableModule.getVariable().getName(), VariableModule::getAlias));
+    }
 }

@@ -38,8 +38,8 @@ public class RecordFactory {
      */
     public static SolutionDTO makeDTO (Solution solution) {
         Objects.requireNonNull(solution, "Null Solution in DTO map");
-        if (!solution.parsed())
-            throw new RuntimeException("Solution must be parsed before attempting to convert to DTO.");
+        /*if (!solution.parsed())
+            throw new RuntimeException("Solution must be parsed before attempting to convert to DTO.");*/
         if (!solution.isSolved())
             return new SolutionDTO(false, -1, -1, "", new HashMap<>());
         double solvingTime = solution.getSolvingTime();
@@ -50,8 +50,8 @@ public class RecordFactory {
             Set<SolutionValueDTO> variableValues = new HashSet<>();
             List<String> variableStructure = List.copyOf(solution.getVariableStructure(variableName));
             List<String> variableTypes = List.copyOf(solution.getVariableTypes(variableName));
-            for (Tuple<List<String>, Integer> value : solution.getVariableSolution(variableName)) {
-                variableValues.add(new SolutionValueDTO(value._1(), value._2()));
+            for (Solution.VariableSolution variableSolution: solution.getVariableSolution(variableName)) {
+                variableValues.add(new SolutionValueDTO(variableSolution.solution(), variableSolution.objectiveValue()));
             }
             variables.put(variableName, new SolutionVariable(variableStructure, variableTypes, variableValues));
         }

@@ -8,7 +8,9 @@ import groupId.Services.SolveService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -92,17 +94,31 @@ public class SolveThread extends Thread {
             log.info("Got path: {}", codeFile.toAbsolutePath());
             int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
             ProcessBuilder processBuilder = new ProcessBuilder("scip", "-c",
-                    String.format("\"read %s optimize display solution quit\"", codeFile));
+                    "read " + codeFile + " optimize display solution quit");
             processBuilder.directory(codeFile.getParent().toFile());
             processBuilder.redirectErrorStream(true);
+            //processBuilder.redirectError(ProcessBuilder.Redirect.DISCARD);
             log.info("Executing command: {}", processBuilder.command());
             scipProcess = processBuilder.start();
-            String output = new String(scipProcess.getInputStream().readAllBytes());
-            output = startFromStatus(output);
-            String prunedOutput = output.lines()
+            //handleProcessOutput(scipProcess);
+
+            //StringBuilder output = new StringBuilder();
+            Solution solution= new Solution();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(scipProcess.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    solution.processLine(line);
+                }
+            }
+
+            boolean completed = scipProcess.waitFor(timeout, TimeUnit.SECONDS);
+            //String outputStr = new String(scipProcess.getInputStream().readAllBytes());
+            /*String outputStr = output.toString();
+            outputStr = startFromStatus(outputStr);
+            String prunedOutput = outputStr.lines()
                     .filter(line -> !line.startsWith("@@"))
                     .collect(Collectors.joining("\n"));
-            boolean completed = scipProcess.waitFor(timeout, TimeUnit.SECONDS);
             if (!completed) {
                 if(!prunedOutput.contains("SCIP Status")) {
                     log.info("SCIP process timed out, and no solution was found. Output: \n{}", prunedOutput);
@@ -110,13 +126,25 @@ public class SolveThread extends Thread {
                 }
                 else
                     log.info("SCIP process timed out, but solution was found");
+            }*/
+            if(!completed) {
+                if (solution.isSolved())
+                    log.info("SCIP process timed out, but solution was found");
+                else
+                    log.info("SCIP process timed out, and no solution was found.");
             }
+            else {
+                if (solution.isSolved())
+                    log.info("SCIP process completed successfully, and solution was found");
+                else
+                    log.info("SCIP process completed successfully, but no solution was found.");
+            }
+
             if (scipProcess.exitValue() != 0) {
                 throw new SolverException("SCIP solver execution failed with exit code: " + scipProcess.exitValue());
             }
-            log.info("SCIP process successfully completed.");
-            log.info("\n-------------------OUTPUT----------------\n{}\n-------------------END--------------------\n",prunedOutput);
-            return new Solution(prunedOutput);
+            log.info("Found solution: {}",solution);
+            return solution;
 
         } catch (InterruptedException | IOException e) {
             throw new SolverException("Error during SCIP execution: " + e.getMessage());
@@ -269,6 +297,40 @@ public class SolveThread extends Thread {
         }*/
         return null;
     }
+    //DEBUG METHOD
+    private void handleProcessOutput(Process process) {
+        // Handle stdout
+        Thread outputReader = new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("stdout: " + line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        // Handle stderr
+        Thread errorReader = new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getErrorStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.err.println("stderr: " + line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        outputReader.setDaemon(true);
+        errorReader.setDaemon(true);
+        outputReader.start();
+        errorReader.start();
+    }
+
 
 
 }
