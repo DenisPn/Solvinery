@@ -11,6 +11,8 @@ import groupId.DTO.Factories.RecordFactory;
 import groupId.DTO.Records.Events.SolveRequest;
 import groupId.DTO.Records.Image.SolutionDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
+import groupId.Services.KafkaServices.SolveLThread;
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ import java.util.concurrent.TimeoutException;
 public class SolveService {
     private final ConcurrentHashMap<String, CompletableFuture<Solution>> pendingRequests = new ConcurrentHashMap<>();
     private static final String TOPIC_NAME = "solve-requests";
+    private final SolveLThread solverThread; //TEMP, TO BE REMOVED
 
     private final KafkaTemplate<String, SolveRequest> kafkaTemplate;
     private final ImageService imageService;
@@ -35,6 +38,7 @@ public class SolveService {
         this.imageService=imageService;
         this.userService=userService;
         this.kafkaTemplate = kafkaTemplate;
+        this.solverThread= new SolveLThread(this);
     }
 
     @Transactional
@@ -62,6 +66,36 @@ public class SolveService {
             pendingRequests.remove(requestId);
         }
 
+    }
+    @Transactional
+    public SolutionDTO solveThreaded(String userId, String imageId, int timeout) {
+        UserEntity user = userService.getUser(userId)
+                .orElseThrow(() -> new ClientSideError("User id not found"));
+        ImageEntity imageEntity = imageService.getImage(imageId)
+                .orElseThrow(() -> new ClientSideError("Invalid image ID during publish image."));
+
+        String requestId = UUID.randomUUID().toString();
+        CompletableFuture<Solution> future = new CompletableFuture<>();
+        pendingRequests.put(requestId, future);
+
+        try {
+            SolveRequest solveRequest = new SolveRequest(requestId, imageEntity.getZimplCode(), timeout);
+            solverThread.submitRequest(solveRequest); // Submit to our thread instead of Kafka
+
+            Solution solution = future.get(timeout + 5, TimeUnit.SECONDS);
+            log.info("Solve request completed successfully at Service level.");
+            return RecordFactory.makeDTO(solution);
+        } catch (TimeoutException e) {
+            throw new RuntimeException("Solution timed out", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting solution", e);
+        } finally {
+            pendingRequests.remove(requestId);
+        }
+    }
+    @PreDestroy
+    public void cleanup() {
+        solverThread.shutdown();
     }
 
     public void completeSolution(String requestId, Solution solution) {
