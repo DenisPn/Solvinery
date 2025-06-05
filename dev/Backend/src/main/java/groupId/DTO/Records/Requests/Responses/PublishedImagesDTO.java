@@ -1,7 +1,6 @@
 package groupId.DTO.Records.Requests.Responses;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 /**

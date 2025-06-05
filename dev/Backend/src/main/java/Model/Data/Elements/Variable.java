@@ -2,7 +2,6 @@ package Model.Data.Elements;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.SequencedCollection;
 
 public class Variable extends Element {
     private final List<String> structure;

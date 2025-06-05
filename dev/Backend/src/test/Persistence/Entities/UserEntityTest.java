@@ -14,8 +14,9 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.util.UUID;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @AutoConfigureDataJpa

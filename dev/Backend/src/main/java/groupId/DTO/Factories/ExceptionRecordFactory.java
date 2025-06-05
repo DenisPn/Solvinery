@@ -1,11 +1,10 @@
 package groupId.DTO.Factories;
 
+import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import Exceptions.SolverExceptions.ValidationException;
 import Exceptions.UserErrors.UserDataException;
-import groupId.DTO.Records.Requests.Responses.ExceptionDTO;
-import Exceptions.InternalErrors.BadRequestException;
-import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import groupId.DTO.Records.Requests.Responses.ExceptionDTO;
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -37,13 +36,7 @@ public class ExceptionRecordFactory {
         return new ExceptionDTO("Full error ahead, this is temporary and should not be shown to end users: "+ exception.getMessage());
 
     }
-    public static ExceptionDTO makeDTO(BadRequestException exception) {
-        Objects.requireNonNull(exception,ohNo);
-        //TODO: LOG
-//        return new ExceptionDTO("Bad HTTP request. See log for details, or contract the developer");
-        return new ExceptionDTO("Full error ahead, this is temporary and should not be shown to end users: "+ exception.getMessage());
 
-    }
     public static ExceptionDTO makeDTO(IOException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
@@ -53,7 +46,7 @@ public class ExceptionRecordFactory {
     public static ExceptionDTO makeDTO(ZimplCompileError exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
-        return new ExceptionDTO(String.format("An error occurred while compiling zimpl code.\nError code:%d\nError message:%s",
+        return new ExceptionDTO(String.format("An error occurred while compiling zimpl code.\nError code:%s\nError message:%s",
                 exception.getErrorCode(),exception.getMessage()));
     }
     public static ExceptionDTO makeDTO(HttpRequestMethodNotSupportedException exception) {

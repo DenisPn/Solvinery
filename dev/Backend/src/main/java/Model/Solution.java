@@ -2,7 +2,6 @@ package Model;
 
 import Image.Image;
 import Image.Modules.Single.VariableModule;
-import Model.Data.Elements.Variable;
 import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.util.Tuple;
 
@@ -10,7 +9,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 @Slf4j
 public class Solution {
 

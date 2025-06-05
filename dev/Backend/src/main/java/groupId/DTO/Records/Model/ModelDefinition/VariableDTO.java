@@ -4,9 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.Deque;
 import java.util.List;
-import java.util.SequencedCollection;
 
 /**
  * represents a variable parsed from zimpl code and included in the image

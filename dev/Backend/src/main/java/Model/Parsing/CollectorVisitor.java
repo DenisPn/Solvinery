@@ -10,7 +10,9 @@ import org.antlr.v4.runtime.misc.Interval;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class CollectorVisitor extends FormulationBaseVisitor<Void> {
 

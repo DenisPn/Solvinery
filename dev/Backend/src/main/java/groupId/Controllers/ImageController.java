@@ -1,16 +1,14 @@
 package groupId.Controllers;
 
 
-import groupId.DTO.Records.Model.ModelDefinition.ModelDTO;
-import groupId.DTO.Records.Requests.Commands.CreateImageFromFileDTO;
-import groupId.DTO.Records.Requests.Commands.LoginDTO;
-import groupId.DTO.Records.Requests.Responses.LoginResponseDTO;
 import groupId.DTO.Records.Requests.Responses.PublishedImagesDTO;
 import groupId.Services.ImageService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Global image-related operations that do not require user authentication.

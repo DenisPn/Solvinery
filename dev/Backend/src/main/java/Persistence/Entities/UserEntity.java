@@ -1,6 +1,5 @@
 package Persistence.Entities;
 
-import Exceptions.UserErrors.UserInputException;
 import Persistence.Entities.Image.ImageEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

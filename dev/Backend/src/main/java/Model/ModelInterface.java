@@ -1,16 +1,13 @@
 package Model;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
-import Model.Data.Elements.Operational.OperationalElement;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
+
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * Interface defining the public API for interacting with a mathematical optimization model.
@@ -19,84 +16,7 @@ import Model.Data.Elements.Variable;
  */
 public interface ModelInterface {
     String getSourceCode();
-    /**
-     * Appends a value to a specified set in the model.
-     * 
-     * @param set The set to append to
-     * @param value The value to append
-     */
-    @Deprecated
-    void appendToSet(ModelSet set, String value);
 
-    /**
-     * Removes a value from a specified set in the model.
-     * 
-     * @param set The set to remove from
-     * @param value The value to remove
-     */
-    @Deprecated
-    void removeFromSet(ModelSet set, String value);
-
-    /**
-     * Sets the value of a model input (parameter).
-     * 
-     * @param identifier The input identifier
-     */
-    @Deprecated
-    void setInput(ModelParameter identifier);
-
-    /**
-     * Sets the value of a model input (set).
-     * 
-     * @param identifier The input identifier
-     */
-    @Deprecated
-    void setInput(ModelSet identifier);
-
-    /**
-     * Retrieves the input values associated with a given model parameter.
-     *
-     * @param parameter The model parameter whose input values are to be retrieved.
-     * @return A list of input values associated with the specified model parameter.
-     */
-    @Deprecated
-    List<String> getInput(ModelParameter parameter);
-
-    /**
-     * Retrieves the input values associated with a given model set.
-     *
-     * @param set The model set whose input values are to be retrieved.
-     * @return A list of input values associated with the specified model set.
-     */
-    @Deprecated
-    List<List<String>> getInput(ModelSet set);
-
-    
-    /**
-     * Toggles a model functionality on or off.
-     * 
-     * @param turnOn true to enable, false to disable
-     */
-    @Deprecated
-    void toggleFunctionality(OperationalElement operationalElement, boolean turnOn);
-
-    /**
-     * Checks if the model compiles successfully.
-     * 
-     * @param timeout Maximum time in seconds to wait for compilation
-     * @return true if compilation succeeds, false otherwise
-     */
-    @Deprecated
-    boolean isCompiling(float timeout);
-
-    /**
-     * Solves the model and returns the solution.
-     * 
-     * @param timeout Maximum time in seconds to wait for solving
-     * @return Solution object if solving succeeds, null otherwise
-     */
-    @Deprecated
-    Solution solve(float timeout, String solutionFileSuffix) throws ZimplCompileError;
 
     /**
      * Retrieves a set by its identifier.
@@ -155,13 +75,6 @@ public interface ModelInterface {
     public Collection<ModelSet> getSets();
 
     public Collection<ModelParameter> getParameters();
-
-    /**
-     * Commits all changes done in the image into zimpl code and returns the code.
-     * @return zimpl code, with all changes done in the image.
-     */
-    @Deprecated
-    String modifySource();
 
     /**
      * Write into a source file all the changed in input and return code after write.

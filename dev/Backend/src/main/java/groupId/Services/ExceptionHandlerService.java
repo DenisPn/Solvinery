@@ -1,9 +1,10 @@
 package groupId.Services;
+
+import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import Exceptions.SolverExceptions.ValidationException;
 import Exceptions.UserErrors.UserDataException;
 import groupId.DTO.Factories.ExceptionRecordFactory;
-import Exceptions.InternalErrors.BadRequestException;
-import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
+import groupId.DTO.Records.Requests.Responses.ExceptionDTO;
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -12,8 +13,6 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import groupId.DTO.Records.Requests.Responses.ExceptionDTO;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
@@ -39,11 +38,7 @@ public class ExceptionHandlerService {
         ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
         return ResponseEntity.status(500).body(errorResponse);
     }
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ExceptionDTO> handleException(BadRequestException ex) {
-        ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
-        return ResponseEntity.status(400).body(errorResponse);
-    }
+
     @ExceptionHandler(ZimplCompileError.class)
     public ResponseEntity<ExceptionDTO> handleException(ZimplCompileError ex) {
         ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);

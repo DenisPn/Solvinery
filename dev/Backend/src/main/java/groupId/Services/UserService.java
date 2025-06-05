@@ -1,11 +1,8 @@
 package groupId.Services;
 
-import Exceptions.InternalErrors.ClientSideError;
 import Exceptions.UserErrors.UserDataException;
 import Persistence.Entities.UserEntity;
-import Persistence.EntityMapper;
 import Persistence.Repositories.UserRepository;
-import User.User;
 import groupId.DTO.Records.Requests.Commands.LoginDTO;
 import groupId.DTO.Records.Requests.Commands.RegisterDTO;
 import groupId.DTO.Records.Requests.Responses.LoginResponseDTO;

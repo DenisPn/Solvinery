@@ -1,10 +1,10 @@
 package Persistence;
 
 import Image.Image;
-import Image.Modules.Single.ParameterModule;
-import Image.Modules.Single.SetModule;
 import Image.Modules.Grouping.ConstraintModule;
 import Image.Modules.Grouping.PreferenceModule;
+import Image.Modules.Single.ParameterModule;
+import Image.Modules.Single.SetModule;
 import Image.Modules.Single.VariableModule;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
@@ -15,9 +15,9 @@ import Model.Data.Types.ModelPrimitives;
 import Model.Data.Types.ModelType;
 import Model.Data.Types.Tuple;
 import Persistence.Entities.Image.Data.ParameterEntity;
+import Persistence.Entities.Image.Data.SetEntity;
 import Persistence.Entities.Image.Data.VariableEntity;
 import Persistence.Entities.Image.ImageComponentKey;
-import Persistence.Entities.Image.Data.SetEntity;
 import Persistence.Entities.Image.ImageEntity;
 import Persistence.Entities.Image.Operational.ConstraintEntity;
 import Persistence.Entities.Image.Operational.ConstraintModuleEntity;

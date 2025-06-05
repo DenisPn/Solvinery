@@ -1,10 +1,5 @@
 package Model.Data.Elements;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.validation.constraints.NotBlank;
-
 import java.util.Objects;
 
 public abstract class Element {

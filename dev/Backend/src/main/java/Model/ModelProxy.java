@@ -1,26 +1,13 @@
 package Model;
 
-import Exceptions.InternalErrors.ModelExceptions.ModelBuildException;
-import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
-import Model.Data.Elements.Operational.OperationalElement;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Designed for lazy loading of the model class to avoid file parsing when it's unneeded.
@@ -82,55 +69,6 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
-    @Deprecated(forRemoval = true)
-    public void appendToSet (ModelSet set, String value) {
-        getModel().appendToSet(set,value);
-    }
-    @Deprecated
-    @Override
-    public void removeFromSet (ModelSet set, String value) {
-        getModel().removeFromSet(set,value);
-    }
-
-    @Override
-    @Deprecated
-
-    public void setInput (ModelParameter identifier) {
-        getModel().setInput(identifier);
-    }
-
-    @Override
-    @Deprecated
-    public void setInput (ModelSet identifier) {
-        getModel().setInput(identifier);
-    }
-
-    @Override
-    public List<String> getInput (ModelParameter parameter) {
-        return getModel().getInput(parameter);
-    }
-
-    @Override
-    public List<List<String>> getInput (ModelSet set) {
-        return getModel().getInput(set);
-    }
-
-    @Override
-    public void toggleFunctionality (OperationalElement operationalElement, boolean turnOn) {
-        getModel().toggleFunctionality(operationalElement,turnOn);
-    }
-
-    @Override
-    public boolean isCompiling (float timeout) {
-        return getModel().isCompiling(timeout);
-    }
-
-    @Override
-    public Solution solve (float timeout, String solutionFileSuffix) throws ZimplCompileError {
-        return getModel().solve(timeout,solutionFileSuffix);
-    }
-
-    @Override
     public ModelSet getSet (String identifier) {
         return getModel().getSet(identifier);
     }
@@ -183,11 +121,6 @@ public class ModelProxy implements ModelInterface{
     @Override
     public Collection<ModelParameter> getParameters () {
         return getModel().getParameters();
-    }
-
-    @Override
-    public String modifySource() {
-        return getModel().modifySource();
     }
 
     @Override

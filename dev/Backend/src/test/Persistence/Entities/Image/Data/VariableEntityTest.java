@@ -1,13 +1,13 @@
 package Persistence.Entities.Image.Data;
 
-import Persistence.Entities.Image.ImageComponentKey;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class VariableEntityTest {
 

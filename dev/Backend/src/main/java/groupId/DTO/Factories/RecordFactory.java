@@ -1,5 +1,8 @@
 package groupId.DTO.Factories;
 
+import Image.Image;
+import Image.Modules.Grouping.ConstraintModule;
+import Image.Modules.Grouping.PreferenceModule;
 import Image.Modules.Single.ParameterModule;
 import Image.Modules.Single.SetModule;
 import Image.Modules.Single.VariableModule;
@@ -8,18 +11,16 @@ import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
+import Model.ModelInterface;
+import Model.Solution;
 import groupId.DTO.Records.Image.*;
-import groupId.DTO.Records.Model.ModelDefinition.*;
 import groupId.DTO.Records.Model.ModelData.ParameterDTO;
 import groupId.DTO.Records.Model.ModelData.ParameterDefinitionDTO;
 import groupId.DTO.Records.Model.ModelData.SetDTO;
 import groupId.DTO.Records.Model.ModelData.SetDefinitionDTO;
-import groupId.DTO.Records.Requests.Responses.ParseModelResponseDTO;
+import groupId.DTO.Records.Model.ModelDefinition.*;
 import groupId.DTO.Records.Requests.Responses.ImageResponseDTO;
-import Image.Image;
-import Image.Modules.Grouping.ConstraintModule;
-import Image.Modules.Grouping.PreferenceModule;
-import Model.*;
+import groupId.DTO.Records.Requests.Responses.ParseModelResponseDTO;
 import org.yaml.snakeyaml.util.Tuple;
 
 import java.util.*;

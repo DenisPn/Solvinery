@@ -8,9 +8,7 @@ import groupId.Services.SolveService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,10 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class SolveThread extends Thread {
-    private enum Status {
-        FOUND,
-        INFEASIBLE,
-    }
+
     private final SolveService solveService;
     private final BlockingQueue<SolveRequest> requestQueue;
     private volatile boolean running = true;
@@ -63,7 +58,7 @@ public class SolveThread extends Thread {
     }
 
     public void handleSolveRequest(SolveRequest request) {
-        Path codeFile = null;
+        Path codeFile= null;
         try {
             log.info("---------------------------Threaded-------------------------------");
             log.info("Received solve request: {}", request.requestId());
@@ -85,7 +80,7 @@ public class SolveThread extends Thread {
             solveService.completeWithError(request.requestId(), e);
         }
         finally {
-            // cleanupFile(codeFile);
+                cleanupFile(codeFile);
         }
     }
 
@@ -206,9 +201,9 @@ public class SolveThread extends Thread {
             return original.substring(original.indexOf(from));
         else return original;
     }
-    @Deprecated
+    @Deprecated(forRemoval = true)
     private Solution solveProblemExecutor(SolveRequest request, Path codeFile) {
-        Process scipProcess = null;
+        /*Process scipProcess = null;
         int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
         try {
             log.info("Got path: {}", codeFile.toAbsolutePath());
@@ -271,7 +266,8 @@ public class SolveThread extends Thread {
             if (scipProcess != null && scipProcess.isAlive()) {
                 scipProcess.destroyForcibly();
             }
-        }
+        }*/
+        return null;
     }
 
 
