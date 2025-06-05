@@ -3,6 +3,8 @@ package groupId.Services;
 
 import Exceptions.InternalErrors.ClientSideError;
 import Exceptions.SolverExceptions.SolverException;
+import Exceptions.SolverExceptions.ValidationException;
+import Exceptions.UserErrors.UserInputException;
 import Model.Solution;
 import Persistence.Entities.Image.ImageEntity;
 import Persistence.Entities.UserEntity;
@@ -48,7 +50,7 @@ public class SolveService {
 
         pendingRequests.put(requestId,future);
         try {
-            SolveRequest solveRequest= new SolveRequest(requestId, imageEntity.getZimplCode(), timeout);
+            SolveRequest solveRequest= new SolveRequest(requestId, imageEntity.getZimplCode(), timeout,false);
             kafkaTemplate.send(TOPIC_NAME, solveRequest);
 
             Solution solution = future.get(timeout+5, TimeUnit.SECONDS);
@@ -62,6 +64,28 @@ public class SolveService {
             pendingRequests.remove(requestId);
         }
 
+    }
+    @Transactional(readOnly = true)
+    public void validate(String zimplCode) {
+        int timeout = 5;
+        String requestId = UUID.randomUUID().toString();
+        CompletableFuture<Solution> future = new CompletableFuture<>();
+        pendingRequests.put(requestId,future);
+        try {
+            SolveRequest solveRequest= new SolveRequest(requestId, zimplCode, timeout,true);
+            kafkaTemplate.send(TOPIC_NAME, solveRequest);
+            future.get(timeout, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            throw new RuntimeException("Solution timed out", e);
+        }
+        catch (ValidationException e) {
+            throw new UserInputException(e.getMessage());
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Error getting solution", e);
+        } finally {
+            pendingRequests.remove(requestId);
+        }
     }
 
     public void completeSolution(String requestId, Solution solution) {

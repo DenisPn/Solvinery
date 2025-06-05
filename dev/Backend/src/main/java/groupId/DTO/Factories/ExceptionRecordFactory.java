@@ -1,5 +1,6 @@
 package groupId.DTO.Factories;
 
+import Exceptions.SolverExceptions.ValidationException;
 import Exceptions.UserErrors.UserDataException;
 import groupId.DTO.Records.Requests.Responses.ExceptionDTO;
 import Exceptions.InternalErrors.BadRequestException;
@@ -88,6 +89,11 @@ public class ExceptionRecordFactory {
     }
     public static ExceptionDTO makeDTO(UserDataException exception) {
         Objects.requireNonNull(exception,ohNo);
+        return new ExceptionDTO(exception.getMessage());
+    }
+    public static ExceptionDTO makeDTO(ValidationException exception) {
+        Objects.requireNonNull(exception,ohNo);
+        //TODO: LOG
         return new ExceptionDTO(exception.getMessage());
     }
     //kinda proud of this one

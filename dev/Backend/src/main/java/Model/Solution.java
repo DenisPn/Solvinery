@@ -7,14 +7,16 @@ import org.yaml.snakeyaml.util.Tuple;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.*;
 import java.util.regex.*;
 
 public class Solution {
-    final String engineMsg;
-    final boolean engineRunSuccess;
+    //final String engineMsg;
+    //final boolean engineRunSuccess;
     boolean parsed;
-    final String solutionPath;
+    //String solutionPath;
+    private final String solution;
     boolean solved;
     /*
     maps variable names to a list of lists with each list holding elements of the solution,
@@ -31,16 +33,16 @@ public class Solution {
 
     //helper fields
     Collection<Variable> variables;
-
-    public Solution(String solutionPath) {
-        this.solutionPath = solutionPath;
+    public Solution(String solution) {
+        this.solution= solution;
         variableSolution = new HashMap<>();
         variableStructure = new HashMap<>();
-        parsed = false;
+        /*parsed = false;
         engineRunSuccess = true;
-        engineMsg = "";
+        engineMsg = "";*/
         variableTypes = new HashMap<>();
     }
+   /* @Deprecated
     public Solution(String solutionPath,String engineMsg,boolean engineRunSuccess) {
         this.solutionPath = solutionPath;
         variableSolution = new HashMap<>();
@@ -49,13 +51,12 @@ public class Solution {
         this.engineMsg = engineMsg;
         this.engineRunSuccess = engineRunSuccess;
         variableTypes = new HashMap<>();
-    }
+    }*/
 
     public List<String> getVariableTypes(String identifier) {
         return variableTypes.get(identifier);
     }
 
-    //Implement as lazy call or run during initialization?
     public void parseSolution(ModelInterface model, Set<String> varsToParse,Map<String,String> varAliases,Map<String,String> setAliases) throws IOException {
         variables = model.getVariables(varsToParse);
         for (Variable variable : variables) {
@@ -69,7 +70,7 @@ public class Solution {
                 }
             }
         }
-        try (BufferedReader reader = new BufferedReader(new FileReader(solutionPath))) {
+        try (BufferedReader reader = new BufferedReader(new StringReader(solution))) {
             String line;
             boolean solutionSection = false;
 

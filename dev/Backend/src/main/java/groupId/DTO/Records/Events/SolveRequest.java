@@ -19,6 +19,8 @@ public class SolveRequest {
 public record SolveRequest(
         String requestId,
         String zimplContent,
-        int timeoutSeconds)
+        int timeoutSeconds,
+        boolean validationOnly
+        )
 { }
 

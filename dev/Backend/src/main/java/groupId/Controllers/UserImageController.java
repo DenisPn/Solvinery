@@ -33,6 +33,7 @@ public class UserImageController {
     @PostMapping("/model")
     public ResponseEntity<ModelDTO> parseModel(@PathVariable String userId,
                                                @Valid @RequestBody CreateImageFromFileDTO data) {
+        solveService.validate(data.code());
         ModelDTO response = imageService.parseImage(data.code(),userId);
         return ResponseEntity.ok(response);
     }
@@ -40,6 +41,7 @@ public class UserImageController {
     @PostMapping
     public ResponseEntity<CreateImageResponseDTO> createImage(@PathVariable String userId,
                                                               @Valid @RequestBody ImageDTO image) {
+        solveService.validate(image.code());
         CreateImageResponseDTO response = imageService.createImage(image,userId);
         return ResponseEntity.ok(response);
     }
