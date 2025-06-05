@@ -33,7 +33,7 @@ public class UserImageController {
     @PostMapping("/model")
     public ResponseEntity<ModelDTO> parseModel(@PathVariable String userId,
                                                @Valid @RequestBody CreateImageFromFileDTO data) {
-        solveService.validate(data.code());
+        //solveService.validate(data.code()); //TODO: RESTORE AFTER BUG FIXING
         ModelDTO response = imageService.parseImage(data.code(),userId);
         return ResponseEntity.ok(response);
     }
@@ -41,7 +41,7 @@ public class UserImageController {
     @PostMapping
     public ResponseEntity<CreateImageResponseDTO> createImage(@PathVariable String userId,
                                                               @Valid @RequestBody ImageDTO image) {
-        solveService.validate(image.code());
+        //solveService.validate(image.code());
         CreateImageResponseDTO response = imageService.createImage(image,userId);
         return ResponseEntity.ok(response);
     }
@@ -76,7 +76,7 @@ public class UserImageController {
     public ResponseEntity<SolutionDTO> solve(@PathVariable String userId,
                                              @PathVariable String imageId,
                                              @PathVariable int timeout){
-        SolutionDTO response = solveService.solve(userId,imageId,timeout);
+        SolutionDTO response = solveService.solveThreaded(userId,imageId,timeout);
         return ResponseEntity.ok(response);
     }
 }

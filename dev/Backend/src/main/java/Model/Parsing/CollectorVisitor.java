@@ -95,10 +95,12 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         TypeVisitor visitor = new TypeVisitor(model);
         visitor.visit(ctx);
         List<String> types = new LinkedList<>();
+        List<String> basicSets = new LinkedList<>();
         for(ModelSet set : visitor.getBasicSets()) {
          types.addAll(set.getDataType().typeList());
+         basicSets.add(set.getName());
         }
-        model.getVariablesMap().put(varName, new Variable(varName,types));
+        model.getVariablesMap().put(varName, new Variable(varName,types,basicSets));
         return super.visitVariable(ctx);
     }
 

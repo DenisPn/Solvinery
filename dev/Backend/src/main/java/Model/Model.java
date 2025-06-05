@@ -33,7 +33,6 @@ public class Model implements ModelInterface {
 
     ParseTree tree;
     private CommonTokenStream tokens;
-
     private final Map<String, ModelSet> sets = new HashMap<>();
     private final Map<String, ModelParameter> params = new HashMap<>();
     private final Map<String, Constraint> constraints = new HashMap<>();

@@ -2,7 +2,7 @@ package groupId.Services;
 
 
 import Exceptions.InternalErrors.ClientSideError;
-import Exceptions.SolverExceptions.SolverException;
+import Exceptions.SolverExceptions.ValidationException;
 import Exceptions.UserErrors.UserInputException;
 import Model.Solution;
 import Persistence.Entities.Image.ImageEntity;
@@ -11,8 +11,7 @@ import Persistence.EntityMapper;
 import groupId.DTO.Factories.RecordFactory;
 import groupId.DTO.Records.Events.SolveRequest;
 import groupId.DTO.Records.Image.SolutionDTO;
-import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
-import groupId.Services.KafkaServices.SolveLThread;
+import groupId.Services.KafkaServices.SolveThread;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -29,7 +28,7 @@ import java.util.concurrent.TimeoutException;
 public class SolveService {
     private final ConcurrentHashMap<String, CompletableFuture<Solution>> pendingRequests = new ConcurrentHashMap<>();
     private static final String TOPIC_NAME = "solve-requests";
-    private final SolveLThread solverThread; //TEMP, TO BE REMOVED
+    private final SolveThread solverThread; //TEMP, TO BE REMOVED
 
     private final KafkaTemplate<String, SolveRequest> kafkaTemplate;
     private final ImageService imageService;
@@ -39,7 +38,7 @@ public class SolveService {
         this.imageService=imageService;
         this.userService=userService;
         this.kafkaTemplate = kafkaTemplate;
-        this.solverThread= new SolveLThread(this);
+        this.solverThread= new SolveThread(this);
     }
 
     @Transactional
@@ -102,16 +101,18 @@ public class SolveService {
         pendingRequests.put(requestId, future);
 
         try {
-            SolveRequest solveRequest = new SolveRequest(requestId, imageEntity.getZimplCode(), timeout);
-            solverThread.submitRequest(solveRequest); // Submit to our thread instead of Kafka
+            SolveRequest solveRequest = new SolveRequest(requestId, imageEntity.getZimplCode(), timeout,false);
+            solverThread.submitRequest(solveRequest);
 
-            Solution solution = future.get(timeout + 5, TimeUnit.SECONDS);
+            Solution solution = future.get(timeout + 20, TimeUnit.SECONDS);
             log.info("Solve request completed successfully at Service level.");
+
+            solution.parseSolution(EntityMapper.toDomain(imageEntity));
             return RecordFactory.makeDTO(solution);
         } catch (TimeoutException e) {
-            throw new RuntimeException("Solution timed out", e);
+            throw new RuntimeException("Solution timed out" );
         } catch (Exception e) {
-            throw new RuntimeException("Error getting solution", e);
+            throw new RuntimeException("Error getting solution: "+ e.getMessage());
         } finally {
             pendingRequests.remove(requestId);
         }
