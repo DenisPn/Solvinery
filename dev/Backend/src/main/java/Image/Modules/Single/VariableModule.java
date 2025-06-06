@@ -27,7 +27,22 @@ public class VariableModule {
         return alias;
     }
 
+    /**
+     * Sets the alias for the variable. If the provided alias is null or empty,
+     * the alias will be reset to the variable's original name.
+     *
+     * @param alias The new alias for the variable. If null or empty, the alias will be reset.
+     */
     public void setAlias (String alias) {
-        this.alias = alias;
+        if(alias == null || alias.isEmpty())
+            removeAlias();
+        else this.alias = alias;
+    }
+
+    /**
+     * Sets alias to be the same as the variable name.
+     */
+    public void removeAlias () {
+        this.alias = variable.getName();
     }
 }

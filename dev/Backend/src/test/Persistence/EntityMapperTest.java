@@ -32,6 +32,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -67,6 +68,14 @@ public class EntityMapperTest {
                 maximize myObjective:
                     1;
             """;
+    public UserEntity makeUserStub () {
+        String username = "stub username";
+        String email = "stub@stubber.stubbinson";
+        String password = "stubpass123456";
+        UserEntity userEntity= new UserEntity(username, email, password);
+        userEntity= userRepository.save(userEntity);
+        return userEntity;
+    }
     public Image makeImageStub () {
         // Initialize children with appropriate data
         LinkedList<String> setData = new LinkedList<>();
@@ -77,7 +86,9 @@ public class EntityMapperTest {
         List<String> structure = new ArrayList<>();
         structure.add("structure1");
         structure.add("structure2");
-        VariableModule var = new VariableModule(new Variable("varName", structure), "v-alias");
+        List<String> basicSets= new ArrayList<>();
+        basicSets.add("set1"); basicSets.add("set2");
+        VariableModule var = new VariableModule(new Variable("varName", structure,basicSets), "v-alias");
         Constraint constraint = new Constraint("constraint");
         Preference preference = new Preference("preference");
 
@@ -99,15 +110,18 @@ public class EntityMapperTest {
         Set<PreferenceModule> preferenceModules = new HashSet<>();
         constraintModules.add(constraintModule);
         preferenceModules.add(preferenceModule);
-
-
+        String name= "stub name";
+        String description= "stub description";
+        LocalDateTime creationDate= LocalDateTime.now();
         // Create and return the Image object
-        return new Image(simpleCodeExample, constraintModules, preferenceModules, sets, params, variables);
+        return new Image(simpleCodeExample,name,description,creationDate, constraintModules, preferenceModules, sets, params, variables);
     }
 
     public ImageEntity makeEntityStub() {
 
         // Persist parent entity without child entities to generate ID
+        UserEntity userStub = makeUserStub();
+
         ImageEntity stub = new ImageEntity();
         imageRepository.save(stub); // Save empty image to generate id
         UUID imageId = stub.getId();
@@ -122,7 +136,9 @@ public class EntityMapperTest {
         SetEntity set = new SetEntity(imageId, "setName", "INT", setData, "s-alias");
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
-        VariableEntity var = new VariableEntity(imageId, "varName",structure, "v-alias");
+        List<String> basicSets= new ArrayList<>();
+        basicSets.add("set1"); basicSets.add("set2");
+        VariableEntity var = new VariableEntity(imageId, "varName",structure,basicSets, "v-alias");
         ConstraintEntity constraint = new ConstraintEntity("constraint");
         PreferenceEntity preference = new PreferenceEntity("preference");
         HashSet<SetEntity> sets= new HashSet<>();
@@ -141,10 +157,15 @@ public class EntityMapperTest {
         HashSet<PreferenceModuleEntity> preferenceModules = new HashSet<>();
         constraintModules.add(constraintModule);
         preferenceModules.add(preferenceModule);
+        String nameStub = "stub name";
+        String descriptionStub = "stub description";
+        LocalDateTime dateStub = LocalDateTime.now();
         // Add children to the parent
-        stub.setAll(preferenceModules, constraintModules, variables, params, sets,simpleCodeExample);
+        //    public void setAll(String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModuleEntities, Set<ConstraintModuleEntity> constraintModuleEntities, Set<VariableEntity> variableEntities, Set<ParameterEntity> paramEntities, Set<SetEntity> setEntities, String sourceCode, UserEntity user)
+        stub.setAll(nameStub,descriptionStub,dateStub,preferenceModules, constraintModules, variables, params, sets,simpleCodeExample,userStub);
         return stub;
     }
+    @Transactional
     @Test
     public void givenUserEntity_whenConvertedToDomain_thenShouldMatchFields () {
         // Given
@@ -158,7 +179,7 @@ public class EntityMapperTest {
         assertEquals("testUser", user.getUsername());
         assertEquals("test@example.com", user.getEmail());
     }
-
+    @Transactional
     @Test
     public void givenImageEntity_whenConvertedToDomain_thenShouldMatchFields () {
         // Given
@@ -171,6 +192,7 @@ public class EntityMapperTest {
         assertNotNull(image);
         assertEquals(simpleCodeExample, image.getSourceCode());
     }
+    @Transactional
     @Test
     public void givenImage_whenConvertedToEntity_thenShouldMatchFields () {
         // Given
@@ -192,7 +214,7 @@ public class EntityMapperTest {
         // Given
         Image image = makeImageStub();
         UUID imageId = UUID.randomUUID();
-        UserEntity user = new UserEntity("testUser", "test@example.com", "password123");
+        UserEntity user = makeUserStub();
         ImageEntity imageEntity = EntityMapper.toEntity(user,image, imageId);
 
         // When

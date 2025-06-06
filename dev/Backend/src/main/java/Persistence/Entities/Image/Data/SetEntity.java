@@ -15,6 +15,7 @@ public class SetEntity {
 
     @EmbeddedId
     private ImageComponentKey imageComponentKey;
+
     @Column(name = "type", nullable = false)
     @NotBlank(message = "Type cannot be blank")
     private String type;

@@ -23,8 +23,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,7 +65,7 @@ public class ImageService {
         return RecordFactory.makeDTO(generatedId, image.getModel());*/
         return null;
     }
-
+    @Transactional(readOnly = true)
     public ModelDTO parseImage(String code, String userId)  {
         userService.getUser(userId).orElseThrow(() -> new ClientSideError("User id not found"));
         Model model= new Model(code);
@@ -99,9 +100,6 @@ public class ImageService {
         return new CreateImageResponseDTO(imageEntity.getId().toString());
     }
 
-    public Image getImage(String id){
-        return EntityMapper.toDomain(imageRepository.getReferenceById(UUID.fromString(id)));
-    }
 
     /**
      * Fetches a page of published images from the database.
@@ -110,7 +108,7 @@ public class ImageService {
      * if the page doesn't exist, returns an empty DTO. is the page is the last one, returns a possibly partially filled DTO.
      * @see PublishedImagesDTO
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public PublishedImagesDTO fetchPublishedImages(@Min(0) int pageNumber) {
 
         PageRequest pageRequest = PageRequest.of(
@@ -141,7 +139,7 @@ public class ImageService {
         EntityMapper.setEntity(publishedImageEntity,user,imageEntity);
         publishedImagesRepository.save(publishedImageEntity);
     }
-    @Transactional
+    @Transactional(readOnly = true)
     public ImagesDTO fetchUserImages(@Min(0) int pageNumber, String userId) {
         UserEntity user = userService.getUser(userId)
                 .orElseThrow(() -> new ClientSideError("User id not found"));
@@ -166,5 +164,9 @@ public class ImageService {
         EntityMapper.setEntity(imageEntity,user,publishedImageEntity);
         imageRepository.save(imageEntity);
         return new CreateImageResponseDTO(imageEntity.getId().toString());
+    }
+    @Transactional(readOnly = true)
+    public Optional<ImageEntity> getImage(String imageId) {
+        return imageRepository.findById(UUID.fromString(imageId));
     }
 }

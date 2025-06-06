@@ -1,12 +1,7 @@
 package Image;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
-import Exceptions.InternalErrors.ModelExceptions.Parsing.ParsingException;
-import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
+import Image.Modules.Grouping.ConstraintModule;
+import Image.Modules.Grouping.PreferenceModule;
 import Image.Modules.Single.ParameterModule;
 import Image.Modules.Single.SetModule;
 import Image.Modules.Single.VariableModule;
@@ -15,22 +10,21 @@ import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
-import groupId.DTO.Factories.RecordFactory;
+import Model.Model;
+import Model.ModelInterface;
+import Model.ModelProxy;
 import groupId.DTO.Records.Image.ConstraintModuleDTO;
 import groupId.DTO.Records.Image.ImageDTO;
 import groupId.DTO.Records.Image.PreferenceModuleDTO;
-import groupId.DTO.Records.Image.SolutionDTO;
 import groupId.DTO.Records.Model.ModelData.ParameterDTO;
 import groupId.DTO.Records.Model.ModelData.SetDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ConstraintDTO;
 import groupId.DTO.Records.Model.ModelDefinition.PreferenceDTO;
-import Image.Modules.Grouping.ConstraintModule;
-import Image.Modules.Grouping.PreferenceModule;
-import Model.ModelProxy;
-import Model.Model;
-import Model.ModelInterface;
-import Model.Solution;
 import groupId.DTO.Records.Model.ModelDefinition.VariableDTO;
+
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Image {
     // Note: this implies module names must be unique between user constraints/preferences.
@@ -216,13 +210,13 @@ public class Image {
             ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
             modelSet.setData(setDTO.values());
             activeSets.add(new SetModule(modelSet,setDTO.setDefinition().alias()));
-            model.setInput(modelSet);
+           // model.setInput(modelSet);
         }
         for (ParameterDTO parameterDTO: imageDTO.parameters()){
             ModelParameter modelParameter= model.getParameter(parameterDTO.parameterDefinition().name());
             modelParameter.setData(parameterDTO.value());
             activeParams.add(new ParameterModule(modelParameter,parameterDTO.parameterDefinition().alias()));
-            model.setInput(modelParameter);
+            //model.setInput(modelParameter);
         }
     }
 
@@ -312,51 +306,8 @@ public class Image {
         activeVariables.add(new VariableModule(varName));
     }
 
-    /**
-     * Solves the optimization problem using the provided timeout value.
-     * This method compiles the model and attempts to find a solution within the given timeout limit.
-     * If the solution is found, it is parsed and wrapped into a {@code SolutionDTO}.
-     * In case of errors during compilation or solution parsing, appropriate runtime exceptions are thrown.
-     *
-     * @param timeout The maximum time, in seconds, allowed for solving the problem. Must be non-negative.
-     * @return A {@code SolutionDTO} object containing the results of the solved optimization problem,
-     *         including information such as whether the problem was solved, the solving time,
-     *         the objective value, any error messages, and the solution variables.
-     * @throws IllegalArgumentException if the timeout is negative.
-     * @throws InvalidModelStateException if there is a compilation error in the model.
-     * @throws ParsingException if an I/O exception occurs while parsing the solution file.
-     */
-    public SolutionDTO solve(int timeout){
-        assert timeout >= 0 : "Timeout must be non-negative";
-        try {
-            Solution solution = model.solve(timeout, "SOLUTION");
-            /*try {
-                solution.parseSolution(model, activeVariables.getIdentifiers(), activeVariables.getAliases(), activeSets.getSetAliases());
-            } catch (IOException e) {
-                throw new ParsingException("IO exception while parsing solution file, message: " + e);
-            }*/
-            return RecordFactory.makeDTO(solution);
-        }
-        catch (ZimplCompileError e) {
-            throw new InvalidModelStateException("Error while compiling model code before solve." +
-                    " Error message: " + e.getMessage());
-        }
-
-    }
     public ModelInterface getModel() {
         return this.model;
-    }
-    @Deprecated
-    public String getId() {
-        // Do not use this! ID stored in controller, image not aware of its own ID.
-        throw new UnsupportedOperationException("Unimplemented method 'getId'");
-    }
-    //Don't see it being used in the new version of our project, have a better solution
-    @Deprecated
-    public void reset(Map<String,Variable> variables,/* Collection<String> sets, Collection<String> params,*/Map<String,String> aliases) {
-       /* constraintsModules.clear();
-        preferenceModules.clear();
-        this.activeVariables.override(variables*//*,sets,params*//*,aliases);*/
     }
 
     public Set<SetModule> getActiveSets () {
@@ -368,5 +319,11 @@ public class Image {
     }
     public String getSourceCode() {
         return model.getSourceCode();
+    }
+    public Map<String,String> variableAliasMap(){
+        return activeVariables.stream()
+                .collect(Collectors.toMap(
+                        variableModule ->
+                                variableModule.getVariable().getName(), VariableModule::getAlias));
     }
 }

@@ -1,10 +1,10 @@
 package Persistence;
 
 import Image.Image;
-import Image.Modules.Single.ParameterModule;
-import Image.Modules.Single.SetModule;
 import Image.Modules.Grouping.ConstraintModule;
 import Image.Modules.Grouping.PreferenceModule;
+import Image.Modules.Single.ParameterModule;
+import Image.Modules.Single.SetModule;
 import Image.Modules.Single.VariableModule;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
@@ -15,9 +15,9 @@ import Model.Data.Types.ModelPrimitives;
 import Model.Data.Types.ModelType;
 import Model.Data.Types.Tuple;
 import Persistence.Entities.Image.Data.ParameterEntity;
+import Persistence.Entities.Image.Data.SetEntity;
 import Persistence.Entities.Image.Data.VariableEntity;
 import Persistence.Entities.Image.ImageComponentKey;
-import Persistence.Entities.Image.Data.SetEntity;
 import Persistence.Entities.Image.ImageEntity;
 import Persistence.Entities.Image.Operational.ConstraintEntity;
 import Persistence.Entities.Image.Operational.ConstraintModuleEntity;
@@ -193,10 +193,10 @@ public class EntityMapper {
         return new PreferenceModule(entity.getName(), entity.getDescription(), toPreferences(entity.getPreferences()));
     }
     public static VariableModule toDomain(VariableEntity entity){
-        return new VariableModule(new Variable(entity.getName(),entity.getStructure()),entity.getAlias());
+        return new VariableModule(new Variable(entity.getName(),entity.getStructure(),entity.getSetStructure()),entity.getAlias());
     }
     public static VariableEntity toEntity(VariableModule variable, UUID imageId){
-        return new VariableEntity(imageId,variable.getVariable().getName(),variable.getVariable().getStructure(),variable.getAlias());
+        return new VariableEntity(imageId,variable.getVariable().getName(),variable.getVariable().getStructure(),variable.getVariable().getBasicSets(),variable.getAlias());
     }
     public static Image toDomain(ImageEntity imageEntity){
         return new Image(imageEntity.getZimplCode(),imageEntity.getName(),imageEntity.getDescription(),imageEntity.getCreationDate(),toConstraintModules(imageEntity.getConstraintModules()),
@@ -259,6 +259,7 @@ public class EntityMapper {
                                 imageId,
                                 var.getName(),
                                 var.getStructure(),
+                                var.getSetStructure(),
                                 var.getAlias()
                         ))
                         .collect(Collectors.toSet()),
@@ -310,6 +311,7 @@ public class EntityMapper {
                                     imageId,
                                     var.getName(),
                                     var.getStructure(),
+                                    var.getSetStructure(),
                                     var.getAlias()
                             ))
                             .collect(Collectors.toSet()),
@@ -361,6 +363,7 @@ public class EntityMapper {
                                 imageId,
                                 var.getName(),
                                 var.getStructure(),
+                                var.getSetStructure(),
                                 var.getAlias()
                         ))
                         .collect(Collectors.toSet()),

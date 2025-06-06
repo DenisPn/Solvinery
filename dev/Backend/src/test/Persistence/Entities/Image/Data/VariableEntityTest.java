@@ -1,13 +1,13 @@
 package Persistence.Entities.Image.Data;
 
-import Persistence.Entities.Image.ImageComponentKey;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class VariableEntityTest {
 
@@ -15,8 +15,10 @@ class VariableEntityTest {
     void equals_SameObject_ReturnsTrue () {
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
+        List<String> sets= new ArrayList<>();
+        sets.add("set1"); sets.add("set2");
         UUID uuid = UUID.randomUUID();
-        VariableEntity variableEntity = new VariableEntity(uuid, "varName",structure, "alias");
+        VariableEntity variableEntity = new VariableEntity(uuid, "varName",structure,sets, "alias");
 
         assertTrue(variableEntity.equals(variableEntity));
     }
@@ -26,8 +28,10 @@ class VariableEntityTest {
         UUID uuid = UUID.randomUUID();
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
-        VariableEntity variableEntity1 = new VariableEntity(uuid, "varName",structure, "alias");
-        VariableEntity variableEntity2 = new VariableEntity(uuid, "varName",structure, "alias");
+        List<String> sets= new ArrayList<>();
+        sets.add("set1"); sets.add("set2");
+        VariableEntity variableEntity1 = new VariableEntity(uuid, "varName",structure,sets, "alias");
+        VariableEntity variableEntity2 = new VariableEntity(uuid, "varName",structure,sets, "alias");
 
         assertTrue(variableEntity1.equals(variableEntity2));
     }
@@ -36,8 +40,10 @@ class VariableEntityTest {
     void equals_DifferentUUID_ReturnsFalse () {
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
-        VariableEntity variableEntity1 = new VariableEntity(UUID.randomUUID(), "varName",structure, "alias");
-        VariableEntity variableEntity2 = new VariableEntity(UUID.randomUUID(), "varName",structure, "alias");
+        List<String> sets= new ArrayList<>();
+        sets.add("set1"); sets.add("set2");
+        VariableEntity variableEntity1 = new VariableEntity(UUID.randomUUID(), "varName",structure,sets, "alias");
+        VariableEntity variableEntity2 = new VariableEntity(UUID.randomUUID(), "varName",structure,sets, "alias");
 
         assertFalse(variableEntity1.equals(variableEntity2));
     }
@@ -47,8 +53,10 @@ class VariableEntityTest {
         UUID uuid = UUID.randomUUID();
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
-        VariableEntity variableEntity1 = new VariableEntity(uuid, "varName",structure, "alias1");
-        VariableEntity variableEntity2 = new VariableEntity(uuid, "varName",structure, "alias2");
+        List<String> sets= new ArrayList<>();
+        sets.add("set1"); sets.add("set2");
+        VariableEntity variableEntity1 = new VariableEntity(uuid, "varName",structure,sets, "alias1");
+        VariableEntity variableEntity2 = new VariableEntity(uuid, "varName",structure,sets, "alias2");
 
         assertFalse(variableEntity1.equals(variableEntity2));
     }
@@ -58,7 +66,9 @@ class VariableEntityTest {
         UUID uuid = UUID.randomUUID();
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
-        VariableEntity variableEntity = new VariableEntity(uuid, "varName",structure, "alias");
+        List<String> sets= new ArrayList<>();
+        sets.add("set1"); sets.add("set2");
+        VariableEntity variableEntity = new VariableEntity(uuid, "varName",structure,sets, "alias");
 
         assertFalse(variableEntity.equals(null));
     }
@@ -68,7 +78,9 @@ class VariableEntityTest {
         UUID uuid = UUID.randomUUID();
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
-        VariableEntity variableEntity = new VariableEntity(uuid, "varName",structure, "alias");
+        List<String> sets= new ArrayList<>();
+        sets.add("set1"); sets.add("set2");
+        VariableEntity variableEntity = new VariableEntity(uuid, "varName",structure,sets, "alias");
         Object other = new Object();
 
         assertFalse(variableEntity.equals(other));

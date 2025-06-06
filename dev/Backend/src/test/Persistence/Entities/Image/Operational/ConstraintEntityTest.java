@@ -1,9 +1,9 @@
 package Persistence.Entities.Image.Operational;
 
-import Persistence.Entities.Image.Operational.ConstraintEntity;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class ConstraintEntityTest {
 

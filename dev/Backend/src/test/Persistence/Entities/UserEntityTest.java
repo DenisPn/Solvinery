@@ -3,6 +3,7 @@ package Persistence.Entities;
 import Persistence.Repositories.UserRepository;
 import Utilities.Configs.PersistenceTestsConfiguration;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -13,8 +14,9 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.util.UUID;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @AutoConfigureDataJpa
@@ -101,9 +103,13 @@ class UserEntityTest {
     @Test
     public void givenNullUsername_whenSave_thenThrowsException() {
         //given
-        UserEntity user = new UserEntity(null, null, null);
-        //when & then
-        assertThrows(Exception.class, () -> userRepository.save(user));
+        try {
+            UserEntity user = new UserEntity(null, null, null);
+            //when & then
+            //assertThrows(Exception.class, () -> userRepository.save(user));
+            Assertions.fail();
+        } catch (Exception ignored) {
+        }
     }
 
     @ParameterizedTest
@@ -162,25 +168,38 @@ class UserEntityTest {
     @Test
     public void givenShortPassword_whenSave_thenThrowsException () {
         //given
-        UserEntity user = new UserEntity("test_user", "test_user@example.com", "123");
+        try {
+            UserEntity user = new UserEntity("test_user", "test_user@example.com", "123");
+            Assertions.fail();
+        }
+        catch (Exception ignored) {}
         //when & then
-        assertThrows(Exception.class, () -> userRepository.save(user));
+        //assertThrows(Exception.class, () -> userRepository.save(user));
     }
 
     @Test
     public void givenLongPassword_whenSave_thenThrowsException () {
         //given
-        String longPassword = "a".repeat(17);
-        UserEntity user = new UserEntity("test_user", "test_user@example.com", longPassword);
+        try {
+            String longPassword = "a".repeat(17);
+            UserEntity user = new UserEntity("test_user", "test_user@example.com", longPassword);
+            Assertions.fail();
+
+        }
+        catch (Exception ignored) {}
         //when & then
-        assertThrows(Exception.class, () -> userRepository.save(user));
+       // assertThrows(Exception.class, () -> userRepository.save(user));
     }
     @Test
     public void givenShotPassword_whenSave_thenThrowsException () {
         //given
-        UserEntity user = new UserEntity("test_user", "test_user@example.com", "aa");
+        try {
+            UserEntity user = new UserEntity("test_user", "test_user@example.com", "aa");
+            Assertions.fail();
+        }
+        catch (Exception ignored) {}
         //when & then
-        assertThrows(Exception.class, () -> userRepository.save(user));
+        //assertThrows(Exception.class, () -> userRepository.save(user));
     }
 
     @Test
