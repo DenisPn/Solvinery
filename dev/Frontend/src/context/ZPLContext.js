@@ -20,6 +20,7 @@ export const ZPLProvider = ({ children }) => {
         variablesConfigurableParams: []
     });
     const [setAliases, setSetAliases] = useState({});
+    const [username, setUsername] = useState('');
     const [userId, setUserId] = useState(null);
     const [selectedVars, setSelectedVars] = useState([]); 
 
@@ -52,6 +53,7 @@ export const ZPLProvider = ({ children }) => {
             // Image and User
             imageId, setImageId,
             userId, setUserId,
+            username, setUsername,
 
             // Image name, description, and ZPL code
             imageName, setImageName,

@@ -33,6 +33,7 @@ const LogInPage = () => {
   if (response.data.userId) {
     // Save the userId in the context
     setUserId(response.data.userId);
+    setUsername(response.data.username);
     setErrorMessage(""); // Clear any previous error
     console.log(response.data.userId);
     navigate("/"); // Redirect to home page or dashboard
