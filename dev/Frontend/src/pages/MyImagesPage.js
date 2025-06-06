@@ -11,6 +11,9 @@ const MyImagesPage = () => {
   const [page, setPage] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedImageId, setSelectedImageId] = useState(null);
+  const [viewSection, setViewSection] = useState(null);
+  const [selectedSetIndex, setSelectedSetIndex] = useState(0);
+
   const navigate = useNavigate();
   const { userId } = useZPL();
 
@@ -29,18 +32,19 @@ const MyImagesPage = () => {
     fetchImages();
   }, [userId, page]);
 
-const handlePublishImage = async () => {
-  if (!selectedImageId || !userId) return;
+  const handlePublishImage = async () => {
+    if (!selectedImageId || !userId) return;
 
-  try {
-    const response = await axios.patch(`/user/${userId}/image/${selectedImageId}/publish`);
-    alert(`Publish Success: ${JSON.stringify(response.data)}`);
-  } catch (error) {
-    const errMsg = error.response?.data || error.message || "Unknown error";
-    alert(`Publish Failed: ${JSON.stringify(errMsg)}`);
-  }
-};
-
+    try {
+      const response = await axios.patch(
+        `/user/${userId}/image/${selectedImageId}/publish`
+      );
+      alert(`Publish Success: ${JSON.stringify(response.data)}`);
+    } catch (error) {
+      const errMsg = error.response?.data || error.message || "Unknown error";
+      alert(`Publish Failed: ${JSON.stringify(errMsg)}`);
+    }
+  };
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -64,11 +68,27 @@ const handlePublishImage = async () => {
 
   const handleCopyCode = () => {
     if (selectedImage?.code) {
-      navigator.clipboard.writeText(selectedImage.code).then(() => {
-        alert("ZPL code copied to clipboard!");
-      }).catch(err => {
-        alert("Failed to copy ZPL code.");
-      });
+      navigator.clipboard
+        .writeText(selectedImage.code)
+        .then(() => alert("ZPL code copied to clipboard!"))
+        .catch(() => alert("Failed to copy ZPL code."));
+    }
+  };
+
+  const handleSolve = () => alert("Solve not available yet.");
+  const handleEdit = () => alert("Edit not available yet.");
+
+  const getViewData = () => {
+    if (!selectedImage) return null;
+    switch (viewSection) {
+      case "params":
+        return JSON.stringify(selectedImage.parameters, null, 2);
+      case "constraints":
+        return JSON.stringify(selectedImage.constraintModules, null, 2);
+      case "preferences":
+        return JSON.stringify(selectedImage.preferenceModules, null, 2);
+      default:
+        return null;
     }
   };
 
@@ -146,108 +166,245 @@ const handlePublishImage = async () => {
           />
         </div>
 
-    {selectedImage && (
-  <div className="modal-overlay" onClick={() => setSelectedImage(null)}>
-    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-      <h2>{selectedImage.name}</h2>
-      <p><strong>ID:</strong> {selectedImageId}</p>
-      <p><strong>Description:</strong> {selectedImage.description}</p>
+        {selectedImage && (
+          <div
+            className="modal-overlay"
+            onClick={() => {
+              setSelectedImage(null);
+              setViewSection(null);
+            }}
+          >
+            <div
+              className="modal-content-fixed"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Top-left: Close or Back */}
+              {viewSection === null ? (
+                <img
+                  src="/images/ExitButton2.png"
+                  alt="Close"
+                  className="modal-corner-button"
+                  onClick={() => {
+                    setSelectedImage(null);
+                    setViewSection(null);
+                  }}
+                  title="Close"
+                />
+              ) : (
+                <img
+                  src="/images/ExitButton2.png"
+                  alt="Back"
+                  className="modal-corner-button"
+                  onClick={() => setViewSection(null)}
+                  title="Back"
+                />
+              )}
 
-      <h3>Variables</h3>
-      <ul>
-        {selectedImage.variables.map((v, i) => (
-          <li key={i}>
-            {v.identifier} ({v.structure.join(", ")}) — {v.alias}
-          </li>
-        ))}
-      </ul>
+              {/* Top-right Action Buttons */}
+              <img
+                src="/images/PublishButton.png"
+                alt="Publish"
+                className="modal-publish-button"
+                onClick={handlePublishImage}
+                title="Publish"
+              />
+              <img
+                src="/images/Solve.png"
+                alt="Solve"
+                className="modal-solve-button"
+                onClick={handleSolve}
+                title="Solve"
+              />
+              <img
+                src="/images/EditButton.png"
+                alt="Edit"
+                className="modal-edit-button"
+                onClick={handleEdit}
+                title="Edit"
+              />
+              <img
+                src="/images/CopyZPLButton.png"
+                alt="Copy ZPL"
+                className="modal-copy-button"
+                onClick={handleCopyCode}
+                title="Copy ZPL"
+              />
 
-      <h3>Constraints</h3>
-      <ul>
-        {selectedImage.constraintModules.map((mod, i) => (
-          <li key={i}>
-            <strong>{mod.moduleName}</strong>: {mod.description}<br />
-            Constraints: {mod.constraints.join(", ")}
-          </li>
-        ))}
-      </ul>
+              {/* Modal Content */}
+              {viewSection === null ? (
+                <>
+                  <p>
+                    <strong>Description:</strong> {selectedImage.description}
+                  </p>
+                  <div className="grid-button-section">
+                    <button
+                      className="modal-square-button"
+                      onClick={() => setViewSection("sets")}
+                    >
+                      Sets
+                    </button>
+                    <button
+                      className="modal-square-button"
+                      onClick={() => setViewSection("params")}
+                    >
+                      Parameters
+                    </button>
+                    <button
+                      className="modal-square-button"
+                      onClick={() => setViewSection("constraints")}
+                    >
+                      Constraints
+                    </button>
+                    <button
+                      className="modal-square-button"
+                      onClick={() => setViewSection("preferences")}
+                    >
+                      Preferences
+                    </button>
+                  </div>
+                </>
+              ) : viewSection === "sets" ? (
+                <div className="modal-section-data sets-modal">
+                  <label htmlFor="set-select" className="sets-label">
+                    Choose a set:
+                  </label>
+                  <select
+                    id="set-select"
+                    className="set-dropdown"
+                    value={selectedSetIndex}
+                    onChange={(e) =>
+                      setSelectedSetIndex(Number(e.target.value))
+                    }
+                  >
+                    {selectedImage.sets.map((set, index) => (
+                      <option key={index} value={index}>
+                        {set.setDefinition.name}
+                      </option>
+                    ))}
+                  </select>
 
-      <h3>Preferences</h3>
-      <ul>
-        {selectedImage.preferenceModules.map((mod, i) => (
-          <li key={i}>
-            <strong>{mod.moduleName}</strong>: {mod.description}<br />
-            Preferences: {mod.preferences.join(", ")}
-          </li>
-        ))}
-      </ul>
+                  <div className="add-value-section">
+                    <input
+                      type="text"
+                      className="add-value-input"
+                      placeholder="New value"
+                      value={
+                        selectedImage.sets[selectedSetIndex].newValue || ""
+                      }
+                      onChange={(e) => {
+                        const newImage = { ...selectedImage };
+                        newImage.sets[selectedSetIndex].newValue =
+                          e.target.value;
+                        setSelectedImage(newImage);
+                      }}
+                    />
+                    <button
+                      className="add-value-button"
+                      onClick={() => {
+                        const newValue =
+                          selectedImage.sets[selectedSetIndex].newValue?.trim();
+                        if (!newValue) return;
+                        const newImage = { ...selectedImage };
+                        newImage.sets[selectedSetIndex].values.push(newValue);
+                        newImage.sets[selectedSetIndex].newValue = "";
+                        setSelectedImage(newImage);
+                      }}
+                    >
+                      Add
+                    </button>
+                  </div>
 
-      <h3>Sets</h3>
-      <ul>
-        {selectedImage.sets.map((s, i) => (
-          <li key={i}>
-            {s.setDefinition.name} ({s.setDefinition.type.join(", ")}) = [{s.values.join(", ")}]
-          </li>
-        ))}
-      </ul>
-
-      <h3>Parameters</h3>
-      <ul>
-        {selectedImage.parameters.map((p, i) => (
-          <li key={i}>
-            {p.parameterDefinition.name} = {p.value}
-          </li>
-        ))}
-      </ul>
-
-      {/* Action Buttons */}
-      <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-        <img
-          src="/images/ExitButton2.png"
-          alt="Close"
-          className="modal-close-button"
-          onClick={() => setSelectedImage(null)}
-          title="Close"
-        />
-
-        <img
-          src="/images/CopyZPLButton.png"
-          alt="Copy ZPL"
-          className="modal-copy-button"
-          onClick={handleCopyCode}
-          title="Copy ZPL code to clipboard"
-        />
-
-       <img
-  src="/images/PublishButton.png"
-  alt="Publish"
-  className="modal-publish-button"
-  onClick={handlePublishImage}
-  title="Publish this image"
-/>
-
-
-        <img
-          src="/images/Solve.png"
-          alt="Solve"
-          className="modal-solve-button"
-          onClick={() => {}}
-          title="Solve this image"
-        />
-
-        <img
-          src="/images/EditButton.png"
-          alt="Edit"
-          className="modal-edit-button"
-          onClick={() => {}}
-          title="Edit this image"
-        />
-      </div>
-    </div>
-  </div>
-)}
-
-
+                  <h4>Values:</h4>
+                  <ul className="set-values-list">
+                    {selectedImage.sets[selectedSetIndex]?.values.map(
+                      (val, i) => {
+                        const editingIndex =
+                          selectedImage.sets[selectedSetIndex].editingIndex;
+                        const editingValue =
+                          selectedImage.sets[selectedSetIndex].editingValue ||
+                          "";
+                        return (
+                          <li key={i} className="set-value-item">
+                            <div className="value-text">
+                              {editingIndex === i ? (
+                                <>
+                                  <input
+                                    type="text"
+                                    value={editingValue}
+                                    onChange={(e) => {
+                                      const newImage = { ...selectedImage };
+                                      newImage.sets[
+                                        selectedSetIndex
+                                      ].editingValue = e.target.value;
+                                      setSelectedImage(newImage);
+                                    }}
+                                  />
+                                  <button
+                                    onClick={() => {
+                                      const newImage = { ...selectedImage };
+                                      newImage.sets[selectedSetIndex].values[
+                                        i
+                                      ] = editingValue;
+                                      newImage.sets[
+                                        selectedSetIndex
+                                      ].editingIndex = null;
+                                      newImage.sets[
+                                        selectedSetIndex
+                                      ].editingValue = "";
+                                      setSelectedImage(newImage);
+                                    }}
+                                  >
+                                    ✅
+                                  </button>
+                                </>
+                              ) : (
+                                <span>{val}</span>
+                              )}
+                            </div>
+                            {editingIndex !== i && (
+                              <div className="value-buttons">
+                                <button
+                                  className="edit-value-button"
+                                  onClick={() => {
+                                    const newImage = { ...selectedImage };
+                                    newImage.sets[
+                                      selectedSetIndex
+                                    ].editingIndex = i;
+                                    newImage.sets[
+                                      selectedSetIndex
+                                    ].editingValue = val;
+                                    setSelectedImage(newImage);
+                                  }}
+                                >
+                                  ✎
+                                </button>
+                                <button
+                                  className="remove-value-button"
+                                  onClick={() => {
+                                    const newImage = { ...selectedImage };
+                                    newImage.sets[selectedSetIndex].values =
+                                      newImage.sets[
+                                        selectedSetIndex
+                                      ].values.filter((_, idx) => idx !== i);
+                                    setSelectedImage(newImage);
+                                  }}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            )}
+                          </li>
+                        );
+                      }
+                    )}
+                  </ul>
+                </div>
+              ) : (
+                <pre className="modal-section-data">{getViewData()}</pre>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
