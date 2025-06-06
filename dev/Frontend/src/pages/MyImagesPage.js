@@ -400,7 +400,84 @@ const MyImagesPage = () => {
                   </ul>
                 </div>
               ) : (
-                <pre className="modal-section-data">{getViewData()}</pre>
+             
+  <div className="modal-section-data parameters-modal">
+    <table className="parameters-table">
+      <thead>
+        <tr>
+          <th>Edit</th>
+          <th>Name</th>
+          <th>Alias</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {selectedImage.parameters.map((param, index) => (
+          <tr key={index}>
+            <td>
+              {param.isEditing ? (
+                <>
+                  <button
+                    onClick={() => {
+                      const newImage = { ...selectedImage };
+                      newImage.parameters[index].value =
+                        param.tempValue ?? param.value;
+                      newImage.parameters[index].isEditing = false;
+                      delete newImage.parameters[index].tempValue;
+                      setSelectedImage(newImage);
+                    }}
+                  >
+                    ✅
+                  </button>
+                  <button
+                    onClick={() => {
+                      const newImage = { ...selectedImage };
+                      newImage.parameters[index].isEditing = false;
+                      delete newImage.parameters[index].tempValue;
+                      setSelectedImage(newImage);
+                    }}
+                  >
+                    ✕
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => {
+                    const newImage = { ...selectedImage };
+                    newImage.parameters[index].isEditing = true;
+                    newImage.parameters[index].tempValue = param.value;
+                    setSelectedImage(newImage);
+                  }}
+                >
+                  ✎
+                </button>
+              )}
+            </td>
+            <td>{param.parameterDefinition.name}</td>
+            <td>{param.parameterDefinition.alias || "—"}</td>
+            <td>
+              {param.isEditing ? (
+                <input
+                  type="text"
+                  value={param.tempValue}
+                  onChange={(e) => {
+                    const newImage = { ...selectedImage };
+                    newImage.parameters[index].tempValue = e.target.value;
+                    setSelectedImage(newImage);
+                  }}
+                />
+              ) : (
+                param.value
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+
+
               )}
             </div>
           </div>
