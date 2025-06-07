@@ -1,45 +1,59 @@
 /* RegisterPage.css */
 
 .register-background {
-  background: linear-gradient(90deg, rgba(42, 123, 155, 1) 0%, rgba(87, 199, 133, 1) 100%, rgba(237, 221, 83, 1) 100%);
-  height: 100vh;
+  background: linear-gradient(90deg, rgba(42, 123, 155, 1) 0%, rgba(87, 199, 133, 1) 100%);
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 60px 20px;
+  box-sizing: border-box;
+  overflow: hidden; /* 👈 מונע גלילה ופסים */
 }
+
+
 
 .register-form-container {
   background-color: #fff;
-  padding: 0px 60px;
-  padding-bottom: 70px;
+  padding: 20px 20px;
   border-radius: 20px;
   border: 1px solid black;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
+
+
+
 .main-register-title {
-  font-size: 50px;
+  font-size: 36px;
   font-weight: bold;
-  -webkit-text-stroke: 0.5px white;
   font-family: cursive;
+  margin-bottom: 20px;
 }
 
 .group {
   position: relative;
-  margin-bottom: 45px;
+  margin-bottom: 15px;
 }
 
 .input-box-register {
-  font-size: 18px;
-  padding: 10px 10px 10px 5px;
+  font-size: 14px;
+  padding: 6px;
   display: block;
-  width: 300px;
+  width: 100%; /* 👈 חובה שיהיה */
+  max-width: 100%;
   border: none;
   border-bottom: 1px solid #757575;
 }
+
+
+
 
 .input-box-register:focus {
   outline: none;
@@ -130,12 +144,31 @@
   background-color: #5264AE;
   color: white;
   border: none;
-  padding: 15px 20px;
-  font-size: 18px;
+  padding: 10px 16px;
+  font-size: 16px;
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: 8px;
 }
+
 
 .button:hover {
   background-color: #4a5c8d;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px 20px;
+  max-width: 100%;
+  margin-bottom: 20px;
+}
+
+.full-width {
+  grid-column: span 2;
 }

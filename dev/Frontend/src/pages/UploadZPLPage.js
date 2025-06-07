@@ -72,7 +72,7 @@ const UploadZPLPage = () => {
   e.stopPropagation();
 
   const file = e.dataTransfer.files[0];
-  if (file && file.type === "text/plain") {
+  if (file && (file.name.endsWith(".txt") || file.name.endsWith(".zpl"))) {
     const reader = new FileReader();
     reader.onload = (event) => {
       setFileContent(event.target.result);
@@ -116,7 +116,7 @@ const handleDragOver = (e) => {
 </div>
 
      
-        <button className="upload-button" onClick={handleSelectFile}>
+        <button className="button" onClick={handleSelectFile}>
           Select File
         </button>
         <input
@@ -136,7 +136,7 @@ const handleDragOver = (e) => {
 />
 
         <br />
-        <button className="upload-button" onClick={handleUpload}>
+        <button className="button" onClick={handleUpload}>
           Upload
         </button>
       </div>

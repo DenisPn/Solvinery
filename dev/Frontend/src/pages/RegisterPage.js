@@ -50,72 +50,63 @@ const RegisterPage = () => {
 
   return (
     <div className="register-background">
-      <button className="back-button" onClick={() => navigate("/")}>Back</button>
+      <button className="back-button" onClick={() => navigate("/")}>Log In</button>
 
       <div className="register-form-container">
         <h1 className="main-register-title">Register</h1>
 
-        <form>
-          <div className="group">
-            <input
-              type="text"
-              placeholder="User Name"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              className="input-box-register"
-            />
-            <span className="highlight-register"></span>
-            <span className="bar-register"></span>
-          </div>
-          <br />
-          <div className="group">
-            <input
-              type="text"
-              placeholder="Nickname"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              className="input-box-register"
-            />
-            <span className="highlight-register"></span>
-            <span className="bar-register"></span>
-          </div>
-          <br />
-          <div className="group">
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input-box-register"
-            />
-            <span className="highlight-register"></span>
-            <span className="bar-register"></span>
-          </div>
-          <br />
-          <div className="group">
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="input-box-register"
-            />
-            <span className="highlight-register"></span>
-            <span className="bar-register"></span>
-          </div>
-          <br />
-          <div className="group">
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="input-box-register"
-            />
-            <span className="highlight-register"></span>
-            <span className="bar-register"></span>
-          </div>
-        </form>
+       <form className="form-grid">
+  <div className="group">
+    <input
+      type="text"
+      placeholder="User Name"
+      value={userName}
+      onChange={(e) => setUserName(e.target.value)}
+      className="input-box-register"
+    />
+  </div>
+
+  <div className="group">
+    <input
+      type="text"
+      placeholder="Nickname"
+      value={nickname}
+      onChange={(e) => setNickname(e.target.value)}
+      className="input-box-register"
+    />
+  </div>
+
+  <div className="group">
+    <input
+      type="password"
+      placeholder="Password"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      className="input-box-register"
+    />
+  </div>
+
+  <div className="group">
+    <input
+      type="password"
+      placeholder="Confirm Password"
+      value={confirmPassword}
+      onChange={(e) => setConfirmPassword(e.target.value)}
+      className="input-box-register"
+    />
+  </div>
+
+  <div className="group full-width">
+    <input
+      type="email"
+      placeholder="Email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      className="input-box-register"
+    />
+  </div>
+</form>
+
 
         <br />
         {message && (

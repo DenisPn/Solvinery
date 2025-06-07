@@ -17,28 +17,34 @@ import ViewImagesPage from "./pages/ViewImagesPage";
 import MyImagesPage from "./pages/MyImagesPage";
 import ImageSettingSetAndParams from "./pages/ImageSettingSetAndParams";
 import ImageSettingReview from "./pages/ImageSettingReview";
+import RequireAuth from "./components/RequireAuth";
+
 
 function App() {
     return (
         <Router>
             <DndProvider backend={HTML5Backend}>
-                <Routes>
-                    <Route path="/" element={<MainPage />} />
-                    <Route path="/log-in" element={<LogInPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/work-assignment" element={<WorkAssignmentPage />} />
-                    <Route path="/upload-zpl" element={<UploadZPLPage />} />
-                    <Route path="/view-images" element={<ViewImagesPage />} />
-                    <Route path="/my-images" element={<MyImagesPage />} />
-                    <Route path="/configure-variables" element={<ConfigureVariablesPage />} />
-                    <Route path="/configure-constraints" element={<ConfigureConstraintsPage />} />
-                    <Route path="/configure-preferences" element={<ConfigurePreferencesPage />} />
-                    <Route path="/solution-preview" element={<SolutionPreviewPage />} />
-                    <Route path="/solution-results" element={<SolutionResultsPage />} />
-                    <Route path="/image-setting-set-and-params" element={<ImageSettingSetAndParams />} />
-                    <Route path="/image-setting-review" element={<ImageSettingReview />} />
+               <Routes>
+  {/* Public routes */}
+  
+  <Route path="/log-in" element={<LogInPage />} />
+  <Route path="/register" element={<RegisterPage />} />
 
-                </Routes>
+  {/* Protected routes */}
+  <Route path="/" element={<RequireAuth><MainPage /></RequireAuth>} />
+  <Route path="/work-assignment" element={<RequireAuth><WorkAssignmentPage /></RequireAuth>} />
+  <Route path="/upload-zpl" element={<RequireAuth><UploadZPLPage /></RequireAuth>} />
+  <Route path="/view-images" element={<RequireAuth><ViewImagesPage /></RequireAuth>} />
+  <Route path="/my-images" element={<RequireAuth><MyImagesPage /></RequireAuth>} />
+  <Route path="/configure-variables" element={<RequireAuth><ConfigureVariablesPage /></RequireAuth>} />
+  <Route path="/configure-constraints" element={<RequireAuth><ConfigureConstraintsPage /></RequireAuth>} />
+  <Route path="/configure-preferences" element={<RequireAuth><ConfigurePreferencesPage /></RequireAuth>} />
+  <Route path="/solution-preview" element={<RequireAuth><SolutionPreviewPage /></RequireAuth>} />
+  <Route path="/solution-results" element={<RequireAuth><SolutionResultsPage /></RequireAuth>} />
+  <Route path="/image-setting-set-and-params" element={<RequireAuth><ImageSettingSetAndParams /></RequireAuth>} />
+  <Route path="/image-setting-review" element={<RequireAuth><ImageSettingReview /></RequireAuth>} />
+</Routes>
+
             </DndProvider>
         </Router>
     );
