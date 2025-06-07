@@ -23,6 +23,7 @@ const MyImagesPage = () => {
     const fetchImages = async () => {
       try {
         const response = await axios.get(`/user/${userId}/image/${page}`);
+        console.log("Raw images response:", response.data.images);
         setImagesMap(response.data.images || {});
       } catch (error) {
         console.error("Error fetching images:", error);
@@ -133,6 +134,7 @@ const MyImagesPage = () => {
                 onClick={() => {
                   setSelectedImage(image);
                   setSelectedImageId(imageId);
+                  console.log("Selected image:", image);
                 }}
               >
                 <div className="image-thumbnail-text">
@@ -399,86 +401,144 @@ const MyImagesPage = () => {
                     )}
                   </ul>
                 </div>
-              ) : (
-             
-  <div className="modal-section-data parameters-modal">
-    <table className="parameters-table">
-      <thead>
-        <tr>
-          <th>Edit</th>
-          <th>Name</th>
-          <th>Alias</th>
-          <th>Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        {selectedImage.parameters.map((param, index) => (
-          <tr key={index}>
-            <td>
-              {param.isEditing ? (
-                <>
-                  <button
-                    onClick={() => {
-                      const newImage = { ...selectedImage };
-                      newImage.parameters[index].value =
-                        param.tempValue ?? param.value;
-                      newImage.parameters[index].isEditing = false;
-                      delete newImage.parameters[index].tempValue;
-                      setSelectedImage(newImage);
-                    }}
-                  >
-                    ✅
-                  </button>
-                  <button
-                    onClick={() => {
-                      const newImage = { ...selectedImage };
-                      newImage.parameters[index].isEditing = false;
-                      delete newImage.parameters[index].tempValue;
-                      setSelectedImage(newImage);
-                    }}
-                  >
-                    ✕
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => {
-                    const newImage = { ...selectedImage };
-                    newImage.parameters[index].isEditing = true;
-                    newImage.parameters[index].tempValue = param.value;
-                    setSelectedImage(newImage);
-                  }}
-                >
-                  ✎
-                </button>
-              )}
-            </td>
-            <td>{param.parameterDefinition.name}</td>
-            <td>{param.parameterDefinition.alias || "—"}</td>
-            <td>
-              {param.isEditing ? (
-                <input
-                  type="text"
-                  value={param.tempValue}
-                  onChange={(e) => {
-                    const newImage = { ...selectedImage };
-                    newImage.parameters[index].tempValue = e.target.value;
-                    setSelectedImage(newImage);
-                  }}
-                />
-              ) : (
-                param.value
-              )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-
-
-
-              )}
+              ) : viewSection === "params" ? (
+                <div className="modal-section-data parameters-modal">
+                  <table className="parameters-table">
+                    <thead>
+                      <tr>
+                        <th>Edit</th>
+                        <th>Name</th>
+                        <th>Alias</th>
+                        <th>Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedImage.parameters.map((param, index) => (
+                        <tr key={index}>
+                          <td>
+                            {param.isEditing ? (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    const newImage = { ...selectedImage };
+                                    newImage.parameters[index].value =
+                                      param.tempValue ?? param.value;
+                                    newImage.parameters[
+                                      index
+                                    ].isEditing = false;
+                                    delete newImage.parameters[index].tempValue;
+                                    setSelectedImage(newImage);
+                                  }}
+                                >
+                                  ✅
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    const newImage = { ...selectedImage };
+                                    newImage.parameters[
+                                      index
+                                    ].isEditing = false;
+                                    delete newImage.parameters[index].tempValue;
+                                    setSelectedImage(newImage);
+                                  }}
+                                >
+                                  ✕
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  const newImage = { ...selectedImage };
+                                  newImage.parameters[index].isEditing = true;
+                                  newImage.parameters[index].tempValue =
+                                    param.value;
+                                  setSelectedImage(newImage);
+                                }}
+                              >
+                                ✎
+                              </button>
+                            )}
+                          </td>
+                          <td>{param.parameterDefinition.name}</td>
+                          <td>{param.parameterDefinition.alias || "—"}</td>
+                          <td>
+                            {param.isEditing ? (
+                              <input
+                                type="text"
+                                value={param.tempValue}
+                                onChange={(e) => {
+                                  const newImage = { ...selectedImage };
+                                  newImage.parameters[index].tempValue =
+                                    e.target.value;
+                                  setSelectedImage(newImage);
+                                }}
+                                style={{ textAlign: "center" }}
+                              />
+                            ) : (
+                              param.value
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : viewSection === "constraints" ? (
+                <div className="modal-section-data constraints-modal">
+                  {selectedImage.constraintModules.length === 0 ? (
+                    <p>No constraints available for this image.</p>
+                  ) : (
+                    selectedImage.constraintModules.map((constraint, index) => (
+                      <div key={index} className="constraint-box">
+                        <div className="constraint-header">
+                          <strong>{constraint.name}</strong>
+                          <input
+                            type="checkbox"
+                            checked={constraint.enabled ?? true}
+                            onChange={(e) => {
+                              const newImage = { ...selectedImage };
+                              newImage.constraintModules[index].enabled =
+                                e.target.checked;
+                              setSelectedImage(newImage);
+                            }}
+                          />
+                        </div>
+                        <p>{constraint.description}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              ) : viewSection === "preferences" ? (
+                // שמור על קוד קיים של preferences
+                <div className="modal-section-data preferences-modal">
+                  {selectedImage.preferenceModules.length === 0 ? (
+                    <p>No preferences available for this image.</p>
+                  ) : (
+                    selectedImage.preferenceModules.map((pref, index) => (
+                      <div key={index} className="preference-box">
+                        <div className="preference-header">
+                          <strong>{pref.name}</strong>
+                          <input
+                            type="range"
+                            min="0"
+                            max="10"
+                            step="1"
+                            value={pref.value ?? 5}
+                            onChange={(e) => {
+                              const newImage = { ...selectedImage };
+                              newImage.preferenceModules[index].value = Number(
+                                e.target.value
+                              );
+                              setSelectedImage(newImage);
+                            }}
+                          />
+                        </div>
+                        <p>{pref.description}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              ) : null}
             </div>
           </div>
         )}
