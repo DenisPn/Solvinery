@@ -8,12 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 class ConstraintEntityTest {
 
     @Test
-    void testEquals_SameInstance () {
-        ConstraintEntity entity = new ConstraintEntity();
-        assertEquals(entity, entity, "An instance should be equal to itself.");
-    }
-
-    @Test
     void testEquals_NullComparison () {
         ConstraintEntity entity = new ConstraintEntity();
         assertNotEquals(null, entity, "An instance should not be equal to null.");

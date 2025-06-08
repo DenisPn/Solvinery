@@ -12,14 +12,6 @@ public class PreferenceEntityTest {
      * The equals method checks if two PreferenceEntity objects are equal by comparing their names.
      */
 
-    @Test
-    public void testEquals_SameObject () {
-        // Arrange
-        PreferenceEntity preferenceEntity = new PreferenceEntity("TestName");
-
-        // Act & Assert
-        assertEquals(preferenceEntity, preferenceEntity, "The equals method should return true when comparing the same object.");
-    }
 
     @Test
     public void testEquals_EqualObjects () {

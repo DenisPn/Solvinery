@@ -21,6 +21,7 @@ import groupId.DTO.Records.Model.ModelData.SetDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ConstraintDTO;
 import groupId.DTO.Records.Model.ModelDefinition.PreferenceDTO;
 import groupId.DTO.Records.Model.ModelDefinition.VariableDTO;
+import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -223,6 +224,20 @@ public class Image {
             //model.setInput(modelParameter);
         }
     }
+    public void apply(ImageConfigDTO config) {
+        for(String prefModuleName: config.preferenceModulesScalars().keySet()){
+            PreferenceModule prefModule = this.preferenceModules.get(prefModuleName);
+            if(prefModule==null)
+                throw new IllegalArgumentException("No preference module with name: " + prefModuleName);
+            prefModule.setScalar(config.preferenceModulesScalars().get(prefModuleName));
+        }
+        for(String constraintModuleName: config.enabledConstraintModules()){
+            ConstraintModule constraintModule = this.constraintsModules.get(constraintModuleName);
+            if(constraintModule==null)
+                throw new IllegalArgumentException("No constraint module with name: " + constraintModuleName);
+            constraintModule.enable();
+        }
+    }
     public String getModifiedZimplCode(){
         Set<Constraint> activeConstraints = this.constraintsModules.values().stream()
                 .filter(ConstraintModule::isActive)
@@ -345,4 +360,6 @@ public class Image {
                         variableModule ->
                                 variableModule.getVariable().getName(), VariableModule::getAlias));
     }
+
+
 }

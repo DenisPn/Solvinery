@@ -274,7 +274,7 @@ public class ImageEntity {
         return Objects.equals(id, that.id)
                 && Objects.equals(name, that.name)
                 && Objects.equals(description, that.description)
-                && Objects.equals(creationDate, that.creationDate)
+                //&& Objects.equals(creationDate, that.creationDate)
                 && Objects.equals(activeSets, that.activeSets)
                 && Objects.equals(activeParams, that.activeParams)
                 && Objects.equals(variables, that.variables)

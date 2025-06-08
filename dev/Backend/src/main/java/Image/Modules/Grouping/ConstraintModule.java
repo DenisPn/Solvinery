@@ -25,7 +25,7 @@ public class ConstraintModule extends OperationalModule {
         for (Constraint constraint : constraints) {
             this.constraints.put(constraint.getName(), constraint);
         }
-        this.active=true;
+        this.active=false;
     }
     public ConstraintModule(String name, String description, Collection<Constraint> constraints, Boolean active) {
         super(name, description/*, inputSets, inputParams*/);

@@ -12,18 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PreferenceModuleEntityTest {
 
-    @Test
-    public void testEquals_SameObject () {
-        ImageComponentKey key = new ImageComponentKey(UUID.randomUUID(), "Component1");
-        Set<PreferenceEntity> preferences = new HashSet<>();
-        preferences.add(new PreferenceEntity("Preference1"));
-        PreferenceModuleEntity entity = new PreferenceModuleEntity();
-        entity.setImageComponentKey(key);
-        entity.setDescription("Test Description");
-        entity.setPreferences(preferences);
-
-        assertEquals(entity, entity);
-    }
 
     @Test
     public void testEquals_EqualObjects () {

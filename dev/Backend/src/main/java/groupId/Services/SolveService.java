@@ -12,6 +12,7 @@ import Persistence.EntityMapper;
 import groupId.DTO.Factories.RecordFactory;
 import groupId.DTO.Records.Events.SolveRequest;
 import groupId.DTO.Records.Image.SolutionDTO;
+import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
 import groupId.Services.KafkaServices.SolveThread;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
@@ -94,13 +95,37 @@ public class SolveService {
             pendingRequests.remove(requestId);
         }
     }
+    @Transactional(readOnly = true)
+    public void validateThreaded(String zimplCode) {
+        int timeout = 5;
+        String requestId = UUID.randomUUID().toString();
+        CompletableFuture<Solution> future = new CompletableFuture<>();
+        pendingRequests.put(requestId,future);
+        try {
+            SolveRequest solveRequest = new SolveRequest(requestId, zimplCode, timeout,true);
+            solverThread.submitRequest(solveRequest);
+            future.get(timeout, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            throw new RuntimeException("Solution timed out", e);
+        }
+        catch (ValidationException e) {
+            throw new UserInputException(e.getMessage());
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Error getting solution", e);
+        } finally {
+            pendingRequests.remove(requestId);
+        }
+    }
     @Transactional
-    public SolutionDTO solveThreaded(String userId, String imageId, int timeout) {
+    public SolutionDTO solveThreaded(String userId, String imageId, ImageConfigDTO config) {
+        int timeout = config.timeout();
         UserEntity user = userService.getUser(userId)
                 .orElseThrow(() -> new ClientSideError("User id not found"));
         ImageEntity imageEntity = imageService.getImage(imageId)
                 .orElseThrow(() -> new ClientSideError("Invalid image ID during publish image."));
         Image image = EntityMapper.toDomain(imageEntity);
+        image.apply(config);
         String code= image.getModifiedZimplCode();
         String requestId = UUID.randomUUID().toString();
         CompletableFuture<Solution> future = new CompletableFuture<>();
