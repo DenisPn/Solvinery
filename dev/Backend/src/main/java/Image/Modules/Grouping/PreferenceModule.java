@@ -12,7 +12,7 @@ public class PreferenceModule extends OperationalModule {
      * (a preference is a single expressions in the expression sum in the minimize/maximize expression in zimpl)
      */
     private final Map<String, Preference> preferences;
-
+    private float scalar;
 
 
 
@@ -28,6 +28,13 @@ public class PreferenceModule extends OperationalModule {
             this.preferences.put(constraint.getName(), constraint);
         }
 
+    }
+    public void setScalar(float scalar) {
+        this.scalar = scalar;
+    }
+
+    public float getScalar() {
+        return scalar;
     }
 
     public Preference getPreference(String name){

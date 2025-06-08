@@ -300,6 +300,6 @@ class ImageEntityTest {
         assertTrue(retrievedEntity.getVariables().isEmpty());
         assertTrue(retrievedEntity.getConstraintModules().isEmpty());
         assertTrue(retrievedEntity.getPreferenceModules().isEmpty());
-        assertTrue(retrievedEntity.getZimplCode().isEmpty());
+        assertTrue(retrievedEntity.getOriginalCode().isEmpty());
     }
 }

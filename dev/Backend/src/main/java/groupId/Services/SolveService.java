@@ -4,6 +4,7 @@ package groupId.Services;
 import Exceptions.InternalErrors.ClientSideError;
 import Exceptions.SolverExceptions.ValidationException;
 import Exceptions.UserErrors.UserInputException;
+import Image.Image;
 import Model.Solution;
 import Persistence.Entities.Image.ImageEntity;
 import Persistence.Entities.UserEntity;
@@ -47,15 +48,18 @@ public class SolveService {
                 .orElseThrow(() -> new ClientSideError("User id not found"));
         ImageEntity imageEntity=imageService.getImage(imageId)
                 .orElseThrow(()->new ClientSideError("Invalid image ID during publish image."));
+        Image image = EntityMapper.toDomain(imageEntity);
+        String code= image.getModifiedZimplCode();
         String requestId = UUID.randomUUID().toString();
         CompletableFuture<Solution> future = new CompletableFuture<>();
 
         pendingRequests.put(requestId,future);
         try {
-            SolveRequest solveRequest= new SolveRequest(requestId, imageEntity.getZimplCode(), timeout,false);
+            SolveRequest solveRequest= new SolveRequest(requestId, code, timeout,false);
             kafkaTemplate.send(TOPIC_NAME, solveRequest);
 
             Solution solution = future.get(timeout+5, TimeUnit.SECONDS);
+            solution.postProcessSolution(image);
             log.info("Solve request completed successfully at Service level.");
             return RecordFactory.makeDTO(solution);
         } catch (TimeoutException e) {
@@ -77,6 +81,7 @@ public class SolveService {
             SolveRequest solveRequest= new SolveRequest(requestId, zimplCode, timeout,true);
             kafkaTemplate.send(TOPIC_NAME, solveRequest);
             future.get(timeout, TimeUnit.SECONDS);
+            //solution.postProcessSolution(image);
         } catch (TimeoutException e) {
             throw new RuntimeException("Solution timed out", e);
         }
@@ -95,18 +100,19 @@ public class SolveService {
                 .orElseThrow(() -> new ClientSideError("User id not found"));
         ImageEntity imageEntity = imageService.getImage(imageId)
                 .orElseThrow(() -> new ClientSideError("Invalid image ID during publish image."));
-
+        Image image = EntityMapper.toDomain(imageEntity);
+        String code= image.getModifiedZimplCode();
         String requestId = UUID.randomUUID().toString();
         CompletableFuture<Solution> future = new CompletableFuture<>();
         pendingRequests.put(requestId, future);
 
         try {
-            SolveRequest solveRequest = new SolveRequest(requestId, imageEntity.getZimplCode(), timeout,false);
+            SolveRequest solveRequest = new SolveRequest(requestId, code, timeout,false);
             solverThread.submitRequest(solveRequest);
 
             Solution solution = future.get(timeout + 20, TimeUnit.SECONDS);
             log.info("Solve request completed successfully at Service level.");
-            solution.postProcessSolution(EntityMapper.toDomain(imageEntity));
+            solution.postProcessSolution(image);
             //solution.parseSolution(EntityMapper.toDomain(imageEntity));
             return RecordFactory.makeDTO(solution);
         } catch (TimeoutException e) {

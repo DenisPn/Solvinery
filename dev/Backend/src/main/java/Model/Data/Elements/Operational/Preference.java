@@ -9,17 +9,18 @@ public class Preference extends OperationalElement {
         super(body);
         scalar=1;
     }
+    @Deprecated(forRemoval = true)
     public Preference (String body,float scalar) {
         super(body);
         this.scalar=scalar;
     }
-
+    @Deprecated(forRemoval = true)
     public void setScalar(float scalar) {
         if(scalar>=0 && scalar<=1)
             this.scalar = scalar;
         else throw new IllegalArgumentException("Scalar must be between 0 and 1");
     }
-
+    @Deprecated(forRemoval = true)
     public float getScalar() {
         return scalar;
     }

@@ -219,7 +219,22 @@ public class Image {
             //model.setInput(modelParameter);
         }
     }
-
+    public String getModifiedZimplCode(){
+        Set<Constraint> activeConstraints = this.constraintsModules.values().stream()
+                .filter(ConstraintModule::isActive)
+                .flatMap(module -> module.getConstraints().values().stream())
+                .collect(Collectors.toSet());
+        Map<String, Float> preferencesToScalars = this.preferenceModules.values().stream()
+                .flatMap(module -> module.getPreferences().values().stream()
+                        .map(preference -> Map.entry(preference.getName(), module.getScalar())))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue
+                ));
+        Set<ModelSet> sets= this.activeSets.stream().map(SetModule::getSet).collect(Collectors.toSet());
+        Set<ModelParameter> params= this.activeParams.stream().map(ParameterModule::getParameter).collect(Collectors.toSet());
+        return model.writeToSource(sets,params,activeConstraints,preferencesToScalars);
+    }
     public String getName() {
         return name;
     }

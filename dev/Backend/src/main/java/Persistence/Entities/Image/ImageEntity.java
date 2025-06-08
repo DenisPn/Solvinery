@@ -56,11 +56,11 @@ public class ImageEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @Lob
+   /* @Lob
     @Column(name = "image_zpl_code", nullable = false,
     columnDefinition = "TEXT")
     @Basic(fetch = FetchType.LAZY)
-    private String zimplCode;
+    private String zimplCode;*/
 
     @Lob
     @Column(name = "original_source_code", nullable = false,
@@ -74,7 +74,7 @@ public class ImageEntity {
         this.variables = new HashSet<>();
         this.constraintModules = new HashSet<>();
         this.preferenceModules = new HashSet<>();
-        this.zimplCode = "";
+        //this.zimplCode = "";
         this.original_code = "";
         this.name = "";
         this.description = "";
@@ -87,21 +87,35 @@ public class ImageEntity {
         this.variables = new HashSet<>();
         this.constraintModules = new HashSet<>();
         this.preferenceModules = new HashSet<>();
-        this.zimplCode = "";
+        //this.zimplCode = "";
         this.original_code = "";
         this.name = "";
         this.description = "";
         this.creationDate = LocalDateTime.now();
         this.user = user;
     }
-    public ImageEntity (String name,String description,LocalDateTime creationDate,Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String zimplCode,UserEntity user) {
+    public ImageEntity (String name,String description,LocalDateTime creationDate,Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String original_code,UserEntity user) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
         this.variables = variables;
         this.activeParams = activeParams;
         this.activeSets = activeSets;
-        this.zimplCode = zimplCode;
-        this.original_code = zimplCode;
+        //this.zimplCode = zimplCode;
+        this.original_code = original_code;
+        this.user = user;
+        this.name = name;
+        this.description = description;
+        this.creationDate = creationDate;
+    }
+    @Deprecated(forRemoval = true)
+    public ImageEntity (String name,String description,LocalDateTime creationDate,Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets,UserEntity user) {
+        this.preferenceModules = preferenceModules;
+        this.constraintModules = constraintModules;
+        this.variables = variables;
+        this.activeParams = activeParams;
+        this.activeSets = activeSets;
+        //this.zimplCode = zimplCode;
+        this.original_code = "";
         this.user = user;
         this.name = name;
         this.description = description;
@@ -118,7 +132,7 @@ public class ImageEntity {
         this.variables = variables;
         this.activeParams = activeParams;
         this.activeSets = activeSets;
-        this.zimplCode = zimplCode;
+        //this.zimplCode = zimplCode;
     }
     public void setAll(String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModuleEntities, Set<ConstraintModuleEntity> constraintModuleEntities, Set<VariableEntity> variableEntities, Set<ParameterEntity> paramEntities, Set<SetEntity> setEntities, String sourceCode, UserEntity user) {
         this.preferenceModules = preferenceModuleEntities;
@@ -126,7 +140,7 @@ public class ImageEntity {
         this.variables = variableEntities;
         this.activeParams = paramEntities;
         this.activeSets = setEntities;
-        this.zimplCode = sourceCode;
+        //this.zimplCode = sourceCode;
         this.name = name;
         this.description = description;
         this.creationDate = creationDate;
@@ -134,16 +148,17 @@ public class ImageEntity {
         this.original_code = sourceCode;
     }
 
+
     public UserEntity getUser() {
         return user;
     }
 
-    public String getZimplCode () {
+    /*public String getZimplCode () {
         return zimplCode;
     }
     public void setZimplCode (String zimplCode) {
         this.zimplCode = zimplCode;
-    }
+    }*/
     public Set<SetEntity> getActiveSets () {
         return activeSets;
     }
@@ -204,7 +219,7 @@ public class ImageEntity {
         this.preferenceModules.remove(preferenceModule);
     }
 
-    public String getOriginal_code() {
+    public String getOriginalCode() {
         return original_code;
     }
 
@@ -266,12 +281,12 @@ public class ImageEntity {
                 && Objects.equals(constraintModules, that.constraintModules)
                 && Objects.equals(preferenceModules, that.preferenceModules)
                 && Objects.equals(user, that.user)
-                && Objects.equals(zimplCode, that.zimplCode)
+                //&& Objects.equals(zimplCode, that.zimplCode)
                 && Objects.equals(original_code, that.original_code);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, creationDate, activeSets, activeParams, variables, constraintModules, preferenceModules, user, zimplCode, original_code);
+        return Objects.hash(id, name, description, creationDate, activeSets, activeParams, variables, constraintModules, preferenceModules, user, /*zimplCode,*/ original_code);
     }
 }

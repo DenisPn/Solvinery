@@ -121,7 +121,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
                     .getText(new Interval(subCtx.start.getStartIndex(),
                             subCtx.stop.getStopIndex()));
             if (!model.hasPreference(preferenceName)) {
-                Preference preference = model.getPreferences().stream()
+                Preference preference = model.getModifiedPreferences().stream()
                         .filter(pref -> pref.getName().contains(preferenceName))
                         .findFirst()
                         .orElse(null); //the new preference is: `(preferenceName) * someScalar`, stream finds a pref that contains preferenceName

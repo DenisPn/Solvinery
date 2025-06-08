@@ -21,7 +21,6 @@ import groupId.DTO.Records.Model.ModelData.SetDefinitionDTO;
 import groupId.DTO.Records.Model.ModelDefinition.*;
 import groupId.DTO.Records.Requests.Responses.ImageResponseDTO;
 import groupId.DTO.Records.Requests.Responses.ParseModelResponseDTO;
-import org.yaml.snakeyaml.util.Tuple;
 
 import java.util.*;
 
@@ -260,7 +259,7 @@ public class RecordFactory {
         Map<String, String> varTypes = new HashMap<>();
         for (Constraint constraint : modelInterface.getConstraints()) {
             constraints.add(makeDTO(constraint));
-        for (Preference preference : modelInterface.getPreferences()) {
+        for (Preference preference : modelInterface.getModifiedPreferences()) {
             preferences.add(makeDTO(preference));
         }
         for (Variable variable : modelInterface.getVariables()) {

@@ -274,7 +274,7 @@ class ModifierVisitorTest {
             Model realModel = new Model(testSource);
             Model spyModel = spy(realModel);
             when(spyModel.hasPreference(oldPreference)).thenReturn(false);
-            when(spyModel.getPreferences()).thenReturn(preferences);
+            when(spyModel.getModifiedPreferences()).thenReturn(preferences);
             when(spyModel.getPreference(oldPreference)).thenReturn(preference);
             ModifierVisitor testVisitor = new ModifierVisitor(spyModel, testSource);
             
