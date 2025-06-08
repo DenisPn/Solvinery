@@ -15,6 +15,6 @@ import java.util.Set;
  * @param inputSets a list of sets which the preferences in the module depend on
  * @param inputParams a list of parameters which the preferences in the module depend on
  */
-public record PreferenceModuleDTO(@NotBlank String moduleName, @NotNull String description, @Valid Set<@NotBlank String> preferences
+public record PreferenceModuleDTO(@NotBlank String moduleName, @NotNull String description, @Valid Set<@NotBlank String> preferences, Float scalar
                                   /*@Valid Set<@NotBlank String> inputSets,
                                   @Valid Set<@NotBlank String> inputParams*/) {}

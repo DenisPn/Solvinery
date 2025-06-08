@@ -19,6 +19,16 @@ public class PreferenceModule extends OperationalModule {
     public PreferenceModule(String name, String description) {
         super(name, description);
         preferences = new HashMap<>();
+        this.scalar=1F;
+    }
+    public PreferenceModule(String name, String description, Collection<Preference> preferences, Float scalar) {
+        super(name, description);
+        this.preferences = new HashMap<>();
+        for (Preference constraint : preferences) {
+            this.preferences.put(constraint.getName(), constraint);
+        }
+        if(scalar==null) this.scalar=1F;
+        else this.scalar=scalar;
 
     }
     public PreferenceModule(String name, String description, Collection<Preference> preferences) {

@@ -100,7 +100,7 @@ public class RecordFactory {
             constraints.add(constraint.getName());
         }
         return new ConstraintModuleDTO(module.getName(), module.getDescription(),
-                constraints);
+                constraints,module.isActive());
     }
 
     public static PreferenceModuleDTO makeDTO (PreferenceModule module) {
@@ -112,7 +112,7 @@ public class RecordFactory {
         }
 
         return new PreferenceModuleDTO(module.getName(), module.getDescription(),
-                preferences);
+                preferences,module.getScalar());
     }
 
     /**

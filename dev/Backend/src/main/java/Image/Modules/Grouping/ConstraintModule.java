@@ -27,6 +27,15 @@ public class ConstraintModule extends OperationalModule {
         }
         this.active=true;
     }
+    public ConstraintModule(String name, String description, Collection<Constraint> constraints, Boolean active) {
+        super(name, description/*, inputSets, inputParams*/);
+        this.constraints = new HashMap<>();
+        for (Constraint constraint : constraints) {
+            this.constraints.put(constraint.getName(), constraint);
+        }
+        if(active==null) this.active=true;
+        else this.active=active;
+    }
     public Map<String, Constraint> getConstraints() {
         return constraints;
     }

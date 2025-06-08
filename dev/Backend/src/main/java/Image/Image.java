@@ -83,7 +83,8 @@ public class Image {
             this.constraintsModules.put(constraintModuleDTO.moduleName(), new ConstraintModule(
                     constraintModuleDTO.moduleName(),
                     constraintModuleDTO.description(),
-                    constraints
+                    constraints,
+                    constraintModuleDTO.active()
             ));
         }
         for (PreferenceModuleDTO preferenceModuleDTO : imageDTO.preferenceModules()) {
@@ -98,7 +99,8 @@ public class Image {
             this.preferenceModules.put(preferenceModuleDTO.moduleName(), new PreferenceModule(
                     preferenceModuleDTO.moduleName(),
                     preferenceModuleDTO.description(),
-                    preferences
+                    preferences,
+                    preferenceModuleDTO.scalar()
             ));
         }
         for (SetDTO setDTO: imageDTO.sets()){
@@ -188,7 +190,8 @@ public class Image {
             this.constraintsModules.put(constraintModuleDTO.moduleName(), new ConstraintModule(
                     constraintModuleDTO.moduleName(),
                     constraintModuleDTO.description(),
-                    constraints
+                    constraints,
+                    constraintModuleDTO.active()
             ));
         }
         for (PreferenceModuleDTO preferenceModuleDTO : imageDTO.preferenceModules()) {
@@ -203,7 +206,8 @@ public class Image {
             this.preferenceModules.put(preferenceModuleDTO.moduleName(), new PreferenceModule(
                     preferenceModuleDTO.moduleName(),
                     preferenceModuleDTO.description(),
-                    preferences
+                    preferences,
+                    preferenceModuleDTO.scalar()
             ));
         }
         for (SetDTO setDTO: imageDTO.sets()){
