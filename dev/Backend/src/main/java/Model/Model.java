@@ -240,7 +240,12 @@ public class Model implements ModelInterface {
         });
         preferencesScalars.keySet().forEach(preference ->
         {
-            ModelParameter scalar=this.preferenceToScalar.get(originalToModifiedDereferences.get(preference));
+            ModelParameter scalar;
+            if(modifiedPreferences.containsKey(preference))
+                scalar = preferenceToScalar.get(modifiedPreferences.get(preference));
+            else scalar=this.preferenceToScalar.get(originalToModifiedDereferences.get(preference));
+            if(scalar == null)
+                throw new InvalidModelStateException("Preference "+preference+" does not have a corresponding scalar parameter");
             scalar.setData(Float.toString(preferencesScalars.get(preference)));
             this.modifiedElements.add(scalar);
         });
