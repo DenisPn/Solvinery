@@ -109,7 +109,7 @@ public class Solution {
     public void postProcessSolution(Image image){
         for (VariableModule variable : image.getActiveVariables()) {
             variableStructure.put(variable.getAlias(), variable.getVariable().getBasicSets());
-            variableTypes.put(variable.getAlias(),variable.getVariable().getStructure());
+            variableTypes.put(variable.getAlias(),variable.getVariable().getTypeStructure());
             Map<String,String> aliasMap = image.variableAliasMap();
             if(rawVariableSolution.containsKey(variable.getVariable().getName())) {
                 variableSolution.put(variable.getAlias(), rawVariableSolution.get(variable.getVariable().getName()));
@@ -125,7 +125,7 @@ public class Solution {
         for (VariableModule variable : image.getActiveVariables()) {
                 variableSolution.put(variable.getAlias(), new LinkedList<>());
                 variableStructure.put(variable.getAlias(), variable.getVariable().getBasicSets());
-                variableTypes.put(variable.getAlias(),variable.getVariable().getStructure());
+                variableTypes.put(variable.getAlias(),variable.getVariable().getTypeStructure());
         }
         try (BufferedReader reader = new BufferedReader(new StringReader(solution))) {
             String line;

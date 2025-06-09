@@ -168,7 +168,7 @@ public class RecordFactory {
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
     private static VariableDTO makeDTO (VariableModule variable) {
-        return new VariableDTO(variable.getVariable().getName(), variable.getVariable().getStructure(), variable.getAlias());
+        return new VariableDTO(variable.getVariable().getName(), variable.getVariable().getTypeStructure(), variable.getAlias());
     }
     /*private static Set<VariableDTO> makeVariableDTOs (Set<VariableModule> vars) {
         Set<VariableDTO> varDTOs = new HashSet<>();
@@ -178,7 +178,7 @@ public class RecordFactory {
         return varDTOs;
     }*/
     private static VariableDTO makeDTO (Variable variable) {
-        return new VariableDTO(variable.getName(), variable.getStructure(), null);
+        return new VariableDTO(variable.getName(), variable.getTypeStructure(), null);
     }
 
    /* *//**
