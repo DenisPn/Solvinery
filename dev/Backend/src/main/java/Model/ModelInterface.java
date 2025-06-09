@@ -7,6 +7,7 @@ import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -58,7 +59,7 @@ public interface ModelInterface {
      * Retrieves a all preferences loaded in the model
      * @return set of all preferences parsed from the model
      */
-    Collection<Preference> getPreferences();
+    Collection<Preference> getModifiedPreferences();
     /**
      * Retrieves a variable by its identifier.
      * 
@@ -84,6 +85,8 @@ public interface ModelInterface {
      * @param preferencesScalars preferences that need their scalar to change. in practice changes the parameter of the preference's scalar.
      * @return zimpl code, with all changes done in the image.
      */
+    @Deprecated(forRemoval = true)
     String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Set<Preference> preferencesScalars);
+    String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String,Float> preferencesScalars);
 
 }

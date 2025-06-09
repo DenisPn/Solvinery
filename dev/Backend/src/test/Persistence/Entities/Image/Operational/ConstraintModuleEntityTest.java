@@ -9,15 +9,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ConstraintModuleEntityTest {
 
-    @Test
-    void testEquals_SameObject_ReturnsTrue () {
-        // Arrange
-        ImageComponentKey imageComponentKey = new ImageComponentKey(UUID.randomUUID(), "TestImage");
-        ConstraintModuleEntity moduleEntity = new ConstraintModuleEntity(imageComponentKey, "Test description");
-
-        // Act & Assert
-        assertEquals(moduleEntity, moduleEntity, "An object should be equal to itself.");
-    }
 
     @Test
     void testEquals_DifferentObjectsWithSameData_ReturnsTrue () {

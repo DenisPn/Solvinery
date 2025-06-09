@@ -205,7 +205,7 @@ public class EntityMapperTest {
 
         // Then
         assertNotNull(entity);
-        assertEquals(simpleCodeExample, entity.getZimplCode());
+        assertEquals(simpleCodeExample, entity.getOriginalCode());
     }
 
     @Transactional

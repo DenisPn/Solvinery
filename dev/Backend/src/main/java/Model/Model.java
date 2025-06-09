@@ -1,6 +1,7 @@
 package Model;
 
 import Exceptions.InternalErrors.ModelExceptions.InvalidModelInputException;
+import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Element;
@@ -31,7 +32,8 @@ public class Model implements ModelInterface {
     private final Map<String, ModelSet> sets = new HashMap<>();
     private final Map<String, ModelParameter> params = new HashMap<>();
     private final Map<String, Constraint> constraints = new HashMap<>();
-    private final Map<String, Preference> preferences = new HashMap<>();
+    private final Map<String, Preference> modifiedPreferences = new HashMap<>();
+    private final Map<String, Preference> originalToModifiedDereferences = new HashMap<>();
     private final Map<String, Variable> variables = new HashMap<>();
 
     private final Set<String> uneditedPreferences = new HashSet<>();
@@ -50,7 +52,7 @@ public class Model implements ModelInterface {
     }
 
     public Map<String,Preference> getPreferencesMap(){
-        return preferences;
+        return modifiedPreferences;
     }
     public Set<String> getUneditedPreferences(){
         return uneditedPreferences;
@@ -109,10 +111,11 @@ public class Model implements ModelInterface {
             currentSource = PROCESSED_FLAG.concat(USER_NOTE).concat(currentSource);
         }
         else {
+            //throw new InvalidModelStateException("Model has already been parsed and processed");
             readPreferences();
         }
     }
-
+    @Deprecated
     private void readPreferences(){
         for(String preferenceBody: uneditedPreferences){
             String paramName=extractScalarParam(preferenceBody);
@@ -122,13 +125,14 @@ public class Model implements ModelInterface {
             }
             ModelParameter scalarParam= params.get(paramName);
             Preference preference=new Preference(preferenceBody);
-            try {
+            /*try {
                 preference.setScalar(Float.parseFloat(scalarParam.getData()));
             } catch (NumberFormatException e) {
                 throw new InvalidModelInputException("Invalid scalar parameter value while parsing: "+e.getMessage());
-            }
+            }*/
             preferenceToScalar.put(preference,scalarParam);
-            preferences.put(preference.getName(),preference);
+            modifiedPreferences.put(preference.getName(),preference);
+            originalToModifiedDereferences.put(preferenceBody,preference);
         }
     }
     private String extractScalarParam(String preferenceBody){
@@ -158,10 +162,11 @@ public class Model implements ModelInterface {
             //replace preference and add scalar parameter
             currentSource = paramDeclaration.concat(currentSource);
             Preference editedPreference=new Preference(newBody);
-            preferences.put(newBody,editedPreference);
+            modifiedPreferences.put(newBody,editedPreference);
             ModelParameter preferenceScalar=new ModelParameter(paramName, ModelPrimitives.FLOAT,"1",true);
             params.put(paramName,preferenceScalar);
             preferenceToScalar.put(editedPreference,preferenceScalar);
+            originalToModifiedDereferences.put(body,editedPreference);
         }
     }
 
@@ -170,6 +175,7 @@ public class Model implements ModelInterface {
     }
 
     @Override
+    @Deprecated(forRemoval = true)
     public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Set<Preference> preferencesScalars) {
         //set values in model
         sets.forEach(set ->
@@ -192,7 +198,7 @@ public class Model implements ModelInterface {
         preferencesScalars.forEach(preference ->
         {
             ModelParameter scalar=this.preferenceToScalar.get(preference);
-            scalar.setData(Float.toString(preference.getScalar()));
+            //scalar.setData(Float.toString(preference.getScalar()));
             this.modifiedElements.add(scalar);
         });
         //wrtie to file
@@ -202,6 +208,49 @@ public class Model implements ModelInterface {
         currentSource = modifier.getModifiedSource();
         /*try {
                *//* // Write the modified source back to file
+                String modifiedSource = modifier.getModifiedSource();
+                Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
+                parseSource();*//*
+            }
+            catch (IOException e) {
+                throw new ParsingException("Error writing to source file: " + e.getMessage());
+            }*/
+        return currentSource;
+    }
+
+    @Override
+    public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String,Float> preferencesScalars) {
+        //set values in model
+        sets.forEach(set ->
+        {
+            this.sets.get(set.getName()).setData(set.getData());
+            this.modifiedElements.add(set);
+        });
+        params.forEach(param ->
+        {
+            this.params.get(param.getName()).setData(param.getData());
+            this.modifiedElements.add(param);
+        });
+        disabledConstraints.forEach(constraint ->
+        {
+            if(!constraint.isOn()) {
+                this.constraints.get(constraint.getName()).toggle(false);
+                this.modifiedElements.add(constraint);
+            }
+        });
+        preferencesScalars.keySet().forEach(preference ->
+        {
+            ModelParameter scalar=this.preferenceToScalar.get(originalToModifiedDereferences.get(preference));
+            scalar.setData(Float.toString(preferencesScalars.get(preference)));
+            this.modifiedElements.add(scalar);
+        });
+        //wrtie to file
+        updateParser();
+        ModifierVisitor modifier = new ModifierVisitor(this, currentSource);
+        modifier.visit(tree);
+        currentSource = modifier.getModifiedSource();
+        /*try {
+         *//* // Write the modified source back to file
                 String modifiedSource = modifier.getModifiedSource();
                 Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
                 parseSource();*//*
@@ -241,7 +290,28 @@ public class Model implements ModelInterface {
     }
 
 
-
+    public ModelParameter getScalarParam(String preferenceName){
+        return preferenceToScalar.get(originalToModifiedDereferences.get(preferenceName));
+    }
+    public ModelParameter getScalarParam(Preference preference){
+        return preferenceToScalar.get(preference);
+    }
+    public Float getScalarValue(Preference preference){
+        try {
+            return Float.valueOf(getScalarParam(preference).getData());
+        }
+        catch (NumberFormatException e){
+            throw new InvalidModelInputException("Preference "+preference.getName()+" does not have a scalar value");
+        }
+    }
+    public Float getScalarValue(String preferenceName){
+        try {
+            return Float.valueOf(getScalarParam(preferenceName).getData());
+        }
+        catch (NumberFormatException e){
+            throw new InvalidModelInputException("Preference "+preferenceName+" does not have a scalar value");
+        }
+    }
     public ModelSet getSet(String identifier) {
         return sets.get(identifier);
     }
@@ -269,15 +339,27 @@ public class Model implements ModelInterface {
     }
 
     public Preference getPreference(String identifier) {
-        return preferences.get(identifier);
+        return modifiedPreferences.get(identifier);
+    }
+
+    /**
+     * For use in testing only.
+     */
+    public String getOriginalBody(Preference preference){
+        for(String original: originalToModifiedDereferences.keySet()){
+            if(originalToModifiedDereferences.get(original).getName().equals(preference.getName())){
+                return original;
+            }
+        }
+        return null;
     }
     public boolean hasPreference(String identifier) {
-        return preferences.containsKey(identifier);
+        return modifiedPreferences.containsKey(identifier);
     }
 
     @Override
-    public Collection<Preference> getPreferences() {
-        return preferences.values();
+    public Collection<Preference> getModifiedPreferences() {
+        return modifiedPreferences.values();
     }
 
     public Variable getVariable(String identifier) {
@@ -320,7 +402,7 @@ public class Model implements ModelInterface {
             case MODEL_PARAMETER -> params.containsKey(name) && modifiedElements.contains(params.get(name));
             case MODEL_SET -> sets.containsKey(name) && modifiedElements.contains(sets.get(name));
             case CONSTRAINT -> constraints.containsKey(name) && modifiedElements.contains(constraints.get(name));
-            case PREFERENCE -> preferences.containsKey(name) && modifiedElements.contains(preferences.get(name));
+            case PREFERENCE -> modifiedPreferences.containsKey(name) && modifiedElements.contains(modifiedPreferences.get(name));
             case VARIABLE -> variables.containsKey(name) && modifiedElements.contains(variables.get(name));
         };
     }

@@ -7,9 +7,7 @@ import Model.Data.Elements.Operational.Preference;
 import Model.Data.Types.ModelPrimitives;
 import Model.Model;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -19,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -27,16 +26,16 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("Integration")
 public class ModelModifierIntegrationTest {
 
-    private Model model;
+   // private Model model;
     @BeforeEach
     void setUp() {
-        try {
+        /*try {
             Path path = Paths.get("src/test/Utilities/ZimplExamples/ExampleZimplProgram.zpl");
-            String exampleCode = Files.readString(path);
-            model = new Model(exampleCode);
+            //String exampleCode = Files.readString(path);
+           // model = new Model(exampleCode);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
     /*
     param weight := 10;
@@ -67,51 +66,7 @@ public class ModelModifierIntegrationTest {
         verifyModelPostconditions(editedModel,input);
 
     }
-    @Disabled("replaced with parameterized tests")
-    @Test
-    void givenParamEdit_WhenModifying_FileCorrect() {
-        HashSet<ModelSet> sets= new HashSet<>();
-        HashSet<ModelParameter> params= new HashSet<>();
-        HashSet<Constraint> constraints= new HashSet<>();
-        HashSet<Preference> preferences= new HashSet<>();
-        params.add(new ModelParameter("soldiers", ModelPrimitives.INT,"8"));
-        String output= model.writeToSource(sets,params,constraints,preferences);
-        assertFalse(output.contains("soldiers := 10;"));
-        assertTrue(output.contains("soldiers := 8;"));
-    }
-    @Disabled("replaced with parameterized tests")
-    @Test
-    void givenSameParamEdit_WhenModifying_FileCorrect() {
-        HashSet<ModelSet> sets= new HashSet<>();
-        HashSet<ModelParameter> params= new HashSet<>();
-        HashSet<Constraint> constraints= new HashSet<>();
-        HashSet<Preference> preferences= new HashSet<>();
-        params.add(new ModelParameter("soldiers",ModelPrimitives.INT,"8"));
-        String output1= model.writeToSource(sets,params,constraints,preferences);
-        String output2= model.writeToSource(sets,params,constraints,preferences);
-        assertFalse(output1.contains("soldiers := 10;"));
-        assertTrue(output1.contains("soldiers := 8;"));
-        assertFalse(output2.contains("soldiers := 10;"));
-        assertTrue(output2.contains("soldiers := 8;"));
-    }
-    @Disabled("replaced with parameterized tests")
-    @Test
-    void givenSomeParamEdit_WhenModifying_FileCorrect() {
-        HashSet<ModelSet> sets= new HashSet<>();
-        HashSet<ModelParameter> params= new HashSet<>();
-        HashSet<Constraint> constraints= new HashSet<>();
-        HashSet<Preference> preferences= new HashSet<>();
-        params.add(new ModelParameter("soldiers",ModelPrimitives.INT,"8"));
-        params.add(new ModelParameter("absoluteMinimalSpacing",ModelPrimitives.INT,"6"));
-        params.add(new ModelParameter("weight",ModelPrimitives.INT,"5"));
-        String output= model.writeToSource(sets,params,constraints,preferences);
-        assertFalse(output.contains("soldiers := 10;"));
-        assertTrue(output.contains("soldiers := 8;"));
-        assertFalse(output.contains("absoluteMinimalSpacing := 8;"));
-        assertTrue(output.contains("absoluteMinimalSpacing := 6;"));
-        assertFalse(output.contains("weight := 10;"));
-        assertTrue(output.contains("weight := 5;"));
-    }
+
 
     /**
      * Define test cases using TestInput inner record
@@ -129,62 +84,72 @@ public class ModelModifierIntegrationTest {
                             Set.of(), //params
                             Set.of(), //sets
                             Set.of(), //constraints
-                            Set.of(), //scalars
+                            Map.of(), //scalars
+                            Map.of(),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
                             Set.of(), //sets
                             Set.of(), //constraints
-                            Set.of(), //scalars
+                            Map.of(), //scalars
+                            Map.of(),
                             ""),
                     new TestInput(
                             Set.of(new ModelParameter("soldiers", ModelPrimitives.INT, "8")), //params
                             Set.of(), //sets
                             Set.of(), //constraints
-                            Set.of(), //scalars
+                            Map.of(), //scalars
+                            Map.of(),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(new ModelParameter("soldiers", ModelPrimitives.INT, "0"),
                                     new ModelParameter("absoluteMinimalSpacing", ModelPrimitives.INT, "1")), //params
                             Set.of(), //sets
                             Set.of(), //constraints
-                            Set.of(),//scalars
+                            Map.of(),//scalars
+                            Map.of(),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
                             Set.of(new ModelSet("C",ModelPrimitives.TEXT, List.of("Ben","Dan"))), //sets
                             Set.of(), //constraints
-                            Set.of(), //scalars
+                            Map.of(), //scalars
+                            Map.of(),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
                             Set.of(new ModelSet("C",ModelPrimitives.TEXT, List.of())), //sets
                             Set.of(), //constraints
-                            Set.of(), //scalars
-                            SoldiersExampleCode), //scalars
+                            Map.of(), //scalars
+                            Map.of(),
+                            SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
                             Set.of(new ModelSet("C",ModelPrimitives.TEXT, List.of("1","2","3","4","5","6","7","8","9","0","11","12","13","14","15","16","17","18","19","000"))), //sets
                             Set.of(), //constraints
-                            Set.of(), //scalars
+                            Map.of(), //scalars
+                            Map.of(),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
                             Set.of(), //sets
                             Set.of(new Constraint("trivial1",false)), //constraints
-                            Set.of(), //scalars
+                            Map.of(), //scalars
+                            Map.of(),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
                             Set.of(), //sets
                             Set.of(new Constraint("trivial1",true)), //constraints
-                            Set.of(), //scalars
+                            Map.of(), //scalars
+                            Map.of(),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
                             Set.of(), //sets
                             Set.of(new Constraint("minGuardsCons",true),new Constraint("maxGuardsCons",false)), //constraints
-                            Set.of(), //scalars
+                            Map.of(), //scalars
+                            Map.of(),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
@@ -194,7 +159,8 @@ public class ModelModifierIntegrationTest {
                                     new Constraint("trivial3",false),new Constraint("trivial4",false),
                                     new Constraint("trivial5",false),new Constraint("Soldier_Not_In_Two_Stations_Concurrently",false),
                                     new Constraint("All_Stations_One_Soldier",false),new Constraint("minimalSpacingCons",false)), //constraints
-                            Set.of(), //scalars
+                            Map.of(), //scalars
+                            Map.of(),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
@@ -204,33 +170,40 @@ public class ModelModifierIntegrationTest {
                                     new Constraint("trivial3",true),new Constraint("trivial4",true),
                                     new Constraint("trivial5",true),new Constraint("Soldier_Not_In_Two_Stations_Concurrently",true),
                                     new Constraint("All_Stations_One_Soldier",true),new Constraint("minimalSpacingCons",true)), //constraints
-                            Set.of(), //scalars
+                            Map.of(), //scalars
+                            Map.of(),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
                             Set.of(), //sets
                             Set.of(), //constraints
-                            Set.of(new Preference("(((maxGuards-minGuards)+weight)**3) * scalar1354200841", 0.5F)), //scalars
+                            Map.of("((maxGuards-minGuards)+weight)**3", 0.5F), //scalars
+                            Map.of(),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
                             Set.of(), //sets
                             Set.of(), //constraints
-                            Set.of(new Preference("(((maxGuards-minGuards)+weight)**3) * scalar1354200841", 0F)), //scalars
+                            Map.of("((maxGuards-minGuards)+weight)**3", 0F), //scalars
+                            Map.of(),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
                             Set.of(), //sets
                             Set.of(), //constraints
-                            Set.of(new Preference("(((maxGuards-minGuards)+weight)**3) * scalar1354200841", 1F)), //scalars
+                            Map.of("((maxGuards-minGuards)+weight)**3", 1F), //scalars
+                            Map.of("(((maxGuards-minGuards)+weight)**3) * scalar1354200841",1F),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(), //params
                             Set.of(), //sets
                             Set.of(), //constraints
-                            Set.of(new Preference("(((maxGuards-minGuards)+weight)**3) * scalar1354200841", 0.5F),
-                                    new Preference("((minimalSpacing)**2) * scalar1883673267", 0.5F),
-                                    new Preference("(sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))) * scalar692447860", 0.5F)),//scalars
+                            Map.of("((maxGuards-minGuards)+weight)**3", 0.5F,
+                                   "(minimalSpacing)**2", 0.5F,
+                                   "sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))", 0.5F),//scalars
+                            Map.of("(((maxGuards-minGuards)+weight)**3) * scalar1354200841",0.5F,
+                                    "((minimalSpacing)**2) * scalar1883673267",0.5F,
+                                    "(sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))) * scalar692447860",0.5F),
                             SoldiersExampleCode),
                     new TestInput(
                             Set.of(new ModelParameter("soldiers", ModelPrimitives.INT, "0"),
@@ -243,9 +216,12 @@ public class ModelModifierIntegrationTest {
                                     new Constraint("trivial3",false),new Constraint("trivial4",true),
                                     new Constraint("trivial5",true),new Constraint("Soldier_Not_In_Two_Stations_Concurrently",true),
                                     new Constraint("All_Stations_One_Soldier",true),new Constraint("minimalSpacingCons",false)), //constraints
-                            Set.of(new Preference("(((maxGuards-minGuards)+weight)**3) * scalar1354200841", 0.5F),
-                                    new Preference("((minimalSpacing)**2) * scalar1883673267", 0.5F),
-                                    new Preference("(sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))) * scalar692447860", 0.5F)),//scalars
+                            Map.of("((maxGuards-minGuards)+weight)**3", 0.5F,
+                                   "(minimalSpacing)**2", 0.5F,
+                                   "sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))", 0.5F),//scalars
+                            Map.of("(((maxGuards-minGuards)+weight)**3) * scalar1354200841",0.5F,
+                                    "((minimalSpacing)**2) * scalar1883673267",0.5F,
+                                    "(sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))) * scalar692447860",0.5F),
                             SoldiersExampleCode)
             );
         } catch (IOException e) {
@@ -288,15 +264,15 @@ public class ModelModifierIntegrationTest {
             }
         });
 
-        input.preferenceScalars().forEach(preference -> {
+        input.modifiedPreferences.keySet().forEach(preference -> {
             try {
-                Preference existingPreference = model.getPreference(preference.getName());
-                assertTrue(model.hasScalar(preference),
-                        String.format("Preference '%s' should have a scalar in original model", preference.getName()));
+                Preference existingPreference = model.getPreference(preference);
                 assertNotNull(existingPreference,
-                        String.format("Preference '%s' should exist in original model", preference.getName()));
+                        String.format("Preference '%s' should exist in original model", existingPreference.getName()));
+                assertTrue(model.hasScalar(existingPreference),
+                        String.format("Preference '%s' should have a scalar in original model", existingPreference.getName()));
             } catch (Exception e) {
-                fail("Error thrown: "+ e.getMessage()+ String.format("\nPreference '%s' should exist in original model", preference.getName()));
+                fail("Error thrown: "+ e.getMessage()+ String.format("\n When check pre-condition for preference %s", preference));
             }
         });
     }
@@ -310,7 +286,7 @@ public class ModelModifierIntegrationTest {
                 assertEquals(existingParam.getData(),param.getData(),
                         String.format("Parameter '%s' value of '%s' should be %s.", param.getName(),existingParam.getData(),param.getData()));
             } catch (Exception e) {
-                fail("Error thrown: "+ e.getMessage()+ String.format("\nWhen checking post-condition for parameter: %s", param.getName()));
+                fail("Error thrown: "+ e.getMessage()+ String.format("\nWhen checking pre-condition for parameter: %s", param.getName()));
             }
         });
 
@@ -340,17 +316,18 @@ public class ModelModifierIntegrationTest {
             }
         });
 
-        input.preferenceScalars().forEach(preference -> {
+        input.modifiedPreferences.keySet().forEach(preference -> {
             try {
-                Preference existingPreference = model.getPreference(preference.getName());
-                assertTrue(model.hasScalar(preference),
-                        String.format("Preference '%s' should have a scalar in modified model", preference.getName()));
+                Preference existingPreference = model.getPreference(preference);
                 assertNotNull(existingPreference,
-                        String.format("Preference '%s' should exist in modified model", preference.getName()));
-                assertEquals(existingPreference.getScalar(),preference.getScalar(),
-                        String.format("Preference '%s' scalar should be %s, got: %s",existingPreference.getName(),preference.getScalar(),existingPreference.getScalar()));
+                        String.format("Preference '%s' should exist in modified model", preference));
+                assertTrue(model.hasScalar(existingPreference),
+                        String.format("Preference '%s' should have a scalar in modified model", existingPreference.getName()));
+                Float scalar = model.getScalarValue(existingPreference);
+                assertEquals(scalar,input.modifiedPreferences.get(preference),
+                        String.format("Preference '%s' scalar should be %s, got: %s",existingPreference.getName(),input.preferenceScalars().get(preference),scalar));
             } catch (Exception e) {
-                fail("Error thrown: "+ e.getMessage()+ String.format("\nWhen checking post-condition for preference: %s", preference.getName()));
+                fail("Error thrown: "+ e.getMessage()+ String.format("\nWhen checking post-condition for preference: %s", preference));
             }
         });
     }
@@ -358,8 +335,13 @@ public class ModelModifierIntegrationTest {
             Set<ModelParameter> parameters,
             Set<ModelSet> sets,
             Set<Constraint> constraints,
-            Set<Preference> preferenceScalars,
+            Map<String,Float> preferenceScalars,
+            Map<String,Float> modifiedPreferences,
             String zplCode
+    )
+    { }
+    private record TestModifiedPreferences(
+           Set<String> preferences
     )
     { }
 }

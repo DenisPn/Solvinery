@@ -33,7 +33,7 @@ public class UserImageController {
     @PostMapping("/model")
     public ResponseEntity<ModelDTO> parseModel(@PathVariable String userId,
                                                @Valid @RequestBody CreateImageFromFileDTO data) {
-        //solveService.validate(data.code()); //TODO: RESTORE AFTER BUG FIXING
+        solveService.validateThreaded(data.code());
         ModelDTO response = imageService.parseImage(data.code(),userId);
         return ResponseEntity.ok(response);
     }
@@ -41,7 +41,7 @@ public class UserImageController {
     @PostMapping
     public ResponseEntity<CreateImageResponseDTO> createImage(@PathVariable String userId,
                                                               @Valid @RequestBody ImageDTO image) {
-        //solveService.validate(image.code());
+        solveService.validateThreaded(image.code());
         CreateImageResponseDTO response = imageService.createImage(image,userId);
         return ResponseEntity.ok(response);
     }
@@ -55,8 +55,8 @@ public class UserImageController {
     @PatchMapping("/{imageId}")
     public ResponseEntity<Void> configureImage(@PathVariable String userId,
                                                @PathVariable String imageId,
-                                               @Valid @RequestBody ImageConfigDTO imgConfig){
-        imageService.overrideImage(userId,imageId,imgConfig);
+                                               @Valid @RequestBody ImageDTO imageDTO){
+        imageService.overrideImage(userId,imageId,imageDTO);
         return ResponseEntity.ok().build();
     }
     @PatchMapping("/{imageId}/publish")
@@ -72,11 +72,11 @@ public class UserImageController {
         CreateImageResponseDTO response = imageService.addPublishedImage(userId,imageId);
         return ResponseEntity.ok(response);
     }
-    @PostMapping("/{imageId}/solver/t={timeout}")
+    @PostMapping("/{imageId}/solver")
     public ResponseEntity<SolutionDTO> solve(@PathVariable String userId,
                                              @PathVariable String imageId,
-                                             @PathVariable int timeout){
-        SolutionDTO response = solveService.solveThreaded(userId,imageId,timeout);
+                                             @Valid @RequestBody ImageConfigDTO config){
+        SolutionDTO response = solveService.solveThreaded(userId,imageId, config);
         return ResponseEntity.ok(response);
     }
 }

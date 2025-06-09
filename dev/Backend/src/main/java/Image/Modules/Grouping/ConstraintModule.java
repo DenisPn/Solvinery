@@ -13,10 +13,11 @@ public class ConstraintModule extends OperationalModule {
      */
 
     private final Map<String, Constraint> constraints;
-
+    private boolean active;
     public ConstraintModule(String name, String description) {
         super(name, description);
         this.constraints = new HashMap<>();
+        active=true;
     }
     public ConstraintModule(String name, String description, Collection<Constraint> constraints/*, Collection<String> inputSets, Collection<String> inputParams*/) {
         super(name, description/*, inputSets, inputParams*/);
@@ -24,6 +25,16 @@ public class ConstraintModule extends OperationalModule {
         for (Constraint constraint : constraints) {
             this.constraints.put(constraint.getName(), constraint);
         }
+        this.active=false;
+    }
+    public ConstraintModule(String name, String description, Collection<Constraint> constraints, Boolean active) {
+        super(name, description/*, inputSets, inputParams*/);
+        this.constraints = new HashMap<>();
+        for (Constraint constraint : constraints) {
+            this.constraints.put(constraint.getName(), constraint);
+        }
+        if(active==null) this.active=true;
+        else this.active=active;
     }
     public Map<String, Constraint> getConstraints() {
         return constraints;
@@ -34,7 +45,15 @@ public class ConstraintModule extends OperationalModule {
     public void addConstraint(Constraint constraint){
         constraints.put(constraint.getName(),constraint);
     }
-
+    public void enable(){
+        this.active=true;
+    }
+    public void disable(){
+        this.active=false;
+    }
+    public boolean isActive(){
+        return active;
+    }
     public void removeConstraint(Constraint constraint){
         constraints.remove(constraint.getName());
     }

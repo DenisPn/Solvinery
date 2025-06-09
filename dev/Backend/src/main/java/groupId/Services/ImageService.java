@@ -12,7 +12,6 @@ import Persistence.Repositories.PublishedImagesRepository;
 import groupId.DTO.Factories.RecordFactory;
 import groupId.DTO.Records.Image.ImageDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ModelDTO;
-import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
 import groupId.DTO.Records.Requests.Responses.*;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,9 +76,9 @@ public class ImageService {
      * @param imgConfig DTO object parsed from HTTP JSON request.
      */
     @Transactional
-    public void overrideImage(String userId,String imageId,ImageConfigDTO imgConfig) {
+    public void overrideImage(String userId,String imageId,ImageDTO imageDTO) {
         UserEntity user=userService.getUser(userId).orElseThrow(()-> new ClientSideError("User ID not found"));
-        ImageDTO imageDTO= imgConfig.image();
+        //ImageDTO imageDTO= imgConfig.image();
         ImageEntity imageEntity=imageRepository.findById(UUID.fromString(imageId))
                 .orElseThrow(()->new ClientSideError("Invalid image ID during override image"));
         if(!imageEntity.getUser().equals(user))

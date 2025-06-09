@@ -199,7 +199,7 @@ public class EntityMapper {
         return new VariableEntity(imageId,variable.getVariable().getName(),variable.getVariable().getStructure(),variable.getVariable().getBasicSets(),variable.getAlias());
     }
     public static Image toDomain(ImageEntity imageEntity){
-        return new Image(imageEntity.getZimplCode(),imageEntity.getName(),imageEntity.getDescription(),imageEntity.getCreationDate(),toConstraintModules(imageEntity.getConstraintModules()),
+        return new Image(imageEntity.getOriginalCode(),imageEntity.getName(),imageEntity.getDescription(),imageEntity.getCreationDate(),toConstraintModules(imageEntity.getConstraintModules()),
                 toPreferenceModules(imageEntity.getPreferenceModules()), toSets(imageEntity.getActiveSets()),
                 toParams(imageEntity.getActiveParams()), toVariables(imageEntity.getVariables()));
     }
@@ -280,7 +280,7 @@ public class EntityMapper {
                                 set.getAlias()
                         ))
                         .collect(Collectors.toSet()),
-                imageEntity.getOriginal_code(),
+                imageEntity.getOriginalCode(),
                 imageEntity.getUser().getUsername()
         );
     }
@@ -332,7 +332,7 @@ public class EntityMapper {
                                     set.getAlias()
                             ))
                             .collect(Collectors.toSet()),
-                    toCopy.getOriginal_code(),
+                    toCopy.getOriginalCode(),
                     user.getNickname()
             );
     }

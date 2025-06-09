@@ -21,6 +21,7 @@ import groupId.DTO.Records.Model.ModelData.SetDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ConstraintDTO;
 import groupId.DTO.Records.Model.ModelDefinition.PreferenceDTO;
 import groupId.DTO.Records.Model.ModelDefinition.VariableDTO;
+import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -83,7 +84,8 @@ public class Image {
             this.constraintsModules.put(constraintModuleDTO.moduleName(), new ConstraintModule(
                     constraintModuleDTO.moduleName(),
                     constraintModuleDTO.description(),
-                    constraints
+                    constraints,
+                    constraintModuleDTO.active()
             ));
         }
         for (PreferenceModuleDTO preferenceModuleDTO : imageDTO.preferenceModules()) {
@@ -98,7 +100,8 @@ public class Image {
             this.preferenceModules.put(preferenceModuleDTO.moduleName(), new PreferenceModule(
                     preferenceModuleDTO.moduleName(),
                     preferenceModuleDTO.description(),
-                    preferences
+                    preferences,
+                    preferenceModuleDTO.scalar()
             ));
         }
         for (SetDTO setDTO: imageDTO.sets()){
@@ -188,7 +191,8 @@ public class Image {
             this.constraintsModules.put(constraintModuleDTO.moduleName(), new ConstraintModule(
                     constraintModuleDTO.moduleName(),
                     constraintModuleDTO.description(),
-                    constraints
+                    constraints,
+                    constraintModuleDTO.active()
             ));
         }
         for (PreferenceModuleDTO preferenceModuleDTO : imageDTO.preferenceModules()) {
@@ -203,7 +207,8 @@ public class Image {
             this.preferenceModules.put(preferenceModuleDTO.moduleName(), new PreferenceModule(
                     preferenceModuleDTO.moduleName(),
                     preferenceModuleDTO.description(),
-                    preferences
+                    preferences,
+                    preferenceModuleDTO.scalar()
             ));
         }
         for (SetDTO setDTO: imageDTO.sets()){
@@ -219,7 +224,36 @@ public class Image {
             //model.setInput(modelParameter);
         }
     }
-
+    public void apply(ImageConfigDTO config) {
+        for(String prefModuleName: config.preferenceModulesScalars().keySet()){
+            PreferenceModule prefModule = this.preferenceModules.get(prefModuleName);
+            if(prefModule==null)
+                throw new IllegalArgumentException("No preference module with name: " + prefModuleName);
+            prefModule.setScalar(config.preferenceModulesScalars().get(prefModuleName));
+        }
+        for(String constraintModuleName: config.enabledConstraintModules()){
+            ConstraintModule constraintModule = this.constraintsModules.get(constraintModuleName);
+            if(constraintModule==null)
+                throw new IllegalArgumentException("No constraint module with name: " + constraintModuleName);
+            constraintModule.enable();
+        }
+    }
+    public String getModifiedZimplCode(){
+        Set<Constraint> activeConstraints = this.constraintsModules.values().stream()
+                .filter(ConstraintModule::isActive)
+                .flatMap(module -> module.getConstraints().values().stream())
+                .collect(Collectors.toSet());
+        Map<String, Float> preferencesToScalars = this.preferenceModules.values().stream()
+                .flatMap(module -> module.getPreferences().values().stream()
+                        .map(preference -> Map.entry(preference.getName(), module.getScalar())))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue
+                ));
+        Set<ModelSet> sets= this.activeSets.stream().map(SetModule::getSet).collect(Collectors.toSet());
+        Set<ModelParameter> params= this.activeParams.stream().map(ParameterModule::getParameter).collect(Collectors.toSet());
+        return model.writeToSource(sets,params,activeConstraints,preferencesToScalars);
+    }
     public String getName() {
         return name;
     }
@@ -326,4 +360,6 @@ public class Image {
                         variableModule ->
                                 variableModule.getVariable().getName(), VariableModule::getAlias));
     }
+
+
 }

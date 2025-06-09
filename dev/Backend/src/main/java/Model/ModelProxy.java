@@ -7,6 +7,7 @@ import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -94,8 +95,8 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
-    public Collection<Preference> getPreferences () {
-        return getModel().getPreferences();
+    public Collection<Preference> getModifiedPreferences() {
+        return getModel().getModifiedPreferences();
     }
 
     @Override
@@ -125,6 +126,11 @@ public class ModelProxy implements ModelInterface{
 
     @Override
     public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Set<Preference> preferencesScalars) {
+        return getModel().writeToSource(sets,params,disabledConstraints,preferencesScalars);
+    }
+
+    @Override
+    public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String, Float> preferencesScalars) {
         return getModel().writeToSource(sets,params,disabledConstraints,preferencesScalars);
     }
 }

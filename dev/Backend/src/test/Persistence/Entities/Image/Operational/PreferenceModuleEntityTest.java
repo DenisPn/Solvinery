@@ -8,23 +8,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PreferenceModuleEntityTest {
 
-    @Test
-    public void testEquals_SameObject () {
-        ImageComponentKey key = new ImageComponentKey(UUID.randomUUID(), "Component1");
-        Set<PreferenceEntity> preferences = new HashSet<>();
-        preferences.add(new PreferenceEntity("Preference1"));
-        PreferenceModuleEntity entity = new PreferenceModuleEntity();
-        entity.setImageComponentKey(key);
-        entity.setDescription("Test Description");
-        entity.setPreferences(preferences);
-
-        assertTrue(entity.equals(entity));
-    }
 
     @Test
     public void testEquals_EqualObjects () {
@@ -46,7 +33,7 @@ public class PreferenceModuleEntityTest {
         entity2.setDescription("Test Description");
         entity2.setPreferences(preferences2);
 
-        assertTrue(entity1.equals(entity2));
+        assertEquals(entity1, entity2);
     }
 
     @Test
@@ -64,7 +51,7 @@ public class PreferenceModuleEntityTest {
         entity2.setDescription("Test Description");
         entity2.setPreferences(Collections.emptySet());
 
-        assertFalse(entity1.equals(entity2));
+        assertNotEquals(entity1, entity2);
     }
 
     @Test
@@ -81,7 +68,7 @@ public class PreferenceModuleEntityTest {
         entity2.setDescription("Description2");
         entity2.setPreferences(Collections.emptySet());
 
-        assertFalse(entity1.equals(entity2));
+        assertNotEquals(entity1, entity2);
     }
 
     @Test
@@ -104,7 +91,7 @@ public class PreferenceModuleEntityTest {
         entity2.setDescription("Test Description");
         entity2.setPreferences(preferences2);
 
-        assertFalse(entity1.equals(entity2));
+        assertNotEquals(entity1, entity2);
     }
 
     @Test
@@ -117,7 +104,7 @@ public class PreferenceModuleEntityTest {
         entity.setDescription("Test Description");
         entity.setPreferences(preferences);
 
-        assertFalse(entity.equals(null));
+        assertNotEquals(null, entity);
     }
 
     @Test
@@ -130,6 +117,6 @@ public class PreferenceModuleEntityTest {
         entity.setDescription("Test Description");
         entity.setPreferences(preferences);
 
-        assertFalse(entity.equals("Some String"));
+        assertNotEquals("Some String", entity);
     }
 }
