@@ -712,7 +712,7 @@ td input[type="text"] {
 .preference-slider::-webkit-slider-runnable-track {
   height: 6px;
   background-color: #ddd;
-  border-radius: 10px;
+  border-radius: 10px; 
 }
 
 .modules-container {
