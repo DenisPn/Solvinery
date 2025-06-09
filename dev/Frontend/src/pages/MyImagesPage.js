@@ -486,54 +486,60 @@ const MyImagesPage = () => {
               ) : viewSection === "constraints" ? (
                 <div className="modal-section-data constraints-modal">
                   {selectedImage.constraintModules.length === 0 ? (
-                    <p>No constraints available for this image.</p>
+                    <p>No constraints available.</p>
                   ) : (
-                    selectedImage.constraintModules.map((constraint, index) => (
-                      <div key={index} className="constraint-box">
-                        <div className="constraint-header">
-                          <strong>{constraint.name}</strong>
+                    selectedImage.constraintModules.map((mod, index) => (
+                      <div key={index} className="module-box">
+                        <div className="module-title">{mod.moduleName}</div>
+                        <div className="module-description">
+                          {mod.description}
+                        </div>
+                        <div className="module-checkbox">
                           <input
                             type="checkbox"
-                            checked={constraint.enabled ?? true}
-                            onChange={(e) => {
+                            checked={mod.enabled ?? true}
+                            onChange={() => {
                               const newImage = { ...selectedImage };
-                              newImage.constraintModules[index].enabled =
-                                e.target.checked;
+                              newImage.constraintModules[index].enabled = !(
+                                mod.enabled ?? true
+                              );
                               setSelectedImage(newImage);
                             }}
                           />
+                          <label>Enabled</label>
                         </div>
-                        <p>{constraint.description}</p>
                       </div>
                     ))
                   )}
                 </div>
               ) : viewSection === "preferences" ? (
-                // שמור על קוד קיים של preferences
                 <div className="modal-section-data preferences-modal">
                   {selectedImage.preferenceModules.length === 0 ? (
-                    <p>No preferences available for this image.</p>
+                    <p>No preferences available.</p>
                   ) : (
-                    selectedImage.preferenceModules.map((pref, index) => (
-                      <div key={index} className="preference-box">
-                        <div className="preference-header">
-                          <strong>{pref.name}</strong>
+                    selectedImage.preferenceModules.map((mod, index) => (
+                      <div key={index} className="module-box">
+                        <div className="module-title">{mod.moduleName}</div>
+                        <div className="module-description">
+                          {mod.description}
+                        </div>
+                        <div className="slider-container">
+                          <label htmlFor={`slider-${index}`}>Value:</label>
                           <input
                             type="range"
+                            id={`slider-${index}`}
                             min="0"
-                            max="10"
-                            step="1"
-                            value={pref.value ?? 5}
+                            max="100"
+                            value={mod.value ?? 50}
                             onChange={(e) => {
                               const newImage = { ...selectedImage };
-                              newImage.preferenceModules[index].value = Number(
-                                e.target.value
-                              );
+                              newImage.preferenceModules[index].value =
+                                parseInt(e.target.value);
                               setSelectedImage(newImage);
                             }}
                           />
+                          <span>{mod.value ?? 50}</span>
                         </div>
-                        <p>{pref.description}</p>
                       </div>
                     ))
                   )}

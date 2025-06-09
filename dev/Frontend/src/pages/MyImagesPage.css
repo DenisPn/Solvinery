@@ -649,3 +649,77 @@
 td input[type="text"] {
   text-align: center !important;
 }
+
+
+
+
+.module-box {
+  background-color: #f9f9f9;
+  border: 2px solid #00afb9;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.module-box:hover {
+  transform: translateY(-3px);
+  background-color: #f0fefe;
+}
+
+
+.module-title {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 6px;
+  color: #2a7b9b;
+}
+
+.module-description {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.module-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.preference-slider {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.preference-slider::-webkit-slider-thumb {
+  background-color: #00afb9;
+  border-radius: 50%;
+  height: 18px;
+  width: 18px;
+  cursor: pointer;
+}
+
+.preference-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  background-color: #ddd;
+  border-radius: 10px;
+}
+
+.modules-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 65vh;
+  overflow-y: auto;
+  padding-right: 6px;
+}
