@@ -14,9 +14,9 @@ const MyImagesPage = () => {
   const [viewSection, setViewSection] = useState(null);
   const [selectedSetIndex, setSelectedSetIndex] = useState(0);
 
-  const navigate = useNavigate();
-  const { userId } = useZPL();
 
+  const navigate = useNavigate();
+  const { userId, constraintsModules, preferenceModules ,setSolutionResponse } = useZPL();
   useEffect(() => {
     if (!userId) return;
 
@@ -76,7 +76,48 @@ const MyImagesPage = () => {
     }
   };
 
-  const handleSolve = () => alert("Solve not available yet.");
+  const handleSolveImage = async () => {
+    if (!selectedImageId || !selectedImage) return;
+
+    // 1. Build preferenceModulesScalars (0–1)
+    const preferenceModulesScalars = {};
+    selectedImage.preferenceModules.forEach((mod) => {
+      const raw = mod.value != null ? Number(mod.value) : 50; // slider 0–100 or default 50
+      preferenceModulesScalars[mod.moduleName] = Math.min(
+        Math.max(raw / 100, 0),
+        1
+      );
+    });
+
+    // 2. Build enabledConstraintModules
+    const enabledConstraintModules = selectedImage.constraintModules
+      .filter((mod) => mod.enabled ?? true)
+      .map((mod) => mod.moduleName);
+
+    const payload = {
+      preferenceModulesScalars,
+      enabledConstraintModules,
+      timeout: 20,
+    };
+
+    console.log("Solve payload:", payload);
+
+    try {
+      const response = await axios.post(
+        `/user/${userId}/image/${selectedImageId}/solver`,
+        payload,
+        { headers: { "Content-Type": "application/json" } }
+      );
+      // 3. Store in context
+      setSolutionResponse(response.data);
+      // 4. Redirect
+      navigate("/solution-results");
+    } catch (err) {
+      console.error("Solver error:", err);
+      alert(`Solver error: ${err.response?.data?.msg || err.message}`);
+    }
+  };
+
   const handleEdit = () => alert("Edit not available yet.");
 
   const getViewData = () => {
@@ -214,7 +255,7 @@ const MyImagesPage = () => {
                 src="/images/Solve.png"
                 alt="Solve"
                 className="modal-solve-button"
-                onClick={handleSolve}
+                onClick={handleSolveImage}
                 title="Solve"
               />
               <img
@@ -499,11 +540,18 @@ const MyImagesPage = () => {
                             type="checkbox"
                             checked={mod.enabled ?? true}
                             onChange={() => {
+                              // flip the flag
                               const newImage = { ...selectedImage };
                               newImage.constraintModules[index].enabled = !(
                                 mod.enabled ?? true
                               );
                               setSelectedImage(newImage);
+
+                              // log the full array so we can inspect each module's enabled state
+                              console.log(
+                                "constraintModules after toggle:",
+                                newImage.constraintModules
+                              );
                             }}
                           />
                           <label>Enabled</label>
