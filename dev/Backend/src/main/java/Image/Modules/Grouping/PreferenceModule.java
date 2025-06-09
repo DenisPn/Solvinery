@@ -37,7 +37,7 @@ public class PreferenceModule extends OperationalModule {
         for (Preference constraint : preferences) {
             this.preferences.put(constraint.getName(), constraint);
         }
-
+        this.scalar=1F;
     }
     public void setScalar(float scalar) {
         this.scalar = scalar;
