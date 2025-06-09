@@ -17,7 +17,7 @@ public class ConstraintModule extends OperationalModule {
     public ConstraintModule(String name, String description) {
         super(name, description);
         this.constraints = new HashMap<>();
-        active=true;
+        this.active=false;
     }
     public ConstraintModule(String name, String description, Collection<Constraint> constraints/*, Collection<String> inputSets, Collection<String> inputParams*/) {
         super(name, description/*, inputSets, inputParams*/);
