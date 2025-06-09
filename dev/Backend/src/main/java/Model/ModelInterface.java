@@ -77,16 +77,6 @@ public interface ModelInterface {
 
     public Collection<ModelParameter> getParameters();
 
-    /**
-     * Write into a source file all the changed in input and return code after write.
-     * @param sets valiues to write into sets. Write always overrides current data.
-     * @param params parameter values to write into parameters. Write always overrides current data.
-     * @param disabledConstraints constraints to disable.
-     * @param preferencesScalars preferences that need their scalar to change. in practice changes the parameter of the preference's scalar.
-     * @return zimpl code, with all changes done in the image.
-     */
-    @Deprecated(forRemoval = true)
-    String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Set<Preference> preferencesScalars);
     String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String,Float> preferencesScalars);
 
 }

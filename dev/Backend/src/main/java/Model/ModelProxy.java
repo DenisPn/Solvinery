@@ -125,11 +125,6 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
-    public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Set<Preference> preferencesScalars) {
-        return getModel().writeToSource(sets,params,disabledConstraints,preferencesScalars);
-    }
-
-    @Override
     public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String, Float> preferencesScalars) {
         return getModel().writeToSource(sets,params,disabledConstraints,preferencesScalars);
     }

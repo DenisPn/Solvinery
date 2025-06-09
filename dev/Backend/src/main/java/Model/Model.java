@@ -1,7 +1,6 @@
 package Model;
 
 import Exceptions.InternalErrors.ModelExceptions.InvalidModelInputException;
-import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Element;
@@ -175,50 +174,6 @@ public class Model implements ModelInterface {
     }
 
     @Override
-    @Deprecated(forRemoval = true)
-    public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Set<Preference> preferencesScalars) {
-        //set values in model
-        sets.forEach(set ->
-        {
-            this.sets.get(set.getName()).setData(set.getData());
-            this.modifiedElements.add(set);
-        });
-        params.forEach(param ->
-        {
-            this.params.get(param.getName()).setData(param.getData());
-            this.modifiedElements.add(param);
-        });
-        disabledConstraints.forEach(constraint ->
-        {
-            if(!constraint.isOn()) {
-                this.constraints.get(constraint.getName()).toggle(false);
-                this.modifiedElements.add(constraint);
-            }
-        });
-        preferencesScalars.forEach(preference ->
-        {
-            ModelParameter scalar=this.preferenceToScalar.get(preference);
-            //scalar.setData(Float.toString(preference.getScalar()));
-            this.modifiedElements.add(scalar);
-        });
-        //wrtie to file
-        updateParser();
-        ModifierVisitor modifier = new ModifierVisitor(this, currentSource);
-        modifier.visit(tree);
-        currentSource = modifier.getModifiedSource();
-        /*try {
-               *//* // Write the modified source back to file
-                String modifiedSource = modifier.getModifiedSource();
-                Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
-                parseSource();*//*
-            }
-            catch (IOException e) {
-                throw new ParsingException("Error writing to source file: " + e.getMessage());
-            }*/
-        return currentSource;
-    }
-
-    @Override
     public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String,Float> preferencesScalars) {
         //set values in model
         sets.forEach(set ->
@@ -231,13 +186,9 @@ public class Model implements ModelInterface {
             this.params.get(param.getName()).setData(param.getData());
             this.modifiedElements.add(param);
         });
-        disabledConstraints.forEach(constraint ->
-        {
-            if(!constraint.isOn()) {
-                this.constraints.get(constraint.getName()).toggle(false);
-                this.modifiedElements.add(constraint);
-            }
-        });
+
+        this.modifiedElements.addAll(disabledConstraints);
+
         preferencesScalars.keySet().forEach(preference ->
         {
             ModelParameter scalar=this.preferenceToScalar.get(originalToModifiedDereferences.get(preference));

@@ -239,8 +239,8 @@ public class Image {
         }
     }
     public String getModifiedZimplCode(){
-        Set<Constraint> activeConstraints = this.constraintsModules.values().stream()
-                .filter(ConstraintModule::isActive)
+        Set<Constraint> inactiveConstraints = this.constraintsModules.values().stream()
+                .filter(constraintModule -> !constraintModule.isActive())
                 .flatMap(module -> module.getConstraints().values().stream())
                 .collect(Collectors.toSet());
         Map<String, Float> preferencesToScalars = this.preferenceModules.values().stream()
@@ -252,8 +252,9 @@ public class Image {
                 ));
         Set<ModelSet> sets= this.activeSets.stream().map(SetModule::getSet).collect(Collectors.toSet());
         Set<ModelParameter> params= this.activeParams.stream().map(ParameterModule::getParameter).collect(Collectors.toSet());
-        return model.writeToSource(sets,params,activeConstraints,preferencesToScalars);
+        return model.writeToSource(sets,params,inactiveConstraints,preferencesToScalars);
     }
+
     public String getName() {
         return name;
     }
