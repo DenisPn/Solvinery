@@ -2,6 +2,7 @@ package Persistence.Entities.Image.Data;
 
 import Persistence.Entities.Image.ImageComponentKey;
 import jakarta.persistence.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -57,7 +58,7 @@ public class VariableEntity {
 
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         VariableEntity that = (VariableEntity) o;
         return Objects.equals(imageComponentKey, that.imageComponentKey) && Objects.equals(alias, that.alias) && Objects.equals(structure, that.structure) && Objects.equals(setStructure, that.setStructure);

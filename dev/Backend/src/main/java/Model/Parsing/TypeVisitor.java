@@ -6,6 +6,8 @@ import Model.Data.Types.ModelPrimitives;
 import Model.Data.Types.ModelType;
 import Model.Data.Types.Tuple;
 import Model.Model;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
 
@@ -27,7 +29,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
 
     // Main visitor methods for type analysis
     @Override
-    public Void visitSetExprBin (FormulationParser.SetExprBinContext ctx) {
+    public @Nullable Void visitSetExprBin (@NonNull FormulationParser.SetExprBinContext ctx) {
         // Handle binary set operations (*, +, \, -)
         TypeVisitor leftVisitor = new TypeVisitor(model);
         TypeVisitor rightVisitor = new TypeVisitor(model);
@@ -88,13 +90,13 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitVariable (FormulationParser.VariableContext ctx) {
+    public @Nullable Void visitVariable (@NonNull FormulationParser.VariableContext ctx) {
         visit(ctx.sqRef());
         return null;
     }
 
     @Override
-    public Void visitConstraint (FormulationParser.ConstraintContext ctx) {
+    public @Nullable Void visitConstraint (@NonNull FormulationParser.ConstraintContext ctx) {
 
         for (FormulationParser.ForallContext ctxFA : ctx.forall()) {
             TypeVisitor v = new TypeVisitor(model);
@@ -111,38 +113,38 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitComparisonIfExpr (FormulationParser.ComparisonIfExprContext ctx) {
+    public @Nullable Void visitComparisonIfExpr (@NonNull FormulationParser.ComparisonIfExprContext ctx) {
         this.visit(ctx.ifExpr());
         return null;
     }
 
     @Override
-    public Void visitObjective(FormulationParser.ObjectiveContext ctx) {
+    public @Nullable Void visitObjective(@NonNull FormulationParser.ObjectiveContext ctx) {
         this.visit(ctx.nExpr());
         return null;
     }
 
     @Override
-    public Void visitForall (FormulationParser.ForallContext ctx) {
+    public @Nullable Void visitForall (@NonNull FormulationParser.ForallContext ctx) {
         this.visit(ctx.condition());
         return null;
     }
 
     @Override
-    public Void visitLongRedExpr (FormulationParser.LongRedExprContext ctx) {
+    public @Nullable Void visitLongRedExpr (@NonNull FormulationParser.LongRedExprContext ctx) {
         this.visit(ctx.condition());
         this.visit(ctx.nExpr());
         return null;
     }
 
     @Override
-    public Void visitShortRedExpr (FormulationParser.ShortRedExprContext ctx) {
+    public @Nullable Void visitShortRedExpr (@NonNull FormulationParser.ShortRedExprContext ctx) {
         this.visit(ctx.index());
         return null;
     }
 
     @Override
-    public Void visitRegIfExpr (FormulationParser.RegIfExprContext ctx) {
+    public @Nullable Void visitRegIfExpr (@NonNull FormulationParser.RegIfExprContext ctx) {
         visit(ctx.boolExpr());
         visit(ctx.thenExpr);
         if (ctx.elseExpr != null)
@@ -152,7 +154,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitVarIfExpr (FormulationParser.VarIfExprContext ctx) {
+    public @Nullable Void visitVarIfExpr (@NonNull FormulationParser.VarIfExprContext ctx) {
         visit(ctx.boolExpr());
         visit(ctx.thenExpr);
         if (ctx.elseExpr != null)
@@ -163,7 +165,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
     @Deprecated
     @Override
     //dependencies are not longer used, avoid deletion for now since that will take changing parser def (.g4 file)
-    public Void visitSetDescStack (FormulationParser.SetDescStackContext ctx) {
+    public @Nullable Void visitSetDescStack (@NonNull FormulationParser.SetDescStackContext ctx) {
 
         if (ctx.condition() != null) {
             TypeVisitor elementVisitor = new TypeVisitor(model);
@@ -191,7 +193,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitRange (FormulationParser.RangeContext ctx) {
+    public @Nullable Void visitRange (@NonNull FormulationParser.RangeContext ctx) {
 
         if (model.getParamsMap().get(ctx.lhs.getText()) != null) {
             basicParams.add(model.getParamsMap().get(ctx.lhs.getText()));
@@ -208,7 +210,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
 
 
     @Override
-    public Void visitSqRefCsv (FormulationParser.SqRefCsvContext ctx) {
+    public @Nullable Void visitSqRefCsv (@NonNull FormulationParser.SqRefCsvContext ctx) {
         if (ctx.ID().getText() != null && model.getSet(ctx.ID().getText()) != null) {
             basicSets.add(model.getSet(ctx.ID().getText()));
         } else if (ctx.ID().getText() != null && model.getParameter(ctx.ID().getText()) != null) {
@@ -228,7 +230,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
     //Planning to remove this if it's not too much effort, kept for posterity
     @Deprecated
     @Override
-    public Void visitProjFunc (FormulationParser.ProjFuncContext ctx) {
+    public @Nullable Void visitProjFunc (FormulationParser.ProjFuncContext ctx) {
        /* if(false) {
             TypeVisitor visitor = new TypeVisitor(model);
             visitor.visit(ctx.setExpr());
@@ -271,13 +273,13 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitStrExprToken (FormulationParser.StrExprTokenContext ctx) {
+    public @Nullable Void visitStrExprToken (FormulationParser.StrExprTokenContext ctx) {
         handleBasicType(ModelPrimitives.TEXT);
         return null;
     }
 
     @Override
-    public Void visitBasicExprToken (FormulationParser.BasicExprTokenContext ctx) {
+    public @Nullable Void visitBasicExprToken (@NonNull FormulationParser.BasicExprTokenContext ctx) {
         if (ctx.FLOAT() != null) {
             handleBasicType(ModelPrimitives.FLOAT);
         } else if (ctx.INT() != null) {
@@ -289,7 +291,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitCondition (FormulationParser.ConditionContext ctx) {
+    public @Nullable Void visitCondition (@NonNull FormulationParser.ConditionContext ctx) {
         this.visit(ctx.setExpr());
         if (ctx.boolExpr() != null)
             this.visit(ctx.boolExpr());
@@ -297,21 +299,21 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitComparisonStrExpr (FormulationParser.ComparisonStrExprContext ctx) {
+    public @Nullable Void visitComparisonStrExpr (@NonNull FormulationParser.ComparisonStrExprContext ctx) {
         this.visit(ctx.lhs);
         this.visit(ctx.rhs);
         return null;
     }
 
     @Override
-    public Void visitBoolExprBin (FormulationParser.BoolExprBinContext ctx) {
+    public @Nullable Void visitBoolExprBin (@NonNull FormulationParser.BoolExprBinContext ctx) {
         this.visit(ctx.boolExpr(0));
         this.visit(ctx.boolExpr(1));
         return null;
     }
 
     @Override
-    public Void visitTuple (FormulationParser.TupleContext ctx) {
+    public @Nullable Void visitTuple (@NonNull FormulationParser.TupleContext ctx) {
         Tuple tupleType = new Tuple();
 
         // Visit each element in the tuple

@@ -17,6 +17,7 @@ import groupId.Services.KafkaServices.SolveThread;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ import java.util.concurrent.TimeoutException;
 public class SolveService {
     private final ConcurrentHashMap<String, CompletableFuture<Solution>> pendingRequests = new ConcurrentHashMap<>();
     private static final String TOPIC_NAME = "solve-requests";
+    @NonNull
     private final SolveThread solverThread; //TEMP, TO BE REMOVED
 
     private final KafkaTemplate<String, SolveRequest> kafkaTemplate;
@@ -43,8 +45,9 @@ public class SolveService {
         this.solverThread= new SolveThread(this);
     }
 
+    @NonNull
     @Transactional
-    public SolutionDTO solve(String userId, String imageId, int timeout) {
+    public SolutionDTO solve(@NonNull String userId, @NonNull String imageId, int timeout) {
         UserEntity user = userService.getUser(userId)
                 .orElseThrow(() -> new ClientSideError("User id not found"));
         ImageEntity imageEntity=imageService.getImage(imageId)
@@ -117,8 +120,9 @@ public class SolveService {
             pendingRequests.remove(requestId);
         }
     }
+    @NonNull
     @Transactional
-    public SolutionDTO solveThreaded(String userId, String imageId, ImageConfigDTO config) {
+    public SolutionDTO solveThreaded(@NonNull String userId, @NonNull String imageId, @NonNull ImageConfigDTO config) {
         int timeout = config.timeout();
         UserEntity user = userService.getUser(userId)
                 .orElseThrow(() -> new ClientSideError("User id not found"));

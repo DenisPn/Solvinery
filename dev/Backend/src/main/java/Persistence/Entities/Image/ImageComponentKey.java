@@ -2,6 +2,7 @@ package Persistence.Entities.Image;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -51,7 +52,7 @@ public class ImageComponentKey implements Serializable {
 
     // Override equals() and hashCode() for composite key logic
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ImageComponentKey that = (ImageComponentKey) o;

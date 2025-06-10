@@ -15,6 +15,8 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 import parser.FormulationLexer;
 import parser.FormulationParser;
 
@@ -41,22 +43,28 @@ public class Model implements ModelInterface {
     private final Set<Element> modifiedElements= new HashSet<>();
 
 
+    @NonNull
     public Map<String,ModelSet> getSetsMap(){
         return sets;
     }
+    @NonNull
     public Map<String,ModelParameter> getParamsMap(){
         return params;
     }
+    @NonNull
     public Map<String,Constraint> getConstraintsMap(){
         return constraints;
     }
 
+    @NonNull
     public Map<String,Preference> getPreferencesMap(){
         return modifiedPreferences;
     }
+    @NonNull
     public Set<String> getUneditedPreferences(){
         return uneditedPreferences;
     }
+    @NonNull
     public Map<String,Variable> getVariablesMap(){
         return variables;
     }
@@ -73,7 +81,7 @@ public class Model implements ModelInterface {
         return originalSource;
     }
 
-    private final String originalSource;
+    private final @Nullable String originalSource;
     private String currentSource;
 
     @Deprecated
@@ -135,7 +143,8 @@ public class Model implements ModelInterface {
             originalToModifiedDereferences.put(preferenceBody,preference);
         }
     }
-    private String extractScalarParam(String preferenceBody){
+    @NonNull
+    private String extractScalarParam(@NonNull String preferenceBody){
         // Matches pattern: (<anything>) * scalar<numbers>
         Pattern pattern = Pattern.compile("\\((.+?)\\)\\s*\\*\\s*(scalar\\d+)");
         Matcher matcher = pattern.matcher(preferenceBody);
@@ -170,12 +179,13 @@ public class Model implements ModelInterface {
         }
     }
 
-    public static String hashPreference(String input) {
+    @NonNull
+    public static String hashPreference(@NonNull String input) {
         return "scalar"+ Math.abs(input.hashCode());
     }
 
     @Override
-    public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String,Float> preferencesScalars) {
+    public String writeToSource(@NonNull Set<ModelSet> sets, @NonNull Set<ModelParameter> params, @NonNull Set<Constraint> disabledConstraints, @NonNull Map<String,Float> preferencesScalars) {
         //set values in model
         sets.forEach(set ->
         {
@@ -223,13 +233,14 @@ public class Model implements ModelInterface {
     }
 
 
-    public List<FormulationParser.UExprContext> findComponentContexts(FormulationParser.NExprContext ctx) {
+    @NonNull
+    public List<FormulationParser.UExprContext> findComponentContexts(@NonNull FormulationParser.NExprContext ctx) {
         List<FormulationParser.UExprContext> components = new ArrayList<>();
         findComponentContextsRecursive(ctx.uExpr(), components);
         return components;
     }
 
-    private void findComponentContextsRecursive(FormulationParser.UExprContext ctx, List<FormulationParser.UExprContext> components) {
+    private void findComponentContextsRecursive(FormulationParser.@Nullable UExprContext ctx, @NonNull List<FormulationParser.UExprContext> components) {
         if (ctx == null) {
             return;
         }
@@ -253,7 +264,8 @@ public class Model implements ModelInterface {
     public ModelParameter getScalarParam(Preference preference){
         return preferenceToScalar.get(preference);
     }
-    public Float getScalarValue(Preference preference){
+    @NonNull
+    public Float getScalarValue(@NonNull Preference preference){
         try {
             return Float.valueOf(getScalarParam(preference).getData());
         }
@@ -261,6 +273,7 @@ public class Model implements ModelInterface {
             throw new InvalidModelInputException("Preference "+preference.getName()+" does not have a scalar value");
         }
     }
+    @NonNull
     public Float getScalarValue(String preferenceName){
         try {
             return Float.valueOf(getScalarParam(preferenceName).getData());
@@ -277,7 +290,7 @@ public class Model implements ModelInterface {
         return Optional.ofNullable(params.get(identifier))
                 .orElseThrow(() -> new InvalidModelInputException("Parameter " + identifier + " not found"));
     }
-    public ModelParameter getParameter(String identifier) {
+    public @Nullable ModelParameter getParameter(String identifier) {
         if(!params.containsKey(identifier))
             return null; //don't like this, but this has to be here due to legacy code (max)
         ModelParameter param= params.get(identifier);
@@ -290,6 +303,7 @@ public class Model implements ModelInterface {
         return constraints.get(identifier);
     }
 
+    @NonNull
     @Override
     public Collection<Constraint> getConstraints() {
         return constraints.values();
@@ -302,7 +316,7 @@ public class Model implements ModelInterface {
     /**
      * For use in testing only.
      */
-    public String getOriginalBody(Preference preference){
+    public @Nullable String getOriginalBody(@NonNull Preference preference){
         for(String original: originalToModifiedDereferences.keySet()){
             if(originalToModifiedDereferences.get(original).getName().equals(preference.getName())){
                 return original;
@@ -314,6 +328,7 @@ public class Model implements ModelInterface {
         return modifiedPreferences.containsKey(identifier);
     }
 
+    @NonNull
     @Override
     public Collection<Preference> getModifiedPreferences() {
         return modifiedPreferences.values();
@@ -323,21 +338,25 @@ public class Model implements ModelInterface {
         return variables.get(identifier);
     }
 
+    @NonNull
     @Override
     public Collection<Variable> getVariables() {
         return variables.values();
     }
+    @NonNull
     @Override
     public Collection<ModelSet> getSets(){
         return this.sets.values().stream().filter(ModelSet::isPrimitive).toList();
     }
     
+    @NonNull
     @Override
     public Collection<ModelParameter> getParameters(){
         return this.params.values().stream().filter(
                 param -> !param.isAuxiliary())
                 .toList();
     }
+    @NonNull
     public Collection<ModelParameter> getAllParameters(){
         return this.params.values();
     }
@@ -346,15 +365,16 @@ public class Model implements ModelInterface {
     }
 
 
+    @NonNull
     @Override
-    public Collection<Variable> getVariables(Collection<String> identifiers){
+    public Collection<Variable> getVariables(@NonNull Collection<String> identifiers){
         HashSet<Variable> set = new HashSet<>();
         for (String identifier : identifiers) {
             set.add(getVariable(identifier));
         }
         return set;
     }
-    public boolean isModified(String name, Element.ElementType type) {
+    public boolean isModified(String name, @NonNull Element.ElementType type) {
         return switch(type) {
             case MODEL_PARAMETER -> params.containsKey(name) && modifiedElements.contains(params.get(name));
             case MODEL_SET -> sets.containsKey(name) && modifiedElements.contains(sets.get(name));
@@ -371,10 +391,12 @@ public class Model implements ModelInterface {
         tree = parser.program();
     }
 
+    @NonNull
     public Map<String, ModelParameter> getParams() {
         return params;
     }
 
+    @NonNull
     public Set<Element> getModifiedElements() {
         return modifiedElements;
     }

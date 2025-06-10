@@ -4,6 +4,8 @@ import Persistence.Entities.Image.ImageComponentKey;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,29 +35,29 @@ public class SetEntity {
     private List<String> data;
 
     @Column(name = "alias")
-    private String alias;
+    private @Nullable String alias;
 
     public SetEntity () {}
 
-    public SetEntity (ImageComponentKey imageComponentKey, String type, List<String> data) {
+    public SetEntity (ImageComponentKey imageComponentKey, String type, @NonNull List<String> data) {
         this.imageComponentKey = imageComponentKey;
         this.type = type;
         this.data = data;
         this.alias = null;
     }
-    public SetEntity (UUID id, String name, String type, List<String> data) {
+    public SetEntity (UUID id, String name, String type, @NonNull List<String> data) {
         this.imageComponentKey= new ImageComponentKey(id,name);
         this.type = type;
         this.data = data;
         this.alias = null;
     }
-    public SetEntity (UUID id, String name, String type, List<String> data, String alias) {
+    public SetEntity (UUID id, String name, String type, @NonNull List<String> data, String alias) {
         this.imageComponentKey= new ImageComponentKey(id,name);
         this.type = type;
         this.data = data;
         this.alias = alias;
     }
-    public SetEntity (ImageComponentKey imageComponentKey, String type, List<String> data, String alias) {
+    public SetEntity (ImageComponentKey imageComponentKey, String type, @NonNull List<String> data, String alias) {
         this.imageComponentKey = imageComponentKey;
         this.type = type;
         this.data = data;
@@ -70,6 +72,7 @@ public class SetEntity {
         return type;
     }
 
+    @NonNull
     public List<String> getData() {
         return data;
     }
@@ -90,7 +93,7 @@ public class SetEntity {
         return imageComponentKey.getImageId();
     }
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SetEntity that = (SetEntity) o;

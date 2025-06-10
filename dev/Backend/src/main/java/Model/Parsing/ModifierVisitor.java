@@ -7,6 +7,7 @@ import Model.Model;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.misc.Interval;
+import org.springframework.lang.NonNull;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
 
@@ -18,10 +19,11 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
 
     private final String originalSource;
     private boolean modified = false;
+    @NonNull
     private final TokenStreamRewriter rewriter;
 
     // Original constructor for backward compatibility
-    public ModifierVisitor(Model model, String originalSource){
+    public ModifierVisitor(@NonNull Model model, String originalSource){
         this.model = model;
         this.rewriter = new TokenStreamRewriter(model.getTokens());
         this.originalSource = originalSource;
@@ -29,24 +31,24 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
 
 
     @Deprecated
-    public ModifierVisitor (Model model, CommonTokenStream tokens, String targetIdentifier, String value,/* Action act,*/ String originalSource) {
+    public ModifierVisitor (@NonNull Model model, CommonTokenStream tokens, String targetIdentifier, String value,/* Action act,*/ String originalSource) {
         this.model = model;
         this.rewriter = new TokenStreamRewriter(model.getTokens());
         this.originalSource = originalSource;
     }
     @Deprecated
-    public ModifierVisitor (Model model, CommonTokenStream tokens, String targetIdentifier, String[] values, /*Action act,*/ String originalSource) {
+    public ModifierVisitor (@NonNull Model model, CommonTokenStream tokens, String targetIdentifier, String[] values, /*Action act,*/ String originalSource) {
         this.model = model;
         this.rewriter = new TokenStreamRewriter(model.getTokens());
         this.originalSource = originalSource;
     }
 
-    private void modifyParamContent (FormulationParser.ExprContext ctx, String value) {
+    private void modifyParamContent (@NonNull FormulationParser.ExprContext ctx, String value) {
         rewriter.replace(ctx.start,ctx.stop,value);
     }
 
-    private void modifySetContent (FormulationParser.SetDefExprContext ctx,
-                                   List<String> values) {
+    private void modifySetContent (@NonNull FormulationParser.SetDefExprContext ctx,
+                                   @NonNull List<String> values) {
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
         String originalLine = originalSource.substring(startIndex, stopIndex + 1);
@@ -55,7 +57,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
     @Deprecated
     //not in use, no idea if works
-    private void commentOutParameter (FormulationParser.ParamDeclContext ctx) {
+    private void commentOutParameter (@NonNull FormulationParser.ParamDeclContext ctx) {
         // Get the original text with its formatting
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
@@ -68,7 +70,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         }
     }
     @Deprecated //don't need this?
-    private void commentOutSet (FormulationParser.SetDefExprContext ctx) {
+    private void commentOutSet (@NonNull FormulationParser.SetDefExprContext ctx) {
         // Get the original text with its formatting
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
@@ -83,7 +85,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitParamDecl (FormulationParser.ParamDeclContext ctx) {
+    public Void visitParamDecl (@NonNull FormulationParser.ParamDeclContext ctx) {
         String paramName = extractName(ctx.sqRef().getText());
         if (model.isModified(paramName, Element.ElementType.MODEL_PARAMETER)) {
                 modifyParamContent(ctx.expr(),model.getParameterFromAll(paramName).getData());
@@ -92,7 +94,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitSetDefExpr (FormulationParser.SetDefExprContext ctx) {
+    public Void visitSetDefExpr (@NonNull FormulationParser.SetDefExprContext ctx) {
         String setName = extractName(ctx.sqRef().getText());
         if (model.isModified(setName, Element.ElementType.MODEL_SET)) {
             if (ctx.setExpr() instanceof FormulationParser.SetExprStackContext stackCtx) {
@@ -105,7 +107,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitConstraint (FormulationParser.ConstraintContext ctx) {
+    public Void visitConstraint (@NonNull FormulationParser.ConstraintContext ctx) {
         String constraintName = extractName(ctx.name.getText());
         if (model.isModified(constraintName, Element.ElementType.CONSTRAINT)) {
                 commentOutConstraint(ctx);
@@ -114,7 +116,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitObjective(FormulationParser.ObjectiveContext ctx) {
+    public Void visitObjective(@NonNull FormulationParser.ObjectiveContext ctx) {
         List<FormulationParser.UExprContext> components = model.findComponentContexts(ctx.nExpr());
         for (FormulationParser.UExprContext subCtx : components) {
             String preferenceName = subCtx.start.getInputStream()
@@ -132,7 +134,8 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         return super.visitObjective(ctx);
     }
 
-    private String modifySetLine (String line, List<String> values) {
+    @NonNull
+    private String modifySetLine (@NonNull String line, @NonNull List<String> values) {
         // Find the set content between braces
         int openBrace = line.indexOf('{');
         int closeBrace = line.lastIndexOf('}');
@@ -162,7 +165,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         }
     }
 
-    private void commentOutConstraint (FormulationParser.ConstraintContext ctx) {
+    private void commentOutConstraint (@NonNull FormulationParser.ConstraintContext ctx) {
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
         String fullStatement = originalSource.substring(startIndex, stopIndex + 1);
@@ -191,11 +194,11 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         rewriter.replace(ctx.start, ctx.stop, commentedOut.toString());
         modified = true;
     }
-    private void replacePreference(FormulationParser.UExprContext ctx, String newPreference) {
+    private void replacePreference(@NonNull FormulationParser.UExprContext ctx, String newPreference) {
         rewriter.replace(ctx.start, ctx.stop, newPreference);
     }
     @Deprecated
-    private void commentOutPreference (FormulationParser.UExprContext ctx) {
+    private void commentOutPreference (@NonNull FormulationParser.UExprContext ctx) {
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
         String originalLine = originalSource.substring(startIndex, stopIndex + 1);
@@ -211,7 +214,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         modified = true;
     }
     @Deprecated //should not be used, preference scalars set through params
-    private void zeroOutPreference (FormulationParser.UExprContext ctx) {
+    private void zeroOutPreference (@NonNull FormulationParser.UExprContext ctx) {
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
         String originalLine = originalSource.substring(startIndex, stopIndex + 1);
@@ -222,7 +225,8 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
 
 
-    private String extractName (String sqRef) {
+    @NonNull
+    private String extractName (@NonNull String sqRef) {
         int bracketIndex = sqRef.indexOf('[');
         return bracketIndex == -1 ? sqRef : sqRef.substring(0, bracketIndex);
     }
@@ -240,7 +244,8 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
      * @param str The string to be modified.
      * @return The modified string with all whitespace characters removed.
      */
-    private static String removeWhitespaces(String str){
+    @NonNull
+    private static String removeWhitespaces(@NonNull String str){
         return str.replaceAll("\\s+","");
     }
 }

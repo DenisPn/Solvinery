@@ -3,6 +3,7 @@ package Model.Data.Elements.Data;
 import Model.Data.Types.ModelType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.lang.NonNull;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -81,6 +82,7 @@ public class DataElementTest {
             super(name, type);
         }
 
+        @NonNull
         @Override
         public ElementType getType() {
             return ElementType.MODEL_PARAMETER;

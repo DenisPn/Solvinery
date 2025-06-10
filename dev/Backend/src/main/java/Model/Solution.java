@@ -5,6 +5,7 @@ import Image.Modules.Single.VariableModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,9 +34,13 @@ public class Solution {
      *  Since from this point on this is only static data to be shown to the user, only Strings are in use
      *
      */
+    @NonNull
     final HashMap<String, List<VariableSolution>> variableSolution;
+    @NonNull
     final HashMap<String, List<VariableSolution>> rawVariableSolution;
+    @NonNull
     final HashMap<String, List<String>> variableStructure;
+    @NonNull
     final HashMap<String,List<String>> variableTypes;
     double solvingTime;
     /**
@@ -66,7 +71,7 @@ public class Solution {
         reachedVariables = false;
     }
 
-    public void processLine(String line){
+    public void processLine(@NonNull String line){
         if(reachedVariables)
             processVariable(line);
         else if(!reachedSolution) {
@@ -88,7 +93,7 @@ public class Solution {
             }
         }
     }
-    private void processVariable(String line){
+    private void processVariable(@NonNull String line){
         if(!line.isBlank() && !line.startsWith("@@")) {
             Matcher variableMatcher = variablePattern.matcher(line);
             if (variableMatcher.find()) {
@@ -106,7 +111,7 @@ public class Solution {
             }
         }
     }
-    public void postProcessSolution(Image image){
+    public void postProcessSolution(@NonNull Image image){
         for (VariableModule variable : image.getActiveVariables()) {
             variableStructure.put(variable.getAlias(), variable.getVariable().getBasicSets());
             variableTypes.put(variable.getAlias(),variable.getVariable().getTypeStructure());
@@ -121,7 +126,7 @@ public class Solution {
         }
     }
     @Deprecated(forRemoval = true) //To be replaced with a line-by-line parse stream
-    public void parseSolution(Image image) throws IOException {
+    public void parseSolution(@NonNull Image image) throws IOException {
         for (VariableModule variable : image.getActiveVariables()) {
                 variableSolution.put(variable.getAlias(), new LinkedList<>());
                 variableStructure.put(variable.getAlias(), variable.getVariable().getBasicSets());
@@ -157,7 +162,7 @@ public class Solution {
         parsed=true;
     }
     @Deprecated(forRemoval = true) //To be replaced with a line-by-line parse stream
-    private void parseSolutionValues(BufferedReader reader, Map<String,String> aliasMap) throws IOException {
+    private void parseSolutionValues(@NonNull BufferedReader reader, @NonNull Map<String,String> aliasMap) throws IOException {
         String line;
         while ((line = reader.readLine()) != null){
             Matcher variableMatcher = variablePattern.matcher(line);
@@ -203,6 +208,7 @@ public class Solution {
         return objectiveValue;
     }
 
+    @NonNull
     public Set<String> getActiveVariables() {
         return variableSolution.keySet();
     }

@@ -1,6 +1,8 @@
 package Model.Data.Elements.Data;
 
 import Model.Data.Types.ModelType;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.util.Objects;
 
@@ -23,7 +25,7 @@ public class ModelParameter extends DataElement {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         ModelParameter that = (ModelParameter) o;
@@ -34,6 +36,7 @@ public class ModelParameter extends DataElement {
     public int hashCode() {
         return Objects.hash(super.hashCode(), data, auxiliary);
     }
+    @NonNull
     @Override
     public ElementType getType() {
         return ElementType.MODEL_PARAMETER;

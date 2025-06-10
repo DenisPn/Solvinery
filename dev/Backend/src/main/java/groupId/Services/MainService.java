@@ -4,6 +4,7 @@ import groupId.DTO.Records.Events.SolveRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,6 +14,7 @@ public class MainService {
 
     private static final String TOPIC_NAME = "solve-requests";
 
+    @NonNull
     private final KafkaTemplate<String, SolveRequest> kafkaTemplate;
 
     public void sendSolveRequest(String userId, String problemId, String zimplContent) {
@@ -21,7 +23,7 @@ public class MainService {
     }
 
     @KafkaListener(topics = TOPIC_NAME, groupId = "${spring.kafka.consumer.group-id}")
-    public void handleSolveRequest(SolveRequest request) {
+    public void handleSolveRequest(@NonNull SolveRequest request) {
         System.out.println("Received solve request:");
         System.out.println("Zimpl Content: " + request.zimplContent());
     }

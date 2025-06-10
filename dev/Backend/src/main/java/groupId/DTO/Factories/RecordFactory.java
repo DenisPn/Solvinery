@@ -21,6 +21,8 @@ import groupId.DTO.Records.Model.ModelData.SetDefinitionDTO;
 import groupId.DTO.Records.Model.ModelDefinition.*;
 import groupId.DTO.Records.Requests.Responses.ImageResponseDTO;
 import groupId.DTO.Records.Requests.Responses.ParseModelResponseDTO;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.util.*;
 
@@ -35,7 +37,8 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    public static SolutionDTO makeDTO (Solution solution) {
+    @NonNull
+    public static SolutionDTO makeDTO (@NonNull Solution solution) {
         Objects.requireNonNull(solution, "Null Solution in DTO map");
         /*if (!solution.parsed())
             throw new RuntimeException("Solution must be parsed before attempting to convert to DTO.");*/
@@ -62,7 +65,8 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    public static PreferenceDTO makeDTO (Preference preference) {
+    @NonNull
+    public static PreferenceDTO makeDTO (@NonNull Preference preference) {
         if (preference == null)
             throw new NullPointerException("Null preference in DTO mapping");
         HashSet<ModelSet> sets = new HashSet<>();
@@ -77,7 +81,8 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    public static ConstraintDTO makeDTO (Constraint constraint) {
+    @NonNull
+    public static ConstraintDTO makeDTO (@NonNull Constraint constraint) {
         if (constraint == null)
             throw new NullPointerException("Null constraint in DTO mapping");
         HashSet<ModelSet> sets = new HashSet<>();
@@ -92,7 +97,8 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    public static ConstraintModuleDTO makeDTO (ConstraintModule module) {
+    @NonNull
+    public static ConstraintModuleDTO makeDTO (@NonNull ConstraintModule module) {
         if (module == null)
             throw new NullPointerException("Null constraint module in DTO mapping");
         Set<String> constraints = new HashSet<>();
@@ -103,7 +109,8 @@ public class RecordFactory {
                 constraints,module.isActive());
     }
 
-    public static PreferenceModuleDTO makeDTO (PreferenceModule module) {
+    @NonNull
+    public static PreferenceModuleDTO makeDTO (@NonNull PreferenceModule module) {
         if (module == null)
             throw new NullPointerException("Null preference module in DTO mapping");
         Set<String> preferences = new HashSet<>();
@@ -120,11 +127,13 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    public static SetDTO makeDTO (SetModule set) {
+    @NonNull
+    public static SetDTO makeDTO (@NonNull SetModule set) {
 
         return new SetDTO(new SetDefinitionDTO(set.getSet().getName(), set.getSet().getDataType().typeList(), set.getAlias()),set.getSet().getData());
     }
-    public static SetDefinitionDTO makeDTO (ModelSet set) {
+    @NonNull
+    public static SetDefinitionDTO makeDTO (@NonNull ModelSet set) {
 
         return new SetDefinitionDTO(set.getName(), set.getDataType().typeList(), null);
     }
@@ -154,10 +163,12 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    public static ParameterDTO makeDTO (ParameterModule parameter) {
+    @NonNull
+    public static ParameterDTO makeDTO (@NonNull ParameterModule parameter) {
         return new ParameterDTO(new ParameterDefinitionDTO(parameter.getParameter().getName(), parameter.getParameter().getDataType().toString(), parameter.getAlias()),parameter.getParameter().getData());
     }
-    public static ParameterDefinitionDTO makeDTO (ModelParameter parameter) {
+    @NonNull
+    public static ParameterDefinitionDTO makeDTO (@NonNull ModelParameter parameter) {
         return new ParameterDefinitionDTO(parameter.getName(), parameter.getDataType().toString(), null);
     }
 
@@ -167,7 +178,8 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    private static VariableDTO makeDTO (VariableModule variable) {
+    @NonNull
+    private static VariableDTO makeDTO (@NonNull VariableModule variable) {
         return new VariableDTO(variable.getVariable().getName(), variable.getVariable().getTypeStructure(), variable.getAlias());
     }
     /*private static Set<VariableDTO> makeVariableDTOs (Set<VariableModule> vars) {
@@ -177,7 +189,8 @@ public class RecordFactory {
         }
         return varDTOs;
     }*/
-    private static VariableDTO makeDTO (Variable variable) {
+    @NonNull
+    private static VariableDTO makeDTO (@NonNull Variable variable) {
         return new VariableDTO(variable.getName(), variable.getTypeStructure(), null);
     }
 
@@ -204,7 +217,8 @@ public class RecordFactory {
      * Inefficient, maps the whole image, including all its contents into DTOs.
      * should only be called when loading a new Image, not when modifying it.
      */
-    public static ImageDTO makeDTO (Image image) {
+    @NonNull
+    public static ImageDTO makeDTO (@NonNull Image image) {
         Set<VariableDTO> variables=  new HashSet<>();
         Set<ConstraintModuleDTO> constraintModules= new HashSet<>();
         Set<PreferenceModuleDTO> preferenceModules= new HashSet<>();
@@ -230,7 +244,8 @@ public class RecordFactory {
 
 
 
-    public static ImageResponseDTO makeDTO (UUID id, Image image) {
+    @NonNull
+    public static ImageResponseDTO makeDTO (@NonNull UUID id, @NonNull Image image) {
         return new ImageResponseDTO(id.toString(), makeDTO(image));
     }
 
@@ -240,7 +255,7 @@ public class RecordFactory {
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
     @Deprecated
-    public static ParseModelResponseDTO makeDTO (UUID id, ModelInterface md) {
+    public static @Nullable ParseModelResponseDTO makeDTO (UUID id, ModelInterface md) {
         //return new CreateImageResponseDTO(id.toString(), makeDTO(md));
         return null;
     }
@@ -250,7 +265,8 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
-    public static ModelDTO makeDTO (ModelInterface modelInterface) {
+    @NonNull
+    public static ModelDTO makeDTO (@NonNull ModelInterface modelInterface) {
         Set<ConstraintDTO> constraints = new HashSet<>();
         Set<PreferenceDTO> preferences = new HashSet<>();
         Set<VariableDTO> variables = new HashSet<>();
@@ -282,6 +298,7 @@ public class RecordFactory {
      * To avoid bloat while reducing coupling between the object and its DTO
      * makeDTO() accepts an internal business object, and converts it to a DTO object-without modifying it.
      */
+    @NonNull
     @Deprecated
     public static DependenciesDTO makeDTO (Set<ModelSet> sets, Set<ModelParameter> parameters) {
        /* Set<String> resS = new HashSet<>();

@@ -7,6 +7,8 @@ import Model.Data.Elements.Variable;
 import Model.Data.Types.ModelPrimitives;
 import Model.Model;
 import org.antlr.v4.runtime.misc.Interval;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
 
@@ -23,7 +25,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
 
     }
 
-    public Void visitParamDecl (FormulationParser.ParamDeclContext ctx) {
+    public Void visitParamDecl (@NonNull FormulationParser.ParamDeclContext ctx) {
         String paramName = extractName(ctx.sqRef().getText());
         TypeVisitor typer = new TypeVisitor(model);
         typer.visit(ctx.expr());
@@ -35,7 +37,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitSetDecl (FormulationParser.SetDeclContext ctx) {
+    public Void visitSetDecl (@NonNull FormulationParser.SetDeclContext ctx) {
         String setName = extractName(ctx.sqRef().getText());
         //change?
         model.getSetsMap().put(setName, new ModelSet(setName, ModelPrimitives.UNKNOWN,new LinkedList<>()));
@@ -43,7 +45,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitSetDefExpr (FormulationParser.SetDefExprContext ctx) {
+    public Void visitSetDefExpr (@NonNull FormulationParser.SetDefExprContext ctx) {
         String setName = extractName(ctx.sqRef().getText());
 
         TypeVisitor typer = new TypeVisitor(model);
@@ -63,7 +65,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitConstraint (FormulationParser.ConstraintContext ctx) {
+    public Void visitConstraint (@NonNull FormulationParser.ConstraintContext ctx) {
         String constName = extractName(ctx.name.getText());
         TypeVisitor visitor = new TypeVisitor(model);
         visitor.visit(ctx);
@@ -72,7 +74,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitObjective(FormulationParser.ObjectiveContext ctx) {
+    public Void visitObjective(@NonNull FormulationParser.ObjectiveContext ctx) {
         List<FormulationParser.UExprContext> components = model.findComponentContexts(ctx.nExpr());
 
         for (FormulationParser.UExprContext expressionComponent : components) {
@@ -92,7 +94,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         return super.visitObjective(ctx);
     }
 
-    public Void visitVariable (FormulationParser.VariableContext ctx) {
+    public Void visitVariable (@NonNull FormulationParser.VariableContext ctx) {
         String varName = extractName(ctx.sqRef().getText());
         TypeVisitor visitor = new TypeVisitor(model);
         visitor.visit(ctx);
@@ -106,14 +108,15 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         return super.visitVariable(ctx);
     }
 
-    private String extractName (String sqRef) {
+    @NonNull
+    private String extractName (@NonNull String sqRef) {
         // Handle indexed sets by taking the base name
         int bracketIndex = sqRef.indexOf('[');
         return bracketIndex == -1 ? sqRef : sqRef.substring(0, bracketIndex);
     }
     //Refactor below, kept this old one for posterity.
     @Deprecated
-    private List<String> parseSetElementsOld (FormulationParser.SetExprContext ctx) {
+    private @Nullable List<String> parseSetElementsOld (FormulationParser.SetExprContext ctx) {
         List<String> elements = new ArrayList<>();
 
         if (ctx instanceof FormulationParser.SetExprStackContext) {

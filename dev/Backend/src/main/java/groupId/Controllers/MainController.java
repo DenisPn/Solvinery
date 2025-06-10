@@ -8,6 +8,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -27,6 +28,7 @@ public class MainController {
         this.mainService = mainService;
     }
 
+    @NonNull
     @GetMapping(value = "/")
     public ResponseEntity<Resource> serveHomePage() {
         Resource resource = new ClassPathResource("static/index.html");
@@ -36,11 +38,13 @@ public class MainController {
     }
 
 
+    @NonNull
     @GetMapping("/kafka-test")
     public ResponseEntity<String> solve() {
         mainService.testKafka();
         return ResponseEntity.ok("Test completed.");
     }
+    @NonNull
     @GetMapping("/test-connection")
     public String testConnection() {
         try {

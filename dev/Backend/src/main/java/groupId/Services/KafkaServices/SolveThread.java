@@ -6,6 +6,8 @@ import Model.Solution;
 import groupId.DTO.Records.Events.SolveRequest;
 import groupId.Services.SolveService;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class SolveThread extends Thread {
 
     private final SolveService solveService;
+    @NonNull
     private final BlockingQueue<SolveRequest> requestQueue;
     private volatile boolean running = true;
 
@@ -50,7 +53,7 @@ public class SolveThread extends Thread {
         this.start();
     }
 
-    public void submitRequest(SolveRequest request) {
+    public void submitRequest(@NonNull SolveRequest request) {
         requestQueue.offer(request);
     }
 
@@ -59,7 +62,7 @@ public class SolveThread extends Thread {
         interrupt();
     }
 
-    public void handleSolveRequest(SolveRequest request) {
+    public void handleSolveRequest(@NonNull SolveRequest request) {
         Path codeFile= null;
         try {
             log.info("---------------------------Threaded-------------------------------");
@@ -88,7 +91,8 @@ public class SolveThread extends Thread {
 
 
 
-    private Solution solveProblem(SolveRequest request, Path codeFile) {
+    @NonNull
+    private Solution solveProblem(@NonNull SolveRequest request, @NonNull Path codeFile) {
         Process scipProcess = null;
         try {
             log.info("Got path: {}", codeFile.toAbsolutePath());
@@ -156,7 +160,8 @@ public class SolveThread extends Thread {
     }
 
 
-    private Path createCodeFile(SolveRequest request) throws IOException {
+    @NonNull
+    private Path createCodeFile(@Nullable SolveRequest request) throws IOException {
         if(request == null){
             log.error("Null request while creating code file");
             throw new SolverException("Null request while solving");
@@ -173,7 +178,7 @@ public class SolveThread extends Thread {
 
 
     }
-    private void validateZimplCode(Path codeFile) throws SolverException {
+    private void validateZimplCode(@NonNull Path codeFile) throws SolverException {
         log.info("Validating code file: {}", codeFile.toAbsolutePath());
         Process zimplProcess = null;
         try{
@@ -205,7 +210,7 @@ public class SolveThread extends Thread {
             }
         }
     }
-    private void cleanupFile(Path workDir) {
+    private void cleanupFile(@Nullable Path workDir) {
         if (workDir == null) {
             log.warn("Null path while cleaning up work directory");
             return;
@@ -223,14 +228,15 @@ public class SolveThread extends Thread {
 
     }
 
-    private static String startFromStatus(String original) {
+    @NonNull
+    private static String startFromStatus(@NonNull String original) {
         String from = "SCIP Status";
         if(original.contains(from))
             return original.substring(original.indexOf(from));
         else return original;
     }
     @Deprecated(forRemoval = true)
-    private Solution solveProblemExecutor(SolveRequest request, Path codeFile) {
+    private @Nullable Solution solveProblemExecutor(SolveRequest request, Path codeFile) {
         /*Process scipProcess = null;
         int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
         try {
@@ -298,7 +304,7 @@ public class SolveThread extends Thread {
         return null;
     }
     //DEBUG METHOD
-    private void handleProcessOutput(Process process) {
+    private void handleProcessOutput(@NonNull Process process) {
         // Handle stdout
         Thread outputReader = new Thread(() -> {
             try (BufferedReader reader = new BufferedReader(

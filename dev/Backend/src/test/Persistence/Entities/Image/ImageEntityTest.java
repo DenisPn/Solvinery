@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.lang.NonNull;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ class ImageEntityTest {
     @Autowired
     UserRepository userRepository;
 
+    @NonNull
     public UserEntity makeUserStub () {
         String username = "stub username";
         String email = "stub@stubber.stubbinson";
@@ -43,6 +45,7 @@ class ImageEntityTest {
         return userEntity;
     }
 
+    @NonNull
     public ImageEntity makeStub () {
         // Persist parent entity without child entities to generate ID
         ImageEntity stub = new ImageEntity();

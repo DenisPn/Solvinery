@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.lang.NonNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,7 +56,7 @@ public class ModelModifierIntegrationTest {
      */
     @ParameterizedTest
     @MethodSource("testCaseStream")
-    void givenModelInput_WhenModifying_FileCorrect(TestInput input) {
+    void givenModelInput_WhenModifying_FileCorrect(@NonNull TestInput input) {
         //Given
         Model testModel= new Model(input.zplCode);
         verifyModelPreconditions(testModel,input);
@@ -72,6 +73,7 @@ public class ModelModifierIntegrationTest {
      * Define test cases using TestInput inner record
      * @return stream of cases, for use in Parameterized tests
      */
+    @NonNull
     private static Stream<TestInput> testCaseStream(){
 
         try {
@@ -232,7 +234,7 @@ public class ModelModifierIntegrationTest {
 
     }
 
-    private static void verifyModelPreconditions(Model model, TestInput input) {
+    private static void verifyModelPreconditions(@NonNull Model model, @NonNull TestInput input) {
         input.parameters().forEach(param -> {
             try {
                 ModelParameter existingParam = model.getParameterFromAll(param.getName());
@@ -277,7 +279,7 @@ public class ModelModifierIntegrationTest {
         });
     }
 
-    private static void verifyModelPostconditions(Model model, TestInput input) {
+    private static void verifyModelPostconditions(@NonNull Model model, @NonNull TestInput input) {
         input.parameters().forEach(param -> {
             try {
                 ModelParameter existingParam = model.getParameterFromAll(param.getName());

@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -38,13 +40,14 @@ public class UserEntity {
     @NotBlank(message = "Password cannot be blank")
     private String password;
 
+    @NonNull
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ImageEntity> images = new HashSet<>();
 
     public UserEntity () {
     }
-    public UserEntity (String username,String nickname,String email,
-                       String rawPassword) {
+    public UserEntity (String username, @Nullable String nickname, String email,
+                       @NonNull String rawPassword) {
         this.username = username;
         this.email = email;
         if(nickname == null)
@@ -54,8 +57,8 @@ public class UserEntity {
         setPassword(rawPassword);
 
     }
-    public UserEntity (String username,String email,
-                       String rawPassword) {
+    public UserEntity (String username, String email,
+                       @NonNull String rawPassword) {
         this.username = username;
         this.email = email;
         this.nickname = username;
@@ -83,7 +86,7 @@ public class UserEntity {
     public UUID getId () {
         return id;
     }
-    public String getIdString () {
+    public @Nullable String getIdString () {
         return id == null ? null : id.toString();
     }
 
@@ -99,7 +102,7 @@ public class UserEntity {
      * Hashes the password and saves it in the entity
      * @param rawPassword Raw, unencrypted password
      */
-    public void setPassword(String rawPassword) {
+    public void setPassword(@NonNull String rawPassword) {
         if (rawPassword == null || rawPassword.length() > 16 || rawPassword.length() < 8 || rawPassword.isBlank()) {
             throw new IllegalArgumentException("Password must be 8-16 in length. Password should be valid at this point, this is a server error.");
             //this.password = null; //set password as an invalid null to throw error on save, not here.
@@ -122,7 +125,7 @@ public class UserEntity {
      * @param rawPassword the plain text password to be checked
      * @return true if the raw password matches the stored password, false otherwise
      */
-    public boolean checkPassword(String rawPassword) {
+    public boolean checkPassword(@Nullable String rawPassword) {
         if( rawPassword == null)
             return this.password == null;
         else
@@ -139,7 +142,7 @@ public class UserEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         UserEntity that = (UserEntity) o;
         return Objects.equals(id, that.id) && Objects.equals(username, that.username) && Objects.equals(email, that.email) && Objects.equals(password, that.password);

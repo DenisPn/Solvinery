@@ -1,6 +1,8 @@
 package Model.Data.Elements.Data;
 
 import Model.Data.Types.ModelType;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -8,7 +10,7 @@ import java.util.Objects;
 
 public class ModelSet extends DataElement {
 
-    private List<String> data;
+    private @Nullable List<String> data;
     private final boolean isPrimitive;
     public ModelSet (String name, ModelType type, List<String> data) {
         super(name,type);
@@ -29,7 +31,7 @@ public class ModelSet extends DataElement {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         ModelSet modelSet = (ModelSet) o;
@@ -40,6 +42,7 @@ public class ModelSet extends DataElement {
     public int hashCode() {
         return Objects.hash(super.hashCode(), data, isPrimitive);
     }
+    @NonNull
     @Override
     public ElementType getType() {
         return ElementType.MODEL_SET;

@@ -1,6 +1,9 @@
 package Model.Data.Elements.Operational;
 
 
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
+
 import java.util.Objects;
 
 public class Constraint extends OperationalElement {
@@ -10,11 +13,12 @@ public class Constraint extends OperationalElement {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         return super.equals(o);
     }
 
+    @NonNull
     @Override
     public ElementType getType() {
         return ElementType.CONSTRAINT;

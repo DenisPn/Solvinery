@@ -5,6 +5,7 @@ import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
+import org.springframework.lang.NonNull;
 
 import java.util.Collection;
 import java.util.Map;
@@ -57,6 +58,7 @@ public class ModelProxy implements ModelInterface{
      * Get the model, create a new instance (and in turn, parse the model) if it doesn't exist.
      * @return new or existing model instance.
      */
+    @NonNull
     private Model getModel(){
         if(model==null) {
                 this.model = new Model(code);
@@ -110,7 +112,7 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
-    public Collection<Variable> getVariables (Collection<String> identifiers) {
+    public Collection<Variable> getVariables (@NonNull Collection<String> identifiers) {
         return getModel().getVariables(identifiers);
     }
 
@@ -125,7 +127,7 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
-    public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String, Float> preferencesScalars) {
+    public String writeToSource(@NonNull Set<ModelSet> sets, @NonNull Set<ModelParameter> params, @NonNull Set<Constraint> disabledConstraints, @NonNull Map<String, Float> preferencesScalars) {
         return getModel().writeToSource(sets,params,disabledConstraints,preferencesScalars);
     }
 }

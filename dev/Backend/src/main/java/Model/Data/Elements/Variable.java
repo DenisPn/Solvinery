@@ -1,5 +1,8 @@
 package Model.Data.Elements;
 
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -22,7 +25,7 @@ public class Variable extends Element {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Variable variable = (Variable) o;
@@ -30,6 +33,7 @@ public class Variable extends Element {
                 Objects.equals(basicSets, variable.basicSets);
     }
 
+    @NonNull
     @Override
     public ElementType getType() {
         return ElementType.VARIABLE;

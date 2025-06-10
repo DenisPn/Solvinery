@@ -5,6 +5,7 @@ import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -33,7 +34,7 @@ public interface ModelInterface {
      * @param identifier The parameter identifier
      * @return ModelParameter object if found, null otherwise
      */
-    ModelParameter getParameter(String identifier);
+    @Nullable ModelParameter getParameter(String identifier);
 
     /**
      * Retrieves a constraint by its identifier.

@@ -6,6 +6,7 @@ import Persistence.Entities.Image.Data.VariableEntity;
 import Persistence.Entities.Image.Operational.ConstraintModuleEntity;
 import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
 import jakarta.persistence.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -187,7 +188,7 @@ public class PublishedImageEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         PublishedImageEntity that = (PublishedImageEntity) o;
         return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(creationDate, that.creationDate) && Objects.equals(activeSets, that.activeSets) && Objects.equals(activeParams, that.activeParams) && Objects.equals(variables, that.variables) && Objects.equals(constraintModules, that.constraintModules) && Objects.equals(preferenceModules, that.preferenceModules) && Objects.equals(original_code, that.original_code);

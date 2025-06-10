@@ -7,6 +7,7 @@ import Persistence.Entities.Image.Operational.ConstraintModuleEntity;
 import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
 import Persistence.Entities.UserEntity;
 import jakarta.persistence.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -54,7 +55,7 @@ public class ImageEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
+    private @Nullable UserEntity user;
 
    /* @Lob
     @Column(name = "image_zpl_code", nullable = false,
@@ -268,7 +269,7 @@ public class ImageEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ImageEntity that = (ImageEntity) o;
         return Objects.equals(id, that.id)
