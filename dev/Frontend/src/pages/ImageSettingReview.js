@@ -25,12 +25,12 @@ const handleSaveImage = async () => {
     constraintModules: constraintsModules.map((module) => ({
       moduleName: module.name,
       description: module.description,
-      constraints: module.constraints, // Constraints inside each module
+      constraints: module.constraints.map(c => c.identifier),
     })),
     preferenceModules: preferenceModules.map((module) => ({
       moduleName: module.name,
       description: module.description,
-      preferences: module.preferences, // Preferences inside each module
+      preferences: module.preferences.map(p => p.identifier),
     })),
     sets: Object.keys(setTypes).map((set) => ({
       setDefinition: { name: set, type: setTypes[set] },
