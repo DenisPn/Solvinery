@@ -17,8 +17,8 @@ import java.util.List;
 public class TypeVisitor extends FormulationBaseVisitor<Void> {
     private final Model model;
     private ModelType type = ModelPrimitives.UNKNOWN;
-    private List<ModelSet> basicSets;
-    private List<ModelParameter> basicParams;
+    private final List<ModelSet> basicSets;
+    private final List<ModelParameter> basicParams;
 
 
     public TypeVisitor (Model model) {
@@ -29,7 +29,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
 
     // Main visitor methods for type analysis
     @Override
-    public @Nullable Void visitSetExprBin (@NonNull FormulationParser.SetExprBinContext ctx) {
+    public Void visitSetExprBin (@NonNull FormulationParser.SetExprBinContext ctx) {
         // Handle binary set operations (*, +, \, -)
         TypeVisitor leftVisitor = new TypeVisitor(model);
         TypeVisitor rightVisitor = new TypeVisitor(model);
@@ -90,13 +90,13 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public @Nullable Void visitVariable (@NonNull FormulationParser.VariableContext ctx) {
+    public Void visitVariable (@NonNull FormulationParser.VariableContext ctx) {
         visit(ctx.sqRef());
         return null;
     }
 
     @Override
-    public @Nullable Void visitConstraint (@NonNull FormulationParser.ConstraintContext ctx) {
+    public Void visitConstraint (@NonNull FormulationParser.ConstraintContext ctx) {
 
         for (FormulationParser.ForallContext ctxFA : ctx.forall()) {
             TypeVisitor v = new TypeVisitor(model);

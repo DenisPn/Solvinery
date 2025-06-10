@@ -8,6 +8,7 @@ import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
 import Persistence.Entities.UserEntity;
 import jakarta.persistence.*;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -55,7 +56,7 @@ public class ImageEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private @Nullable UserEntity user;
+    private @NonNull UserEntity user;
 
    /* @Lob
     @Column(name = "image_zpl_code", nullable = false,
@@ -80,9 +81,9 @@ public class ImageEntity {
         this.name = "";
         this.description = "";
         this.creationDate = LocalDateTime.now();
-        this.user = null;
+        this.user = new UserEntity();
     }
-    public ImageEntity (UserEntity user) {
+    public ImageEntity (@NonNull UserEntity user) {
         this.activeSets = new HashSet<>();
         this.activeParams = new HashSet<>();
         this.variables = new HashSet<>();
@@ -95,7 +96,7 @@ public class ImageEntity {
         this.creationDate = LocalDateTime.now();
         this.user = user;
     }
-    public ImageEntity (String name,String description,LocalDateTime creationDate,Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String original_code,UserEntity user) {
+    public ImageEntity (String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String original_code, @NonNull UserEntity user) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
         this.variables = variables;
@@ -109,7 +110,7 @@ public class ImageEntity {
         this.creationDate = creationDate;
     }
     @Deprecated(forRemoval = true)
-    public ImageEntity (String name,String description,LocalDateTime creationDate,Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets,UserEntity user) {
+    public ImageEntity (String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, @NonNull UserEntity user) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
         this.variables = variables;
@@ -135,7 +136,7 @@ public class ImageEntity {
         this.activeSets = activeSets;
         //this.zimplCode = zimplCode;
     }
-    public void setAll(String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModuleEntities, Set<ConstraintModuleEntity> constraintModuleEntities, Set<VariableEntity> variableEntities, Set<ParameterEntity> paramEntities, Set<SetEntity> setEntities, String sourceCode, UserEntity user) {
+    public void setAll(String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModuleEntities, Set<ConstraintModuleEntity> constraintModuleEntities, Set<VariableEntity> variableEntities, Set<ParameterEntity> paramEntities, Set<SetEntity> setEntities, String sourceCode, @NonNull UserEntity user) {
         this.preferenceModules = preferenceModuleEntities;
         this.constraintModules = constraintModuleEntities;
         this.variables = variableEntities;
@@ -150,6 +151,7 @@ public class ImageEntity {
     }
 
 
+    @NonNull
     public UserEntity getUser() {
         return user;
     }

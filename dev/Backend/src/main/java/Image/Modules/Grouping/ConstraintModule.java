@@ -41,9 +41,7 @@ public class ConstraintModule extends OperationalModule {
     public @NonNull Map<String, Constraint> getConstraints() {
         return constraints;
     }
-    public Constraint getConstraint(String constraintName) {
-        return constraints.get(constraintName);
-    }
+
     public void addConstraint(@NonNull Constraint constraint){
         constraints.put(constraint.getName(),constraint);
     }

@@ -1,5 +1,6 @@
 package Model;
 
+
 import Image.Image;
 import Image.Modules.Single.VariableModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,23 +8,16 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 @Slf4j
 public class Solution {
 
-    private static final Pattern statusPattern = Pattern.compile("SCIP Status\s+:\s+problem is solved.*optimal solution found");
-    private static final Pattern solvingTimePattern = Pattern.compile("Solving Time \\(sec\\)\s+:\s+(\\d+\\.\\d+)");
+    private static final Pattern statusPattern = Pattern.compile("SCIP Status +: +problem is solved.*optimal solution found");
+    private static final Pattern solvingTimePattern = Pattern.compile("Solving Time \\(sec\\) +: +(\\d+\\.\\d+)");
     private static final Pattern objectiveValuePattern = Pattern.compile("objective value:\\s+(\\d+(\\.\\d+)?)");
     private static final Pattern variablePattern = Pattern.compile("^(.*?)[ \\t]+(\\d+)[ \\t]+\\(obj:(\\d+)\\)");
-
-
-    boolean parsed;
-    private String solution;
     boolean solved;
 
     /**
@@ -50,18 +44,7 @@ public class Solution {
 
     private boolean reachedSolution;
     private boolean reachedVariables;
-    @Deprecated
-    public Solution(String solution) {
-        this.solution= solution;
-        variableSolution = new HashMap<>();
-        variableStructure = new HashMap<>();
-        variableTypes = new HashMap<>();
-        rawVariableSolution = new HashMap<>();
-        parsed = false;
-        reachedSolution = false;
-        reachedVariables = false;
 
-    }
     public Solution(){
         variableSolution = new HashMap<>();
         variableStructure = new HashMap<>();
@@ -115,7 +98,6 @@ public class Solution {
         for (VariableModule variable : image.getActiveVariables()) {
             variableStructure.put(variable.getAlias(), variable.getVariable().getBasicSets());
             variableTypes.put(variable.getAlias(),variable.getVariable().getTypeStructure());
-            Map<String,String> aliasMap = image.variableAliasMap();
             if(rawVariableSolution.containsKey(variable.getVariable().getName())) {
                 variableSolution.put(variable.getAlias(), rawVariableSolution.get(variable.getVariable().getName()));
                 rawVariableSolution.remove(variable.getVariable().getName());
@@ -125,72 +107,7 @@ public class Solution {
             log.info("Unprocessed variables: {}",rawVariableSolution.keySet());
         }
     }
-    @Deprecated(forRemoval = true) //To be replaced with a line-by-line parse stream
-    public void parseSolution(@NonNull Image image) throws IOException {
-        for (VariableModule variable : image.getActiveVariables()) {
-                variableSolution.put(variable.getAlias(), new LinkedList<>());
-                variableStructure.put(variable.getAlias(), variable.getVariable().getBasicSets());
-                variableTypes.put(variable.getAlias(),variable.getVariable().getTypeStructure());
-        }
-        try (BufferedReader reader = new BufferedReader(new StringReader(solution))) {
-            String line;
-            boolean solutionSection = false;
 
-
-            while ((line = reader.readLine()) != null) {
-                if (!solutionSection) {
-
-                    Matcher statusMatcher = statusPattern.matcher(line);
-                    if (statusMatcher.find()) {
-                        solved = true;
-                    }
-
-                    Matcher solvingTimeMatcher = solvingTimePattern.matcher(line);
-                    if (solvingTimeMatcher.find()) {
-                        solvingTime = Double.parseDouble(solvingTimeMatcher.group(1));
-                    }
-
-                    Matcher objectiveMatcher = objectiveValuePattern.matcher(line);
-                    if (objectiveMatcher.find()) {
-                        objectiveValue = Double.parseDouble(objectiveMatcher.group(1));
-                        solutionSection = true; // Objective value is defined right before the solution values section
-                        parseSolutionValues(reader,image.variableAliasMap());
-                    }
-                }
-            }
-        }
-        parsed=true;
-    }
-    @Deprecated(forRemoval = true) //To be replaced with a line-by-line parse stream
-    private void parseSolutionValues(@NonNull BufferedReader reader, @NonNull Map<String,String> aliasMap) throws IOException {
-        String line;
-        while ((line = reader.readLine()) != null){
-            Matcher variableMatcher = variablePattern.matcher(line);
-            if (variableMatcher.find()) {
-                String solution = variableMatcher.group(1);
-                int objectiveValue = Integer.parseInt(variableMatcher.group(2));
-                List<String> splitSolution = new LinkedList<>(Arrays.asList(solution.split("[#$]"))); //need a new array to remove dependence
-                String variableIdentifier = splitSolution.getFirst();
-                String variableAlias = aliasMap.get(variableIdentifier);
-                splitSolution.removeFirst();
-                if(variableSolution.containsKey(variableAlias)) { //A 0 objective value means the solution part has no effect on the actual max/min expression
-                    if(objectiveValue != 0)
-                        variableSolution.get(variableAlias).add(new VariableSolution(splitSolution,objectiveValue));
-                }
-                else {
-                    log.error("Variable {} not found in image alias map, mapped value: {}",
-                            variableIdentifier,variableAlias);
-                }
-            }
-            else {
-                log.error("Malformed variable structure detected in solution: {}", line);
-            }
-        }
-    }
-    @Deprecated(forRemoval = true) //after change parsing is assumed to always have been done if the object exists.
-    public boolean parsed(){
-        return parsed;
-    }
     public boolean isSolved() {
         return solved;
     }

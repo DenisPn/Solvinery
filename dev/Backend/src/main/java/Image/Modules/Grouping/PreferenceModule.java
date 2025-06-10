@@ -17,8 +17,7 @@ public class PreferenceModule extends OperationalModule {
     private static final float DEFAULT_SCALAR = 0.5F;
     @NonNull
     private final Map<String, Preference> preferences;
-    @Min(0)
-    @Max(1)
+
     private float scalar;
 
 

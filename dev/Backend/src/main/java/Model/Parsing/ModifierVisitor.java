@@ -4,7 +4,6 @@ import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
 import Model.Data.Elements.Element;
 import Model.Data.Elements.Operational.Preference;
 import Model.Model;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.misc.Interval;
 import org.springframework.lang.NonNull;
@@ -15,33 +14,21 @@ import java.util.List;
 import java.util.Objects;
 
 public class ModifierVisitor extends FormulationBaseVisitor<Void> {
+    @NonNull
     private final Model model;
-
+    @NonNull
     private final String originalSource;
     private boolean modified = false;
     @NonNull
     private final TokenStreamRewriter rewriter;
 
     // Original constructor for backward compatibility
-    public ModifierVisitor(@NonNull Model model, String originalSource){
+    public ModifierVisitor(@NonNull Model model, @NonNull String originalSource){
         this.model = model;
         this.rewriter = new TokenStreamRewriter(model.getTokens());
         this.originalSource = originalSource;
     }
 
-
-    @Deprecated
-    public ModifierVisitor (@NonNull Model model, CommonTokenStream tokens, String targetIdentifier, String value,/* Action act,*/ String originalSource) {
-        this.model = model;
-        this.rewriter = new TokenStreamRewriter(model.getTokens());
-        this.originalSource = originalSource;
-    }
-    @Deprecated
-    public ModifierVisitor (@NonNull Model model, CommonTokenStream tokens, String targetIdentifier, String[] values, /*Action act,*/ String originalSource) {
-        this.model = model;
-        this.rewriter = new TokenStreamRewriter(model.getTokens());
-        this.originalSource = originalSource;
-    }
 
     private void modifyParamContent (@NonNull FormulationParser.ExprContext ctx, String value) {
         rewriter.replace(ctx.start,ctx.stop,value);
@@ -54,34 +41,6 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         String originalLine = originalSource.substring(startIndex, stopIndex + 1);
         String modifiedLine = modifySetLine(originalLine, values);
         rewriter.replace(ctx.start,ctx.stop,modifiedLine);
-    }
-    @Deprecated
-    //not in use, no idea if works
-    private void commentOutParameter (@NonNull FormulationParser.ParamDeclContext ctx) {
-        // Get the original text with its formatting
-        int startIndex = ctx.start.getStartIndex();
-        int stopIndex = ctx.stop.getStopIndex();
-        String originalLine = originalSource.substring(startIndex, stopIndex + 1);
-        // Preserve indentation
-        String indentation = "";
-        int lineStart = originalSource.lastIndexOf('\n', startIndex);
-        if (lineStart != -1) {
-            indentation = originalSource.substring(lineStart + 1, startIndex);
-        }
-    }
-    @Deprecated //don't need this?
-    private void commentOutSet (@NonNull FormulationParser.SetDefExprContext ctx) {
-        // Get the original text with its formatting
-        int startIndex = ctx.start.getStartIndex();
-        int stopIndex = ctx.stop.getStopIndex();
-        String originalLine = originalSource.substring(startIndex, stopIndex + 1);
-
-        // Preserve indentation
-        String indentation = "";
-        int lineStart = originalSource.lastIndexOf('\n', startIndex);
-        if (lineStart != -1) {
-            indentation = originalSource.substring(lineStart + 1, startIndex);
-        }
     }
 
     @Override
@@ -185,7 +144,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         for (String line : lines) {
             // If it's not the last line (which won't have a newline)
             if (line.endsWith("\n")) {
-                commentedOut.append(initialIndent).append("# ").append(line.substring(0, line.length() - 1)).append("\n");
+                commentedOut.append(initialIndent).append("# ").append(line, 0, line.length() - 1).append("\n");
             } else {
                 commentedOut.append(initialIndent).append("# ").append(line);
             }
@@ -196,32 +155,6 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
     private void replacePreference(@NonNull FormulationParser.UExprContext ctx, String newPreference) {
         rewriter.replace(ctx.start, ctx.stop, newPreference);
-    }
-    @Deprecated
-    private void commentOutPreference (@NonNull FormulationParser.UExprContext ctx) {
-        int startIndex = ctx.start.getStartIndex();
-        int stopIndex = ctx.stop.getStopIndex();
-        String originalLine = originalSource.substring(startIndex, stopIndex + 1);
-
-        String indentation = "";
-        int lineStart = originalSource.lastIndexOf('\n', startIndex);
-        if (lineStart != -1) {
-            indentation = originalSource.substring(lineStart + 1, startIndex);
-        }
-
-        rewriter.replace(startIndex, stopIndex + 1,
-                indentation + "# " + originalLine.substring(indentation.length()));
-        modified = true;
-    }
-    @Deprecated //should not be used, preference scalars set through params
-    private void zeroOutPreference (@NonNull FormulationParser.UExprContext ctx) {
-        int startIndex = ctx.start.getStartIndex();
-        int stopIndex = ctx.stop.getStopIndex();
-        String originalLine = originalSource.substring(startIndex, stopIndex + 1);
-
-        rewriter.replace(startIndex, stopIndex + 1,
-                "((" + originalLine + ")*0)");
-        modified = true;
     }
 
 

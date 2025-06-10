@@ -19,7 +19,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 /**
  * Usage instructions: use some Record to make the DTO of the exception and return it.
  * Should have a method for each exception needing a custom or logging.
- * the message/logging itself should be in the factory, No logic is to be implemented here.
+ * The message/logging itself should be in the factory, No logic is to be implemented here.
  */
 @RestControllerAdvice
 public class ExceptionHandlerService {

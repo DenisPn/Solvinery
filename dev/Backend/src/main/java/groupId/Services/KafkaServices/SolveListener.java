@@ -100,7 +100,8 @@ public void handleSolveRequest(@NonNull @Payload SolveRequest request) {
                     .collect(Collectors.joining("\n"));
 
             log.info("\n-------------------OUTPUT----------------\n{}\n-------------------END--------------------\n",prunedOutput);
-            return new Solution(prunedOutput);
+            //return new Solution(prunedOutput);
+            return new Solution(); //TEMP UNTILL IMPL
 
         } catch (InterruptedException | IOException e) {
             throw new SolverException("Error during SCIP execution: " + e.getMessage());

@@ -22,7 +22,6 @@ import groupId.DTO.Records.Model.ModelDefinition.ConstraintDTO;
 import groupId.DTO.Records.Model.ModelDefinition.PreferenceDTO;
 import groupId.DTO.Records.Model.ModelDefinition.VariableDTO;
 import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.lang.NonNull;
 
 import java.time.LocalDateTime;
@@ -38,16 +37,17 @@ public class Image {
     private final Set<SetModule> activeSets;
     private final Set<ParameterModule> activeParams;
     private final Set<VariableModule> activeVariables;
+    @NonNull
     private final ModelInterface model;
-    private final @Nullable String name;
-    private final @Nullable String description;
-    private final @Nullable LocalDateTime creationDate;
+    private final @NonNull String name;
+    private final @NonNull String description;
+    private final @NonNull LocalDateTime creationDate;
 
     /**
      * Constructs a new empty image, given a Model.
      * @param model The already initialized model.
      */
-    public Image(ModelInterface model,String name,String description) {
+    public Image(@NonNull ModelInterface model,@NonNull String name,@NonNull String description) {
         this.activeParams = new HashSet<>();
         this.constraintsModules = new HashMap<>();
         this.preferenceModules = new HashMap<>();
@@ -132,7 +132,9 @@ public class Image {
      * @param activeParams       The active parameters used in the model.
      * @param activeVariables    The active variables used in the model.
      */
-    public Image (String code, String name, String description, LocalDateTime creationDate, @NonNull Set<ConstraintModule> constraintsModules, @NonNull Set<PreferenceModule> preferenceModules, Set<SetModule> activeSets, Set<ParameterModule> activeParams, Set<VariableModule> activeVariables) {
+    public Image (@NonNull String code,@NonNull  String name,@NonNull  String description,@NonNull  LocalDateTime creationDate,
+                  @NonNull Set<ConstraintModule> constraintsModules, @NonNull Set<PreferenceModule> preferenceModules,
+                  Set<SetModule> activeSets, Set<ParameterModule> activeParams, Set<VariableModule> activeVariables) {
         this.constraintsModules = constraintsModules.stream().collect(Collectors.toMap(ConstraintModule::getName, constraintModule -> constraintModule));
         this.preferenceModules = preferenceModules.stream().collect(Collectors.toMap(PreferenceModule::getName, preferenceModule -> preferenceModule));
         this.activeSets = activeSets;
@@ -145,28 +147,12 @@ public class Image {
     }
 
     /**
-     * Given code, created an Image and the Model inside it.
-     * @param code source zpl code
-     */
-    @Deprecated(forRemoval = true)
-    public Image(String code) {
-        this.activeParams = new HashSet<>();
-        constraintsModules = new HashMap<>();
-        preferenceModules = new HashMap<>();
-        activeVariables = new HashSet<>();
-        activeSets = new HashSet<>();
-        this.model = new Model(code);
-        creationDate = null;
-        this.name = null;
-        this.description = null;
-    }
-    /**
      * Overrides the image with new fields from the DTO data.
-     * Ideally this should be replaced with a diff,
+     * Ideally, this should be replaced with a diff,
      * i.e., an imageDiffDTO with data about changes only
      * Additional reasoning for why this is bad: if you only changed an alias, for example,
      * the Model object doesn't need to be loaded, since it isn't changed.
-     * in this impl, the Model is always loaded. We want to avoid doing so since loading the model
+     * In this impl, the Model is always loaded. We want to avoid doing so since loading the model
      * means parsing the zpl code, which, as one can expect, is heavy.
      */
     public void override(@NonNull ImageDTO imageDTO) {
@@ -259,14 +245,17 @@ public class Image {
         return model.writeToSource(sets,params,inactiveConstraints,preferencesToScalars);
     }
 
+    @NonNull
     public String getName() {
         return name;
     }
 
+    @NonNull
     public String getDescription() {
         return description;
     }
 
+    @NonNull
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
@@ -274,6 +263,7 @@ public class Image {
     public void addConstraintModule(@NonNull ConstraintModule module) {
         constraintsModules.put(module.getName(), module);
     }
+    @SuppressWarnings("unused")
     public void addConstraint(@NonNull String moduleName, @NonNull String description) {
         constraintsModules.put(moduleName, new ConstraintModule(moduleName, description));
     }
@@ -290,6 +280,7 @@ public class Image {
     public void addPreferenceModule(@NonNull PreferenceModule module) {
         preferenceModules.put(module.getName(), module);
     }
+    @SuppressWarnings("unused")
     public void addPreference(@NonNull String moduleName, @NonNull String description) {
         preferenceModules.put(moduleName, new PreferenceModule(moduleName, description));
     }
@@ -308,28 +299,33 @@ public class Image {
     public PreferenceModule getPreferenceModules(String name) {
         return preferenceModules.get(name);
     }
+    @NonNull
     public Map<String, ConstraintModule> getConstraintsModules() {
         return constraintsModules;
     }
+    @NonNull
     public Map<String, PreferenceModule> getPreferenceModules() {
         return preferenceModules;
     }
-
+    @SuppressWarnings("unused")
     public void addConstraint(String moduleName, @NonNull ConstraintDTO constraint) {
         if(!constraintsModules.containsKey(moduleName))
             throw new IllegalArgumentException("No constraint module with name: " + moduleName);
         constraintsModules.get(moduleName).addConstraint(model.getConstraint(constraint.identifier()));
     }
+    @SuppressWarnings("unused")
     public void removeConstraint(String moduleName, @NonNull ConstraintDTO constraint) {
         if(!constraintsModules.containsKey(moduleName))
             throw new IllegalArgumentException("No constraint module with name: " + moduleName);
         constraintsModules.get(moduleName).removeConstraint(model.getConstraint(constraint.identifier()));
     }
+    @SuppressWarnings("unused")
     public void addPreference(String moduleName, @NonNull PreferenceDTO preferenceDTO) {
         if(!preferenceModules.containsKey(moduleName))
             throw new IllegalArgumentException("No preference module with name: " + moduleName);
         preferenceModules.get(moduleName).addPreference(model.getPreference(preferenceDTO.identifier()));
     }
+    @SuppressWarnings("unused")
     public void removePreference(String moduleName, @NonNull PreferenceDTO preferenceDTO) {
         if(!preferenceModules.containsKey(moduleName))
             throw new IllegalArgumentException("No preference module with name: " + moduleName);
@@ -338,6 +334,7 @@ public class Image {
     public Set<VariableModule> getActiveVariables () {
         return activeVariables;
     }
+    @SuppressWarnings("unused")
     public void addVariable(String name) {
         Variable varName= model.getVariable(name);
         if(varName==null)
@@ -345,6 +342,7 @@ public class Image {
         activeVariables.add(new VariableModule(varName));
     }
 
+    @NonNull
     public ModelInterface getModel() {
         return this.model;
     }
@@ -358,13 +356,6 @@ public class Image {
     }
     public String getSourceCode() {
         return model.getSourceCode();
-    }
-    @NonNull
-    public Map<String,String> variableAliasMap(){
-        return activeVariables.stream()
-                .collect(Collectors.toMap(
-                        variableModule ->
-                                variableModule.getVariable().getName(), VariableModule::getAlias));
     }
 
 

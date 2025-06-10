@@ -20,7 +20,6 @@ import org.springframework.lang.NonNull;
 import parser.FormulationLexer;
 import parser.FormulationParser;
 
-import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,28 +76,15 @@ public class Model implements ModelInterface {
         return tokens;
     }
 
+    @NonNull
     public String getOriginalSource () {
         return originalSource;
     }
 
-    private final @Nullable String originalSource;
+    private final @NonNull String originalSource;
     private String currentSource;
 
-    @Deprecated
-    public Model(Path sourceFilePath) {
-        /*try {
-            if (!Files.exists(sourceFilePath)) {
-                throw new ParsingException("File does not exist: " + sourceFilePath);
-            }
-            this.sourceFilePath = sourceFilePath;
-            parseSource();
-        }
-        catch (IOException e) {
-            throw new ParsingException("I/O error parsing source file: " + e.getMessage());
-        }*/
-        this.originalSource= null;
-    }
-    public Model(String sourceCode) {
+    public Model(@NonNull String sourceCode) {
             this.originalSource = sourceCode;
             parseSource();
     }
@@ -123,7 +109,7 @@ public class Model implements ModelInterface {
             readPreferences();
         }
     }
-    @Deprecated
+
     private void readPreferences(){
         for(String preferenceBody: uneditedPreferences){
             String paramName=extractScalarParam(preferenceBody);
@@ -227,6 +213,7 @@ public class Model implements ModelInterface {
             }*/
         return currentSource;
     }
+    @NonNull
     @Override
     public String getSourceCode () {
         return originalSource;

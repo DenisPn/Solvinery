@@ -45,7 +45,7 @@ public interface ModelInterface {
     Constraint getConstraint(String identifier);
 
     /**
-     * Retrieves an all constraints loaded in the model
+     * Retrieves all constraints loaded in the model
      * @return set of all constraints parsed from the model
      */
     Collection<Constraint> getConstraints();
@@ -57,7 +57,7 @@ public interface ModelInterface {
      */
     Preference getPreference(String identifier);
     /**
-     * Retrieves a all preferences loaded in the model
+     * Retrieves all preferences loaded in the model
      * @return set of all preferences parsed from the model
      */
     Collection<Preference> getModifiedPreferences();
@@ -74,9 +74,9 @@ public interface ModelInterface {
     Collection<Variable> getVariables(Collection<String> identifiers);
 
 
-    public Collection<ModelSet> getSets();
+    Collection<ModelSet> getSets();
 
-    public Collection<ModelParameter> getParameters();
+    Collection<ModelParameter> getParameters();
 
     String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String,Float> preferencesScalars);
 

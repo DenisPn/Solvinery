@@ -14,9 +14,7 @@ import groupId.DTO.Records.Image.ImageDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ModelDTO;
 import groupId.DTO.Records.Requests.Responses.*;
 import jakarta.validation.constraints.Min;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,9 +31,6 @@ import java.util.stream.Collectors;
 public class ImageService {
     private final static int PAGE_SIZE = 10;
 
-    @Value("${app.file.storage-dir}")
-    private String storageDir;
-
     private final ImageRepository imageRepository;
 
     private final UserService userService;
@@ -49,23 +44,6 @@ public class ImageService {
     }
 
 
-
-    /**
-     * @param code string of zimpl code.
-     * @return a new DTO of the new image
-     * @see ParseModelResponseDTO
-     */
-    @Deprecated(forRemoval = true)
-    public @Nullable ParseModelResponseDTO createImageFromCode(String code, String userId)  {
-        /*UserEntity user= userService.getUser(userId).orElseThrow(()-> new ClientSideError("User id not found"));
-        Image image = new Image(code);
-        ImageEntity imageEntity= EntityMapper.toEntity(user,image, null);
-        imageEntity = imageRepository.save(imageEntity);
-        Objects.requireNonNull(imageEntity,"ImageEntity from EntityMapper is null while creating new image");
-        UUID generatedId = imageEntity.getId();
-        return RecordFactory.makeDTO(generatedId, image.getModel());*/
-        return null;
-    }
     @NonNull
     @Transactional(readOnly = true)
     public ModelDTO parseImage(String code, @NonNull String userId)  {
@@ -76,7 +54,9 @@ public class ImageService {
     }
     /**
      * Given DTO object representing an image and an id, overrides the image with the associated ID with the image.
-     * @param imgConfig DTO object parsed from HTTP JSON request.
+     * @param imageDTO the DTO object representing the image to override
+     * @param imageId the id of the image to override
+     * @param userId the id of the user who owns the image to override
      */
     @Transactional
     public void overrideImage(@NonNull String userId, @NonNull String imageId, @NonNull ImageDTO imageDTO) {

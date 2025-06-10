@@ -22,37 +22,6 @@ public class ModelProxy implements ModelInterface{
     public ModelProxy(String code){
         this.code=code;
     }
-    /*private Model getModel(){
-        if(model==null) {
-            try {
-                // Get application directory
-                String appDir;
-                try {
-                    URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-                    appDir = new File(uri).getParent();
-                } catch (URISyntaxException e) {
-                    appDir = System.getProperty("/tmp"); // Fallback
-                }
-                if (appDir == null) {
-                    throw new ModelBuildException("Could not determine application directory.");
-                }
-
-                // Resolve the path relative to the JAR location
-                String storageDir = "User/Model";
-                Path storagePath = Paths.get(appDir, storageDir);
-                Files.createDirectories(storagePath);
-                Path filePath = storagePath.resolve(UUID.randomUUID() + ".zpl");
-                Files.writeString(filePath, code, StandardOpenOption.CREATE);
-                this.model = new Model(filePath.toAbsolutePath().toString());
-                return model;
-            } catch (IOException e) {
-                throw new ModelBuildException("I/O error while creating model: " + e.getMessage());
-            }
-        }
-        else {
-            return model;
-        }
-    }*/
 
     /**
      * Get the model, create a new instance (and in turn, parse the model) if it doesn't exist.
