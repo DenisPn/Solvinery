@@ -1,10 +1,10 @@
 {
+  "homepage": "https://DenisPn.github.io/Solvinery",
   "name": "solvinery",
   "version": "0.1.0",
   "description": "A React and Electron application",
   "author": "Your Name <your-email@example.com>",
   "main": "public/electron.js",
-  "homepage": "./",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
@@ -28,7 +28,9 @@
     "electron-build-win": "npm run build-win && electron-builder",
     "electron-build-win2": "electron-builder",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -62,12 +64,16 @@
       {
         "from": "resources",
         "to": "resources",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "installers",
         "to": "installers",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "directories": {
@@ -79,7 +85,9 @@
       "resources/**/*"
     ],
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
       "sign": false,
       "verifyUpdateCodeSignature": false,
       "extraFiles": [
@@ -92,17 +100,21 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "include": "installers/windows/installer.nsh", 
+      "include": "installers/windows/installer.nsh",
       "perMachine": true,
       "deleteAppDataOnUninstall": true
     },
     "linux": {
-      "target": ["deb"],
+      "target": [
+        "deb"
+      ],
       "extraFiles": [
         {
           "from": "installers/linux",
           "to": "installers",
-          "filter": ["**/*"]
+          "filter": [
+            "**/*"
+          ]
         }
       ],
       "category": "Utility"
@@ -119,15 +131,14 @@
         "libopenblas-dev",
         "patchelf"
       ],
-      "afterInstall":"installers/linux/postInstall.sh"
-      
+      "afterInstall": "installers/linux/postInstall.sh"
     }
-    
   },
   "proxy": "http://localhost:4000",
   "devDependencies": {
     "create-react-app": "^5.0.0",
     "electron": "^33.2.0",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^25.1.8",
+    "gh-pages": "^6.3.0"
   }
 }
