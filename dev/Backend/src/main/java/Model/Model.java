@@ -171,20 +171,32 @@ public class Model implements ModelInterface {
     }
 
     @Override
-    public String writeToSource(@NonNull Set<ModelSet> sets, @NonNull Set<ModelParameter> params, @NonNull Set<Constraint> disabledConstraints, @NonNull Map<String,Float> preferencesScalars) {
+    public String writeToSource(@NonNull Map<String,List<String>> sets, @NonNull Map<String,String> params, @NonNull Set<String> disabledConstraints, @NonNull Map<String,Float> preferencesScalars) {
         //set values in model
-        sets.forEach(set ->
+        sets.keySet().forEach(setName ->
         {
-            this.sets.get(set.getName()).setData(set.getData());
+            ModelSet set = this.sets.get(setName);
+            if(set == null)
+                throw new InvalidModelInputException("Set "+setName+" does not exist in model");
+            this.sets.get(set.getName()).setData(sets.get(setName));
             this.modifiedElements.add(set);
         });
-        params.forEach(param ->
+        params.keySet().forEach(paramName ->
         {
-            this.params.get(param.getName()).setData(param.getData());
+            ModelParameter param = this.params.get(paramName);
+            if(param == null)
+                throw new InvalidModelInputException("Parameter "+paramName+" does not exist in model");
+            this.params.get(param.getName()).setData(params.get(paramName));
             this.modifiedElements.add(param);
         });
-
-        this.modifiedElements.addAll(disabledConstraints);
+        disabledConstraints.forEach(constraintName ->
+        {
+            Constraint constraint = this.constraints.get(constraintName);
+            if(constraint == null)
+                throw new InvalidModelInputException("Constraint "+constraintName+" does not exist in model");
+            this.modifiedElements.add(constraint);
+        });
+        //this.modifiedElements.addAll(disabledConstraints);
 
         preferencesScalars.keySet().forEach(preference ->
         {

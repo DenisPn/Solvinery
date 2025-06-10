@@ -81,12 +81,12 @@ public class RecordFactory {
      */
     @NonNull
     public static ConstraintModuleDTO makeDTO (@NonNull ConstraintModule module) {
-        Set<String> constraints = new HashSet<>();
+        /*Set<String> constraints = new HashSet<>();
         for (Constraint constraint : module.getConstraints().values()) {
             constraints.add(constraint.getName());
-        }
+        }*/
         return new ConstraintModuleDTO(module.getName(), module.getDescription(),
-                constraints,module.isActive());
+                module.getConstraints(),module.isActive());
     }
 
     @NonNull
@@ -108,12 +108,8 @@ public class RecordFactory {
     @NonNull
     public static SetDTO makeDTO (@NonNull SetModule set) {
 
-        return new SetDTO(new SetDefinitionDTO(set.getSet().getName(), set.getSet().getDataType().typeList(), set.getAlias()),set.getSet().getData());
-    }
-    @NonNull
-    public static SetDefinitionDTO makeDTO (@NonNull ModelSet set) {
-
-        return new SetDefinitionDTO(set.getName(), set.getDataType().typeList(), null);
+        return new SetDTO(new SetDefinitionDTO(set.getOriginalName(), set.getOriginalTypes(), set.getName(),set.getTypes())
+                ,set.getData());
     }
 
     /**
@@ -123,7 +119,8 @@ public class RecordFactory {
      */
     @NonNull
     public static ParameterDTO makeDTO (@NonNull ParameterModule parameter) {
-        return new ParameterDTO(new ParameterDefinitionDTO(parameter.getParameter().getName(), parameter.getParameter().getDataType().toString(), parameter.getAlias()),parameter.getParameter().getData());
+        return new ParameterDTO(new ParameterDefinitionDTO(parameter.getOriginalName(), parameter.getTypeString(), parameter.getName()),
+                parameter.getData());
     }
     @NonNull
     public static ParameterDefinitionDTO makeDTO (@NonNull ModelParameter parameter) {

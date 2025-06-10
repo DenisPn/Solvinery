@@ -12,7 +12,7 @@ public class ModelSet extends DataElement {
 
     private @Nullable List<String> data;
     private final boolean isPrimitive;
-    public ModelSet (String name, ModelType type, List<String> data) {
+    public ModelSet (@NonNull String name,@NonNull ModelType type, @Nullable List<String> data) {
         super(name,type);
         this.data = data;
         isPrimitive=true;

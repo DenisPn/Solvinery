@@ -111,7 +111,7 @@ public class Image {
         for (SetDTO setDTO: imageDTO.sets()){
             ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
             //modelSet.setData(setDTO.values());
-            activeSets.add(new SetModule(modelSet,setDTO.setDefinition().alias()));
+            activeSets.add(new SetModule(modelSet,setDTO.setDefinition().alias(),setDTO.setDefinition().typeAlias()));
             //model.setInput(modelSet);
         }
         for (ParameterDTO parameterDTO: imageDTO.parameters()){
@@ -229,9 +229,9 @@ public class Image {
         }
     }
     public String getModifiedZimplCode(){
-        Set<Constraint> inactiveConstraints = this.constraintsModules.values().stream()
+        Set<String> inactiveConstraints = this.constraintsModules.values().stream()
                 .filter(constraintModule -> !constraintModule.isActive())
-                .flatMap(module -> module.getConstraints().values().stream())
+                .flatMap(module -> module.getConstraints().stream())
                 .collect(Collectors.toSet());
         Map<String, Float> preferencesToScalars = this.preferenceModules.values().stream()
                 .flatMap(module -> module.getPreferences().values().stream()
@@ -240,8 +240,10 @@ public class Image {
                         Map.Entry::getKey,
                         Map.Entry::getValue
                 ));
-        Set<ModelSet> sets= this.activeSets.stream().map(SetModule::getSet).collect(Collectors.toSet());
-        Set<ModelParameter> params= this.activeParams.stream().map(ParameterModule::getParameter).collect(Collectors.toSet());
+        Map<String, List<String>> sets = this.activeSets.stream()
+                .collect(Collectors.toMap(SetModule::getName, SetModule::getData));
+        Map<String, String> params = this.activeParams.stream()
+                .collect(Collectors.toMap(ParameterModule::getName, ParameterModule::getData));
         return model.writeToSource(sets,params,inactiveConstraints,preferencesToScalars);
     }
 

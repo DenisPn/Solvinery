@@ -86,8 +86,8 @@ public class EntityMapper {
     }
     @NonNull
     public static SetEntity toEntity(@NonNull SetModule set, UUID imageId){
-        ImageComponentKey key= new ImageComponentKey(imageId,set.getSet().getName());
-        return new SetEntity(key,toEntity(set.getSet().getDataType()),set.getSet().getData(), set.getAlias());
+        ImageComponentKey key= new ImageComponentKey(imageId,set.getOriginalName());
+        return new SetEntity(key,set.getTypeString(),set.getData(), set.getName());
     }
     @NonNull
     public static SetModule toDomain(@NonNull SetEntity entity){
@@ -96,7 +96,7 @@ public class EntityMapper {
     }
     @NonNull
     public static ParameterEntity toEntity(@NonNull ParameterModule parameter, UUID imageId){
-        return new ParameterEntity(imageId, parameter.getParameter().getName(), parameter.getParameter().getDataType().toString(), parameter.getParameter().getData(), parameter.getAlias());
+        return new ParameterEntity(imageId, parameter.getOriginalName(), parameter.getTypeString(), parameter.getData(), parameter.getName());
     }
     @NonNull
     public static ParameterModule toDomain(@NonNull ParameterEntity entity){
@@ -209,7 +209,8 @@ public class EntityMapper {
     }
     @NonNull
     public static ConstraintModuleEntity toEntity(@NonNull ConstraintModule module, UUID imageId){
-        return new ConstraintModuleEntity(imageId, module.getName(), module.getDescription(), toConstraintsEntities(module.getConstraints().values()));
+        return new ConstraintModuleEntity(imageId, module.getName(), module.getDescription(),
+                module.getConstraints().stream().map(ConstraintEntity::new).collect(Collectors.toSet()));
     }
     @NonNull
     public static ConstraintModule toDomain(@NonNull ConstraintModuleEntity entity){

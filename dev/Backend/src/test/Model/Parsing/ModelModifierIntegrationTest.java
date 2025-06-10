@@ -1,5 +1,7 @@
 package Model.Parsing;
 
+import Image.Modules.Single.ParameterModule;
+import Image.Modules.Single.SetModule;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
@@ -20,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,7 +64,14 @@ public class ModelModifierIntegrationTest {
         Model testModel= new Model(input.zplCode);
         verifyModelPreconditions(testModel,input);
         //When
-        String output= testModel.writeToSource(input.sets,input.parameters,input.constraints,input.preferenceScalars);
+        //Band-Aid with streams since changing all the cases from objects to strings is way too much work
+        String output= testModel.writeToSource(
+                input.sets.stream()
+                        .collect(Collectors.toMap(ModelSet::getName, ModelSet::getData)),
+                input.parameters.stream()
+                .collect(Collectors.toMap(ModelParameter::getName, ModelParameter::getData)),
+                input.constraints.stream().map(Constraint::getName).collect(Collectors.toSet()),
+                input.preferenceScalars);
         Model editedModel= new Model(output);
         //Then
         verifyModelPostconditions(editedModel,input);
@@ -77,9 +87,9 @@ public class ModelModifierIntegrationTest {
     private static Stream<TestInput> testCaseStream(){
 
         try {
-            Path path = Paths.get("src/test/Utilities/ZimplExamples/ExampleZimplProgram.zpl");
+            Path path = Paths.get("src/test/Utilities/ZimplExamples/Problems/ExampleZimplProgram.zpl");
             String SoldiersExampleCode = Files.readString(path);
-            path = Paths.get("src/test/Utilities/ZimplExamples/BasicZimplProgram.zpl");
+            path = Paths.get("src/test/Utilities/ZimplExamples/Problems/BasicZimplProgram.zpl");
             String BasicExampleCode = Files.readString(path);
             return Stream.of(
                     new TestInput( //1

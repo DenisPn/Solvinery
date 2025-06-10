@@ -8,6 +8,7 @@ import Model.Data.Elements.Variable;
 import org.springframework.lang.NonNull;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -96,7 +97,7 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
-    public String writeToSource(@NonNull Set<ModelSet> sets, @NonNull Set<ModelParameter> params, @NonNull Set<Constraint> disabledConstraints, @NonNull Map<String, Float> preferencesScalars) {
+    public String writeToSource(@NonNull Map<String, List<String>> sets, @NonNull Map<String,String> params, @NonNull Set<String> disabledConstraints, @NonNull Map<String, Float> preferencesScalars) {
         return getModel().writeToSource(sets,params,disabledConstraints,preferencesScalars);
     }
 }

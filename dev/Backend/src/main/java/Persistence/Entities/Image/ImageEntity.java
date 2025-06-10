@@ -56,7 +56,7 @@ public class ImageEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private @NonNull UserEntity user;
+    private @Nullable UserEntity user;
 
    /* @Lob
     @Column(name = "image_zpl_code", nullable = false,
@@ -81,7 +81,7 @@ public class ImageEntity {
         this.name = "";
         this.description = "";
         this.creationDate = LocalDateTime.now();
-        this.user = new UserEntity();
+        this.user = null;
     }
     public ImageEntity (@NonNull UserEntity user) {
         this.activeSets = new HashSet<>();
@@ -153,7 +153,10 @@ public class ImageEntity {
 
     @NonNull
     public UserEntity getUser() {
-        return user;
+        if(user == null)
+            throw new IllegalStateException("Tried to get User from ImageEntity with null user\n" +
+                    "Can happen with an ImageEntity that was made to generate an ID");
+        else return user;
     }
 
     /*public String getZimplCode () {
@@ -277,14 +280,12 @@ public class ImageEntity {
         return Objects.equals(id, that.id)
                 && Objects.equals(name, that.name)
                 && Objects.equals(description, that.description)
-                //&& Objects.equals(creationDate, that.creationDate)
                 && Objects.equals(activeSets, that.activeSets)
                 && Objects.equals(activeParams, that.activeParams)
                 && Objects.equals(variables, that.variables)
                 && Objects.equals(constraintModules, that.constraintModules)
                 && Objects.equals(preferenceModules, that.preferenceModules)
                 && Objects.equals(user, that.user)
-                //&& Objects.equals(zimplCode, that.zimplCode)
                 && Objects.equals(original_code, that.original_code);
     }
 

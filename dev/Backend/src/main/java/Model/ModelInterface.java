@@ -6,8 +6,10 @@ import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -78,6 +80,7 @@ public interface ModelInterface {
 
     Collection<ModelParameter> getParameters();
 
-    String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String,Float> preferencesScalars);
+    //String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String,Float> preferencesScalars);
+    String writeToSource(@NonNull Map<String, List<String>> sets, @NonNull Map<String,String> params, Set<String> disabledConstraints, Map<String,Float> preferencesScalars);
 
 }

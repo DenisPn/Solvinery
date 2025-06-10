@@ -7,6 +7,8 @@ import org.springframework.lang.NonNull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+
 /**
  * a constraint module, holding the user definition for a group of model constraints
  * (a group of subTo expressions in zimpl code)
@@ -38,10 +40,13 @@ public class ConstraintModule extends OperationalModule {
         if(active==null) this.active=DEFAULT_STATE;
         else this.active=active;
     }
+    /*@Deprecated(forRemoval = true)
     public @NonNull Map<String, Constraint> getConstraints() {
         return constraints;
+    }*/
+    public Set<String> getConstraints(){
+        return constraints.keySet();
     }
-
     public void addConstraint(@NonNull Constraint constraint){
         constraints.put(constraint.getName(),constraint);
     }
