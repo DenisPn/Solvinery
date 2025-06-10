@@ -33,7 +33,7 @@ public class ConstraintModule extends OperationalModule {
         for (Constraint constraint : constraints) {
             this.constraints.put(constraint.getName(), constraint);
         }
-        if(active==null) this.active=true;
+        if(active==null) this.active=false;
         else this.active=active;
     }
     public Map<String, Constraint> getConstraints() {

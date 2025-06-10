@@ -1,27 +1,36 @@
 package Image.Modules.Single;
 
 import Model.Data.Elements.Data.ModelSet;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
+
 
 public class SetModule {
+    @NotNull
     private final ModelSet set;
+
+    @NotNull
     private  String alias;
 
-    public SetModule (ModelSet set, String alias) {
+    public SetModule (@NotNull ModelSet set,@Nullable String alias) {
         this.set = set;
-        this.alias = alias;
+        if(alias==null) this.alias=set.getName();
+        else this.alias = alias;
     }
 
-    public SetModule (ModelSet set) {
+    @SuppressWarnings("unused")
+    public SetModule (@NotNull ModelSet set) {
         this.set = set;
         alias = set.getName();
     }
-    public ModelSet getSet() {
+    public @NotNull ModelSet getSet() {
         return set;
     }
-    public String getAlias() {
+
+    public @NotNull String getAlias() {
         return alias;
     }
-    public void setAlias(String alias) {
+    public void setAlias(@NotNull String alias) {
         this.alias = alias;
     }
 }

@@ -1,6 +1,7 @@
 package Model;
 
 import Exceptions.InternalErrors.ModelExceptions.InvalidModelInputException;
+import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Element;
