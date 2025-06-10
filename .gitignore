@@ -1,0 +1,10 @@
+.vscode
+.devcontainer
+User/Models
+./.idea/*
+./.idea/
+.idea/*
+idea/
+Distribution
+/dev/Backend/src/test/Utilities/ZimplExamples/ExampleZimplProgram.zplSOLUTION
+/dev/Backend/src/test/Utilities/HttpRequests/http-client.private.env.json
