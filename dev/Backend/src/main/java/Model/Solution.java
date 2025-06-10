@@ -96,11 +96,11 @@ public class Solution {
     }
     public void postProcessSolution(@NonNull Image image){
         for (VariableModule variable : image.getActiveVariables()) {
-            variableStructure.put(variable.getAlias(), variable.getVariable().getBasicSets());
-            variableTypes.put(variable.getAlias(),variable.getVariable().getTypeStructure());
-            if(rawVariableSolution.containsKey(variable.getVariable().getName())) {
-                variableSolution.put(variable.getAlias(), rawVariableSolution.get(variable.getVariable().getName()));
-                rawVariableSolution.remove(variable.getVariable().getName());
+            //variableStructure.put(variable.getAlias(), variable.getVariable().getBasicSets());
+            variableTypes.put(variable.getAlias(),variable.getTypeStructureAlias());
+            if(rawVariableSolution.containsKey(variable.getOriginalName())) {
+                variableSolution.put(variable.getAlias(), rawVariableSolution.get(variable.getOriginalName()));
+                rawVariableSolution.remove(variable.getOriginalName());
             }
         }
         if(!rawVariableSolution.isEmpty()){

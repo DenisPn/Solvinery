@@ -8,16 +8,17 @@ import java.util.Objects;
 
 public class Variable extends Element {
     private final List<String> typeStructure;
-    private final List<String> basicSets;
-
+    @Deprecated(forRemoval = true)
+    private List<String> basicSets;
+    @Deprecated(forRemoval = true)
     public Variable (String name, List<String> typeStructure, List<String> basicSets) {
         super(name);
         this.typeStructure = typeStructure;
         this.basicSets = basicSets;
     }
-
-    public List<String> getBasicSets() {
-        return basicSets;
+    public Variable (String name, List<String> typeStructure) {
+        super(name);
+        this.typeStructure = typeStructure;
     }
 
     public List<String> getTypeStructure() {
@@ -29,8 +30,7 @@ public class Variable extends Element {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Variable variable = (Variable) o;
-        return Objects.equals(typeStructure, variable.typeStructure) &&
-                Objects.equals(basicSets, variable.basicSets);
+        return Objects.equals(typeStructure, variable.typeStructure);
     }
 
     @NonNull
@@ -41,6 +41,6 @@ public class Variable extends Element {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), typeStructure, basicSets);
+        return Objects.hash(super.hashCode(), typeStructure);
     }
 }

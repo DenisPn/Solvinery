@@ -62,9 +62,9 @@ class ImageEntityTest {
         SetEntity set = new SetEntity(imageId, "setName", "s-type", setData, "s-alias");
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
-        List<String> basicSets= new ArrayList<>();
-        basicSets.add("set1"); basicSets.add("set2");
-        VariableEntity var = new VariableEntity(imageId, "varName",structure,basicSets, "v-alias");
+        List<String> typeAliases= new ArrayList<>();
+        typeAliases.add("alias1"); typeAliases.add("alias2");
+        VariableEntity var = new VariableEntity(imageId, "varName",structure, "v-alias",typeAliases);
         ConstraintEntity constraint = new ConstraintEntity("constraint");
         PreferenceEntity preference = new PreferenceEntity("preference");
         HashSet<SetEntity> sets= new HashSet<>();
@@ -153,14 +153,12 @@ class ImageEntityTest {
         structure.add("structure1"); structure.add("structure2");
         List<String> structure1= new ArrayList<>();
         structure1.add("structure1"); structure1.add("structure2");
-        List<String> basicSets= new ArrayList<>();
-        basicSets.add("set1"); basicSets.add("set2");
         UUID imageId = UUID.randomUUID();
         ImageEntity entity1 = new ImageEntity();
-        entity1.addVariable(new VariableEntity(imageId, "varName",structure,basicSets, "varAlias") );
+        entity1.addVariable(new VariableEntity(imageId, "varName",structure, "varAlias") );
 
         ImageEntity entity2 = new ImageEntity();
-        entity2.addVariable(new VariableEntity(imageId, "varName",structure1,basicSets,"varAlias") );
+        entity2.addVariable(new VariableEntity(imageId, "varName",structure1,"varAlias") );
 
         // Act & Assert
         assertEquals(entity1, entity2);
@@ -174,14 +172,12 @@ class ImageEntityTest {
         structure.add("structure1"); structure.add("structure2");
         List<String> structure1= new ArrayList<>();
         structure1.add("structure1"); structure1.add("structure2");
-        List<String> basicSets= new ArrayList<>();
-        basicSets.add("set1"); basicSets.add("set2");
         UUID imageId = UUID.randomUUID();
         ImageEntity entity1 = new ImageEntity();
-        entity1.addVariable(new VariableEntity(imageId, "varName1",structure,basicSets, "varAlias1") );
+        entity1.addVariable(new VariableEntity(imageId, "varName1",structure, "varAlias1") );
 
         ImageEntity entity2 = new ImageEntity();
-        entity2.addVariable(new VariableEntity(imageId, "varName2",structure1, basicSets,"varAlias2") );
+        entity2.addVariable(new VariableEntity(imageId, "varName2",structure1,"varAlias2") );
 
         // Act & Assert
         assertNotEquals(entity1, entity2);

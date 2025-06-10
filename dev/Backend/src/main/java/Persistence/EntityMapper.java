@@ -17,6 +17,7 @@ import Model.Data.Types.Tuple;
 import Persistence.Entities.Image.Data.ParameterEntity;
 import Persistence.Entities.Image.Data.SetEntity;
 import Persistence.Entities.Image.Data.VariableEntity;
+import Persistence.Entities.Image.Data.VariableTypeAliasPair;
 import Persistence.Entities.Image.ImageComponentKey;
 import Persistence.Entities.Image.ImageEntity;
 import Persistence.Entities.Image.Operational.ConstraintEntity;
@@ -87,7 +88,7 @@ public class EntityMapper {
     @NonNull
     public static SetEntity toEntity(@NonNull SetModule set, UUID imageId){
         ImageComponentKey key= new ImageComponentKey(imageId,set.getOriginalName());
-        return new SetEntity(key,set.getTypeString(),set.getData(), set.getName());
+        return new SetEntity(key,set.getTypeString(),set.getData(), set.getAlias());
     }
     @NonNull
     public static SetModule toDomain(@NonNull SetEntity entity){
@@ -96,7 +97,7 @@ public class EntityMapper {
     }
     @NonNull
     public static ParameterEntity toEntity(@NonNull ParameterModule parameter, UUID imageId){
-        return new ParameterEntity(imageId, parameter.getOriginalName(), parameter.getTypeString(), parameter.getData(), parameter.getName());
+        return new ParameterEntity(imageId, parameter.getOriginalName(), parameter.getTypeString(), parameter.getData(), parameter.getAlias());
     }
     @NonNull
     public static ParameterModule toDomain(@NonNull ParameterEntity entity){
@@ -226,11 +227,14 @@ public class EntityMapper {
     }
     @NonNull
     public static VariableModule toDomain(@NonNull VariableEntity entity){
-        return new VariableModule(new Variable(entity.getName(),entity.getStructure(),entity.getSetStructure()),entity.getAlias());
+        List<String> typeStructure = entity.getTypeStructure().stream().map(VariableTypeAliasPair::type).toList();
+        List<String> typeStructureAlias = entity.getTypeStructure().stream().map(VariableTypeAliasPair::alias).toList();
+
+        return new VariableModule(new Variable(entity.getName(),typeStructure),entity.getAlias(),typeStructureAlias);
     }
     @NonNull
     public static VariableEntity toEntity(@NonNull VariableModule variable, UUID imageId){
-        return new VariableEntity(imageId,variable.getVariable().getName(),variable.getVariable().getTypeStructure(),variable.getVariable().getBasicSets(),variable.getAlias());
+        return new VariableEntity(imageId,variable.getOriginalName(),variable.getOriginalTypeStructure(),variable.getAlias(),variable.getTypeStructureAlias());
     }
     @NonNull
     public static Image toDomain(@NonNull ImageEntity imageEntity){
@@ -295,10 +299,9 @@ public class EntityMapper {
                         .map(var -> new VariableEntity(
                                 imageId,
                                 var.getName(),
-                                var.getStructure(),
-                                var.getSetStructure(),
-                                var.getAlias()
-                        ))
+                                var.getAlias(),
+                                var.getTypeStructure()
+                                ))
                         .collect(Collectors.toSet()),
                 imageEntity.getActiveParams().stream()
                         .map(param -> new ParameterEntity(
@@ -347,9 +350,8 @@ public class EntityMapper {
                             .map(var -> new VariableEntity(
                                     imageId,
                                     var.getName(),
-                                    var.getStructure(),
-                                    var.getSetStructure(),
-                                    var.getAlias()
+                                    var.getAlias(),
+                                    var.getTypeStructure()
                             ))
                             .collect(Collectors.toSet()),
                     toCopy.getActiveParams().stream()
@@ -399,9 +401,8 @@ public class EntityMapper {
                         .map(var -> new VariableEntity(
                                 imageId,
                                 var.getName(),
-                                var.getStructure(),
-                                var.getSetStructure(),
-                                var.getAlias()
+                                var.getAlias(),
+                                var.getTypeStructure()
                         ))
                         .collect(Collectors.toSet()),
                 toCopy.getActiveParams().stream()

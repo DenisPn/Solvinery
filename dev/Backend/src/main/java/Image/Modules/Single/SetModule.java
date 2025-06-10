@@ -62,15 +62,11 @@ public class SetModule {
     public @NonNull ModelSet getSet() {
         return set;
     }
-    public @NotNull String getName() {
+    public @NotNull String getAlias() {
         return alias;
     }
     public List<String> getData() {
         return set.getData();
-    }
-    @Deprecated(forRemoval = true)
-    public @NonNull String getAlias() {
-        return alias;
     }
     public void setAlias(@NonNull String alias) {
         this.alias = alias;

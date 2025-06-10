@@ -90,9 +90,9 @@ public class EntityMapperTest {
         List<String> structure = new ArrayList<>();
         structure.add("structure1");
         structure.add("structure2");
-        List<String> basicSets= new ArrayList<>();
-        basicSets.add("set1"); basicSets.add("set2");
-        VariableModule var = new VariableModule(new Variable("varName", structure,basicSets), "v-alias");
+        List<String> typeAliases= new ArrayList<>();
+        typeAliases.add("alias1"); typeAliases.add("alias2");
+        VariableModule var = new VariableModule(new Variable("varName", structure), "v-alias",typeAliases);
         Constraint constraint = new Constraint("constraint");
         Preference preference = new Preference("preference");
 
@@ -141,9 +141,9 @@ public class EntityMapperTest {
         SetEntity set = new SetEntity(imageId, "setName", "INT", setData, "s-alias");
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
-        List<String> basicSets= new ArrayList<>();
-        basicSets.add("set1"); basicSets.add("set2");
-        VariableEntity var = new VariableEntity(imageId, "varName",structure,basicSets, "v-alias");
+        List<String> typeAliases= new ArrayList<>();
+        typeAliases.add("alias1"); typeAliases.add("alias2");
+        VariableEntity var = new VariableEntity(imageId, "varName",structure, "v-alias",typeAliases);
         ConstraintEntity constraint = new ConstraintEntity("constraint");
         PreferenceEntity preference = new PreferenceEntity("preference");
         HashSet<SetEntity> sets= new HashSet<>();

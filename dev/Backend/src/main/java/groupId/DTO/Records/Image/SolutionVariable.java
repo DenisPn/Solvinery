@@ -13,6 +13,7 @@ import java.util.Set;
  * @param solutions a set of the variable's values.
  * @see SolutionValueDTO
  */
-public record SolutionVariable(@Valid @NotNull List<@NotNull String> setStructure,@Valid @NotNull List<@NotNull String> typeStructure,
+public record SolutionVariable(//@Valid @NotNull List<@NotNull String> setStructure,
+                               @Valid @NotNull List<@NotNull String> typeStructure,
                                @Valid @NotNull Set<@Valid @NotNull SolutionValueDTO> solutions) {
 }

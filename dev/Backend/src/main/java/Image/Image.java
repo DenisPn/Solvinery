@@ -241,9 +241,9 @@ public class Image {
                         Map.Entry::getValue
                 ));
         Map<String, List<String>> sets = this.activeSets.stream()
-                .collect(Collectors.toMap(SetModule::getName, SetModule::getData));
+                .collect(Collectors.toMap(SetModule::getAlias, SetModule::getData));
         Map<String, String> params = this.activeParams.stream()
-                .collect(Collectors.toMap(ParameterModule::getName, ParameterModule::getData));
+                .collect(Collectors.toMap(ParameterModule::getAlias, ParameterModule::getData));
         return model.writeToSource(sets,params,inactiveConstraints,preferencesToScalars);
     }
 

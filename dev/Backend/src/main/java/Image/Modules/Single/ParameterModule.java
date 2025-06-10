@@ -23,7 +23,7 @@ public class ParameterModule {
         parameter = param;
         alias = param.getName();
     }
-    public @NotNull String getName () {
+    public @NotNull String getAlias() {
         return alias;
     }
     @NonNull
@@ -41,10 +41,6 @@ public class ParameterModule {
     @Deprecated(forRemoval = true)
     public @NotNull ModelParameter getParameter () {
         return parameter;
-    }
-    @Deprecated(forRemoval = true)
-    public @NotNull String getAlias() {
-        return alias;
     }
 
     public void setAlias (@NotNull String alias) {

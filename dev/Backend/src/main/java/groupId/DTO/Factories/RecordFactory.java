@@ -45,11 +45,13 @@ public class RecordFactory {
         for (String variableName : solution.getActiveVariables()) {
             Set<SolutionValueDTO> variableValues = new HashSet<>();
             List<String> variableStructure = List.copyOf(solution.getVariableStructure(variableName));
+/*
             List<String> variableTypes = List.copyOf(solution.getVariableTypes(variableName));
+*/
             for (Solution.VariableSolution variableSolution: solution.getVariableSolution(variableName)) {
                 variableValues.add(new SolutionValueDTO(variableSolution.solution(), variableSolution.objectiveValue()));
             }
-            variables.put(variableName, new SolutionVariable(variableStructure, variableTypes, variableValues));
+            variables.put(variableName, new SolutionVariable(variableStructure, /*variableTypes,*/ variableValues));
         }
         return new SolutionDTO(solved, solvingTime, objectiveValue, variables);
     }
@@ -108,7 +110,7 @@ public class RecordFactory {
     @NonNull
     public static SetDTO makeDTO (@NonNull SetModule set) {
 
-        return new SetDTO(new SetDefinitionDTO(set.getOriginalName(), set.getOriginalTypes(), set.getName(),set.getTypes())
+        return new SetDTO(new SetDefinitionDTO(set.getOriginalName(), set.getOriginalTypes(), set.getAlias(),set.getTypes())
                 ,set.getData());
     }
 
@@ -119,7 +121,7 @@ public class RecordFactory {
      */
     @NonNull
     public static ParameterDTO makeDTO (@NonNull ParameterModule parameter) {
-        return new ParameterDTO(new ParameterDefinitionDTO(parameter.getOriginalName(), parameter.getTypeString(), parameter.getName()),
+        return new ParameterDTO(new ParameterDefinitionDTO(parameter.getOriginalName(), parameter.getTypeString(), parameter.getAlias()),
                 parameter.getData());
     }
     @NonNull
@@ -135,7 +137,7 @@ public class RecordFactory {
      */
     @NonNull
     private static VariableDTO makeDTO (@NonNull VariableModule variable) {
-        return new VariableDTO(variable.getVariable().getName(), variable.getVariable().getTypeStructure(), variable.getAlias());
+        return new VariableDTO(variable.getOriginalName(), variable.getTypeStructureAlias(), variable.getAlias());
     }
 
     @NonNull
