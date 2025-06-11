@@ -1,375 +1,177 @@
-import React, { useState } from "react";
-import { useZPL } from "../context/ZPLContext";
-import "./SolutionResultsPage.css";
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useZPL } from '../context/ZPLContext';
+import './SolutionResultsPage.css';
 
-const SolutionResultsPage = () => {
+export default function SolutionResultsPage() {
   const { solutionResponse } = useZPL();
-  const [selectedVariable, setSelectedVariable] = useState(
-    Object.keys(solutionResponse?.solution || {})[0]
-  );
+  const solutionMap = solutionResponse?.solution || {};
 
-  if (!solutionResponse || !solutionResponse.solution) {
-    return <p className="background">No solution data available.</p>;
-  }
+  const variableNames = Object.keys(solutionMap);
+  const [selectedVar, setSelectedVar] = useState('');
+  const [viewMode, setViewMode] = useState(0); // 0 = table, 1 = pivot
+  const [showConfig, setShowConfig] = useState(false);
 
-  const handleVariableChange = (event) => {
-    setSelectedVariable(event.target.value);
-  };
+  // Auto‐select first variable
+  useEffect(() => {
+    if (variableNames.length > 0 && !selectedVar) {
+      setSelectedVar(variableNames[0]);
+    }
+  }, [variableNames, selectedVar]);
 
-  const variableData = solutionResponse.solution[selectedVariable];
-  const { setStructure, solutions } = variableData;
+  const varData = solutionMap[selectedVar] || { solutions: [], typeStructure: [] };
+  const solutionsArray = Array.from(varData.solutions || []);
+  const columnTypes = varData.typeStructure || [];
+  const showObjective = solutionsArray.some(sol => sol.objectiveValue !== 1);
 
-  console.log(solutionResponse);
+  // Pivot mapping
+  const [mapping, setMapping] = useState({ rowIndex: 0, colIndex: 1, cellIndex: 2 });
+  const order = ['rowIndex', 'colIndex', 'cellIndex'];
 
-  // Check if all objective values are binary (0 or 1)
-  const isBinary = solutions.every(
-    (sol) => sol.objectiveValue === 0 || sol.objectiveValue === 1
-  );
-
-  const renderRecursiveTable = (dimensions, remainingSolutions) => {
-    if (dimensions.length === 2) {
-      return (
-        <div className="background">
-        <table className="solution-table">
-          <thead>
-            <tr>
-              <th>{dimensions[1]} \ {dimensions[0]}</th>
-              {[...new Set(remainingSolutions.map((sol) => sol.values[1]))].map(
-                (col, index) => (
-                  <th key={index}>{col}</th>
-                )
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {[...new Set(remainingSolutions.map((sol) => sol.values[0]))].map(
-              (row, rowIndex) => (
-                <tr key={rowIndex}>
-                  <td className="row-header">{row}</td>
-                  {[...new Set(remainingSolutions.map((sol) => sol.values[1]))].map(
-                    (col, colIndex) => {
-                      const match = remainingSolutions.find(
-                        (sol) => sol.values[0] === row && sol.values[1] === col
-                      );
-                      return (
-                        <td key={colIndex}>
-                          {match ? (
-                            isBinary ? (
-                              <span
-                                className={`binary-value ${
-                                  match.objectiveValue === 1 ? "v" : "x"
-                                }`}
-                              >
-                                {match.objectiveValue === 1 ? "✔" : "✖"}
-                              </span>
-                            ) : (
-                              match.objectiveValue
-                            )
-                          ) : (
-                            <span className="binary-value x">✖</span>
-                          )}
-                        </td>
-                      );
-                    }
-                  )}
-                </tr>
-              )
-            )}
-          </tbody>
-        </table>
-        </div>
-      );
-    } else if (dimensions.length === 3) {
-      return (
-        <div className="background">
-        <table className="solution-table">
-          <thead>
-            <tr>
-              <th>{dimensions[2]} \ {dimensions[1]}</th>
-              {[...new Set(remainingSolutions.map((sol) => sol.values[2]))].map(
-                (col, index) => (
-                  <th key={index}>{col}</th>
-                )
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {[...new Set(remainingSolutions.map((sol) => sol.values[1]))].map(
-              (row, rowIndex) => (
-                <tr key={rowIndex}>
-                  <td className="row-header">{row}</td>
-                  {[...new Set(remainingSolutions.map((sol) => sol.values[2]))].map(
-                    (col, colIndex) => {
-                      const relevantPeople = remainingSolutions.filter(
-                        (sol) => sol.values[1] === row && sol.values[2] === col
-                      );
-                      return (
-                        <td key={colIndex}>
-                          <table className="mini-table">
-                            <thead>
-                              <tr>
-                                {relevantPeople.map((sol, pIndex) => (
-                                  <th key={pIndex}>{sol.values[0]}</th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                {relevantPeople.map((sol, pIndex) => (
-                                  <td key={colIndex}>
-                                    {sol ? (
-                                      isBinary ? (
-                                        <span
-                                          className={`binary-value ${
-                                            sol.objectiveValue === 1
-                                              ? "v"
-                                              : "x"
-                                          }`}
-                                        >
-                                          {sol.objectiveValue === 1
-                                            ? "✔"
-                                            : "✖"}
-                                        </span>
-                                      ) : (
-                                        sol.objectiveValue
-                                      )
-                                    ) : (
-                                      <span className="binary-value x">✖</span>
-                                    )}
-                                  </td>
-                                ))}
-                              </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      );
-                    }
-                  )}
-                </tr>
-              )
-            )}
-          </tbody>
-        </table>
-        </div>
-      );
-    } else {
-      // Recursive case
-      const [currentRow, currentCol, ...remainingDims] = dimensions;
-
-      return (
-        <div className="background">
-        <table className="solution-table">
-          <thead>
-            <tr>
-              <th>{currentCol} \ {currentRow}</th>
-              {[...new Set(remainingSolutions.map((sol) => sol.values[dimensions.indexOf(currentCol)]))].map(
-                (col, index) => (
-                  <th key={index}>{col}</th>
-                )
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {[...new Set(remainingSolutions.map((sol) => sol.values[dimensions.indexOf(currentRow)]))].map(
-              (row, rowIndex) => (
-                <tr key={rowIndex}>
-                  <td className="row-header">{row}</td>
-                  {[...new Set(remainingSolutions.map((sol) => sol.values[dimensions.indexOf(currentCol)]))].map(
-                    (col, colIndex) => {
-                      const filteredSolutions = remainingSolutions.filter(
-                        (sol) =>
-                          sol.values[dimensions.indexOf(currentRow)] === row &&
-                          sol.values[dimensions.indexOf(currentCol)] === col
-                      );
-
-                      return (
-                        <td key={colIndex}>
-                          {renderRecursiveTable(remainingDims, filteredSolutions)}
-                        </td>
-                      );
-                    }
-                  )}
-                </tr>
-              )
-            )}
-          </tbody>
-        </table>
-        </div>
-      );
+  const moveUp = key => {
+    const idx = order.indexOf(key);
+    if (idx > 0) {
+      const prev = order[idx - 1];
+      setMapping(m => ({ ...m, [key]: m[prev], [prev]: m[key] }));
     }
   };
 
+  const moveDown = key => {
+    const idx = order.indexOf(key);
+    if (idx < order.length - 1) {
+      const next = order[idx + 1];
+      setMapping(m => ({ ...m, [key]: m[next], [next]: m[key] }));
+    }
+  };
+
+  // Build pivot data
+  const rows = [];
+  const cols = [];
+  const cellMap = {};
+  if (columnTypes.length === 3 && viewMode === 1) {
+    solutionsArray.forEach(sol => {
+      const r = sol.values[mapping.rowIndex];
+      const c = sol.values[mapping.colIndex];
+      const v = sol.values[mapping.cellIndex];
+      if (!rows.includes(r)) rows.push(r);
+      if (!cols.includes(c)) cols.push(c);
+      cellMap[`${r}__${c}`] = v;
+    });
+    if (columnTypes[mapping.rowIndex] === 'INT') rows.sort((a, b) => Number(a) - Number(b));
+    if (columnTypes[mapping.colIndex] === 'INT') cols.sort((a, b) => Number(a) - Number(b));
+  }
+
+  const publicUrl = process.env.PUBLIC_URL;
+
   return (
-    <div className="solution-results-page background">
-      <h1 className="page-title">Solution Results</h1>
+    <div className="solution-container">
+      <div className="top-controls">
+        <Link
+          to="/"
+          className="nav-btn home-btn"
+          style={{ backgroundImage: `url(${publicUrl}/Images/HomeButton.png)` }}
+          title="Home"
+        />
+        <Link
+          to="/my-images"
+          className="nav-btn images-btn"
+          style={{ backgroundImage: `url(${publicUrl}/Images/ExitButton2.png)` }}
+          title="My Images"
+        />
 
-      {/* Dropdown to Select Variable */}
-      <div className="solution-dropdown-container">
-        <div className="solution-dropdown">
-          <label>Select Variable: </label>
+        <label htmlFor="var-select" className="var-label">Variable:</label>
+        <select
+          id="var-select"
+          className="var-select"
+          value={selectedVar}
+          onChange={e => setSelectedVar(e.target.value)}
+        >
+          {variableNames.map(n => (
+            <option key={n} value={n}>{n}</option>
+          ))}
+        </select>
 
-          <select onChange={handleVariableChange} value={selectedVariable}>
-            {Object.keys(solutionResponse.solution).map((variable) => (
-              <option key={variable} value={variable}>
-                {variable}
-              </option>
-            ))}
-          </select>
-        </div>
+        {columnTypes.length === 3 && (
+          <button
+            className="view-toggle-btn"
+            onClick={() => setViewMode(v => (v === 0 ? 1 : 0))}
+          >
+            {viewMode === 0 ? 'Pivot View' : 'Table View'}
+          </button>
+        )}
+
+        {viewMode === 1 && columnTypes.length === 3 && (
+          <button
+            className="config-btn"
+            onClick={() => setShowConfig(true)}
+          >
+            Configure Pivot
+          </button>
+        )}
       </div>
 
-      {/* Render Table Based on setStructure.length */}
-      <div className="solution-table-container">
-        {setStructure.length === 1 && (
-          <table className="solution-table">
+      {showConfig && (
+        <div className="modal-overlay" onClick={() => setShowConfig(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>Configure Pivot</h3>
+            <table className="pivot-config-table">
+              <tbody>
+                {order.map((key, i) => (
+                  <tr key={key}>
+                    <td>
+                      {key === 'rowIndex' ? 'Rows' : key === 'colIndex' ? 'Columns' : 'Cells'}
+                    </td>
+                    <td className="pivot-config-cell">
+                      <button onClick={() => moveUp(key)} disabled={i === 0}>↑</button>
+                      <span className="pivot-type">{columnTypes[mapping[key]]}</span>
+                      <button onClick={() => moveDown(key)} disabled={i === order.length - 1}>↓</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button onClick={() => setShowConfig(false)}>Close</button>
+          </div>
+        </div>
+      )}
+
+      <div className="table-wrapper">
+        {viewMode === 0 ? (
+          <table className="solutions-table">
             <thead>
               <tr>
-                <th>Object</th>
-                <th>Objective Value</th>
+                {columnTypes.map((t, i) => <th key={i}>{t}</th>)}
+                {showObjective && <th>Objective Value</th>}
               </tr>
             </thead>
             <tbody>
-              {solutions.map((solution, index) => (
-                <tr key={index}>
-                  <td>{solution.values[0]}</td>
-                  <td>{solution.objectiveValue}</td>
+              {solutionsArray.map(sol => (
+                <tr key={sol.values.join('-')}>
+                  {sol.values.map((v, idx) => <td key={idx}>{v}</td>)}
+                  {showObjective && <td>{sol.objectiveValue}</td>}
                 </tr>
               ))}
             </tbody>
           </table>
-        )}
-
-        {setStructure.length > 3 && renderRecursiveTable(setStructure, solutions)}
-
-        {setStructure.length === 2 && (
-          <table className="solution-table">
+        ) : (
+          <table className="pivot-table">
             <thead>
               <tr>
-                <th>
-                  {setStructure[1]} \ {setStructure[0]}
-                </th>
-                {[...new Set(solutions.map((sol) => sol.values[1]))].map(
-                  (col, index) => (
-                    <th key={index}>{col}</th>
-                  )
-                )}
+                <th>{columnTypes[mapping.rowIndex]}</th>
+                {cols.map(c => <th key={c}>{c}</th>)}
               </tr>
             </thead>
             <tbody>
-              {[...new Set(solutions.map((sol) => sol.values[0]))].map(
-                (row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    <td className="row-header">{row}</td>
-                    {[...new Set(solutions.map((sol) => sol.values[1]))].map(
-                      (col, colIndex) => {
-                        const match = solutions.find(
-                          (sol) =>
-                            sol.values[0] === row && sol.values[1] === col
-                        );
-                        return (
-                          <td key={colIndex}>
-                            {match ? (
-                              isBinary ? (
-                                <span
-                                  className={`binary-value ${
-                                    match.objectiveValue === 1 ? "v" : "x"
-                                  }`}
-                                >
-                                  {match.objectiveValue === 1 ? "✔" : "✖"}
-                                </span>
-                              ) : (
-                                match.objectiveValue
-                              )
-                            ) : (
-                              <span className="binary-value x">✖</span>
-                            )}
-                          </td>
-                        );
-                      }
-                    )}
-                  </tr>
-                )
-              )}
-            </tbody>
-          </table>
-        )}
-
-        {setStructure.length === 3 && (
-          <table className="solution-table">
-            <thead>
-              <tr>
-                <th>
-                  {setStructure[2]} \ {setStructure[1]}
-                </th>
-                {[...new Set(solutions.map((sol) => sol.values[2]))].map(
-                  (col, index) => (
-                    <th key={index}>{col}</th>
-                  )
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {[...new Set(solutions.map((sol) => sol.values[1]))].map(
-                (row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    <td className="row-header">{row}</td>
-                    {[...new Set(solutions.map((sol) => sol.values[2]))].map(
-                      (col, colIndex) => {
-                        const relevantPeople = solutions.filter(
-                          (sol) =>
-                            sol.values[1] === row && sol.values[2] === col
-                        );
-                        return (
-                          <td key={colIndex}>
-                            <table className="mini-table">
-                              <thead>
-                                <tr>
-                                  {relevantPeople.map((sol, pIndex) => (
-                                    <th key={pIndex}>{sol.values[0]}</th>
-                                  ))}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr>
-                                  {relevantPeople.map((sol, pIndex) => (
-                                    <td key={colIndex}>
-                                      {sol ? (
-                                        isBinary ? (
-                                          <span
-                                            className={`binary-value ${
-                                              sol.objectiveValue === 1
-                                                ? "v"
-                                                : "x"
-                                            }`}
-                                          >
-                                            {sol.objectiveValue === 1
-                                              ? "✔"
-                                              : "✖"}
-                                          </span>
-                                        ) : (
-                                          sol.objectiveValue
-                                        )
-                                      ) : (
-                                        <span className="binary-value x">✖</span>
-                                      )}
-                                    </td>
-                                  ))}
-                                </tr>
-                              </tbody>
-                            </table>
-                          </td>
-                        );
-                      }
-                    )}
-                  </tr>
-                )
-              )}
+              {rows.map(r => (
+                <tr key={r}>
+                  <td><strong>{r}</strong></td>
+                  {cols.map(c => <td key={c}>{cellMap[`${r}__${c}`] || ''}</td>)}
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
       </div>
     </div>
   );
-};
-
-export default SolutionResultsPage;
+}

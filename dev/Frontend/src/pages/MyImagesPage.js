@@ -14,9 +14,9 @@ const MyImagesPage = () => {
   const [viewSection, setViewSection] = useState(null);
   const [selectedSetIndex, setSelectedSetIndex] = useState(0);
 
-  const navigate = useNavigate();
-  const { userId } = useZPL();
 
+  const navigate = useNavigate();
+  const { userId, constraintsModules, preferenceModules ,setSolutionResponse } = useZPL();
   useEffect(() => {
     if (!userId) return;
 
@@ -76,7 +76,48 @@ const MyImagesPage = () => {
     }
   };
 
-  const handleSolve = () => alert("Solve not available yet.");
+  const handleSolveImage = async () => {
+    if (!selectedImageId || !selectedImage) return;
+
+    // 1. Build preferenceModulesScalars (0–1)
+    const preferenceModulesScalars = {};
+    selectedImage.preferenceModules.forEach((mod) => {
+      const raw = mod.value != null ? Number(mod.value) : 50; // slider 0–100 or default 50
+      preferenceModulesScalars[mod.moduleName] = Math.min(
+        Math.max(raw / 100, 0),
+        1
+      );
+    });
+
+    // 2. Build enabledConstraintModules
+    const enabledConstraintModules = selectedImage.constraintModules
+      .filter((mod) => mod.enabled ?? true)
+      .map((mod) => mod.moduleName);
+
+    const payload = {
+      preferenceModulesScalars,
+      enabledConstraintModules,
+      timeout: 20,
+    };
+
+    console.log("Solve payload:", payload);
+
+    try {
+      const response = await axios.post(
+        `/user/${userId}/image/${selectedImageId}/solver`,
+        payload,
+        { headers: { "Content-Type": "application/json" } }
+      );
+      // 3. Store in context
+      setSolutionResponse(response.data);
+      // 4. Redirect
+      navigate("/solution-results");
+    } catch (err) {
+      console.error("Solver error:", err);
+      alert(`Solver error: ${err.response?.data?.msg || err.message}`);
+    }
+  };
+
   const handleEdit = () => alert("Edit not available yet.");
 
   const getViewData = () => {
@@ -214,7 +255,7 @@ const MyImagesPage = () => {
                 src="/images/Solve.png"
                 alt="Solve"
                 className="modal-solve-button"
-                onClick={handleSolve}
+                onClick={handleSolveImage}
                 title="Solve"
               />
               <img
@@ -486,54 +527,67 @@ const MyImagesPage = () => {
               ) : viewSection === "constraints" ? (
                 <div className="modal-section-data constraints-modal">
                   {selectedImage.constraintModules.length === 0 ? (
-                    <p>No constraints available for this image.</p>
+                    <p>No constraints available.</p>
                   ) : (
-                    selectedImage.constraintModules.map((constraint, index) => (
-                      <div key={index} className="constraint-box">
-                        <div className="constraint-header">
-                          <strong>{constraint.name}</strong>
+                    selectedImage.constraintModules.map((mod, index) => (
+                      <div key={index} className="module-box">
+                        <div className="module-title">{mod.moduleName}</div>
+                        <div className="module-description">
+                          {mod.description}
+                        </div>
+                        <div className="module-checkbox">
                           <input
                             type="checkbox"
-                            checked={constraint.enabled ?? true}
-                            onChange={(e) => {
+                            checked={mod.enabled ?? true}
+                            onChange={() => {
+                              // flip the flag
                               const newImage = { ...selectedImage };
-                              newImage.constraintModules[index].enabled =
-                                e.target.checked;
+                              newImage.constraintModules[index].enabled = !(
+                                mod.enabled ?? true
+                              );
                               setSelectedImage(newImage);
+
+                              // log the full array so we can inspect each module's enabled state
+                              console.log(
+                                "constraintModules after toggle:",
+                                newImage.constraintModules
+                              );
                             }}
                           />
+                          <label>Enabled</label>
                         </div>
-                        <p>{constraint.description}</p>
                       </div>
                     ))
                   )}
                 </div>
               ) : viewSection === "preferences" ? (
-                // שמור על קוד קיים של preferences
                 <div className="modal-section-data preferences-modal">
                   {selectedImage.preferenceModules.length === 0 ? (
-                    <p>No preferences available for this image.</p>
+                    <p>No preferences available.</p>
                   ) : (
-                    selectedImage.preferenceModules.map((pref, index) => (
-                      <div key={index} className="preference-box">
-                        <div className="preference-header">
-                          <strong>{pref.name}</strong>
+                    selectedImage.preferenceModules.map((mod, index) => (
+                      <div key={index} className="module-box">
+                        <div className="module-title">{mod.moduleName}</div>
+                        <div className="module-description">
+                          {mod.description}
+                        </div>
+                        <div className="slider-container">
+                          <label htmlFor={`slider-${index}`}>Value:</label>
                           <input
                             type="range"
+                            id={`slider-${index}`}
                             min="0"
-                            max="10"
-                            step="1"
-                            value={pref.value ?? 5}
+                            max="100"
+                            value={mod.value ?? 50}
                             onChange={(e) => {
                               const newImage = { ...selectedImage };
-                              newImage.preferenceModules[index].value = Number(
-                                e.target.value
-                              );
+                              newImage.preferenceModules[index].value =
+                                parseInt(e.target.value);
                               setSelectedImage(newImage);
                             }}
                           />
+                          <span>{mod.value ?? 50}</span>
                         </div>
-                        <p>{pref.description}</p>
                       </div>
                     ))
                   )}

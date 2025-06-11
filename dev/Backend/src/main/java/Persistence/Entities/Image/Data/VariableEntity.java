@@ -45,14 +45,18 @@ public class VariableEntity {
     public VariableEntity(UUID id,String varName, List<String> structure,String alias) {
         this.imageComponentKey= new ImageComponentKey(id,varName);
         this.structure = structure;
-        this.alias = alias;
+        if(alias == null || alias.isBlank())
+            this.alias = varName;
+        else this.alias = alias;
 }
 
     public VariableEntity(UUID id,String varName, List<String> structure,List<String> setStructure,String alias) {
         this.imageComponentKey= new ImageComponentKey(id,varName);
         this.structure = structure;
-        this.alias = alias;
         this.setStructure = setStructure;
+        if(alias == null || alias.isBlank())
+            this.alias = varName;
+        else this.alias = alias;
     }
 
 
@@ -72,7 +76,9 @@ public class VariableEntity {
         return structure;
     }
     public String getAlias() {
-        return alias;
+        if(alias == null || alias.isBlank())
+            return getName();
+        else return alias;
     }
     public void setAlias(String alias) {
         this.alias = alias;

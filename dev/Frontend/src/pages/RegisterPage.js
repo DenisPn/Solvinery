@@ -23,7 +23,7 @@ const RegisterPage = () => {
       const requestData = { userName, nickname, password, email };
 
       // Send the POST request to "/users/user"
-      const response = await axios.post("/users/user", requestData, {
+      const response = await axios.post("/users", requestData, {
         headers: { "Content-Type": "application/json" },
       });
 

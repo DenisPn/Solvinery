@@ -1,169 +1,193 @@
-/* Solution Preview Page Layout */
-.solution-preview-page {
-    display: flex;
-    flex-direction: column; /* Stack the sections vertically */
-    align-items: center;
-    padding: 20px;
-    background-color: #f4f4f4;
-    min-height: 100vh;
+/* overall card */
+.solution-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Title Styling */
-.page-title {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
+/* Top controls layout */
+.top-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
-/* Variables Section */
-.variables-section {
-    width: 100%;
-    max-width: 100%;
-    padding: 20px;
-    margin: 30px 60px 30px 40px; /* 30px top/bottom, 60px right, 40px left */
-    min-height: 500px; /* Ensures minimum height */
-    height: auto; /* Allows it to expand if necessary */
-    border-radius: 0px;
-    box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
-    overflow-y: auto; /* Enables vertical scroll when the content overflows */
-    -webkit-overflow-scrolling: touch; /* Enables smooth scrolling */
+.var-label {
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  white-space: nowrap;
 }
 
-/* Constraints Section */
-.constraints-section {
-    width: 100%;
-    max-width: 100%;
-    padding: 20px;
-    margin: 30px 60px 30px 40px; /* 30px top/bottom, 60px right, 40px left */
-    min-height: 500px; /* Ensures minimum height */
-    height: auto; /* Allows it to expand if necessary */
-    border-radius: 0px;
-    box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
-    overflow-y: auto; /* Enables vertical scroll when the content overflows */
-    -webkit-overflow-scrolling: touch; /* Enables smooth scrolling */
+.var-select {
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.2s;
 }
 
-/* Preferences Section */
-.preferences-section {
-    width: 100%;
-    max-width: 100%;
-    padding: 20px;
-    margin: 30px 60px 30px 40px; /* 30px top/bottom, 60px right, 40px left */
-    min-height: 500px; /* Ensures minimum height */
-    height: auto; /* Allows it to expand if necessary */
-    border-radius: 0px;
-    box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
-    overflow-y: auto; /* Enables vertical scroll when the content overflows */
-    -webkit-overflow-scrolling: touch; /* Enables smooth scrolling */
+.var-select:focus {
+  outline: none;
+  border-color: #007BFF;
 }
 
-/* Slider container for the variable boxes */
-.slider-container {
-    max-width: 100%; /* Ensure it doesn’t stretch beyond the viewport */
-    overflow-x: auto; /* Enables horizontal scroll */
+/* Navigation Buttons */
+.nav-btn {
+  width: 32px;
+  height: 32px;
+  background-size: cover;
+  display: inline-block;
+  border: none;
+  cursor: pointer;
+  margin-right: 8px;
 }
 
-/* Container for the slider (variable boxes) */
-.slider {
-    display: flex;
-    width: fit-content;
-    align-items: center;
-    justify-content: center;
-    gap: 40px;
-    overflow-x: auto;
-    margin: auto;
-    padding: 20px;
+/* These load from public/Images */
+.home-btn {
+  background-image: url('../../public/Images/HomeButton.png');
 }
 
-/* Box (variable) Styling */
-.slide {
-    width: 250px;
-    height: 300px;
-    background-color: #fff;
-    border-radius: 2px;
-    margin-bottom: 20px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    transition: 0.3s ease;
-    padding: 20px;
+.images-btn {
+  background-image: url('../../public/Images/ExitButton2.png');
 }
 
-/* Hover effect for variable boxes */
-.slide:hover {
-    scale: 1.1;
+/* toggle buttons */
+.view-toggle-btn,
+.config-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #007BFF;
+  background: #fff;
+  color: #007BFF;
+  transition: background 0.2s, color 0.2s;
 }
 
-/* Data in the box (Variable name, Alias, Structure) */
-.slide h4, .slide p {
-    font-size: 16px;
-    margin: 5px 0;
-    text-align: center;
+.config-btn {
+  border-color: #666;
+  color: #333;
 }
 
-/* Buttons container at the bottom of each variable box */
-.buttons-container {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    position: absolute;
-    bottom: 20px;
+.view-toggle-btn:hover {
+  background: #007BFF;
+  color: #fff;
 }
 
-/* Section Toggle Button */
-.toggle-section {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
+.config-btn:hover {
+  background: #666;
+  color: #fff;
 }
 
-.toggle-button {
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+/* Modal styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.toggle-button:hover {
-    background-color: #0056b3;
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
 }
 
-/* Save Image Button */
-.save-image-button {
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    position: absolute;
-    left: 20px;
-    top: 20px;
+/* Scroll wrapper */
+.table-wrapper {
+  width: 100%;
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid #eee;
+  border-radius: 4px;
 }
 
-.save-image-button:hover {
-    background-color: #0056b3;
+/* tables */
+.solutions-table,
+.pivot-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-/* Back Button */
-.back-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 16px;
+.solutions-table th, .solutions-table td,
+.pivot-table th, .pivot-table td {
+  padding: 12px;
+  text-align: center;
+  vertical-align: middle;
+  border-bottom: 1px solid #eee;
 }
 
-.back-button:hover {
-    background-color: #0056b3;
+.solutions-table thead th,
+.pivot-table thead th {
+  background: #f5f5f5;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.solutions-table tbody tr:nth-child(even) {
+  background: #fbfbfb;
+}
+
+.solutions-table tbody tr:hover,
+.pivot-table tbody tr:hover {
+  background: #f1faff;
+}
+
+/* Pivot specifics */
+.pivot-table th:first-child,
+.pivot-table td:first-child {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+/* Pivot config table */
+.pivot-config-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+}
+
+.pivot-config-table td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.pivot-controls button {
+  margin: 0 4px;
+}
+
+/* no data message */
+.no-data {
+  text-align: center;
+  color: #666;
+  font-size: 18px;
+  margin: 40px 0;
+}
+
+.pivot-config-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.pivot-type {
+  font-weight: 600;
 }
