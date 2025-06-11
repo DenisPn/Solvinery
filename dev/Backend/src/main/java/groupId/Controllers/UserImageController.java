@@ -12,6 +12,7 @@ import groupId.Services.SolveService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -30,52 +31,59 @@ public class UserImageController {
         this.solveService = solveService;
     }
 
+    @NonNull
     @PostMapping("/model")
-    public ResponseEntity<ModelDTO> parseModel(@PathVariable String userId,
-                                               @Valid @RequestBody CreateImageFromFileDTO data) {
+    public ResponseEntity<ModelDTO> parseModel(@NonNull @PathVariable String userId,
+                                               @NonNull @Valid @RequestBody CreateImageFromFileDTO data) {
         solveService.validateThreaded(data.code());
         ModelDTO response = imageService.parseImage(data.code(),userId);
         return ResponseEntity.ok(response);
     }
 
+    @NonNull
     @PostMapping
-    public ResponseEntity<CreateImageResponseDTO> createImage(@PathVariable String userId,
-                                                              @Valid @RequestBody ImageDTO image) {
+    public ResponseEntity<CreateImageResponseDTO> createImage(@NonNull @PathVariable String userId,
+                                                              @NonNull @Valid @RequestBody ImageDTO image) {
         solveService.validateThreaded(image.code());
         CreateImageResponseDTO response = imageService.createImage(image,userId);
         return ResponseEntity.ok(response);
     }
+    @NonNull
     @GetMapping("/{page}")
-    public ResponseEntity<ImagesDTO> getImages(@PathVariable String userId,
-                                              @PathVariable int page) {
+    public ResponseEntity<ImagesDTO> getImages(@NonNull @PathVariable String userId,
+                                               @PathVariable int page) {
         ImagesDTO response = imageService.fetchUserImages(page,userId);
         return ResponseEntity.ok(response);
     }
 
+    @NonNull
     @PatchMapping("/{imageId}")
-    public ResponseEntity<Void> configureImage(@PathVariable String userId,
-                                               @PathVariable String imageId,
-                                               @Valid @RequestBody ImageDTO imageDTO){
+    public ResponseEntity<Void> configureImage(@NonNull @PathVariable String userId,
+                                               @NonNull @PathVariable String imageId,
+                                               @NonNull @Valid @RequestBody ImageDTO imageDTO){
         imageService.overrideImage(userId,imageId,imageDTO);
         return ResponseEntity.ok().build();
     }
+    @NonNull
     @PatchMapping("/{imageId}/publish")
-    public ResponseEntity<Void> publishImage(@PathVariable String userId,
-                                               @PathVariable String imageId){
+    public ResponseEntity<Void> publishImage(@NonNull @PathVariable String userId,
+                                             @NonNull @PathVariable String imageId){
         imageService.publishImage(userId,imageId);
         return ResponseEntity.ok().build();
     }
 
+    @NonNull
     @PatchMapping("/{imageId}/get")
-    public ResponseEntity<CreateImageResponseDTO> getPublishedImage(@PathVariable String userId,
-                                                                    @PathVariable String imageId){
+    public ResponseEntity<CreateImageResponseDTO> getPublishedImage(@NonNull @PathVariable String userId,
+                                                                    @NonNull @PathVariable String imageId){
         CreateImageResponseDTO response = imageService.addPublishedImage(userId,imageId);
         return ResponseEntity.ok(response);
     }
+    @NonNull
     @PostMapping("/{imageId}/solver")
-    public ResponseEntity<SolutionDTO> solve(@PathVariable String userId,
-                                             @PathVariable String imageId,
-                                             @Valid @RequestBody ImageConfigDTO config){
+    public ResponseEntity<SolutionDTO> solve(@NonNull @PathVariable String userId,
+                                             @NonNull @PathVariable String imageId,
+                                             @NonNull @Valid @RequestBody ImageConfigDTO config){
         SolutionDTO response = solveService.solveThreaded(userId,imageId, config);
         return ResponseEntity.ok(response);
     }

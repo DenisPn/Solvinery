@@ -1,5 +1,7 @@
 package Model.Data.Elements;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 public abstract class Element {
@@ -14,7 +16,7 @@ public abstract class Element {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Element element = (Element) o;
         return Objects.equals(name, element.name);

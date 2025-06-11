@@ -1,6 +1,7 @@
 package Persistence.Entities.Image.Operational;
 
 import jakarta.persistence.Embeddable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -23,7 +24,7 @@ public class PreferenceEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         PreferenceEntity that = (PreferenceEntity) o;
         return Objects.equals(preferenceName, that.preferenceName);

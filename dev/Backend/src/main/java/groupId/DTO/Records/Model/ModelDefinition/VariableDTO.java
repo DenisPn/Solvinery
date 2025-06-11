@@ -14,6 +14,8 @@ import java.util.List;
  */
 public record VariableDTO(
     @NotBlank String identifier,
-    @Valid @NotNull List<String> structure,
+    @Valid @NotNull List<@NotBlank String> structure,
+    //@Valid @NotNull List<@NotBlank String> structureAliases,
+   // @Valid @NotNull List<String> basicSets,
     String alias
 ) {}

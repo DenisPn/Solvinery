@@ -45,7 +45,7 @@ class SetEntityTest {
 
         // Then
         assertThat(foundEntity).isNotNull();
-        assertThat(foundEntity.getAlias()).isNull();
+        assertThat(foundEntity.getAlias()).isEqualTo(setEntity.getName());
     }
 
     @Transactional
@@ -100,7 +100,7 @@ class SetEntityTest {
         assertThat(foundEntity.getModelDataKey()).isEqualTo(keyPair);
         assertThat(foundEntity.getType()).isEqualTo("INT");
         assertThat(foundEntity.getData()).containsExactly("data1", "data2");
-        assertThat(foundEntity.getAlias()).isNull();
+        assertThat(foundEntity.getAlias()).isEqualTo(setEntity.getName());
     }
 
     @Test
@@ -116,7 +116,7 @@ class SetEntityTest {
             setRepository.save(setEntity);
             fail();
         }
-        catch (Exception e) {
+        catch (Exception ignored) {
         }
     }
 
@@ -136,7 +136,7 @@ class SetEntityTest {
         assertThat(foundEntity).isNotNull();
         assertThat(foundEntity.getModelDataKey()).isEqualTo(keyPair);
         assertThat(foundEntity.getData()).isEmpty();
-        assertThat(foundEntity.getAlias()).isNull();
+        assertThat(foundEntity.getAlias()).isEqualTo(setEntity.getName());
     }
 
     @Transactional
@@ -171,7 +171,7 @@ class SetEntityTest {
         assertThat(foundEntity).isNotNull();
         assertThat(foundEntity.getType()).isEqualTo("TYPE2");
         assertThat(foundEntity.getData()).containsExactly("data2");
-        assertThat(foundEntity.getAlias()).isNull();
+        assertThat(foundEntity.getAlias()).isEqualTo(setEntity2.getName());
     }
 
     @Transactional

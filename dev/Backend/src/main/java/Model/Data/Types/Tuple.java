@@ -1,5 +1,8 @@
 package Model.Data.Types;
 
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -35,7 +38,7 @@ public class Tuple implements ModelType {
         return false;
     }
 
-    public boolean isCompatible(String str) {
+    public boolean isCompatible(@Nullable String str) {
 
         if (str == null || str.length() < 2 || !str.startsWith("<") || !str.endsWith(">")) {
             return false;
@@ -79,6 +82,7 @@ public class Tuple implements ModelType {
 
     }
 
+    @NonNull
     public String toString() {
         if (val == null || val.isEmpty()) {
             return "<>";
@@ -97,6 +101,7 @@ public class Tuple implements ModelType {
         sb.append('>');
         return sb.toString();
     }
+    @NonNull
     @Override
     public List<String> typeList(){
         List<String> types = new LinkedList<>();
@@ -110,7 +115,8 @@ public class Tuple implements ModelType {
     }
 
     
-    public static String convertArrayOfAtoms(String[] atoms, ModelType type) {
+    @NonNull
+    public static String convertArrayOfAtoms(@NonNull String[] atoms, ModelType type) {
         Tuple tup = ((Tuple)type);
         String ans = "";
         for(int i = 0; i < atoms.length ; i++){

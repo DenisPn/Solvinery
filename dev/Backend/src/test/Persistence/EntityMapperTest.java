@@ -10,7 +10,6 @@ import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
-import Model.Data.Elements.Variable;
 import Model.Data.Types.ModelPrimitives;
 import Persistence.Entities.Image.Data.ParameterEntity;
 import Persistence.Entities.Image.Data.SetEntity;
@@ -29,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.lang.NonNull;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +56,7 @@ public class EntityMapperTest {
     @Autowired
     private ImageRepository imageRepository;
 
+    @NonNull
     static String simpleCodeExample = """
                 param x := 2;
                 set mySet := {1,2,3};
@@ -68,6 +69,7 @@ public class EntityMapperTest {
                 maximize myObjective:
                     1;
             """;
+    @NonNull
     public UserEntity makeUserStub () {
         String username = "stub username";
         String email = "stub@stubber.stubbinson";
@@ -76,6 +78,7 @@ public class EntityMapperTest {
         userEntity= userRepository.save(userEntity);
         return userEntity;
     }
+    @NonNull
     public Image makeImageStub () {
         // Initialize children with appropriate data
         LinkedList<String> setData = new LinkedList<>();
@@ -86,9 +89,7 @@ public class EntityMapperTest {
         List<String> structure = new ArrayList<>();
         structure.add("structure1");
         structure.add("structure2");
-        List<String> basicSets= new ArrayList<>();
-        basicSets.add("set1"); basicSets.add("set2");
-        VariableModule var = new VariableModule(new Variable("varName", structure,basicSets), "v-alias");
+        VariableModule var = new VariableModule("varName", structure, "v-alias");
         Constraint constraint = new Constraint("constraint");
         Preference preference = new Preference("preference");
 
@@ -117,6 +118,7 @@ public class EntityMapperTest {
         return new Image(simpleCodeExample,name,description,creationDate, constraintModules, preferenceModules, sets, params, variables);
     }
 
+    @NonNull
     public ImageEntity makeEntityStub() {
 
         // Persist parent entity without child entities to generate ID
@@ -136,9 +138,7 @@ public class EntityMapperTest {
         SetEntity set = new SetEntity(imageId, "setName", "INT", setData, "s-alias");
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
-        List<String> basicSets= new ArrayList<>();
-        basicSets.add("set1"); basicSets.add("set2");
-        VariableEntity var = new VariableEntity(imageId, "varName",structure,basicSets, "v-alias");
+        VariableEntity var = new VariableEntity(imageId, "varName", "v-alias",structure);
         ConstraintEntity constraint = new ConstraintEntity("constraint");
         PreferenceEntity preference = new PreferenceEntity("preference");
         HashSet<SetEntity> sets= new HashSet<>();

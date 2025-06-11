@@ -1,5 +1,7 @@
 package Model.Data.Types;
 
+import org.springframework.lang.NonNull;
+
 import java.util.List;
 
 public enum ModelPrimitives implements ModelType{
@@ -13,7 +15,7 @@ public enum ModelPrimitives implements ModelType{
         return this == val;
     }
 
-    public boolean isCompatible(String str){
+    public boolean isCompatible(@NonNull String str){
         switch(this) {
             case BINARY, INFINITY:
                 return false;
@@ -39,6 +41,7 @@ public enum ModelPrimitives implements ModelType{
           }
     }
 
+    @NonNull
     @Override
     public String toString() {
       switch(this) {
@@ -58,13 +61,14 @@ public enum ModelPrimitives implements ModelType{
           return "UNKNOWN";
       }
     }
+    @NonNull
     @Override
     public List<String> typeList(){
         return List.of(this.toString());
     }
 
     
-    public static String convertArrayOfAtoms(String[] atoms, ModelType type) {
+    public static String convertArrayOfAtoms(String[] atoms, @NonNull ModelType type) {
       switch(type) {
         case BINARY:
             return atoms[0];

@@ -4,6 +4,8 @@ import Persistence.Entities.Image.ImageComponentKey;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,35 +35,48 @@ public class SetEntity {
     private List<String> data;
 
     @Column(name = "alias")
-    private String alias;
+    private @NonNull String alias;
+
+    @Column(name = "type_alias")
+    private String typeAlias;
 
     public SetEntity () {}
 
-    public SetEntity (ImageComponentKey imageComponentKey, String type, List<String> data) {
+    public SetEntity (@NotNull ImageComponentKey imageComponentKey,@NotNull String type, @NotNull List<String> data) {
         this.imageComponentKey = imageComponentKey;
         this.type = type;
         this.data = data;
-        this.alias = null;
+        this.alias = imageComponentKey.getName();
+        this.typeAlias = type;
     }
-    public SetEntity (UUID id, String name, String type, List<String> data) {
+    public SetEntity (@NotNull UUID id,@NotNull String name,@NotNull String type, @NotNull List<String> data) {
         this.imageComponentKey= new ImageComponentKey(id,name);
         this.type = type;
         this.data = data;
-        this.alias = null;
+        this.alias = name;
+        this.typeAlias = type;
     }
-    public SetEntity (UUID id, String name, String type, List<String> data, String alias) {
+    public SetEntity (@NotNull UUID id,@NotNull String name,@NotNull String type, @NotNull List<String> data,@Nullable String alias) {
+        this.imageComponentKey= new ImageComponentKey(id,name);
+        this.type = type;
+        this.data = data;
+        this.alias = (alias == null) ? name : alias;
+        this.typeAlias = type;
+    }
+    public SetEntity (@NotNull ImageComponentKey imageComponentKey,@NotNull String type, @NotNull List<String> data,@Nullable String alias) {
+        this.imageComponentKey = imageComponentKey;
+        this.type = type;
+        this.data = data;
+        this.alias = (alias == null) ? imageComponentKey.getName() : alias;
+        this.typeAlias = type;
+    }
+    public SetEntity (@NotNull UUID id,@NotNull String name,@NotNull String type, @NotNull List<String> data,@NotNull String alias,@NotNull String typeAlias) {
         this.imageComponentKey= new ImageComponentKey(id,name);
         this.type = type;
         this.data = data;
         this.alias = alias;
+        this.typeAlias = typeAlias;
     }
-    public SetEntity (ImageComponentKey imageComponentKey, String type, List<String> data, String alias) {
-        this.imageComponentKey = imageComponentKey;
-        this.type = type;
-        this.data = data;
-        this.alias = alias;
-    }
-
     public ImageComponentKey getModelDataKey() {
         return imageComponentKey;
     }
@@ -70,17 +85,19 @@ public class SetEntity {
         return type;
     }
 
+    @NonNull
     public List<String> getData() {
         return data;
     }
 
+    @NonNull
     public String getAlias () {
         return alias;
     }
     public boolean hasAlias () {
         return alias != null;
     }
-    public void setAlias (String alias) {
+    public void setAlias (@NonNull String alias) {
         this.alias = alias;
     }
     public String getName(){
@@ -89,8 +106,17 @@ public class SetEntity {
     public UUID getUUID(){
         return imageComponentKey.getImageId();
     }
+
+    public String getTypeAlias() {
+        return typeAlias;
+    }
+
+    public void setTypeAlias(String typeAlias) {
+        this.typeAlias = typeAlias;
+    }
+
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SetEntity that = (SetEntity) o;

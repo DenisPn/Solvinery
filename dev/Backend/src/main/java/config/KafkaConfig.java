@@ -12,6 +12,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.lang.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class KafkaConfig {
     private static final String SOLVE_REQUEST_TOPIC = "solve-requests";
     private static final int NUM_PARTITIONS = 4;
 
+    @NonNull
     @Bean
     public NewTopic solveRequestTopic() {
         return TopicBuilder.name(SOLVE_REQUEST_TOPIC)
@@ -40,6 +42,7 @@ public class KafkaConfig {
      * @return a {@link ProducerFactory} configured for producing messages with a key of type
      *         {@link String} and value of type {@link SolveRequest}.
      */
+    @NonNull
     @Bean
     public ProducerFactory<String, SolveRequest> producerFactory() {
         Map<String, Object> config = new HashMap<>();
@@ -55,6 +58,7 @@ public class KafkaConfig {
      * @return a {@link KafkaTemplate} instance configured to send messages to Kafka using the
      *         {@link ProducerFactory} returned by {@code producerFactory}.
      */
+    @NonNull
     @Bean
     public KafkaTemplate<String, SolveRequest> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
@@ -65,6 +69,7 @@ public class KafkaConfig {
      *
      * @return a {@link ConsumerFactory} configured for consuming messages from Kafka.
      */
+    @NonNull
     @Bean
     public ConsumerFactory<String, SolveRequest> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
@@ -92,6 +97,7 @@ public class KafkaConfig {
      *
      * @return a {@link ConcurrentKafkaListenerContainerFactory} configured for processing Kafka messages.
      */
+    @NonNull
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, SolveRequest> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, SolveRequest> factory =

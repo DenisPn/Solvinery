@@ -7,7 +7,9 @@ import groupId.DTO.Records.Events.SolveRequest;
 import groupId.Services.SolveService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.lang.NonNull;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SolveListener {
 
+    @NonNull
     private final SolveService solveService;
 
     //@Value("${app.file.storage-dir}")
@@ -35,7 +38,7 @@ public class SolveListener {
         containerFactory = "kafkaListenerContainerFactory",
         groupId = "problem-solving-group-20"
 )
-public void handleSolveRequest(@Payload SolveRequest request) {
+public void handleSolveRequest(@NonNull @Payload SolveRequest request) {
     Path codeFile = null;
     try {
         log.info("---------------------------Attempt 18-------------------------------");
@@ -62,11 +65,12 @@ public void handleSolveRequest(@Payload SolveRequest request) {
 
 
 
-    private Solution solveProblem(SolveRequest request, Path codeFile) {
+    @NonNull
+    private Solution solveProblem(@NonNull SolveRequest request, @NonNull Path codeFile) {
         Process scipProcess = null;
+        int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
         try {
             log.info("Got path: {}", codeFile.toAbsolutePath());
-            int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
             ProcessBuilder processBuilder = new ProcessBuilder("scip", "-c",
                     String.format("\"read %s optimize display solution quit\"", codeFile));
             //"scip", "-c", "read " + sourceFilePath + " optimize display solution q"
@@ -96,18 +100,25 @@ public void handleSolveRequest(@Payload SolveRequest request) {
                     .collect(Collectors.joining("\n"));
 
             log.info("\n-------------------OUTPUT----------------\n{}\n-------------------END--------------------\n",prunedOutput);
-            return new Solution(prunedOutput);
+            //return new Solution(prunedOutput);
+            return new Solution(); //TEMP UNTILL IMPL
 
-        } catch (InterruptedException | IOException e) {
-            throw new SolverException("Error during SCIP execution: " + e.getMessage());
-        } finally {
+        }
+        catch (IOException e) {
+            throw new SolverException("IO Error during SCIP execution: " + e.getMessage());
+        }
+        catch (InterruptedException e) {
+                throw new SolverException("Solver timed out after " + timeout + " seconds.");
+        }
+         finally {
             if (scipProcess != null && scipProcess.isAlive()) {
                 scipProcess.destroyForcibly();
             }
         }
     }
 
-    private Path createCodeFile(SolveRequest request) throws IOException {
+    @NonNull
+    private Path createCodeFile(@Nullable SolveRequest request) throws IOException {
         if(request == null){
             log.error("Null request while creating code file");
             throw new SolverException("Null request while solving");
@@ -124,7 +135,7 @@ public void handleSolveRequest(@Payload SolveRequest request) {
 
 
     }
-    private void validateZimplCode(Path codeFile) throws SolverException {
+    private void validateZimplCode(@NonNull Path codeFile) throws SolverException {
         log.info("Validating code file: {}", codeFile.toAbsolutePath());
         Process zimplProcess = null;
         try{
@@ -156,7 +167,7 @@ public void handleSolveRequest(@Payload SolveRequest request) {
             }
         }
     }
-    private void cleanupFile(Path workDir) {
+    private void cleanupFile(@Nullable Path workDir) {
         if (workDir == null) {
             log.warn("Null path while cleaning up work directory");
             return;
@@ -173,7 +184,8 @@ public void handleSolveRequest(@Payload SolveRequest request) {
 
     }
 
-    private static String startFromStatus(String original) {
+    @NonNull
+    private static String startFromStatus(@NonNull String original) {
     String from = "SCIP Status";
         if(original.contains(from))
             return original.substring(original.indexOf(from));

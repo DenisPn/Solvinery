@@ -2,6 +2,7 @@ package groupId.Services;
 
 
 import Exceptions.InternalErrors.ClientSideError;
+import Exceptions.SolverExceptions.SolverException;
 import Exceptions.SolverExceptions.ValidationException;
 import Exceptions.UserErrors.UserInputException;
 import Image.Image;
@@ -17,19 +18,19 @@ import groupId.Services.KafkaServices.SolveThread;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
+
 @Slf4j
 @Service
 public class SolveService {
     private final ConcurrentHashMap<String, CompletableFuture<Solution>> pendingRequests = new ConcurrentHashMap<>();
     private static final String TOPIC_NAME = "solve-requests";
+    @NonNull
     private final SolveThread solverThread; //TEMP, TO BE REMOVED
 
     private final KafkaTemplate<String, SolveRequest> kafkaTemplate;
@@ -43,8 +44,9 @@ public class SolveService {
         this.solverThread= new SolveThread(this);
     }
 
+    @NonNull
     @Transactional
-    public SolutionDTO solve(String userId, String imageId, int timeout) {
+    public SolutionDTO solve(@NonNull String userId, @NonNull String imageId, int timeout) {
         UserEntity user = userService.getUser(userId)
                 .orElseThrow(() -> new ClientSideError("User id not found"));
         ImageEntity imageEntity=imageService.getImage(imageId)
@@ -89,7 +91,7 @@ public class SolveService {
         catch (ValidationException e) {
             throw new UserInputException(e.getMessage());
         }
-        catch (Exception e) {
+        catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("Error getting solution", e);
         } finally {
             pendingRequests.remove(requestId);
@@ -105,20 +107,22 @@ public class SolveService {
             SolveRequest solveRequest = new SolveRequest(requestId, zimplCode, timeout,true);
             solverThread.submitRequest(solveRequest);
             future.get(timeout, TimeUnit.SECONDS);
-        } catch (TimeoutException e) {
-            throw new RuntimeException("Solution timed out", e);
         }
-        catch (ValidationException e) {
-            throw new UserInputException(e.getMessage());
+        catch (TimeoutException e) {
+            throw new RuntimeException("Solution timed out"+ e.getMessage());
         }
-        catch (Exception e) {
-            throw new RuntimeException("Error getting solution", e);
+        catch (ExecutionException e) {
+            throw new UserInputException(e.getCause().getMessage());
+        }
+        catch (InterruptedException e) {
+            throw new RuntimeException("Unexpected Solver error: "+ e.getMessage());
         } finally {
             pendingRequests.remove(requestId);
         }
     }
+    @NonNull
     @Transactional
-    public SolutionDTO solveThreaded(String userId, String imageId, ImageConfigDTO config) {
+    public SolutionDTO solveThreaded(@NonNull String userId, @NonNull String imageId, @NonNull ImageConfigDTO config) {
         int timeout = config.timeout();
         UserEntity user = userService.getUser(userId)
                 .orElseThrow(() -> new ClientSideError("User id not found"));
@@ -142,8 +146,12 @@ public class SolveService {
             return RecordFactory.makeDTO(solution);
         } catch (TimeoutException e) {
             throw new RuntimeException("Solution timed out" );
-        } catch (Exception e) {
-            throw new RuntimeException("Error getting solution: "+ e.getMessage());
+        }
+        catch (ExecutionException e) {
+            throw new UserInputException(e.getCause().getMessage());
+        }
+        catch (InterruptedException e) {
+            throw new RuntimeException("Unexpected Solver error: "+ e.getMessage());
         } finally {
             pendingRequests.remove(requestId);
         }

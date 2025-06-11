@@ -7,6 +7,7 @@ import Model.Data.Elements.Variable;
 import Model.Data.Types.ModelPrimitives;
 import Model.Model;
 import org.antlr.v4.runtime.misc.Interval;
+import org.springframework.lang.NonNull;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
 
@@ -15,15 +16,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class CollectorVisitor extends FormulationBaseVisitor<Void> {
-
+    @NonNull
     private final Model model;
 
-    public CollectorVisitor (Model model) {
+    public CollectorVisitor (@NonNull Model model) {
         this.model = model;
 
     }
 
-    public Void visitParamDecl (FormulationParser.ParamDeclContext ctx) {
+    public Void visitParamDecl (@NonNull FormulationParser.ParamDeclContext ctx) {
         String paramName = extractName(ctx.sqRef().getText());
         TypeVisitor typer = new TypeVisitor(model);
         typer.visit(ctx.expr());
@@ -35,7 +36,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitSetDecl (FormulationParser.SetDeclContext ctx) {
+    public Void visitSetDecl (@NonNull FormulationParser.SetDeclContext ctx) {
         String setName = extractName(ctx.sqRef().getText());
         //change?
         model.getSetsMap().put(setName, new ModelSet(setName, ModelPrimitives.UNKNOWN,new LinkedList<>()));
@@ -43,7 +44,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitSetDefExpr (FormulationParser.SetDefExprContext ctx) {
+    public Void visitSetDefExpr (@NonNull FormulationParser.SetDefExprContext ctx) {
         String setName = extractName(ctx.sqRef().getText());
 
         TypeVisitor typer = new TypeVisitor(model);
@@ -63,7 +64,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitConstraint (FormulationParser.ConstraintContext ctx) {
+    public Void visitConstraint (@NonNull FormulationParser.ConstraintContext ctx) {
         String constName = extractName(ctx.name.getText());
         TypeVisitor visitor = new TypeVisitor(model);
         visitor.visit(ctx);
@@ -72,7 +73,7 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitObjective(FormulationParser.ObjectiveContext ctx) {
+    public Void visitObjective(@NonNull FormulationParser.ObjectiveContext ctx) {
         List<FormulationParser.UExprContext> components = model.findComponentContexts(ctx.nExpr());
 
         for (FormulationParser.UExprContext expressionComponent : components) {
@@ -92,79 +93,27 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         return super.visitObjective(ctx);
     }
 
-    public Void visitVariable (FormulationParser.VariableContext ctx) {
+    public Void visitVariable (@NonNull FormulationParser.VariableContext ctx) {
         String varName = extractName(ctx.sqRef().getText());
         TypeVisitor visitor = new TypeVisitor(model);
         visitor.visit(ctx);
         List<String> types = new LinkedList<>();
-        List<String> basicSets = new LinkedList<>();
+        //List<String> basicSets = new LinkedList<>();
         for(ModelSet set : visitor.getBasicSets()) {
          types.addAll(set.getDataType().typeList());
-         basicSets.add(set.getName());
+         //basicSets.add(set.getName());
         }
-        model.getVariablesMap().put(varName, new Variable(varName,types,basicSets));
+        model.getVariablesMap().put(varName, new Variable(varName,types));
         return super.visitVariable(ctx);
     }
 
-    private String extractName (String sqRef) {
+    @NonNull
+    private String extractName (@NonNull String sqRef) {
         // Handle indexed sets by taking the base name
         int bracketIndex = sqRef.indexOf('[');
         return bracketIndex == -1 ? sqRef : sqRef.substring(0, bracketIndex);
     }
-    //Refactor below, kept this old one for posterity.
-    @Deprecated
-    private List<String> parseSetElementsOld (FormulationParser.SetExprContext ctx) {
-        List<String> elements = new ArrayList<>();
 
-        if (ctx instanceof FormulationParser.SetExprStackContext) {
-            FormulationParser.SetExprStackContext stackCtx = (FormulationParser.SetExprStackContext) ctx;
-            if (stackCtx.setDesc() != null) {
-                // Handle explicit set descriptions by looking at the definition in the parse tree
-                if (stackCtx.setDesc() instanceof FormulationParser.SetDescStackContext) {
-                    FormulationParser.SetDescStackContext descCtx = (FormulationParser.SetDescStackContext) stackCtx.setDesc();
-                    if (descCtx.csv() != null) {
-                        String csvText = descCtx.csv().getText();
-
-                        // Explicit elements are defined using a comma-separated value (CSV) structure.
-                        // Split the CSV text by commas, but ignore commas within angle brackets
-                        StringBuilder currentElement = new StringBuilder();
-                        boolean inAngleBrackets = false;
-
-                        for (int i = 0; i < csvText.length(); i++) {
-                            char c = csvText.charAt(i);
-
-                            if (c == '<') {
-                                inAngleBrackets = true;
-                                currentElement.append(c);
-                            } else if (c == '>') {
-                                inAngleBrackets = false;
-                                currentElement.append(c);
-                            } else if (c == ',' && !inAngleBrackets) {
-                                // When encountering a comma outside of angle brackets, add the current element to the list
-                                elements.add(currentElement.toString().trim());
-                                currentElement.setLength(0); // Reset the current element
-                            } else {
-                                currentElement.append(c);
-                            }
-                        }
-
-                        // Add the last element if it exists
-                        if (currentElement.length() > 0) {
-                            elements.add(currentElement.toString().trim());
-                        }
-                    } else { // If no CSV, the set is not explicitly defined with elements.
-                        elements = null;
-                    }
-                } else { // If not a SetDescStackContext, the set definition does not describe explicit elements.
-                    elements = null;
-                }
-            } else
-                // If setDesc() is null, this is likely a function of other sets, rather than explicit elements.
-                elements = null;
-        }
-
-        return elements;
-    }
     private List<String> parseSetElements (FormulationParser.SetExprContext ctx) {
 
         if (ctx instanceof FormulationParser.SetExprStackContext stackCtx) {
@@ -198,12 +147,10 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
                             currentElement.append(c);
                         }
                     }
-
                     // Add the last element if it exists
                     if (!currentElement.isEmpty()) {
                         elements.add(currentElement.toString().trim());
                     }
-
                     return elements; // Return the list if explicit elements are present
                 }
             }

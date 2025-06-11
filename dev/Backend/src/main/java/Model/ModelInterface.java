@@ -5,8 +5,11 @@ import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,7 +36,7 @@ public interface ModelInterface {
      * @param identifier The parameter identifier
      * @return ModelParameter object if found, null otherwise
      */
-    ModelParameter getParameter(String identifier);
+    @Nullable ModelParameter getParameter(String identifier);
 
     /**
      * Retrieves a constraint by its identifier.
@@ -44,7 +47,7 @@ public interface ModelInterface {
     Constraint getConstraint(String identifier);
 
     /**
-     * Retrieves an all constraints loaded in the model
+     * Retrieves all constraints loaded in the model
      * @return set of all constraints parsed from the model
      */
     Collection<Constraint> getConstraints();
@@ -56,7 +59,7 @@ public interface ModelInterface {
      */
     Preference getPreference(String identifier);
     /**
-     * Retrieves a all preferences loaded in the model
+     * Retrieves all preferences loaded in the model
      * @return set of all preferences parsed from the model
      */
     Collection<Preference> getModifiedPreferences();
@@ -73,20 +76,11 @@ public interface ModelInterface {
     Collection<Variable> getVariables(Collection<String> identifiers);
 
 
-    public Collection<ModelSet> getSets();
+    Collection<ModelSet> getSets();
 
-    public Collection<ModelParameter> getParameters();
+    Collection<ModelParameter> getParameters();
 
-    /**
-     * Write into a source file all the changed in input and return code after write.
-     * @param sets valiues to write into sets. Write always overrides current data.
-     * @param params parameter values to write into parameters. Write always overrides current data.
-     * @param disabledConstraints constraints to disable.
-     * @param preferencesScalars preferences that need their scalar to change. in practice changes the parameter of the preference's scalar.
-     * @return zimpl code, with all changes done in the image.
-     */
-    @Deprecated(forRemoval = true)
-    String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Set<Preference> preferencesScalars);
-    String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String,Float> preferencesScalars);
+    //String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String,Float> preferencesScalars);
+    String writeToSource(@NonNull Map<String, List<String>> sets, @NonNull Map<String,String> params, Set<String> disabledConstraints, Map<String,Float> preferencesScalars);
 
 }

@@ -4,9 +4,9 @@ import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
 import Model.Data.Elements.Element;
 import Model.Data.Elements.Operational.Preference;
 import Model.Model;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenStreamRewriter;
 import org.antlr.v4.runtime.misc.Interval;
+import org.springframework.lang.NonNull;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
 
@@ -14,76 +14,37 @@ import java.util.List;
 import java.util.Objects;
 
 public class ModifierVisitor extends FormulationBaseVisitor<Void> {
+    @NonNull
     private final Model model;
-
+    @NonNull
     private final String originalSource;
     private boolean modified = false;
+    @NonNull
     private final TokenStreamRewriter rewriter;
 
     // Original constructor for backward compatibility
-    public ModifierVisitor(Model model, String originalSource){
+    public ModifierVisitor(@NonNull Model model, @NonNull String originalSource){
         this.model = model;
         this.rewriter = new TokenStreamRewriter(model.getTokens());
         this.originalSource = originalSource;
     }
 
 
-    @Deprecated
-    public ModifierVisitor (Model model, CommonTokenStream tokens, String targetIdentifier, String value,/* Action act,*/ String originalSource) {
-        this.model = model;
-        this.rewriter = new TokenStreamRewriter(model.getTokens());
-        this.originalSource = originalSource;
-    }
-    @Deprecated
-    public ModifierVisitor (Model model, CommonTokenStream tokens, String targetIdentifier, String[] values, /*Action act,*/ String originalSource) {
-        this.model = model;
-        this.rewriter = new TokenStreamRewriter(model.getTokens());
-        this.originalSource = originalSource;
-    }
-
-    private void modifyParamContent (FormulationParser.ExprContext ctx, String value) {
+    private void modifyParamContent (@NonNull FormulationParser.ExprContext ctx, String value) {
         rewriter.replace(ctx.start,ctx.stop,value);
     }
 
-    private void modifySetContent (FormulationParser.SetDefExprContext ctx,
-                                   List<String> values) {
+    private void modifySetContent (@NonNull FormulationParser.SetDefExprContext ctx,
+                                   @NonNull List<String> values) {
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
         String originalLine = originalSource.substring(startIndex, stopIndex + 1);
         String modifiedLine = modifySetLine(originalLine, values);
         rewriter.replace(ctx.start,ctx.stop,modifiedLine);
     }
-    @Deprecated
-    //not in use, no idea if works
-    private void commentOutParameter (FormulationParser.ParamDeclContext ctx) {
-        // Get the original text with its formatting
-        int startIndex = ctx.start.getStartIndex();
-        int stopIndex = ctx.stop.getStopIndex();
-        String originalLine = originalSource.substring(startIndex, stopIndex + 1);
-        // Preserve indentation
-        String indentation = "";
-        int lineStart = originalSource.lastIndexOf('\n', startIndex);
-        if (lineStart != -1) {
-            indentation = originalSource.substring(lineStart + 1, startIndex);
-        }
-    }
-    @Deprecated //don't need this?
-    private void commentOutSet (FormulationParser.SetDefExprContext ctx) {
-        // Get the original text with its formatting
-        int startIndex = ctx.start.getStartIndex();
-        int stopIndex = ctx.stop.getStopIndex();
-        String originalLine = originalSource.substring(startIndex, stopIndex + 1);
-
-        // Preserve indentation
-        String indentation = "";
-        int lineStart = originalSource.lastIndexOf('\n', startIndex);
-        if (lineStart != -1) {
-            indentation = originalSource.substring(lineStart + 1, startIndex);
-        }
-    }
 
     @Override
-    public Void visitParamDecl (FormulationParser.ParamDeclContext ctx) {
+    public Void visitParamDecl (@NonNull FormulationParser.ParamDeclContext ctx) {
         String paramName = extractName(ctx.sqRef().getText());
         if (model.isModified(paramName, Element.ElementType.MODEL_PARAMETER)) {
                 modifyParamContent(ctx.expr(),model.getParameterFromAll(paramName).getData());
@@ -92,7 +53,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitSetDefExpr (FormulationParser.SetDefExprContext ctx) {
+    public Void visitSetDefExpr (@NonNull FormulationParser.SetDefExprContext ctx) {
         String setName = extractName(ctx.sqRef().getText());
         if (model.isModified(setName, Element.ElementType.MODEL_SET)) {
             if (ctx.setExpr() instanceof FormulationParser.SetExprStackContext stackCtx) {
@@ -105,7 +66,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitConstraint (FormulationParser.ConstraintContext ctx) {
+    public Void visitConstraint (@NonNull FormulationParser.ConstraintContext ctx) {
         String constraintName = extractName(ctx.name.getText());
         if (model.isModified(constraintName, Element.ElementType.CONSTRAINT)) {
                 commentOutConstraint(ctx);
@@ -114,7 +75,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitObjective(FormulationParser.ObjectiveContext ctx) {
+    public Void visitObjective(@NonNull FormulationParser.ObjectiveContext ctx) {
         List<FormulationParser.UExprContext> components = model.findComponentContexts(ctx.nExpr());
         for (FormulationParser.UExprContext subCtx : components) {
             String preferenceName = subCtx.start.getInputStream()
@@ -132,7 +93,8 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         return super.visitObjective(ctx);
     }
 
-    private String modifySetLine (String line, List<String> values) {
+    @NonNull
+    private String modifySetLine (@NonNull String line, @NonNull List<String> values) {
         // Find the set content between braces
         int openBrace = line.indexOf('{');
         int closeBrace = line.lastIndexOf('}');
@@ -162,7 +124,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         }
     }
 
-    private void commentOutConstraint (FormulationParser.ConstraintContext ctx) {
+    private void commentOutConstraint (@NonNull FormulationParser.ConstraintContext ctx) {
         int startIndex = ctx.start.getStartIndex();
         int stopIndex = ctx.stop.getStopIndex();
         String fullStatement = originalSource.substring(startIndex, stopIndex + 1);
@@ -182,7 +144,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         for (String line : lines) {
             // If it's not the last line (which won't have a newline)
             if (line.endsWith("\n")) {
-                commentedOut.append(initialIndent).append("# ").append(line.substring(0, line.length() - 1)).append("\n");
+                commentedOut.append(initialIndent).append("# ").append(line, 0, line.length() - 1).append("\n");
             } else {
                 commentedOut.append(initialIndent).append("# ").append(line);
             }
@@ -191,38 +153,13 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
         rewriter.replace(ctx.start, ctx.stop, commentedOut.toString());
         modified = true;
     }
-    private void replacePreference(FormulationParser.UExprContext ctx, String newPreference) {
+    private void replacePreference(@NonNull FormulationParser.UExprContext ctx, String newPreference) {
         rewriter.replace(ctx.start, ctx.stop, newPreference);
     }
-    @Deprecated
-    private void commentOutPreference (FormulationParser.UExprContext ctx) {
-        int startIndex = ctx.start.getStartIndex();
-        int stopIndex = ctx.stop.getStopIndex();
-        String originalLine = originalSource.substring(startIndex, stopIndex + 1);
-
-        String indentation = "";
-        int lineStart = originalSource.lastIndexOf('\n', startIndex);
-        if (lineStart != -1) {
-            indentation = originalSource.substring(lineStart + 1, startIndex);
-        }
-
-        rewriter.replace(startIndex, stopIndex + 1,
-                indentation + "# " + originalLine.substring(indentation.length()));
-        modified = true;
-    }
-    @Deprecated //should not be used, preference scalars set through params
-    private void zeroOutPreference (FormulationParser.UExprContext ctx) {
-        int startIndex = ctx.start.getStartIndex();
-        int stopIndex = ctx.stop.getStopIndex();
-        String originalLine = originalSource.substring(startIndex, stopIndex + 1);
-
-        rewriter.replace(startIndex, stopIndex + 1,
-                "((" + originalLine + ")*0)");
-        modified = true;
-    }
 
 
-    private String extractName (String sqRef) {
+    @NonNull
+    private String extractName (@NonNull String sqRef) {
         int bracketIndex = sqRef.indexOf('[');
         return bracketIndex == -1 ? sqRef : sqRef.substring(0, bracketIndex);
     }
@@ -240,7 +177,8 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
      * @param str The string to be modified.
      * @return The modified string with all whitespace characters removed.
      */
-    private static String removeWhitespaces(String str){
+    @NonNull
+    private static String removeWhitespaces(@NonNull String str){
         return str.replaceAll("\\s+","");
     }
 }

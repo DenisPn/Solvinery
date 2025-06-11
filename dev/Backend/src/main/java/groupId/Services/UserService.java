@@ -7,6 +7,7 @@ import groupId.DTO.Records.Requests.Commands.LoginDTO;
 import groupId.DTO.Records.Requests.Commands.RegisterDTO;
 import groupId.DTO.Records.Requests.Responses.LoginResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Autowired
-    public UserService (UserRepository userRepository) {
+    public UserService (@NonNull UserRepository userRepository) {
         this.userRepository = userRepository;
         if(!userRepository.existsByUsername("admin")){
             try {
@@ -42,7 +43,7 @@ public class UserService {
      * @throws UserDataException if the email already exists in the system or the username is already taken.
      */
     @Transactional
-    public void registerUser (RegisterDTO registerData) throws UserDataException {
+    public void registerUser (@NonNull RegisterDTO registerData) throws UserDataException {
         int passwordLength = registerData.password().length();
         if(passwordLength > MAX_PASSWORD_LENGTH || passwordLength < MIN_PASSWORD_LENGTH)
             throw new UserDataException("Password should be between 8 and 16 in length.");
@@ -54,8 +55,9 @@ public class UserService {
             throw new UserDataException("Username already exists");
         userRepository.save(entity);
     }
+    @NonNull
     @Transactional(readOnly = true)
-    public Optional<UserEntity> getUser(String id) {
+    public Optional<UserEntity> getUser(@NonNull String id) {
         return userRepository.findById(UUID.fromString(id));
     }
     /**
@@ -65,8 +67,9 @@ public class UserService {
      * @param loginData an instance of {@code LoginDTO} containing the username and password provided by the user
      * @throws UserDataException if the username does not exist or the password is incorrect
      */
+    @NonNull
     @Transactional(readOnly = true)
-    public LoginResponseDTO loginUser (LoginDTO loginData) throws UserDataException {
+    public LoginResponseDTO loginUser (@NonNull LoginDTO loginData) throws UserDataException {
         UserEntity user = userRepository.findByUsername(loginData.userName())
                 .orElseThrow(() -> new UserDataException("Invalid username or password."));
         if(!user.checkPassword(loginData.password()))
