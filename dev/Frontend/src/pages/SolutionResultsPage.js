@@ -1,91 +1,177 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useZPL } from '../context/ZPLContext';
 import './SolutionResultsPage.css';
 
 export default function SolutionResultsPage() {
-  // Retrieve the solutionResponse from ZPLContext using the useZPL hook
   const { solutionResponse } = useZPL();
   const solutionMap = solutionResponse?.solution || {};
 
-  // Log the full solution response when it loads
-  useEffect(() => {
-    if (solutionResponse) {
-      console.log('SolutionResponse:', solutionResponse);
-    }
-  }, [solutionResponse]);
-
-  // List of variable names
   const variableNames = Object.keys(solutionMap);
-
-  // State for the selected variable
   const [selectedVar, setSelectedVar] = useState('');
+  const [viewMode, setViewMode] = useState(0); // 0 = table, 1 = pivot
+  const [showConfig, setShowConfig] = useState(false);
 
-  // Initialize selection to the first variable if available
+  // Auto‐select first variable
   useEffect(() => {
     if (variableNames.length > 0 && !selectedVar) {
       setSelectedVar(variableNames[0]);
     }
   }, [variableNames, selectedVar]);
 
-  // Data for the selected variable
-  const varData = solutionMap[selectedVar] || { solutions: [] };
-
-  // Convert the Set to an array
+  const varData = solutionMap[selectedVar] || { solutions: [], typeStructure: [] };
   const solutionsArray = Array.from(varData.solutions || []);
-
-  // Determine if we need to show the Objective Value column
+  const columnTypes = varData.typeStructure || [];
   const showObjective = solutionsArray.some(sol => sol.objectiveValue !== 1);
+
+  // Pivot mapping
+  const [mapping, setMapping] = useState({ rowIndex: 0, colIndex: 1, cellIndex: 2 });
+  const order = ['rowIndex', 'colIndex', 'cellIndex'];
+
+  const moveUp = key => {
+    const idx = order.indexOf(key);
+    if (idx > 0) {
+      const prev = order[idx - 1];
+      setMapping(m => ({ ...m, [key]: m[prev], [prev]: m[key] }));
+    }
+  };
+
+  const moveDown = key => {
+    const idx = order.indexOf(key);
+    if (idx < order.length - 1) {
+      const next = order[idx + 1];
+      setMapping(m => ({ ...m, [key]: m[next], [next]: m[key] }));
+    }
+  };
+
+  // Build pivot data
+  const rows = [];
+  const cols = [];
+  const cellMap = {};
+  if (columnTypes.length === 3 && viewMode === 1) {
+    solutionsArray.forEach(sol => {
+      const r = sol.values[mapping.rowIndex];
+      const c = sol.values[mapping.colIndex];
+      const v = sol.values[mapping.cellIndex];
+      if (!rows.includes(r)) rows.push(r);
+      if (!cols.includes(c)) cols.push(c);
+      cellMap[`${r}__${c}`] = v;
+    });
+    if (columnTypes[mapping.rowIndex] === 'INT') rows.sort((a, b) => Number(a) - Number(b));
+    if (columnTypes[mapping.colIndex] === 'INT') cols.sort((a, b) => Number(a) - Number(b));
+  }
+
+  const publicUrl = process.env.PUBLIC_URL;
 
   return (
     <div className="solution-container">
-      {/* Dropdown for selecting variable */}
-      <label htmlFor="var-select" className="var-label">
-        Select Variable:
-      </label>
-      <select
-        id="var-select"
-        value={selectedVar}
-        onChange={e => setSelectedVar(e.target.value)}
-        className="var-select"
-      >
-        {variableNames.map(name => (
-          <option key={name} value={name}>
-            {name}
-          </option>
-        ))}
-      </select>
+      <div className="top-controls">
+        <Link
+          to="/"
+          className="nav-btn home-btn"
+          style={{ backgroundImage: `url(${publicUrl}/Images/HomeButton.png)` }}
+          title="Home"
+        />
+        <Link
+          to="/my-images"
+          className="nav-btn images-btn"
+          style={{ backgroundImage: `url(${publicUrl}/Images/ExitButton2.png)` }}
+          title="My Images"
+        />
 
-      {/* Display message if no data */}
-      {solutionsArray.length === 0 ? (
-        <p className="no-data">No data found for the selected variable.</p>
-      ) : (
-        <div className="variable-details">
-          <h2 className="var-title">{selectedVar}</h2>
+        <label htmlFor="var-select" className="var-label">Variable:</label>
+        <select
+          id="var-select"
+          className="var-select"
+          value={selectedVar}
+          onChange={e => setSelectedVar(e.target.value)}
+        >
+          {variableNames.map(n => (
+            <option key={n} value={n}>{n}</option>
+          ))}
+        </select>
 
-          <div className="var-info">
-            <span><strong>Sets:</strong> {varData.setStructure.join(', ')}</span>
-            <span><strong>Types:</strong> {varData.typeStructure.join(', ')}</span>
+        {columnTypes.length === 3 && (
+          <button
+            className="view-toggle-btn"
+            onClick={() => setViewMode(v => (v === 0 ? 1 : 0))}
+          >
+            {viewMode === 0 ? 'Pivot View' : 'Table View'}
+          </button>
+        )}
+
+        {viewMode === 1 && columnTypes.length === 3 && (
+          <button
+            className="config-btn"
+            onClick={() => setShowConfig(true)}
+          >
+            Configure Pivot
+          </button>
+        )}
+      </div>
+
+      {showConfig && (
+        <div className="modal-overlay" onClick={() => setShowConfig(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>Configure Pivot</h3>
+            <table className="pivot-config-table">
+              <tbody>
+                {order.map((key, i) => (
+                  <tr key={key}>
+                    <td>
+                      {key === 'rowIndex' ? 'Rows' : key === 'colIndex' ? 'Columns' : 'Cells'}
+                    </td>
+                    <td className="pivot-config-cell">
+                      <button onClick={() => moveUp(key)} disabled={i === 0}>↑</button>
+                      <span className="pivot-type">{columnTypes[mapping[key]]}</span>
+                      <button onClick={() => moveDown(key)} disabled={i === order.length - 1}>↓</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button onClick={() => setShowConfig(false)}>Close</button>
           </div>
+        </div>
+      )}
 
-          {/* Table for displaying solutions */}
+      <div className="table-wrapper">
+        {viewMode === 0 ? (
           <table className="solutions-table">
             <thead>
               <tr>
-                <th>Values</th>
+                {columnTypes.map((t, i) => <th key={i}>{t}</th>)}
                 {showObjective && <th>Objective Value</th>}
               </tr>
             </thead>
             <tbody>
               {solutionsArray.map(sol => (
                 <tr key={sol.values.join('-')}>
-                  <td>{sol.values.join(', ')}</td>
+                  {sol.values.map((v, idx) => <td key={idx}>{v}</td>)}
                   {showObjective && <td>{sol.objectiveValue}</td>}
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-      )}
+        ) : (
+          <table className="pivot-table">
+            <thead>
+              <tr>
+                <th>{columnTypes[mapping.rowIndex]}</th>
+                {cols.map(c => <th key={c}>{c}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(r => (
+                <tr key={r}>
+                  <td><strong>{r}</strong></td>
+                  {cols.map(c => <td key={c}>{cellMap[`${r}__${c}`] || ''}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }
