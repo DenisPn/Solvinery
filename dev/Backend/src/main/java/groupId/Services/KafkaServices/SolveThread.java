@@ -94,9 +94,9 @@ public class SolveThread extends Thread {
     @NonNull
     private Solution solveProblem(@NonNull SolveRequest request, @NonNull Path codeFile) {
         Process scipProcess = null;
+        int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
         try {
             log.info("Got path: {}", codeFile.toAbsolutePath());
-            int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
             ProcessBuilder processBuilder = new ProcessBuilder("scip", "-c",
                     "read " + codeFile + " optimize display solution quit");
             processBuilder.directory(codeFile.getParent().toFile());
@@ -150,9 +150,14 @@ public class SolveThread extends Thread {
             log.info("Found solution: {}",solution);
             return solution;
 
-        } catch (InterruptedException | IOException e) {
-            throw new SolverException("Error during SCIP execution: " + e.getMessage());
-        } finally {
+        }
+        catch (IOException e) {
+            throw new SolverException("IO Error during SCIP execution: " + e.getMessage());
+        }
+        catch (InterruptedException e) {
+            throw new SolverException("Solver timed out after " + timeout + " seconds.");
+        }
+        finally {
             if (scipProcess != null && scipProcess.isAlive()) {
                 scipProcess.destroyForcibly();
             }
@@ -202,7 +207,7 @@ public class SolveThread extends Thread {
 
         }
         catch (Exception e){
-            throw new SolverException("Error while validating code: " + e.getMessage());
+            throw new ValidationException(e.getMessage());
         }
         finally {
             if (zimplProcess != null && zimplProcess.isAlive()) {

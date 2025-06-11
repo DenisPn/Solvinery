@@ -3,6 +3,7 @@ package groupId.DTO.Factories;
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import Exceptions.SolverExceptions.ValidationException;
 import Exceptions.UserErrors.UserDataException;
+import Exceptions.UserErrors.UserInputException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import groupId.DTO.Records.Requests.Responses.ExceptionDTO;
 import org.springframework.core.NestedRuntimeException;
@@ -98,6 +99,12 @@ public class ExceptionRecordFactory {
     }
     @NonNull
     public static ExceptionDTO makeDTO(@NonNull ValidationException exception) {
+        Objects.requireNonNull(exception,ohNo);
+        //TODO: LOG
+        return new ExceptionDTO(exception.getMessage());
+    }
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull UserInputException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO(exception.getMessage());

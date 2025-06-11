@@ -2,6 +2,7 @@ package groupId.Services;
 
 
 import Exceptions.InternalErrors.ClientSideError;
+import Exceptions.SolverExceptions.SolverException;
 import Exceptions.SolverExceptions.ValidationException;
 import Exceptions.UserErrors.UserInputException;
 import Image.Image;
@@ -22,10 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
+
 @Slf4j
 @Service
 public class SolveService {
@@ -92,7 +91,7 @@ public class SolveService {
         catch (ValidationException e) {
             throw new UserInputException(e.getMessage());
         }
-        catch (Exception e) {
+        catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("Error getting solution", e);
         } finally {
             pendingRequests.remove(requestId);
@@ -108,14 +107,15 @@ public class SolveService {
             SolveRequest solveRequest = new SolveRequest(requestId, zimplCode, timeout,true);
             solverThread.submitRequest(solveRequest);
             future.get(timeout, TimeUnit.SECONDS);
-        } catch (TimeoutException e) {
-            throw new RuntimeException("Solution timed out", e);
         }
-        catch (ValidationException e) {
-            throw new UserInputException(e.getMessage());
+        catch (TimeoutException e) {
+            throw new RuntimeException("Solution timed out"+ e.getMessage());
         }
-        catch (Exception e) {
-            throw new RuntimeException("Error getting solution", e);
+        catch (ExecutionException e) {
+            throw new UserInputException(e.getCause().getMessage());
+        }
+        catch (InterruptedException e) {
+            throw new RuntimeException("Unexpected Solver error: "+ e.getMessage());
         } finally {
             pendingRequests.remove(requestId);
         }
@@ -146,8 +146,12 @@ public class SolveService {
             return RecordFactory.makeDTO(solution);
         } catch (TimeoutException e) {
             throw new RuntimeException("Solution timed out" );
-        } catch (Exception e) {
-            throw new RuntimeException("Error getting solution: "+ e.getMessage());
+        }
+        catch (ExecutionException e) {
+            throw new UserInputException(e.getCause().getMessage());
+        }
+        catch (InterruptedException e) {
+            throw new RuntimeException("Unexpected Solver error: "+ e.getMessage());
         } finally {
             pendingRequests.remove(requestId);
         }

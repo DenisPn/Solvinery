@@ -3,6 +3,7 @@ package groupId.Services;
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import Exceptions.SolverExceptions.ValidationException;
 import Exceptions.UserErrors.UserDataException;
+import Exceptions.UserErrors.UserInputException;
 import groupId.DTO.Factories.ExceptionRecordFactory;
 import groupId.DTO.Records.Requests.Responses.ExceptionDTO;
 import org.springframework.core.NestedRuntimeException;
@@ -93,6 +94,12 @@ public class ExceptionHandlerService {
     @NonNull
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ExceptionDTO> handleException(@NonNull ValidationException ex) {
+        ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
+        return ResponseEntity.status(400).body(errorResponse);
+    }
+    @NonNull
+    @ExceptionHandler(UserInputException.class)
+    public ResponseEntity<ExceptionDTO> handleException(@NonNull UserInputException ex) {
         ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
         return ResponseEntity.status(400).body(errorResponse);
     }

@@ -68,9 +68,9 @@ public void handleSolveRequest(@NonNull @Payload SolveRequest request) {
     @NonNull
     private Solution solveProblem(@NonNull SolveRequest request, @NonNull Path codeFile) {
         Process scipProcess = null;
+        int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
         try {
             log.info("Got path: {}", codeFile.toAbsolutePath());
-            int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
             ProcessBuilder processBuilder = new ProcessBuilder("scip", "-c",
                     String.format("\"read %s optimize display solution quit\"", codeFile));
             //"scip", "-c", "read " + sourceFilePath + " optimize display solution q"
@@ -103,9 +103,14 @@ public void handleSolveRequest(@NonNull @Payload SolveRequest request) {
             //return new Solution(prunedOutput);
             return new Solution(); //TEMP UNTILL IMPL
 
-        } catch (InterruptedException | IOException e) {
-            throw new SolverException("Error during SCIP execution: " + e.getMessage());
-        } finally {
+        }
+        catch (IOException e) {
+            throw new SolverException("IO Error during SCIP execution: " + e.getMessage());
+        }
+        catch (InterruptedException e) {
+                throw new SolverException("Solver timed out after " + timeout + " seconds.");
+        }
+         finally {
             if (scipProcess != null && scipProcess.isAlive()) {
                 scipProcess.destroyForcibly();
             }
