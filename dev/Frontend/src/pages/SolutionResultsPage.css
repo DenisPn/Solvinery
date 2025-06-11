@@ -7,6 +7,7 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  
 }
 
 /* Top controls layout */
@@ -190,4 +191,17 @@
 }
 .pivot-type {
   font-weight: 600;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #2A7B9B;
+  background: linear-gradient(
+    328deg,
+    rgba(42, 123, 155, 1) 0%,
+    rgba(87, 199, 133, 1) 100%,
+    rgba(237, 221, 83, 1) 100%
+  );
 }
