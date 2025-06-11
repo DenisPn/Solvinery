@@ -137,7 +137,7 @@ public class RecordFactory {
      */
     @NonNull
     private static VariableDTO makeDTO (@NonNull VariableModule variable) {
-        return new VariableDTO(variable.getOriginalName(), variable.getTypeStructureAlias(), variable.getAlias());
+        return new VariableDTO(variable.getName(), variable.getTypeStructure(), variable.getAlias());
     }
 
     @NonNull

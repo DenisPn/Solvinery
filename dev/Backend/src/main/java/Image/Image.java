@@ -74,7 +74,7 @@ public class Image {
             Variable variable = model.getVariable(variableName);
             if(variable==null)
                 throw new IllegalArgumentException("No variable with name: " + variableName);
-            this.activeVariables.add(new VariableModule(variable, variableDTO.alias()));
+            this.activeVariables.add(new VariableModule(variable.getName(),variable.getTypeStructure(), variableDTO.alias()));
         }
         for (ConstraintModuleDTO constraintModuleDTO : imageDTO.constraintModules()) {
             Set<Constraint> constraints = constraintModuleDTO.constraints().stream()
@@ -167,7 +167,7 @@ public class Image {
             Variable variable = model.getVariable(variableName);
             if(variable==null)
                 throw new IllegalArgumentException("No variable with name: " + variableName);
-            this.activeVariables.add(new VariableModule(variable, variableDTO.alias()));
+            this.activeVariables.add(new VariableModule(variable.getName(),variable.getTypeStructure(), variableDTO.alias()));
         }
         for (ConstraintModuleDTO constraintModuleDTO : imageDTO.constraintModules()) {
             Set<Constraint> constraints = constraintModuleDTO.constraints().stream()
@@ -333,6 +333,7 @@ public class Image {
             throw new IllegalArgumentException("No preference module with name: " + moduleName);
         preferenceModules.get(moduleName).removePreference(model.getPreference(preferenceDTO.identifier()));
     }
+    @NonNull
     public Set<VariableModule> getActiveVariables () {
         return activeVariables;
     }
@@ -341,18 +342,18 @@ public class Image {
         Variable varName= model.getVariable(name);
         if(varName==null)
             throw new IllegalArgumentException("No variable with name: " + name);
-        activeVariables.add(new VariableModule(varName));
+        activeVariables.add(new VariableModule(varName.getName(),varName.getTypeStructure(), varName.getName()));
     }
 
     @NonNull
     public ModelInterface getModel() {
         return this.model;
     }
-
+    @NonNull
     public Set<SetModule> getActiveSets () {
         return activeSets;
     }
-
+    @NonNull
     public Set<ParameterModule> getActiveParams () {
         return activeParams;
     }

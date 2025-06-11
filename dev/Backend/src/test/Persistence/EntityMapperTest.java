@@ -10,7 +10,6 @@ import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
-import Model.Data.Elements.Variable;
 import Model.Data.Types.ModelPrimitives;
 import Persistence.Entities.Image.Data.ParameterEntity;
 import Persistence.Entities.Image.Data.SetEntity;
@@ -90,9 +89,7 @@ public class EntityMapperTest {
         List<String> structure = new ArrayList<>();
         structure.add("structure1");
         structure.add("structure2");
-        List<String> typeAliases= new ArrayList<>();
-        typeAliases.add("alias1"); typeAliases.add("alias2");
-        VariableModule var = new VariableModule(new Variable("varName", structure), "v-alias",typeAliases);
+        VariableModule var = new VariableModule("varName", structure, "v-alias");
         Constraint constraint = new Constraint("constraint");
         Preference preference = new Preference("preference");
 
@@ -141,9 +138,7 @@ public class EntityMapperTest {
         SetEntity set = new SetEntity(imageId, "setName", "INT", setData, "s-alias");
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
-        List<String> typeAliases= new ArrayList<>();
-        typeAliases.add("alias1"); typeAliases.add("alias2");
-        VariableEntity var = new VariableEntity(imageId, "varName",structure, "v-alias",typeAliases);
+        VariableEntity var = new VariableEntity(imageId, "varName", "v-alias",structure);
         ConstraintEntity constraint = new ConstraintEntity("constraint");
         PreferenceEntity preference = new PreferenceEntity("preference");
         HashSet<SetEntity> sets= new HashSet<>();

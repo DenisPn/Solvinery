@@ -8,8 +8,6 @@ import org.springframework.lang.NonNull;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Entity
 @Table(name = "variables")
@@ -29,50 +27,16 @@ public class VariableEntity {
             @JoinColumn(name = "image_id", referencedColumnName = "image_id"),
             @JoinColumn(name = "element_name", referencedColumnName = "element_name")
     })
-    @AttributeOverrides({
-            @AttributeOverride(name = "alias", column = @Column(name = "type_alias")),
-            @AttributeOverride(name = "type", column = @Column(name = "type_name"))
-    })
-    private List<VariableTypeAliasPair> typeStructure;
+    private List<String> typeStructure;
 
 
 
 
     public VariableEntity() {}
-    public VariableEntity(UUID id, @NonNull String varName, @Nullable String alias,@NonNull List<VariableTypeAliasPair> typeStructure) {
+
+    public VariableEntity(UUID id, @NonNull String varName, @Nullable String alias,@NonNull List<String> typeStructure) {
         this.imageComponentKey= new ImageComponentKey(id,varName);
         this.typeStructure = typeStructure;
-        if(alias == null || alias.isBlank())
-            this.alias = varName;
-        else this.alias = alias;
-    }
-
-    public VariableEntity(UUID id, @NonNull String varName, @NonNull List<String> typeStructure, @Nullable String alias) {
-        this.imageComponentKey= new ImageComponentKey(id,varName);
-        this.typeStructure = typeStructure.stream().map(
-                type -> new VariableTypeAliasPair(type, type)
-        ).collect(Collectors.toList());
-        if(alias == null || alias.isBlank())
-            this.alias = varName;
-        else this.alias = alias;
-    }
-
-    public VariableEntity(UUID id, @NonNull String varName, @NonNull List<String> typeStructure, @Nullable String alias, @Nullable List<String> typeAlias) {
-        this.imageComponentKey= new ImageComponentKey(id,varName);
-        if(typeAlias == null) {
-            this.typeStructure = typeStructure.stream().map(
-                    type -> new VariableTypeAliasPair(type, type))
-                    .collect(Collectors.toList());
-        }
-        else if(typeStructure.size() != typeAlias.size())
-            throw new IllegalArgumentException("Type alias and variable type length do not match");
-        else this.typeStructure = IntStream.range(0, typeStructure.size())
-                .mapToObj(i -> new VariableTypeAliasPair(
-                        typeAlias.get(i),
-                        typeStructure.get(i)
-                ))
-                .collect(Collectors.toList());
-
         if(alias == null || alias.isBlank())
             this.alias = varName;
         else this.alias = alias;
@@ -92,7 +56,7 @@ public class VariableEntity {
     }
 
     @NonNull
-    public List<VariableTypeAliasPair> getTypeStructure() {
+    public List<String> getTypeStructure() {
         return typeStructure;
     }
 

@@ -62,9 +62,7 @@ class ImageEntityTest {
         SetEntity set = new SetEntity(imageId, "setName", "s-type", setData, "s-alias");
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
-        List<String> typeAliases= new ArrayList<>();
-        typeAliases.add("alias1"); typeAliases.add("alias2");
-        VariableEntity var = new VariableEntity(imageId, "varName",structure, "v-alias",typeAliases);
+        VariableEntity var = new VariableEntity(imageId, "varName", "v-alias",structure);
         ConstraintEntity constraint = new ConstraintEntity("constraint");
         PreferenceEntity preference = new PreferenceEntity("preference");
         HashSet<SetEntity> sets= new HashSet<>();
@@ -155,10 +153,10 @@ class ImageEntityTest {
         structure1.add("structure1"); structure1.add("structure2");
         UUID imageId = UUID.randomUUID();
         ImageEntity entity1 = new ImageEntity();
-        entity1.addVariable(new VariableEntity(imageId, "varName",structure, "varAlias") );
+        entity1.addVariable(new VariableEntity(imageId, "varName", "varAlias",structure) );
 
         ImageEntity entity2 = new ImageEntity();
-        entity2.addVariable(new VariableEntity(imageId, "varName",structure1,"varAlias") );
+        entity2.addVariable(new VariableEntity(imageId, "varName","varAlias",structure1) );
 
         // Act & Assert
         assertEquals(entity1, entity2);
@@ -174,10 +172,10 @@ class ImageEntityTest {
         structure1.add("structure1"); structure1.add("structure2");
         UUID imageId = UUID.randomUUID();
         ImageEntity entity1 = new ImageEntity();
-        entity1.addVariable(new VariableEntity(imageId, "varName1",structure, "varAlias1") );
+        entity1.addVariable(new VariableEntity(imageId, "varName1", "varAlias1",structure) );
 
         ImageEntity entity2 = new ImageEntity();
-        entity2.addVariable(new VariableEntity(imageId, "varName2",structure1,"varAlias2") );
+        entity2.addVariable(new VariableEntity(imageId, "varName2","varAlias2",structure1) );
 
         // Act & Assert
         assertNotEquals(entity1, entity2);

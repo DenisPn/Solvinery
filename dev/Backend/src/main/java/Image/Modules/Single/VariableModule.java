@@ -1,65 +1,40 @@
 package Image.Modules.Single;
 
 import Model.Data.Elements.Variable;
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 
 public class VariableModule {
-    @NonNull
-    private final Variable variable;
+
     @NonNull
     private String alias;
     @NonNull
-    private final List<String> typeStructureAlias;
+    private final List<String> typeStructure;
+    @NonNull
+    private final String variableName;
 
-
-    public VariableModule(@NotNull Variable variable,@Nullable String alias,@Nullable List<String> typeStructureAlias) {
-        this.variable = variable;
-        if(alias==null) this.alias=variable.getName();
+    public VariableModule(@NonNull String variableName, @NonNull List<String> typeStructure,@Nullable String alias) {
+        this.variableName = variableName;
+        this.typeStructure = typeStructure;
+        if(alias==null) this.alias=variableName;
         else this.alias = alias;
-        if(typeStructureAlias ==null)
-            this.typeStructureAlias =variable.getTypeStructure();
-        else if(variable.getTypeStructure().size()!= typeStructureAlias.size())
-            throw new IllegalArgumentException("Type alias and variable type length do not match");
-        else this.typeStructureAlias = typeStructureAlias;
-    }
-    @Deprecated
-    public VariableModule(@NotNull Variable variable,@Nullable String alias) {
-        this.variable = variable;
-        if(alias==null) this.alias=variable.getName();
-        else this.alias = alias;
-        this.typeStructureAlias =variable.getTypeStructure();
-
-    }
-    public VariableModule(@NotNull Variable variable) {
-        this.variable = variable;
-        this.alias = variable.getName();
-        this.typeStructureAlias =variable.getTypeStructure();
-
     }
 
     @NonNull
-    public List<String> getTypeStructureAlias() {
-        return typeStructureAlias;
-    }
-    @NonNull
-    public List<String> getOriginalTypeStructure() {
-        return variable.getTypeStructure();
+    public List<String> getTypeStructure() {
+        return typeStructure;
     }
 
     @NonNull
-    public String getOriginalName() {
-        return variable.getName();
-    }
-    @Deprecated(forRemoval = true)
-    public @NotNull Variable getVariable () {
-        return variable;
+    public String getName() {
+        return variableName;
     }
 
-    public @NotNull String getAlias () {
+    @NonNull
+    public String getAlias () {
         return alias;
     }
 
@@ -79,6 +54,6 @@ public class VariableModule {
      * Sets alias to be the same as the variable name.
      */
     public void removeAlias () {
-        this.alias = variable.getName();
+        this.alias = variableName;
     }
 }

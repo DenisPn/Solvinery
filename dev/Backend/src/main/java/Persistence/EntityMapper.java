@@ -17,7 +17,6 @@ import Model.Data.Types.Tuple;
 import Persistence.Entities.Image.Data.ParameterEntity;
 import Persistence.Entities.Image.Data.SetEntity;
 import Persistence.Entities.Image.Data.VariableEntity;
-import Persistence.Entities.Image.Data.VariableTypeAliasPair;
 import Persistence.Entities.Image.ImageComponentKey;
 import Persistence.Entities.Image.ImageEntity;
 import Persistence.Entities.Image.Operational.ConstraintEntity;
@@ -227,14 +226,12 @@ public class EntityMapper {
     }
     @NonNull
     public static VariableModule toDomain(@NonNull VariableEntity entity){
-        List<String> typeStructure = entity.getTypeStructure().stream().map(VariableTypeAliasPair::type).toList();
-        List<String> typeStructureAlias = entity.getTypeStructure().stream().map(VariableTypeAliasPair::alias).toList();
 
-        return new VariableModule(new Variable(entity.getName(),typeStructure),entity.getAlias(),typeStructureAlias);
+        return new VariableModule(entity.getName(),entity.getTypeStructure(),entity.getAlias());
     }
     @NonNull
     public static VariableEntity toEntity(@NonNull VariableModule variable, UUID imageId){
-        return new VariableEntity(imageId,variable.getOriginalName(),variable.getOriginalTypeStructure(),variable.getAlias(),variable.getTypeStructureAlias());
+        return new VariableEntity(imageId,variable.getName(),variable.getAlias(),variable.getTypeStructure());
     }
     @NonNull
     public static Image toDomain(@NonNull ImageEntity imageEntity){

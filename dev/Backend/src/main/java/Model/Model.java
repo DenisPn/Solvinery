@@ -15,7 +15,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.Nullable;
 import org.springframework.lang.NonNull;
 import parser.FormulationLexer;
 import parser.FormulationParser;
@@ -67,11 +67,11 @@ public class Model implements ModelInterface {
     public Map<String,Variable> getVariablesMap(){
         return variables;
     }
-
+    @NonNull
     public ParseTree getTree () {
         return tree;
     }
-
+    @NonNull
     public CommonTokenStream getTokens () {
         return tokens;
     }
@@ -239,7 +239,7 @@ public class Model implements ModelInterface {
         return components;
     }
 
-    private void findComponentContextsRecursive(FormulationParser.@Nullable UExprContext ctx, @NonNull List<FormulationParser.UExprContext> components) {
+    private void findComponentContextsRecursive(@Nullable FormulationParser.UExprContext ctx, @NonNull List<FormulationParser.UExprContext> components) {
         if (ctx == null) {
             return;
         }
