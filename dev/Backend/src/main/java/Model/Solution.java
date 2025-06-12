@@ -32,9 +32,7 @@ public class Solution {
     @NonNull
     final HashMap<String, List<VariableSolution>> rawVariableSolution;
     @NonNull
-    final HashMap<String, List<String>> variableStructure;
-    @NonNull
-    final HashMap<String,List<String>> variableTypes;
+    final HashMap<String,List<String>> variableStructure;
     double solvingTime;
     /**
      *  the actual numeric value of the expression that was optimized
@@ -47,7 +45,6 @@ public class Solution {
     public Solution(){
         variableSolution = new HashMap<>();
         variableStructure = new HashMap<>();
-        variableTypes = new HashMap<>();
         rawVariableSolution = new HashMap<>();
         reachedSolution = false;
         reachedVariables = false;
@@ -97,8 +94,7 @@ public class Solution {
     }
     public void postProcessSolution(@NonNull Image image){
         for (VariableModule variable : image.getActiveVariables()) {
-            //variableStructure.put(variable.getAlias(), variable.getVariable().getBasicSets());
-            variableTypes.put(variable.getAlias(),variable.getTypeStructure());
+            variableStructure.put(variable.getAlias(),variable.getTypeStructure());
             if(rawVariableSolution.containsKey(variable.getName())) {
                 variableSolution.put(variable.getAlias(), rawVariableSolution.get(variable.getName()));
                 rawVariableSolution.remove(variable.getName());
@@ -135,10 +131,6 @@ public class Solution {
         return variableStructure.get(variableName);
     }
 
-    public List<String> getVariableTypes(String variableName) {
-        return variableTypes.get(variableName);
-    }
-
     @Override
     public String toString() {
         ObjectMapper mapper = new ObjectMapper();
@@ -147,7 +139,7 @@ public class Solution {
             String prettyRawVarSolution = mapper.writeValueAsString(rawVariableSolution);
             String prettyVarSolution = mapper.writeValueAsString(variableSolution);
             String prettyVarStructure = mapper.writeValueAsString(variableStructure);
-            String prettyVarTypes = mapper.writeValueAsString(variableTypes);
+            String prettyVarTypes = mapper.writeValueAsString(variableStructure);
             return "\nsolved: " + solved +
                     ",\nrawVariableSolution: " + prettyRawVarSolution +
                     ",\nvariableSolution: " + prettyVarSolution +
