@@ -1,28 +1,39 @@
 package Image.Modules.Single;
 
 import Model.Data.Elements.Variable;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+
+import java.util.List;
 
 public class VariableModule {
 
-    private final Variable variable;
-
+    @NonNull
     private String alias;
+    @NonNull
+    private final List<String> typeStructure;
+    @NonNull
+    private final String variableName;
 
-
-
-    public VariableModule(Variable variable,String alias) {
-        this.variable = variable;
-        this.alias = alias;
-    }
-    public VariableModule(Variable variable) {
-        this.variable = variable;
-        this.alias = variable.getName();
-    }
-
-    public Variable getVariable () {
-        return variable;
+    public VariableModule(@NonNull String variableName, @NonNull List<String> typeStructure,@Nullable String alias) {
+        this.variableName = variableName;
+        this.typeStructure = typeStructure;
+        if(alias==null) this.alias=variableName;
+        else this.alias = alias;
     }
 
+    @NonNull
+    public List<String> getTypeStructure() {
+        return typeStructure;
+    }
+
+    @NonNull
+    public String getName() {
+        return variableName;
+    }
+
+    @NonNull
     public String getAlias () {
         return alias;
     }
@@ -33,7 +44,7 @@ public class VariableModule {
      *
      * @param alias The new alias for the variable. If null or empty, the alias will be reset.
      */
-    public void setAlias (String alias) {
+    public void setAlias (@Nullable String alias) {
         if(alias == null || alias.isEmpty())
             removeAlias();
         else this.alias = alias;
@@ -43,6 +54,6 @@ public class VariableModule {
      * Sets alias to be the same as the variable name.
      */
     public void removeAlias () {
-        this.alias = variable.getName();
+        this.alias = variableName;
     }
 }

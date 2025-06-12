@@ -1,6 +1,7 @@
 package Model.Data.Types;
 
 import Exceptions.InternalErrors.ModelExceptions.Parsing.ParsingException;
+import org.springframework.lang.NonNull;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +12,7 @@ public interface ModelType {
     String toString();
     List<String> typeList();
     //dynamic dispatch somewhat doesnt work with static methods...
-    static String convertArrayOfAtoms(String[] atoms, ModelType type){
+    static String convertArrayOfAtoms(@NonNull String[] atoms, ModelType type){
         if(type instanceof Tuple)
             return Tuple.convertArrayOfAtoms(atoms,type);
         else    
@@ -31,7 +32,8 @@ public interface ModelType {
      * @return a list of strings representing atomic components extracted from the input string.
      * @throws ParsingException if the input string is not properly formatted as a quoted string or a valid list.
      */
-    static List<List<String>> convertStringToAtoms(String element) {
+    @NonNull
+    static List<List<String>> convertStringToAtoms(@NonNull String element) {
         List<List<String>> ans = new LinkedList<>();
         if(element.matches("\".*\"")) {
             ans.add(List.of(element.substring(1, element.length() - 1)));

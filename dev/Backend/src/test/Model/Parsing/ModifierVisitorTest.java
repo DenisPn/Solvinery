@@ -14,6 +14,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.lang.NonNull;
 import parser.FormulationLexer;
 import parser.FormulationParser;
 
@@ -47,7 +48,8 @@ class ModifierVisitorTest {
         when(model.getTokens()).thenReturn(tokens);
     }
 
-    private CommonTokenStream setupTokens(String source) {
+    @NonNull
+    private CommonTokenStream setupTokens(@NonNull String source) {
         CharStream charStream = CharStreams.fromString(source);
         FormulationLexer lexer = new FormulationLexer(charStream);
         return new CommonTokenStream(lexer);
@@ -335,7 +337,7 @@ class ModifierVisitorTest {
         }
     }
     
-    private FormulationParser getParser(String source) {
+    private FormulationParser getParser(@NonNull String source) {
         CharStream charStream = CharStreams.fromString(source);
         FormulationLexer lexer = new FormulationLexer(charStream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);

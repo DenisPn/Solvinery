@@ -3,10 +3,12 @@ package groupId.DTO.Factories;
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import Exceptions.SolverExceptions.ValidationException;
 import Exceptions.UserErrors.UserDataException;
+import Exceptions.UserErrors.UserInputException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import groupId.DTO.Records.Requests.Responses.ExceptionDTO;
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.lang.NonNull;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -22,6 +24,7 @@ public class ExceptionRecordFactory {
 
     //TODO A singular exceptionDTO factory, made with the purpose of having a central fatal/non fatal error logging class,
     // need to implement logger. Remove informative errors messages from user side, for network/internal errors.
+    @NonNull
     public static ExceptionDTO makeDTO(Exception exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
@@ -29,7 +32,8 @@ public class ExceptionRecordFactory {
         return new ExceptionDTO("An uncaught error occurred- this is a bug and should not happen.\n " +
                 "App functionality will probably break, and user is now authorized to slap the developers.");
     }
-    public static ExceptionDTO makeDTO(RuntimeException exception) {
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull RuntimeException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
 //        return new ExceptionDTO("An unexpected fatal error occurred. See log for details, or contract the developer");
@@ -37,60 +41,77 @@ public class ExceptionRecordFactory {
 
     }
 
-    public static ExceptionDTO makeDTO(IOException exception) {
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull IOException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO("An error occurred while trying to access the file system.\n" +
                 "See log for details, or contract the developer (" +exception.getMessage() + ")"  );
     }
-    public static ExceptionDTO makeDTO(ZimplCompileError exception) {
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull ZimplCompileError exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO(String.format("An error occurred while compiling zimpl code.\nError code:%s\nError message:%s",
                 exception.getErrorCode(),exception.getMessage()));
     }
-    public static ExceptionDTO makeDTO(HttpRequestMethodNotSupportedException exception) {
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull HttpRequestMethodNotSupportedException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO(String.format("A server communication error occurred, HTTP request is invalid. Current method:%s\n" +
                 "Supported methods:%s",exception.getMethod(), Arrays.toString(exception.getSupportedMethods())));
     }
-    public static ExceptionDTO makeDTO(HttpMediaTypeNotSupportedException exception) {
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull HttpMediaTypeNotSupportedException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO("A server communication error occurred, HTTP content media type not supported." +exception.getMessage() + ")");
     }
-    public static ExceptionDTO makeDTO(HttpMessageNotReadableException exception) {
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull HttpMessageNotReadableException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO("A server communication error occurred, HTTP request content type is invalid: " +exception.getMessage() + ")");
     }
-    public static ExceptionDTO makeDTO(InvalidFormatException exception) {
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull InvalidFormatException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO("A server communication error occurred. HTTP request payload parsing failed, invalid format: " +exception.getMessage() + ")");
     }
-    public static ExceptionDTO makeDTO(NestedRuntimeException exception) {
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull NestedRuntimeException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO("An unhandled server communication occurred. (" +exception.getMessage() + ")");
     }
-    public static ExceptionDTO makeDTO(NoResourceFoundException exception) {
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull NoResourceFoundException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO("An unhandled server communication occurred. (" +exception.getMessage() + ")");
     }
-    public static ExceptionDTO makeDTO(UserDataException exception) {
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull UserDataException exception) {
         Objects.requireNonNull(exception,ohNo);
         return new ExceptionDTO(exception.getMessage());
     }
-    public static ExceptionDTO makeDTO(ValidationException exception) {
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull ValidationException exception) {
+        Objects.requireNonNull(exception,ohNo);
+        //TODO: LOG
+        return new ExceptionDTO(exception.getMessage());
+    }
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull UserInputException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
         return new ExceptionDTO(exception.getMessage());
     }
     //kinda proud of this one
-    public static ExceptionDTO makeDTO(MethodArgumentNotValidException exception) {
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull MethodArgumentNotValidException exception) {
         Objects.requireNonNull(exception,ohNo);
         String errorMessage = exception.getBindingResult().getFieldErrors().stream()
                 // Map each FieldError to its error message

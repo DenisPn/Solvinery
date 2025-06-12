@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -29,30 +31,30 @@ public class ParameterEntity {
 
 
     @Column(name = "alias")
-    private String alias;
+    private @Nullable String alias;
 
 
     public ParameterEntity () {}
 
-    public ParameterEntity (ImageComponentKey imageComponentKey, String type, String data) {
+    public ParameterEntity (ImageComponentKey imageComponentKey, String type, @NonNull String data) {
         this.imageComponentKey = imageComponentKey;
         this.type = type;
         this.data = data;
         this.alias = null;
     }
-    public ParameterEntity (ImageComponentKey imageComponentKey, String type, String data, String alias) {
+    public ParameterEntity (ImageComponentKey imageComponentKey, String type, @NonNull String data, String alias) {
         this.imageComponentKey = imageComponentKey;
         this.type = type;
         this.data = data;
         this.alias = alias;
     }
-    public ParameterEntity (UUID id, String name, String type, String data) {
+    public ParameterEntity (UUID id, String name, String type, @NonNull String data) {
         this.imageComponentKey= new ImageComponentKey(id,name);
         this.type = type;
         this.data = data;
         this.alias = null;
     }
-    public ParameterEntity (UUID id, String name, String type, String data, String alias) {
+    public ParameterEntity (UUID id, String name, String type, @NonNull String data, String alias) {
         this.imageComponentKey= new ImageComponentKey(id,name);
         this.type = type;
         this.data = data;
@@ -67,6 +69,7 @@ public class ParameterEntity {
         return type;
     }
 
+    @NonNull
     public String getData() {
         return data;
     }
@@ -89,7 +92,7 @@ public class ParameterEntity {
 
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ParameterEntity that = (ParameterEntity) o;

@@ -5,8 +5,10 @@ import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
 import Model.Data.Elements.Variable;
+import org.springframework.lang.NonNull;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,42 +23,12 @@ public class ModelProxy implements ModelInterface{
     public ModelProxy(String code){
         this.code=code;
     }
-    /*private Model getModel(){
-        if(model==null) {
-            try {
-                // Get application directory
-                String appDir;
-                try {
-                    URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-                    appDir = new File(uri).getParent();
-                } catch (URISyntaxException e) {
-                    appDir = System.getProperty("/tmp"); // Fallback
-                }
-                if (appDir == null) {
-                    throw new ModelBuildException("Could not determine application directory.");
-                }
-
-                // Resolve the path relative to the JAR location
-                String storageDir = "User/Model";
-                Path storagePath = Paths.get(appDir, storageDir);
-                Files.createDirectories(storagePath);
-                Path filePath = storagePath.resolve(UUID.randomUUID() + ".zpl");
-                Files.writeString(filePath, code, StandardOpenOption.CREATE);
-                this.model = new Model(filePath.toAbsolutePath().toString());
-                return model;
-            } catch (IOException e) {
-                throw new ModelBuildException("I/O error while creating model: " + e.getMessage());
-            }
-        }
-        else {
-            return model;
-        }
-    }*/
 
     /**
      * Get the model, create a new instance (and in turn, parse the model) if it doesn't exist.
      * @return new or existing model instance.
      */
+    @NonNull
     private Model getModel(){
         if(model==null) {
                 this.model = new Model(code);
@@ -110,7 +82,7 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
-    public Collection<Variable> getVariables (Collection<String> identifiers) {
+    public Collection<Variable> getVariables (@NonNull Collection<String> identifiers) {
         return getModel().getVariables(identifiers);
     }
 
@@ -125,12 +97,7 @@ public class ModelProxy implements ModelInterface{
     }
 
     @Override
-    public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Set<Preference> preferencesScalars) {
-        return getModel().writeToSource(sets,params,disabledConstraints,preferencesScalars);
-    }
-
-    @Override
-    public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String, Float> preferencesScalars) {
+    public String writeToSource(@NonNull Map<String, List<String>> sets, @NonNull Map<String,String> params, @NonNull Set<String> disabledConstraints, @NonNull Map<String, Float> preferencesScalars) {
         return getModel().writeToSource(sets,params,disabledConstraints,preferencesScalars);
     }
 }

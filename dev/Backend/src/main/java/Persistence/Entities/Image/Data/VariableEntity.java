@@ -2,6 +2,8 @@ package Persistence.Entities.Image.Data;
 
 import Persistence.Entities.Image.ImageComponentKey;
 import jakarta.persistence.*;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -12,48 +14,29 @@ import java.util.UUID;
 public class VariableEntity {
 
     @EmbeddedId
+    @NonNull
     private ImageComponentKey imageComponentKey;
 
     @Column(name = "alias")
+    @NonNull
     private String alias;
 
 
     @ElementCollection
-    @CollectionTable(name = "structure_parts", joinColumns = {
-            @JoinColumn(name = "image_id",
-                    referencedColumnName = "image_id"),
-            @JoinColumn(name = "element_name",
-                    referencedColumnName = "element_name")
-    }
-    )
-    @Column(name = "structure_part")
-    //@NotNull(message = "Structure can't be null.")
-    private List<String> structure;
-
-
-    @ElementCollection
-    @CollectionTable(name = "variable_set_structure", joinColumns = {
+    @CollectionTable(name = "variable_type_structure", joinColumns = {
             @JoinColumn(name = "image_id", referencedColumnName = "image_id"),
             @JoinColumn(name = "element_name", referencedColumnName = "element_name")
     })
-    @Column(name = "set_name")
-    private List<String> setStructure;
+    private List<String> typeStructure;
+
+
+
 
     public VariableEntity() {}
 
-    @Deprecated(forRemoval = true)
-    public VariableEntity(UUID id,String varName, List<String> structure,String alias) {
+    public VariableEntity(UUID id, @NonNull String varName, @Nullable String alias,@NonNull List<String> typeStructure) {
         this.imageComponentKey= new ImageComponentKey(id,varName);
-        this.structure = structure;
-        if(alias == null || alias.isBlank())
-            this.alias = varName;
-        else this.alias = alias;
-}
-
-    public VariableEntity(UUID id,String varName, List<String> structure,List<String> setStructure,String alias) {
-        this.imageComponentKey= new ImageComponentKey(id,varName);
-        this.structure = structure;
-        this.setStructure = setStructure;
+        this.typeStructure = typeStructure;
         if(alias == null || alias.isBlank())
             this.alias = varName;
         else this.alias = alias;
@@ -61,26 +44,28 @@ public class VariableEntity {
 
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         VariableEntity that = (VariableEntity) o;
-        return Objects.equals(imageComponentKey, that.imageComponentKey) && Objects.equals(alias, that.alias) && Objects.equals(structure, that.structure) && Objects.equals(setStructure, that.setStructure);
+        return Objects.equals(imageComponentKey, that.imageComponentKey) && Objects.equals(alias, that.alias) && Objects.equals(typeStructure, that.typeStructure);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(imageComponentKey, alias, structure, setStructure);
+        return Objects.hash(imageComponentKey, alias, typeStructure);
     }
 
-    public List<String> getStructure () {
-        return structure;
+    @NonNull
+    public List<String> getTypeStructure() {
+        return typeStructure;
     }
+
     public String getAlias() {
         if(alias == null || alias.isBlank())
             return getName();
         else return alias;
     }
-    public void setAlias(String alias) {
+    public void setAlias(@NonNull String alias) {
         this.alias = alias;
     }
     public String getName(){
@@ -90,15 +75,4 @@ public class VariableEntity {
         return imageComponentKey.getImageId();
     }
 
-    public List<String> getSetStructure() {
-        return setStructure;
-    }
-
-    public void setSetStructure(List<String> setStructure) {
-        this.setStructure = setStructure;
-    }
-
-    public void setStructure(List<String> structure) {
-        this.structure = structure;
-    }
 }

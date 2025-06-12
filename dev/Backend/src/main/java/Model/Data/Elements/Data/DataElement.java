@@ -2,6 +2,8 @@ package Model.Data.Elements.Data;
 
 import Model.Data.Elements.Element;
 import Model.Data.Types.ModelType;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.util.Objects;
 
@@ -21,7 +23,7 @@ public abstract class DataElement extends Element {
         this.alias = alias;
     }*/
 
-    public boolean isCompatible (DataElement element){
+    public boolean isCompatible (@NonNull DataElement element){
         return this.type.isCompatible(element.getDataType());
     }
     public boolean isCompatible (String element){
@@ -40,7 +42,7 @@ public abstract class DataElement extends Element {
     }*/
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         DataElement that = (DataElement) o;

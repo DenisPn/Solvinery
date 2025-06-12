@@ -4,6 +4,8 @@ import Persistence.Entities.Image.ImageComponentKey;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -34,22 +36,22 @@ public class PreferenceModuleEntity {
     private Set<@NotNull PreferenceEntity> preferences;
     public PreferenceModuleEntity () {}
 
-    public PreferenceModuleEntity (ImageComponentKey imageComponentKey, String description, Set<PreferenceEntity> preferences) {
+    public PreferenceModuleEntity (ImageComponentKey imageComponentKey, @NonNull String description, @NonNull Set<PreferenceEntity> preferences) {
         this.imageComponentKey = imageComponentKey;
         this.description = description;
         this.preferences = preferences;
     }
-    public PreferenceModuleEntity (ImageComponentKey imageComponentKey, String description) {
+    public PreferenceModuleEntity (ImageComponentKey imageComponentKey, @NonNull String description) {
         this.imageComponentKey = imageComponentKey;
         this.description = description;
         this.preferences = new HashSet<>();
     }
-    public PreferenceModuleEntity (UUID id,String name, String description, Set<PreferenceEntity> preferences) {
+    public PreferenceModuleEntity (UUID id, String name, @NonNull String description, @NonNull Set<PreferenceEntity> preferences) {
         this.imageComponentKey= new ImageComponentKey(id,name);
         this.description = description;
         this.preferences = preferences;
     }
-    public PreferenceModuleEntity (UUID id,String name, String description) {
+    public PreferenceModuleEntity (UUID id, String name, @NonNull String description) {
         this.imageComponentKey= new ImageComponentKey(id,name);
         this.description = description;
         this.preferences = new HashSet<>();
@@ -65,10 +67,12 @@ public class PreferenceModuleEntity {
         return imageComponentKey;
     }
 
+    @NonNull
     public String getDescription () {
         return description;
     }
 
+    @NonNull
     public Set<PreferenceEntity> getPreferences () {
         return preferences;
     }
@@ -77,16 +81,16 @@ public class PreferenceModuleEntity {
         this.imageComponentKey = imageComponentKey;
     }
 
-    public void setDescription (String description) {
+    public void setDescription (@NonNull String description) {
         this.description = description;
     }
 
-    public void setPreferences (Set<PreferenceEntity> preferences) {
+    public void setPreferences (@NonNull Set<PreferenceEntity> preferences) {
         this.preferences = preferences;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PreferenceModuleEntity that = (PreferenceModuleEntity) o;

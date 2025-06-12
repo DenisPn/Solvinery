@@ -15,10 +15,11 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.springframework.lang.Nullable;
+import org.springframework.lang.NonNull;
 import parser.FormulationLexer;
 import parser.FormulationParser;
 
-import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,56 +42,49 @@ public class Model implements ModelInterface {
     private final Set<Element> modifiedElements= new HashSet<>();
 
 
+    @NonNull
     public Map<String,ModelSet> getSetsMap(){
         return sets;
     }
+    @NonNull
     public Map<String,ModelParameter> getParamsMap(){
         return params;
     }
+    @NonNull
     public Map<String,Constraint> getConstraintsMap(){
         return constraints;
     }
 
+    @NonNull
     public Map<String,Preference> getPreferencesMap(){
         return modifiedPreferences;
     }
+    @NonNull
     public Set<String> getUneditedPreferences(){
         return uneditedPreferences;
     }
+    @NonNull
     public Map<String,Variable> getVariablesMap(){
         return variables;
     }
-
+    @NonNull
     public ParseTree getTree () {
         return tree;
     }
-
+    @NonNull
     public CommonTokenStream getTokens () {
         return tokens;
     }
 
+    @NonNull
     public String getOriginalSource () {
         return originalSource;
     }
 
-    private final String originalSource;
+    private final @NonNull String originalSource;
     private String currentSource;
 
-    @Deprecated
-    public Model(Path sourceFilePath) {
-        /*try {
-            if (!Files.exists(sourceFilePath)) {
-                throw new ParsingException("File does not exist: " + sourceFilePath);
-            }
-            this.sourceFilePath = sourceFilePath;
-            parseSource();
-        }
-        catch (IOException e) {
-            throw new ParsingException("I/O error parsing source file: " + e.getMessage());
-        }*/
-        this.originalSource= null;
-    }
-    public Model(String sourceCode) {
+    public Model(@NonNull String sourceCode) {
             this.originalSource = sourceCode;
             parseSource();
     }
@@ -115,7 +109,7 @@ public class Model implements ModelInterface {
             readPreferences();
         }
     }
-    @Deprecated
+
     private void readPreferences(){
         for(String preferenceBody: uneditedPreferences){
             String paramName=extractScalarParam(preferenceBody);
@@ -135,7 +129,8 @@ public class Model implements ModelInterface {
             originalToModifiedDereferences.put(preferenceBody,preference);
         }
     }
-    private String extractScalarParam(String preferenceBody){
+    @NonNull
+    private String extractScalarParam(@NonNull String preferenceBody){
         // Matches pattern: (<anything>) * scalar<numbers>
         Pattern pattern = Pattern.compile("\\((.+?)\\)\\s*\\*\\s*(scalar\\d+)");
         Matcher matcher = pattern.matcher(preferenceBody);
@@ -170,74 +165,39 @@ public class Model implements ModelInterface {
         }
     }
 
-    public static String hashPreference(String input) {
+    @NonNull
+    public static String hashPreference(@NonNull String input) {
         return "scalar"+ Math.abs(input.hashCode());
     }
 
     @Override
-    @Deprecated(forRemoval = true)
-    public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Set<Preference> preferencesScalars) {
+    public String writeToSource(@NonNull Map<String,List<String>> sets, @NonNull Map<String,String> params, @NonNull Set<String> disabledConstraints, @NonNull Map<String,Float> preferencesScalars) {
         //set values in model
-        sets.forEach(set ->
+        sets.keySet().forEach(setName ->
         {
-            this.sets.get(set.getName()).setData(set.getData());
+            ModelSet set = this.sets.get(setName);
+            if(set == null)
+                throw new InvalidModelInputException("Set "+setName+" does not exist in model");
+            this.sets.get(set.getName()).setData(sets.get(setName));
             this.modifiedElements.add(set);
         });
-        params.forEach(param ->
+        params.keySet().forEach(paramName ->
         {
-            this.params.get(param.getName()).setData(param.getData());
+            ModelParameter param = this.params.get(paramName);
+            if(param == null)
+                throw new InvalidModelInputException("Parameter "+paramName+" does not exist in model");
+            this.params.get(param.getName()).setData(params.get(paramName));
             this.modifiedElements.add(param);
         });
-        disabledConstraints.forEach(constraint ->
+        disabledConstraints.forEach(constraintName ->
         {
-            if(!constraint.isOn()) {
-                this.constraints.get(constraint.getName()).toggle(false);
-                this.modifiedElements.add(constraint);
-            }
+            Constraint constraint = this.constraints.get(constraintName);
+            if(constraint == null)
+                throw new InvalidModelInputException("Constraint "+constraintName+" does not exist in model");
+            this.modifiedElements.add(constraint);
         });
-        preferencesScalars.forEach(preference ->
-        {
-            ModelParameter scalar=this.preferenceToScalar.get(preference);
-            //scalar.setData(Float.toString(preference.getScalar()));
-            this.modifiedElements.add(scalar);
-        });
-        //wrtie to file
-        updateParser();
-        ModifierVisitor modifier = new ModifierVisitor(this, currentSource);
-        modifier.visit(tree);
-        currentSource = modifier.getModifiedSource();
-        /*try {
-               *//* // Write the modified source back to file
-                String modifiedSource = modifier.getModifiedSource();
-                Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
-                parseSource();*//*
-            }
-            catch (IOException e) {
-                throw new ParsingException("Error writing to source file: " + e.getMessage());
-            }*/
-        return currentSource;
-    }
+        //this.modifiedElements.addAll(disabledConstraints);
 
-    @Override
-    public String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String,Float> preferencesScalars) {
-        //set values in model
-        sets.forEach(set ->
-        {
-            this.sets.get(set.getName()).setData(set.getData());
-            this.modifiedElements.add(set);
-        });
-        params.forEach(param ->
-        {
-            this.params.get(param.getName()).setData(param.getData());
-            this.modifiedElements.add(param);
-        });
-        disabledConstraints.forEach(constraint ->
-        {
-            if(!constraint.isOn()) {
-                this.constraints.get(constraint.getName()).toggle(false);
-                this.modifiedElements.add(constraint);
-            }
-        });
         preferencesScalars.keySet().forEach(preference ->
         {
             ModelParameter scalar;
@@ -265,19 +225,21 @@ public class Model implements ModelInterface {
             }*/
         return currentSource;
     }
+    @NonNull
     @Override
     public String getSourceCode () {
         return originalSource;
     }
 
 
-    public List<FormulationParser.UExprContext> findComponentContexts(FormulationParser.NExprContext ctx) {
+    @NonNull
+    public List<FormulationParser.UExprContext> findComponentContexts(@NonNull FormulationParser.NExprContext ctx) {
         List<FormulationParser.UExprContext> components = new ArrayList<>();
         findComponentContextsRecursive(ctx.uExpr(), components);
         return components;
     }
 
-    private void findComponentContextsRecursive(FormulationParser.UExprContext ctx, List<FormulationParser.UExprContext> components) {
+    private void findComponentContextsRecursive(@Nullable FormulationParser.UExprContext ctx, @NonNull List<FormulationParser.UExprContext> components) {
         if (ctx == null) {
             return;
         }
@@ -301,7 +263,8 @@ public class Model implements ModelInterface {
     public ModelParameter getScalarParam(Preference preference){
         return preferenceToScalar.get(preference);
     }
-    public Float getScalarValue(Preference preference){
+    @NonNull
+    public Float getScalarValue(@NonNull Preference preference){
         try {
             return Float.valueOf(getScalarParam(preference).getData());
         }
@@ -309,6 +272,7 @@ public class Model implements ModelInterface {
             throw new InvalidModelInputException("Preference "+preference.getName()+" does not have a scalar value");
         }
     }
+    @NonNull
     public Float getScalarValue(String preferenceName){
         try {
             return Float.valueOf(getScalarParam(preferenceName).getData());
@@ -325,7 +289,7 @@ public class Model implements ModelInterface {
         return Optional.ofNullable(params.get(identifier))
                 .orElseThrow(() -> new InvalidModelInputException("Parameter " + identifier + " not found"));
     }
-    public ModelParameter getParameter(String identifier) {
+    public @Nullable ModelParameter getParameter(String identifier) {
         if(!params.containsKey(identifier))
             return null; //don't like this, but this has to be here due to legacy code (max)
         ModelParameter param= params.get(identifier);
@@ -338,6 +302,7 @@ public class Model implements ModelInterface {
         return constraints.get(identifier);
     }
 
+    @NonNull
     @Override
     public Collection<Constraint> getConstraints() {
         return constraints.values();
@@ -350,7 +315,7 @@ public class Model implements ModelInterface {
     /**
      * For use in testing only.
      */
-    public String getOriginalBody(Preference preference){
+    public @Nullable String getOriginalBody(@NonNull Preference preference){
         for(String original: originalToModifiedDereferences.keySet()){
             if(originalToModifiedDereferences.get(original).getName().equals(preference.getName())){
                 return original;
@@ -362,6 +327,7 @@ public class Model implements ModelInterface {
         return modifiedPreferences.containsKey(identifier);
     }
 
+    @NonNull
     @Override
     public Collection<Preference> getModifiedPreferences() {
         return modifiedPreferences.values();
@@ -371,21 +337,25 @@ public class Model implements ModelInterface {
         return variables.get(identifier);
     }
 
+    @NonNull
     @Override
     public Collection<Variable> getVariables() {
         return variables.values();
     }
+    @NonNull
     @Override
     public Collection<ModelSet> getSets(){
         return this.sets.values().stream().filter(ModelSet::isPrimitive).toList();
     }
     
+    @NonNull
     @Override
     public Collection<ModelParameter> getParameters(){
         return this.params.values().stream().filter(
                 param -> !param.isAuxiliary())
                 .toList();
     }
+    @NonNull
     public Collection<ModelParameter> getAllParameters(){
         return this.params.values();
     }
@@ -394,15 +364,16 @@ public class Model implements ModelInterface {
     }
 
 
+    @NonNull
     @Override
-    public Collection<Variable> getVariables(Collection<String> identifiers){
+    public Collection<Variable> getVariables(@NonNull Collection<String> identifiers){
         HashSet<Variable> set = new HashSet<>();
         for (String identifier : identifiers) {
             set.add(getVariable(identifier));
         }
         return set;
     }
-    public boolean isModified(String name, Element.ElementType type) {
+    public boolean isModified(String name, @NonNull Element.ElementType type) {
         return switch(type) {
             case MODEL_PARAMETER -> params.containsKey(name) && modifiedElements.contains(params.get(name));
             case MODEL_SET -> sets.containsKey(name) && modifiedElements.contains(sets.get(name));
@@ -419,10 +390,12 @@ public class Model implements ModelInterface {
         tree = parser.program();
     }
 
+    @NonNull
     public Map<String, ModelParameter> getParams() {
         return params;
     }
 
+    @NonNull
     public Set<Element> getModifiedElements() {
         return modifiedElements;
     }

@@ -4,6 +4,8 @@ import Persistence.Entities.Image.ImageComponentKey;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.lang.NonNull;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -34,22 +36,22 @@ public class ConstraintModuleEntity {
 
     public ConstraintModuleEntity () {}
 
-    public ConstraintModuleEntity (ImageComponentKey imageComponentKey, String description, Set<ConstraintEntity> constraints) {
+    public ConstraintModuleEntity (ImageComponentKey imageComponentKey, @NonNull String description, @NonNull Set<ConstraintEntity> constraints) {
         this.imageComponentKey = imageComponentKey;
         this.description = description;
         this.constraints = constraints;
     }
-    public ConstraintModuleEntity (ImageComponentKey imageComponentKey, String description) {
+    public ConstraintModuleEntity (ImageComponentKey imageComponentKey, @NonNull String description) {
         this.imageComponentKey = imageComponentKey;
         this.description = description;
         this.constraints = new HashSet<>();
     }
-    public ConstraintModuleEntity (UUID id,String name, String description, Set<ConstraintEntity> constraints) {
+    public ConstraintModuleEntity (UUID id, String name, @NonNull String description, @NonNull Set<ConstraintEntity> constraints) {
         this.imageComponentKey= new ImageComponentKey(id,name);
         this.description = description;
         this.constraints = constraints;
     }
-    public ConstraintModuleEntity (UUID id,String name, String description) {
+    public ConstraintModuleEntity (UUID id, String name, @NonNull String description) {
         this.imageComponentKey= new ImageComponentKey(id,name);
         this.description = description;
         this.constraints = new HashSet<>();
@@ -59,10 +61,12 @@ public class ConstraintModuleEntity {
         return imageComponentKey;
     }
 
+    @NonNull
     public String getDescription () {
         return description;
     }
 
+    @NonNull
     public Set<ConstraintEntity> getConstraints () {
         return constraints;
     }
@@ -71,7 +75,7 @@ public class ConstraintModuleEntity {
         this.imageComponentKey = imageComponentKey;
     }
 
-    public void setDescription (String description) {
+    public void setDescription (@NonNull String description) {
         this.description = description;
     }
     public void addConstraint (ConstraintEntity constraint) {
@@ -89,7 +93,7 @@ public class ConstraintModuleEntity {
     public boolean hasConstraint (ConstraintEntity constraint) {
         return constraints.contains(constraint);
     }
-    public void setConstraints (Set<ConstraintEntity> constraints) {
+    public void setConstraints (@NonNull Set<ConstraintEntity> constraints) {
         this.constraints = constraints;
     }
     public String getName(){
@@ -99,7 +103,7 @@ public class ConstraintModuleEntity {
         return imageComponentKey.getImageId();
     }
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ConstraintModuleEntity that = (ConstraintModuleEntity) o;
