@@ -119,7 +119,11 @@ export default function SolutionResultsPage() {
                 {order.map((key, i) => (
                   <tr key={key}>
                     <td>
-                      {key === 'rowIndex' ? 'Rows' : key === 'colIndex' ? 'Columns' : 'Cells'}
+                      {key === 'rowIndex'
+                        ? 'Rows'
+                        : key === 'colIndex'
+                        ? 'Columns'
+                        : 'Cells'}
                     </td>
                     <td className="pivot-config-cell">
                       <button onClick={() => moveUp(key)} disabled={i === 0}>↑</button>
