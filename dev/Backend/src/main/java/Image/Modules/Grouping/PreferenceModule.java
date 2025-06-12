@@ -56,6 +56,7 @@ public class PreferenceModule extends OperationalModule {
     public Preference getPreference(String name){
         return preferences.get(name);
     }
+    @NonNull
     public Map<String, Preference> getPreferences() {
         return preferences;
     }

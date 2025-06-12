@@ -62,7 +62,8 @@ public class SolveService {
             kafkaTemplate.send(TOPIC_NAME, solveRequest);
 
             Solution solution = future.get(timeout+5, TimeUnit.SECONDS);
-            solution.postProcessSolution(image);
+            if(solution.isSolved())
+                solution.postProcessSolution(image);
             log.info("Solve request completed successfully at Service level.");
             return RecordFactory.makeDTO(solution);
         } catch (TimeoutException e) {

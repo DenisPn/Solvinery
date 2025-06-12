@@ -6,5 +6,6 @@ class UserImageControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        System.out.println("peepee poopoo");
     }
 }

@@ -14,7 +14,7 @@ public class ConstraintTest {
         Constraint constraint = new Constraint("Constraint1");
 
         // Act & Assert
-        assertTrue(constraint.equals(constraint));
+        assertEquals(constraint, constraint);
     }
 
     @Test
@@ -43,7 +43,7 @@ public class ConstraintTest {
         Constraint constraint2 = new Constraint("Constraint1");
 
         // Act & Assert
-        assertTrue(constraint1.equals(constraint2));
+        assertEquals(constraint1, constraint2);
     }
 
     @Test

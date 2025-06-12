@@ -1,7 +1,5 @@
 package Image.Modules.Single;
 
-import Model.Data.Elements.Variable;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 

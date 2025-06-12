@@ -2,7 +2,6 @@ package Image.Modules.Single;
 
 import Model.Data.Elements.Data.ModelSet;
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
@@ -62,7 +61,8 @@ public class SetModule {
     public @NonNull ModelSet getSet() {
         return set;
     }
-    public @NotNull String getAlias() {
+    @NonNull
+    public String getAlias() {
         return alias;
     }
     public List<String> getData() {

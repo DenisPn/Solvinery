@@ -5,7 +5,6 @@ import Image.Image;
 import Image.Modules.Single.VariableModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 
 import java.util.*;
@@ -14,7 +13,8 @@ import java.util.regex.Pattern;
 public class Solution {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Solution.class);
     private static final Pattern statusPattern = Pattern.compile("SCIP Status +: +problem is solved.*optimal solution found");
-    private static final Pattern solvingTimePattern = Pattern.compile("Solving Time \\(sec\\) +: +(\\d+\\.\\d+)");
+    private static final Pattern solvingTimePattern = Pattern.compile("Solving Time \\(sec\\) +: +(\\d+(?:\\.\\d+)?)");
+    // private static final Pattern solvingTimePattern = Pattern.compile("Solving Time \\(sec\\) +: +(\\d+\\.\\d+)");
     private static final Pattern objectiveValuePattern = Pattern.compile("objective value:\\s+(\\d+(\\.\\d+)?)");
     private static final Pattern variablePattern = Pattern.compile("^(.*?)[ \\t]+(\\d+)[ \\t]+\\(obj:(\\d+)\\)");
     boolean solved;
@@ -48,6 +48,9 @@ public class Solution {
         rawVariableSolution = new HashMap<>();
         reachedSolution = false;
         reachedVariables = false;
+        objectiveValue = -1F;
+        solvingTime = -1F;
+        solved = false;
     }
 
     public void processLine(@NonNull String line){
@@ -58,18 +61,20 @@ public class Solution {
             if (statusPattern.matcher(line).find()) {
                 reachedSolution = true;
                 solved = true;
-                log.info("Solution found.");
+                log.debug("parsed solution, solution is solved");
             }
         }
         else {
             Matcher timeMatcher = solvingTimePattern.matcher(line);
             if (timeMatcher.find()) {
                 solvingTime = Double.parseDouble(timeMatcher.group(1));
+                log.debug("Parsed solving time");
             } else {
                 Matcher objectiveMatcher = objectiveValuePattern.matcher(line);
                 if (objectiveMatcher.find()) {
                     objectiveValue = Double.parseDouble(objectiveMatcher.group(1));
                     reachedVariables = true;
+                    log.debug("Parsed total objective value");
                 }
             }
         }
@@ -83,16 +88,20 @@ public class Solution {
                 List<String> splitSolution = new LinkedList<>(Arrays.asList(solution.split("[#$]"))); //need a new array to remove dependence
                 String variableIdentifier = splitSolution.getFirst();
                 splitSolution.removeFirst();
-                if (!rawVariableSolution.containsKey(variableIdentifier))
-                    rawVariableSolution.put(variableIdentifier, new LinkedList<>());
-                if (objectiveValue != 0)  //A 0 objective value means the solution part has no effect on the actual max/min expression
+                if(objectiveValue != 0 && !variableIdentifier.isBlank()) {
+                    if (!rawVariableSolution.containsKey(variableIdentifier))
+                        rawVariableSolution.put(variableIdentifier, new LinkedList<>());
                     rawVariableSolution.get(variableIdentifier).add(new VariableSolution(splitSolution, objectiveValue));
+                }
             } else {
                 log.error("Malformed variable structure detected in solution: {}", line);
             }
         }
     }
     public void postProcessSolution(@NonNull Image image){
+        if(objectiveValue == -1F || solvingTime == -1F || !solved)
+            throw new IllegalStateException(String.format(
+                    "Solution state not valid for post process, objective value: %s, solving time: %s, Solve status: %s",objectiveValue,solvingTime,solved));
         for (VariableModule variable : image.getActiveVariables()) {
             variableStructure.put(variable.getAlias(),variable.getTypeStructure());
             if(rawVariableSolution.containsKey(variable.getName())) {
@@ -101,7 +110,7 @@ public class Solution {
             }
         }
         if(!rawVariableSolution.isEmpty()){
-            log.info("Unprocessed variables: {}",rawVariableSolution.keySet());
+            log.info("Ignored variables: {}",rawVariableSolution.keySet());
         }
     }
 
