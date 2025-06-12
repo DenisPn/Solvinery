@@ -5,7 +5,6 @@ import Exceptions.SolverExceptions.ValidationException;
 import Model.Solution;
 import groupId.DTO.Records.Events.SolveRequest;
 import groupId.Services.SolveService;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -22,8 +21,8 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class SolveThread extends Thread {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SolveThread.class);
 
     private final SolveService solveService;
     @NonNull

@@ -11,6 +11,7 @@ import Model.Data.Elements.Variable;
 import Model.Data.Types.ModelPrimitives;
 import Model.Parsing.CollectorVisitor;
 import Model.Parsing.ModifierVisitor;
+import groupId.Services.KafkaServices.SolveThread;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -19,12 +20,12 @@ import org.springframework.lang.Nullable;
 import org.springframework.lang.NonNull;
 import parser.FormulationLexer;
 import parser.FormulationParser;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Model implements ModelInterface {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Model.class);
     private static final String PROCESSED_FLAG="#processed_flag = true\n";
     private static final String USER_NOTE="#This file has been parsed and processed by the Solvinery educational project.\n#Not all code is human written.\n";
 
@@ -36,7 +37,6 @@ public class Model implements ModelInterface {
     private final Map<String, Preference> modifiedPreferences = new HashMap<>();
     private final Map<String, Preference> originalToModifiedDereferences = new HashMap<>();
     private final Map<String, Variable> variables = new HashMap<>();
-
     private final Set<String> uneditedPreferences = new HashSet<>();
     private final Map<Preference,ModelParameter> preferenceToScalar = new HashMap<>();
     private final Set<Element> modifiedElements= new HashSet<>();
@@ -101,11 +101,14 @@ public class Model implements ModelInterface {
         collector.visit(tree);
         currentSource = originalSource;
         if(!currentSource.startsWith(PROCESSED_FLAG)) {
+            log.info("model got code that wasn't parsed and processed.");
             parsePreferences();
             currentSource = PROCESSED_FLAG.concat(USER_NOTE).concat(currentSource);
         }
         else {
-            //throw new InvalidModelStateException("Model has already been parsed and processed");
+            log.info("model got code that was already parsed and processed.");
+            log.warn("Got file that was previously parsed in model. In normal execution this should not happen\n" +
+                    "This is expected to only happen in tests.");
             readPreferences();
         }
     }
@@ -114,16 +117,12 @@ public class Model implements ModelInterface {
         for(String preferenceBody: uneditedPreferences){
             String paramName=extractScalarParam(preferenceBody);
             if(!params.containsKey(paramName)){
+                log.error("Scalar parameters don't match preferences in previously parsed code, preference %s does not have corresponding scalar param: {}", preferenceBody);
                 throw new InvalidModelInputException(String.format("Scalar parameters don't match preferences in previously parsed code, " +
                         "Preference %s does not have corresponding scalar param",preferenceBody));
             }
             ModelParameter scalarParam= params.get(paramName);
             Preference preference=new Preference(preferenceBody);
-            /*try {
-                preference.setScalar(Float.parseFloat(scalarParam.getData()));
-            } catch (NumberFormatException e) {
-                throw new InvalidModelInputException("Invalid scalar parameter value while parsing: "+e.getMessage());
-            }*/
             preferenceToScalar.put(preference,scalarParam);
             modifiedPreferences.put(preference.getName(),preference);
             originalToModifiedDereferences.put(preferenceBody,preference);
@@ -135,13 +134,14 @@ public class Model implements ModelInterface {
         Pattern pattern = Pattern.compile("\\((.+?)\\)\\s*\\*\\s*(scalar\\d+)");
         Matcher matcher = pattern.matcher(preferenceBody);
         if (!matcher.find()) {
-            throw new InvalidModelInputException(
-                    "Previously parsed preferences must be in format '(<expression>) * scalar<number>', got: " + preferenceBody);
+            log.error("Previously parsed preferences must be in format '(<expression>) * scalar<number>', got: {}", preferenceBody);
+            throw new InvalidModelInputException("Previously parsed preferences must be in format '(<expression>) * scalar<number>', got: " + preferenceBody);
         }
         String originalBody = matcher.group(1);
         String scalarParam = matcher.group(2);
         String expectedHash= hashPreference(originalBody);
         if(!expectedHash.equals(scalarParam)){
+            log.error("Scalar parameters don't match preferences in previously parsed code, expected: {}, got: {}",expectedHash,scalarParam);
             throw new InvalidModelInputException(String.format("Scalar parameters don't match preferences in previously parsed code, " +
                     "expected: %s, got: %s\n",expectedHash,scalarParam));
         }
@@ -196,7 +196,6 @@ public class Model implements ModelInterface {
                 throw new InvalidModelInputException("Constraint "+constraintName+" does not exist in model");
             this.modifiedElements.add(constraint);
         });
-        //this.modifiedElements.addAll(disabledConstraints);
 
         preferencesScalars.keySet().forEach(preference ->
         {
@@ -209,20 +208,10 @@ public class Model implements ModelInterface {
             scalar.setData(Float.toString(preferencesScalars.get(preference)));
             this.modifiedElements.add(scalar);
         });
-        //wrtie to file
         updateParser();
         ModifierVisitor modifier = new ModifierVisitor(this, currentSource);
         modifier.visit(tree);
         currentSource = modifier.getModifiedSource();
-        /*try {
-         *//* // Write the modified source back to file
-                String modifiedSource = modifier.getModifiedSource();
-                Files.write(Paths.get(sourceFilePath), modifiedSource.getBytes());
-                parseSource();*//*
-            }
-            catch (IOException e) {
-                throw new ParsingException("Error writing to source file: " + e.getMessage());
-            }*/
         return currentSource;
     }
     @NonNull

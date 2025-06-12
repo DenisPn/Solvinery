@@ -11,9 +11,8 @@ import org.springframework.lang.NonNull;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-@Slf4j
 public class Solution {
-
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Solution.class);
     private static final Pattern statusPattern = Pattern.compile("SCIP Status +: +problem is solved.*optimal solution found");
     private static final Pattern solvingTimePattern = Pattern.compile("Solving Time \\(sec\\) +: +(\\d+\\.\\d+)");
     private static final Pattern objectiveValuePattern = Pattern.compile("objective value:\\s+(\\d+(\\.\\d+)?)");
@@ -55,12 +54,14 @@ public class Solution {
     }
 
     public void processLine(@NonNull String line){
-        if(reachedVariables)
+        if(reachedVariables) {
             processVariable(line);
+        }
         else if(!reachedSolution) {
             if (statusPattern.matcher(line).find()) {
                 reachedSolution = true;
                 solved = true;
+                log.info("Solution found.");
             }
         }
         else {
