@@ -16,7 +16,7 @@ const MyImagesPage = () => {
 
 
   const navigate = useNavigate();
-  const { userId, constraintsModules, preferenceModules ,setSolutionResponse } = useZPL();
+  const { userId, constraintsModules, preferenceModules, setSolutionResponse } = useZPL();
   useEffect(() => {
     if (!userId) return;
 
@@ -331,16 +331,24 @@ const MyImagesPage = () => {
                       type="text"
                       className="add-value-input"
                       placeholder="New value"
-                      value={
-                        selectedImage.sets[selectedSetIndex].newValue || ""
-                      }
+                      value={selectedImage.sets[selectedSetIndex].newValue || ""}
                       onChange={(e) => {
                         const newImage = { ...selectedImage };
-                        newImage.sets[selectedSetIndex].newValue =
-                          e.target.value;
+                        newImage.sets[selectedSetIndex].newValue = e.target.value;
                         setSelectedImage(newImage);
                       }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          const newValue = selectedImage.sets[selectedSetIndex].newValue?.trim();
+                          if (!newValue) return;
+                          const newImage = { ...selectedImage };
+                          newImage.sets[selectedSetIndex].values.push(newValue);
+                          newImage.sets[selectedSetIndex].newValue = "";
+                          setSelectedImage(newImage);
+                        }
+                      }}
                     />
+
                     <button
                       className="add-value-button"
                       onClick={() => {
@@ -376,10 +384,18 @@ const MyImagesPage = () => {
                                     value={editingValue}
                                     onChange={(e) => {
                                       const newImage = { ...selectedImage };
-                                      newImage.sets[
-                                        selectedSetIndex
-                                      ].editingValue = e.target.value;
+                                      newImage.sets[selectedSetIndex].editingValue = e.target.value;
                                       setSelectedImage(newImage);
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") {
+                                        // Update the value on Enter press
+                                        const newImage = { ...selectedImage };
+                                        newImage.sets[selectedSetIndex].values[i] = editingValue;
+                                        newImage.sets[selectedSetIndex].editingIndex = null;
+                                        newImage.sets[selectedSetIndex].editingValue = "";
+                                        setSelectedImage(newImage);
+                                      }
                                     }}
                                   />
                                   <button
@@ -509,9 +525,18 @@ const MyImagesPage = () => {
                                 value={param.tempValue}
                                 onChange={(e) => {
                                   const newImage = { ...selectedImage };
-                                  newImage.parameters[index].tempValue =
-                                    e.target.value;
+                                  newImage.parameters[index].tempValue = e.target.value;
                                   setSelectedImage(newImage);
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    // Update value on Enter press
+                                    const newImage = { ...selectedImage };
+                                    newImage.parameters[index].value = param.tempValue ?? param.value;
+                                    newImage.parameters[index].isEditing = false;
+                                    delete newImage.parameters[index].tempValue;
+                                    setSelectedImage(newImage);
+                                  }
                                 }}
                                 style={{ textAlign: "center" }}
                               />
