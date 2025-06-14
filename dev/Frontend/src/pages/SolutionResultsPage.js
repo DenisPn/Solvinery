@@ -7,12 +7,19 @@ export default function SolutionResultsPage() {
   const { solutionResponse } = useZPL();
   const solutionMap = solutionResponse?.solution || {};
 
+  // Log the full solutionResponse as soon as it arrives
+  useEffect(() => {
+    if (solutionResponse) {
+      console.log('SolutionResponse:', solutionResponse);
+    }
+  }, [solutionResponse]);
+
   const variableNames = Object.keys(solutionMap);
   const [selectedVar, setSelectedVar] = useState('');
   const [viewMode, setViewMode] = useState(0); // 0 = table, 1 = pivot
   const [showConfig, setShowConfig] = useState(false);
 
-  // Auto‐select first variable
+  // Auto-select first variable
   useEffect(() => {
     if (variableNames.length > 0 && !selectedVar) {
       setSelectedVar(variableNames[0]);
@@ -86,9 +93,7 @@ export default function SolutionResultsPage() {
           value={selectedVar}
           onChange={e => setSelectedVar(e.target.value)}
         >
-          {variableNames.map(n => (
-            <option key={n} value={n}>{n}</option>
-          ))}
+          {variableNames.map(n => <option key={n} value={n}>{n}</option>)}
         </select>
 
         {columnTypes.length === 3 && (
@@ -119,11 +124,7 @@ export default function SolutionResultsPage() {
                 {order.map((key, i) => (
                   <tr key={key}>
                     <td>
-                      {key === 'rowIndex'
-                        ? 'Rows'
-                        : key === 'colIndex'
-                        ? 'Columns'
-                        : 'Cells'}
+                      {key === 'rowIndex' ? 'Rows' : key === 'colIndex' ? 'Columns' : 'Cells'}
                     </td>
                     <td className="pivot-config-cell">
                       <button onClick={() => moveUp(key)} disabled={i === 0}>↑</button>
