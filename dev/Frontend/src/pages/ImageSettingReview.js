@@ -1,66 +1,103 @@
 import React, { useState } from "react";
-import { useZPL } from "../context/ZPLContext"; // Import the useZPL hook
+import { useZPL } from "../context/ZPLContext"; // now includes aliases
 import { useNavigate, Link } from "react-router-dom";
-import "./ImageSettingReview.css"; // Assuming you have your CSS
+import "./ImageSettingReview.css";
 
 const ImageSettingReview = () => {
-  const { selectedVars, userId, zplCode, setTypes, paramTypes, constraintsModules, preferenceModules } = useZPL(); // Destructure from context
+  const {
+    selectedVars,
+    userId,
+    zplCode,
+    setTypes,
+    setAliases,     // newly pulled-in aliases map
+    paramTypes,
+    paramAliases,   // newly pulled-in parameter aliases map
+    constraintsModules,
+    preferenceModules,
+  } = useZPL();
+
   const [imageName, setImageName] = useState("");
   const [imageDescription, setImageDescription] = useState("");
   const [isZplCodeVisible, setIsZplCodeVisible] = useState(false);
   const navigate = useNavigate();
 
-  // Handle Show ZPL Code
+  // Toggle ZPL code visibility
   const handleShowZplCode = () => {
     setIsZplCodeVisible(!isZplCodeVisible);
   };
 
-  // Handle Save Image (post to server)
+  // Post image data to server
   const handleSaveImage = async () => {
     const requestData = {
-      variables: selectedVars.map((variable) => ({
+      variables: selectedVars.map(variable => ({
         identifier: variable.identifier,
         structure: variable.structure,
-        alias: variable.alias || "", // Default to empty string if alias is missing
+        alias: variable.alias || variable.identifier,
       })),
-      constraintModules: constraintsModules.map((module) => ({
+      constraintModules: constraintsModules.map(module => ({
         moduleName: module.name,
         description: module.description,
         constraints: module.constraints.map(c => c.identifier),
       })),
-      preferenceModules: preferenceModules.map((module) => ({
+      preferenceModules: preferenceModules.map(module => ({
         moduleName: module.name,
         description: module.description,
         preferences: module.preferences.map(p => p.identifier),
       })),
-      sets: Object.keys(setTypes).map((set) => ({
-        setDefinition: { name: set, type: setTypes[set] },
-        values: [], // Add your logic for values
-      })),
-      parameters: Object.keys(paramTypes).map((param) => ({
-        parameterDefinition: { name: param, type: paramTypes[param] },
-        value: "", // Default value, adjust based on your need
-      })),
+
+      // Use actual aliases from context
+      sets: Object.entries(setTypes).map(([setName, rawType]) => {
+        const typeArray = Array.isArray(rawType)
+          ? rawType
+          : rawType.split(",").map(s => s.trim());
+
+        const { alias = setName, typeAlias = [] } = setAliases[setName] || {};
+
+        return {
+          setDefinition: {
+            name: setName,
+            type: typeArray,
+            alias,           // real alias
+            typeAlias,       // real typeAlias
+          },
+          values: [],
+        };
+      }),
+
+      parameters: Object.entries(paramTypes).map(([paramName, rawType]) => {
+        const typeArray = Array.isArray(rawType)
+          ? rawType
+          : rawType.split(",").map(s => s.trim());
+
+        const { alias = paramName, typeAlias = [] } = paramAliases[paramName] || {};
+
+        return {
+          parameterDefinition: {
+            name: paramName,
+            type: typeArray,
+            alias,         // real alias
+            typeAlias,     // real typeAlias
+          },
+          value: "",
+        };
+      }),
+
       name: imageName,
       description: imageDescription,
-      code: zplCode, // The zpl code from context
+      code: zplCode,
     };
 
-    // Send POST request with the data
     try {
-      console.log("Request Data : ", requestData);
+      console.log("Request Data:", requestData);
       const response = await fetch(`/user/${userId}/image`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
       });
 
       if (!response.ok) {
-        // If status code is not 2xx, handle the error
-        const errorMsg = await response.text(); // Get the error message from response
-        alert(`Failed to save image. Error: ${errorMsg || 'Unknown error occurred'}`);
+        const errorMsg = await response.text();
+        alert(`Failed to save image. Error: ${errorMsg || "Unknown error"}`);
         return;
       }
 
@@ -74,7 +111,7 @@ const ImageSettingReview = () => {
     }
   };
 
-  // Handle copying ZPL code to clipboard
+  // Copy ZPL to clipboard
   const handleCopyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(zplCode);
@@ -114,13 +151,13 @@ const ImageSettingReview = () => {
         <input
           type="text"
           value={imageName}
-          onChange={(e) => setImageName(e.target.value)}
+          onChange={e => setImageName(e.target.value)}
           placeholder="Enter image name"
         />
         <label>Image Description</label>
         <textarea
           value={imageDescription}
-          onChange={(e) => setImageDescription(e.target.value)}
+          onChange={e => setImageDescription(e.target.value)}
           placeholder="Enter image description"
         />
       </div>
@@ -133,7 +170,6 @@ const ImageSettingReview = () => {
       {isZplCodeVisible && (
         <div className="zpl-code-modal">
           <div className="modal-content">
-            {/* Copy to clipboard button */}
             <button
               className="copy-button"
               onClick={handleCopyToClipboard}
@@ -144,7 +180,7 @@ const ImageSettingReview = () => {
               className="close-button"
               onClick={() => setIsZplCodeVisible(false)}
             >
-              &times;
+              ×
             </button>
             <h2>ZPL Code</h2>
             <pre>{zplCode}</pre>

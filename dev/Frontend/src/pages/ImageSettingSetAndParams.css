@@ -1,156 +1,128 @@
 /* Image Settings Page Layout */
 .image-setting-page {
     display: flex;
-    flex-direction: column; /* Stack the sections vertically */
+    flex-direction: column;
     align-items: center;
     padding: 20px;
-    background-color: #f4f4f4; /* Same background color as before */
+    background-color: #f4f4f4;
     min-height: 100vh;
+}
+
+/* Top Navigation Icons */
+.image-setting-top-left-buttons {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    gap: 15px;
+    z-index: 100;
+}
+
+.image-setting-top-left-buttons img[alt="Back"] {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+}
+
+
+.icon-btn {
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
 }
 
 /* Title Styling */
 .page-title {
     font-size: 28px;
     font-weight: bold;
-    margin-bottom: 20px;
+    margin: 80px 0 20px;
     text-align: center;
 }
 
-.top-buttons {
+/* Toggle Buttons */
+.toggle-section {
     display: flex;
-    justify-content: space-between; /* Spread buttons across the page */
-    padding: 10px 20px; /* Padding for the buttons */
-    position: fixed;
-    top: 20px;
-    left: 0;
-    right: 0;
-    z-index: 100;
+    gap: 10px;
+    margin-bottom: 20px;
 }
-
-.left-buttons {
-    display: flex;
-    gap: 20px; /* Space between Quit and Continue buttons */
-}
-
-.right-buttons {
-    margin-left: auto; /* Pushes the Back button to the right side */
-}
-
-.quit-button,
-.continue-button,
-.back-button {
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
+.toggle-button {
+    padding: 8px 16px;
     border: none;
     border-radius: 5px;
-    font-size: 16px;
+    background-color: #007BFF;
+    color: #fff;
     cursor: pointer;
+    font-size: 14px;
 }
-
-.quit-button:hover,
-.continue-button:hover,
-.back-button:hover {
+.toggle-button:hover {
     background-color: #0056b3;
 }
 
-/* Button for Quit to navigate to home */
-.quit-button {
-    margin-left: 20px;
-}
-
-/* Set and Parameters Sections */
+/* Sections */
 .sets-section, .parameters-section {
     width: 100%;
-    max-width: 100%;
-    padding: 20px;
-    margin: 30px 60px 30px 40px;
-    min-height: 500px;
-    height: auto;
-    border-radius: 0px;
-    box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    padding: 20px 40px;
+    margin-bottom: 30px;
+}
+.section-title {
+    font-size: 22px;
+    margin-bottom: 15px;
 }
 
+/* Slider Container */
 .slider-container {
-    max-width: 100%;
     overflow-x: auto;
+    padding-bottom: 10px;
 }
-
 .slider {
     display: flex;
-    width: fit-content;
-    align-items: center;
-    justify-content: center;
-    gap: 40px;
-    overflow-x: auto;
-    margin: auto;
-    padding: 20px;
+    gap: 30px;
 }
 
 /* Box Styling */
 .slide {
-    width: 250px;
-    height: 300px;
+    width: 260px;
     background-color: #fff;
-    border-radius: 2px;
-    margin-bottom: 20px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    padding: 15px;
+    position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+      text-align: center;
+
     align-items: center;
-    position: relative;
-    transition: 0.3s ease;
-    padding: 20px;
 }
-
 .slide:hover {
-    scale: 1.1;
+    transform: scale(1.05);
+    transition: transform 0.2s;
 }
 
-/* Data in the box */
-.slide h4, .slide p {
-    font-size: 16px;
-    margin: 5px 0;
-    text-align: center;
+/* Fields in the box */
+.slide h4 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #333;
+}
+.slide .field {
+   margin: 8px 0 4px;    /* top 8px, bottom 4px */
+  padding-bottom: 4px;  /* smaller padding */
+  border-bottom: 1px solid #eee;
 }
 
-/* Inputs for Description */
-.set-input, .param-input {
-    width: 200px;
-    padding: 8px 12px;
-    font-size: 14px;
-    border: 1.5px solid #B0BEC5;
-    border-radius: 6px;
-    background-color: #F8F9FA;
-    outline: none;
-    transition: border 0.2s ease-in-out;
-    text-align: center;
-    margin-bottom: 10px;
-}
 
-.set-input:focus, .param-input:focus {
-    border-color: #007BFF;
-    background-color: white;
-}
-
-/* Buttons (Edit and Delete) */
-.edit-image, .delete-image {
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    margin-left: 10px;
-}
 
 /* Buttons container */
 .buttons-container {
     display: flex;
-    justify-content: center;
     gap: 10px;
-    position: absolute;
-    bottom: 20px;
+    margin-top: auto;
+}
+.edit-image, .delete-image {
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
 }
 
 /* Modal Overlay */
@@ -164,94 +136,71 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 999;
+    z-index: 200;
 }
 
-/* Modal */
+/* Modal Content */
 .modal {
-    background-color: white;
+    background-color: #fff;
     padding: 20px;
     border-radius: 8px;
-    width: 400px;
+    width: 380px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.modal h2 {
+    margin-bottom: 15px;
+    font-size: 20px;
     text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-
-/* Modal input spacing */
-.modal-input-group {
-    margin-bottom: 20px;
+.modal label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: 600;
 }
-
-.modal-input-group input {
-    width: 80%;
-    padding: 8px 12px;
-    font-size: 14px;
-    border: 1.5px solid #B0BEC5;
-    border-radius: 6px;
-    background-color: #F8F9FA;
-    outline: none;
+.modal input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
 }
-
-/* Modal buttons */
 .modal-buttons {
     display: flex;
     justify-content: space-around;
+    margin-top: 15px;
 }
-
-.save-button,
-.cancel-button {
+.modal button {
     padding: 8px 16px;
+    border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
 }
-
-.save-button {
+.modal button:first-of-type {
     background-color: #4CAF50;
     color: white;
-    border: none;
 }
-
-.save-button:hover {
-    background-color: #45a049;
-}
-
-.cancel-button {
+.modal button:last-of-type {
     background-color: #f44336;
     color: white;
-    border: none;
 }
 
-.cancel-button:hover {
-    background-color: #e53935;
+
+.slide .field-label {
+  font-weight: 600;
+  color: #555;
+  display: block;
+  margin-bottom: 4px;
+}
+.slide .field-value {
+  font-weight: 500;
+  color: #333;
+  display: block;
+  margin-left: 0;
 }
 
-.image-setting-home-button {
-  position: fixed;
-  top: 50px;
-  left: 30px;
-  width: 35px;
-  height: 35px;
-  cursor: pointer;
-  z-index: 10;
-}
-
-.image-setting-continue-button {
-  position: fixed;
-  top: 50px;
-  left: 75px; /* 30px + 35px + spacing */
-  width: 35px;
-  height: 35px;
-  cursor: pointer;
-  z-index: 10;
-}
-
-.image-setting-back-button {
-  position: fixed;
-  top: 50px;
-  right: 30px;
-  width: 35px;
-  height: 35px;
-  cursor: pointer;
-  z-index: 10;
+.slide .field:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0px; /* less spacing */
+  padding-bottom: 0;
 }
