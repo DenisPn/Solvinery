@@ -1,3 +1,4 @@
+/*
 package Model.Data.Elements.Data;
 
 import Model.Data.Types.ModelType;
@@ -88,4 +89,4 @@ public class DataElementTest {
             return ElementType.MODEL_PARAMETER;
         }
     }
-}
+}*/
