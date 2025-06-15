@@ -42,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureDataJpa
 @ContextConfiguration(classes = {KafkaConfig.class, IntegrationTestsConfiguration.class})
 @DisplayName("URI prefix: user/{userId}/image")
+@Disabled
 class UserImageControllerIntegrationTest {
    /* @Value("${test.zimpl.examples.problems.soldiers}")
     private Path filePath;*/

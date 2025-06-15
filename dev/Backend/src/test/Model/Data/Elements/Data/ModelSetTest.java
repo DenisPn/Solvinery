@@ -1,4 +1,3 @@
-/*
 package Model.Data.Elements.Data;
 
 import Model.Data.Elements.Element;
@@ -64,4 +63,4 @@ class ModelSetTest {
 
         assertEquals(Element.ElementType.MODEL_SET, modelSet.getType());
     }
-}*/
+}
