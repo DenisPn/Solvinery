@@ -26,7 +26,7 @@ const ImageSettingReview = () => {
   const handleSaveImage = async () => {
     const requestData = {
 
-      
+
      variables: selectedVars.map(variable => {
   // Ensure structure is always an array:
   const struct = Array.isArray(variable.structure)
@@ -66,10 +66,9 @@ const ImageSettingReview = () => {
 
         return {
           setDefinition: {
-            name: setName,
-            type: typeArray,
+            name: setName,            
             alias: userAlias || setName,
-            typeAlias: userTypeAlias.length ? userTypeAlias : typeArray,
+            structure: userTypeAlias.length ? userTypeAlias : typeArray,
           },
           values: [],
         };
