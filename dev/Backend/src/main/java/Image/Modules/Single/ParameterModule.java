@@ -12,13 +12,7 @@ public class ParameterModule extends DataModule {
     @NonNull
     private final String data;
 
-    @NonNull
-    private  String alias;
-    public ParameterModule (@NonNull String name, @NonNull List<String> structure, @Nullable String alias, @NonNull String data) {
-        super(structure, alias == null ? name : alias);
-        this.name = name;
-        this.data = data;
-    }
+
     public ParameterModule (@NonNull String name, @NonNull String structure, @Nullable String alias, @NonNull String data) {
         super(structure, alias == null ? name : alias);
         this.name = name;

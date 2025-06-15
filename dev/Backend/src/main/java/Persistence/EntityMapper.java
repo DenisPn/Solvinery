@@ -48,7 +48,7 @@ public class EntityMapper {
     public static UserEntity toEntity(@NonNull User user, @NonNull String rawPassword){
        return new UserEntity(user.getUsername(),user.getEmail(),rawPassword);
     }
-    @NonNull
+    /*@NonNull
     public static ModelType toDomain(@NonNull String type){
         List<List<String>> atoms=ModelType.convertStringToAtoms(type);
         if(atoms.size()==1){
@@ -76,7 +76,7 @@ public class EntityMapper {
             }
             return tuple;
         }
-    }
+    }*/
     
     public static String toEntity(@NonNull ModelType type){
         return type.toString();
