@@ -1,195 +1,156 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { useZPL } from "../context/ZPLContext";
-import "./ImageSettingSetAndParams.css"; // Assuming you have your CSS file for this page
+import "./ImageSettingSetAndParams.css";
 
-const ImageSettingSetAndParams = () => {
-  const { setTypes, paramTypes } = useZPL(); // Accessing data from the context
+export default function ImageSettingSetAndParams() {
+  const { setTypes, setSetTypes, setAliases, setSetAliases } = useZPL();
   const navigate = useNavigate();
 
-  const [activeSection, setActiveSection] = useState("sets"); // Tracks the active section (sets or params)
-  const [editingSet, setEditingSet] = useState(null); // Tracks the set being edited
-  const [editedSetData, setEditedSetData] = useState(""); // Stores the edited data for a set
-  const [editingParam, setEditingParam] = useState(null); // Tracks the parameter being edited
-  const [editedParamData, setEditedParamData] = useState(""); // Stores the edited data for a parameter
+  // Debug: log both maps
+  useEffect(() => {
+    console.log("setTypes:", setTypes);
+    console.log("setAliases:", setAliases);
+  }, [setTypes, setAliases]);
 
-  // Set Click Handler
+  const [activeSection, setActiveSection] = useState("sets");
+  const [editingSet, setEditingSet] = useState(null);
+  const [editedAlias, setEditedAlias] = useState("");
+  const [editedTypeAlias, setEditedTypeAlias] = useState("");
+
   const handleEditSetClick = (setName) => {
-    setEditingSet(setName); // Set the set being edited
-    setEditedSetData(setTypes[setName] || ""); // Pre-fill the data of the set if available
+    setEditingSet(setName);
+    const { alias = setName, typeAlias = [] } = setAliases[setName] || {};
+    setEditedAlias(alias);
+    setEditedTypeAlias(Array.isArray(typeAlias) ? typeAlias.join(",") : "");
   };
 
-  // Set Delete Handler
-  const handleDeleteSet = (setName) => {
-    const updatedSets = { ...setTypes };
-    delete updatedSets[setName];
-    // Assuming setTypes is updated here
-  };
-
-  // Save Set Edit Handler
   const handleSaveSetEdit = () => {
-    const updatedSets = { ...setTypes };
-    updatedSets[editingSet] = editedSetData; // Update the set with the edited data
-    // Update the context with the modified setTypes
+    setSetAliases(prev => ({
+      ...prev,
+      [editingSet]: {
+        alias: editedAlias.trim(),
+        typeAlias: editedTypeAlias
+          .split(",")
+          .map(s => s.trim())
+          .filter(s => s),
+      }
+    }));
     setEditingSet(null);
   };
 
-  // Param Click Handler
-  const handleEditParamClick = (paramName) => {
-    setEditingParam(paramName); // Set the parameter being edited
-    setEditedParamData(paramTypes[paramName] || ""); // Pre-fill the data of the param if available
-  };
-
-  // Param Delete Handler
-  const handleDeleteParam = (paramName) => {
-    const updatedParams = { ...paramTypes };
-    delete updatedParams[paramName];
-    // Assuming paramTypes is updated here
-  };
-
-  // Save Param Edit Handler
-  const handleSaveParamEdit = () => {
-    const updatedParams = { ...paramTypes };
-    updatedParams[editingParam] = editedParamData; // Update the parameter with the edited data
-    // Update the context with the modified paramTypes
-    setEditingParam(null);
+  const handleDeleteSet = (setName) => {
+    const updated = { ...setTypes };
+    delete updated[setName];
+    setSetTypes(updated);
+    const updatedAliases = { ...setAliases };
+    delete updatedAliases[setName];
+    setSetAliases(updatedAliases);
   };
 
   return (
     <div className="image-setting-page background">
-      {/* Top Buttons */}
-     {/* Top Navigation Icons */}
-<img
-  src="/images/HomeButton.png"
-  alt="Home"
-  className="image-setting-home-button"
-  onClick={() => navigate("/")}
-  title="Go to Home"
-/>
-
-<img
-  src="/images/LeftArrowButton.png"
-  alt="Continue"
-  className="image-setting-continue-button"
-  onClick={() => navigate("/image-setting-review")}
-  title="Continue"
-/>
-
-<img
-  src="/images/RightArrowButton.png"
-  alt="Back"
-  className="image-setting-back-button"
-  onClick={() => navigate("/solution-preview")}
-  title="Back"
-/>
-
-
+      <div className="image-setting-top-left-buttons">
+        <Link to="/">
+          <img src="/images/HomeButton.png" alt="Home" className="icon-btn" />
+        </Link>
+        <img
+          src="/images/LeftArrowButton.png"
+          alt="Continue"
+          className="icon-btn"
+          onClick={() => navigate("/image-setting-review")}
+        />
+        <img
+          src="/images/RightArrowButton.png"
+          alt="Back"
+          className="icon-btn"
+          onClick={() => navigate("/solution-preview")}
+        />
+      </div>
 
       <h1 className="page-title">Image Settings - Sets and Parameters</h1>
-
       <div className="toggle-section">
-        <button
-          onClick={() => setActiveSection("sets")}
-          className="toggle-button"
-        >
+        <button onClick={() => setActiveSection("sets")} className="toggle-button">
           Show Sets
         </button>
-        <button
-          onClick={() => setActiveSection("params")}
-          className="toggle-button"
-        >
+        <button onClick={() => setActiveSection("params")} className="toggle-button">
           Show Parameters
         </button>
       </div>
 
-      {/* Sets Section */}
       {activeSection === "sets" && (
         <div className="sets-section">
           <h2 className="section-title">Sets</h2>
           <div className="slider-container">
             <div className="slider">
-              {Object.entries(setTypes).map(([setName, setData], index) => (
-                <div key={index} className="slide">
-                  <div className="variable-details">
+              {Object.entries(setTypes).map(([setName, data], idx) => {
+                const { alias = setName, typeAlias = [] } = setAliases[setName] || {};
+                return (
+                  <div key={idx} className="slide">
                     <h4>{setName}</h4>
-                    <input
-                      type="text"
-                      value={setData}
-                      className="variable-input"
-                      readOnly
-                    />
-                  </div>
-                  <div className="buttons-container">
-                    <img
-                      src="/images/edit-button.png"
-                      alt="Edit"
-                      className="edit-image"
-                      onClick={() => handleEditSetClick(setName)}
-                    />
-                    <img
-                      src="/images/delete.png"
-                      alt="Delete"
-                      className="delete-image"
-                      onClick={() => handleDeleteSet(setName)}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Parameters Section */}
-      {activeSection === "params" && (
-        <div className="parameters-section">
-          <h2 className="section-title">Parameters</h2>
-          <div className="slider-container">
-            <div className="slider">
-              {Object.entries(paramTypes).map(
-                ([paramName, paramData], index) => (
-                  <div key={index} className="slide">
-                    <div className="variable-details">
-                      <h4>{paramName}</h4>
-                      <input
-                        type="text"
-                        value={paramData}
-                        className="variable-input"
-                        readOnly
-                      />
+                    <div className="field">
+                      <span className="field-label">Type:</span>
+                      <span className="field-value">
+                        {Array.isArray(data)
+                          ? data.join(", ")
+                          : data}
+                      </span>
+                    </div>
+                    <div className="field">
+                      <span className="field-label">Alias:</span>
+                      <span className="field-value">{alias}</span>
+                    </div>
+                    <div className="field">
+                      <span className="field-label">Type Alias:</span>
+                      <span className="field-value">
+                        {Array.isArray(typeAlias)
+                          ? typeAlias.join(", ")
+                          : ""}
+                      </span>
                     </div>
                     <div className="buttons-container">
                       <img
                         src="/images/edit-button.png"
                         alt="Edit"
                         className="edit-image"
-                        onClick={() => handleEditParamClick(paramName)}
+                        onClick={() => handleEditSetClick(setName)}
                       />
                       <img
                         src="/images/delete.png"
                         alt="Delete"
                         className="delete-image"
-                        onClick={() => handleDeleteParam(paramName)}
+                        onClick={() => handleDeleteSet(setName)}
                       />
                     </div>
                   </div>
-                )
-              )}
+                );
+              })}
             </div>
           </div>
         </div>
       )}
 
-      {/* Modals for Editing */}
+      {activeSection === "params" && (
+        <div className="parameters-section">
+          <h2 className="section-title">Parameters</h2>
+        </div>
+      )}
+
       {editingSet && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h2>Edit Set</h2>
+        <div className="modal-overlay" onClick={() => setEditingSet(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h2>Edit {editingSet}</h2>
+            <label>Alias:</label>
             <input
               type="text"
-              value={editedSetData}
-              onChange={(e) => setEditedSetData(e.target.value)}
-              className="variable-input"
+              value={editedAlias}
+              onChange={e => setEditedAlias(e.target.value)}
+            />
+            <label>Type Alias (comma separated):</label>
+            <input
+              type="text"
+              value={editedTypeAlias}
+              onChange={e => setEditedTypeAlias(e.target.value)}
             />
             <div className="modal-buttons">
               <button onClick={handleSaveSetEdit}>Save</button>
@@ -198,26 +159,6 @@ const ImageSettingSetAndParams = () => {
           </div>
         </div>
       )}
-
-      {editingParam && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h2>Edit Parameter</h2>
-            <input
-              type="text"
-              value={editedParamData}
-              onChange={(e) => setEditedParamData(e.target.value)}
-              className="variable-input"
-            />
-            <div className="modal-buttons">
-              <button onClick={handleSaveParamEdit}>Save</button>
-              <button onClick={() => setEditingParam(null)}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
-};
-
-export default ImageSettingSetAndParams;
+}

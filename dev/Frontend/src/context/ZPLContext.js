@@ -36,7 +36,6 @@ export const ZPLProvider = ({ children }) => {
             variables, setVariables,
             selectedVars, setSelectedVars,
             variablesModule, setVariablesModule, //check this one
-            setAliases, setSetAliases,
 
             // Constraints
             constraints, setConstraints,
@@ -48,6 +47,7 @@ export const ZPLProvider = ({ children }) => {
 
             // Sets and Params
             setTypes, setSetTypes,
+            setAliases, setSetAliases,
             paramTypes, setParamTypes,
 
             // Image and User
