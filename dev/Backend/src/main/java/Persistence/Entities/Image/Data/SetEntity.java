@@ -2,7 +2,6 @@ package Persistence.Entities.Image.Data;
 
 import Persistence.Entities.Image.ImageComponentKey;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.lang.NonNull;
@@ -18,9 +17,9 @@ public class SetEntity {
     @EmbeddedId
     private ImageComponentKey imageComponentKey;
 
-    @Column(name = "type", nullable = false)
+    /*@Column(name = "structure", nullable = false)
     @NotBlank(message = "Type cannot be blank")
-    private String type;
+    private String structure;*/
 
     @ElementCollection
     @CollectionTable(name = "set_data", joinColumns = {
@@ -30,59 +29,51 @@ public class SetEntity {
             referencedColumnName = "element_name")
         }
     )
-    @Column(name = "data_element")
+    @Column(name = "data_element", nullable = false)
     @NotNull(message = "Data cannot be null")
     private List<String> data;
 
     @Column(name = "alias")
     private @NonNull String alias;
 
-    @Column(name = "type_alias")
-    private String typeAlias;
+    @Column(name = "structure")
+    private String structure;
 
     public SetEntity () {}
 
-    public SetEntity (@NotNull ImageComponentKey imageComponentKey,@NotNull String type, @NotNull List<String> data) {
+
+    public SetEntity (@NotNull ImageComponentKey imageComponentKey,@NotNull String structure, @NotNull List<String> data) {
         this.imageComponentKey = imageComponentKey;
-        this.type = type;
         this.data = data;
         this.alias = imageComponentKey.getName();
-        this.typeAlias = type;
+        this.structure = structure;
     }
-    public SetEntity (@NotNull UUID id,@NotNull String name,@NotNull String type, @NotNull List<String> data) {
+    public SetEntity (@NotNull UUID id,  @NotNull String name, @NotNull String structure, @NotNull List<String> data) {
         this.imageComponentKey= new ImageComponentKey(id,name);
-        this.type = type;
         this.data = data;
         this.alias = name;
-        this.typeAlias = type;
+        this.structure = structure;
     }
-    public SetEntity (@NotNull UUID id,@NotNull String name,@NotNull String type, @NotNull List<String> data,@Nullable String alias) {
+
+    public SetEntity (@NotNull UUID id,@NotNull String name,@NotNull String structure, @NotNull List<String> data,@Nullable String alias) {
         this.imageComponentKey= new ImageComponentKey(id,name);
-        this.type = type;
         this.data = data;
         this.alias = (alias == null) ? name : alias;
-        this.typeAlias = type;
+        this.structure = structure;
     }
-    public SetEntity (@NotNull ImageComponentKey imageComponentKey,@NotNull String type, @NotNull List<String> data,@Nullable String alias) {
+    public SetEntity (@NotNull ImageComponentKey imageComponentKey,@NotNull String structure, @NotNull List<String> data,@Nullable String alias) {
         this.imageComponentKey = imageComponentKey;
-        this.type = type;
         this.data = data;
         this.alias = (alias == null) ? imageComponentKey.getName() : alias;
-        this.typeAlias = type;
+        this.structure = structure;
     }
-    public SetEntity (@NotNull UUID id,@NotNull String name,@NotNull String type, @NotNull List<String> data,@NotNull String alias,@NotNull String typeAlias) {
-        this.imageComponentKey= new ImageComponentKey(id,name);
-        this.type = type;
-        this.data = data;
-        this.alias = alias;
-        this.typeAlias = typeAlias;
-    }
+
     public ImageComponentKey getModelDataKey() {
         return imageComponentKey;
     }
-
-    public String getType() {
-        return type;
+    @NonNull
+    public String getStructure() {
+        return structure;
     }
 
     @NonNull
@@ -107,12 +98,9 @@ public class SetEntity {
         return imageComponentKey.getImageId();
     }
 
-    public String getTypeAlias() {
-        return typeAlias;
-    }
 
-    public void setTypeAlias(String typeAlias) {
-        this.typeAlias = typeAlias;
+    public void setStructure(String typeAlias) {
+        this.structure = typeAlias;
     }
 
     @Override

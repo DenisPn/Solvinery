@@ -13,9 +13,9 @@ public class ZimplCompileError extends Exception {
     private final ZimplErrorType error;
 
     /**
-     * Constructs a new ZimplCompileError with the specified error type and message.
+     * Constructs a new ZimplCompileError with the specified error structure and message.
      *
-     * @param error   the error type representing the specific ZIMPL compilation issue
+     * @param error   the error structure representing the specific ZIMPL compilation issue
      * @param message the detailed error message describing the compilation problem, received from the compiler
      */
     public ZimplCompileError(ZimplErrorType error, String message) {

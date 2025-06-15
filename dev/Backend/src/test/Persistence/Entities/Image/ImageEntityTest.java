@@ -58,8 +58,8 @@ class ImageEntityTest {
         // Initialize children with the auto-generated ID
         LinkedList<String> setData=new LinkedList<>();
         setData.add("data1"); setData.add("data2");
-        ParameterEntity param = new ParameterEntity(imageId, "paramName", "p-type", "p-data", "p-alias");
-        SetEntity set = new SetEntity(imageId, "setName", "s-type", setData, "s-alias");
+        ParameterEntity param = new ParameterEntity(imageId, "paramName", "p-structure", "p-data", "p-alias");
+        SetEntity set = new SetEntity(imageId, "setName", "s-structure", setData, "s-alias");
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
         VariableEntity var = new VariableEntity(imageId, "varName", "v-alias",structure);
@@ -128,7 +128,7 @@ class ImageEntityTest {
         ImageEntity validEntity = makeStub();
         imageRepository.save(validEntity);
         List<String> updatedData = List.of("updated1", "updated2");
-        SetEntity updatedSet = new SetEntity(validEntity.getId(), "updatedSet", "updated-type", updatedData, "updatedAlias");
+        SetEntity updatedSet = new SetEntity(validEntity.getId(), "updatedSet", "updated-structure", updatedData, "updatedAlias");
         validEntity.addSet(updatedSet);
 
         // Act
@@ -221,7 +221,7 @@ class ImageEntityTest {
         ArrayList<String> data = new ArrayList<>();
         data.add("newData");
         data.add("newData2");
-        SetEntity newSet = new SetEntity(validEntity.getId(), "newSet", "s-type", data, "newAlias");
+        SetEntity newSet = new SetEntity(validEntity.getId(), "newSet", "s-structure", data, "newAlias");
         validEntity.addSet(newSet);
         imageRepository.save(validEntity);
 

@@ -1,5 +1,6 @@
 package Image;
 
+import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
 import Image.Modules.Grouping.ConstraintModule;
 import Image.Modules.Grouping.PreferenceModule;
 import Image.Modules.Single.ParameterModule;
@@ -74,7 +75,7 @@ public class Image {
             Variable variable = model.getVariable(variableName);
             if(variable==null)
                 throw new IllegalArgumentException("No variable with name: " + variableName);
-            this.activeVariables.add(new VariableModule(variable.getName(),variable.getTypeStructure(), variableDTO.alias()));
+            this.activeVariables.add(new VariableModule(variable.getName(),variableDTO.structure(), variableDTO.alias()));
         }
         for (ConstraintModuleDTO constraintModuleDTO : imageDTO.constraintModules()) {
             Set<Constraint> constraints = constraintModuleDTO.constraints().stream()
@@ -110,15 +111,15 @@ public class Image {
         }
         for (SetDTO setDTO: imageDTO.sets()){
             ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
-            //modelSet.setData(setDTO.values());
-            activeSets.add(new SetModule(modelSet,setDTO.setDefinition().alias(),setDTO.setDefinition().typeAlias()));
-            //model.setInput(modelSet);
+            if(modelSet==null)
+                throw new InvalidModelStateException("No set with name: " + setDTO.setDefinition().name());
+            activeSets.add(new SetModule(modelSet.getName(),setDTO.setDefinition().structure(),setDTO.setDefinition().alias(),setDTO.values()));
         }
         for (ParameterDTO parameterDTO: imageDTO.parameters()){
             ModelParameter modelParameter= model.getParameter(parameterDTO.parameterDefinition().name());
-            //modelParameter.setData(parameterDTO.value());
-            activeParams.add(new ParameterModule(modelParameter,parameterDTO.parameterDefinition().alias()));
-            //model.setInput(modelParameter);
+            if(modelParameter==null)
+                throw new InvalidModelStateException("No parameter with name: " + parameterDTO.parameterDefinition().name());
+            activeParams.add(new ParameterModule(modelParameter.getName(),parameterDTO.parameterDefinition().structure(),parameterDTO.parameterDefinition().alias(),parameterDTO.value()));
         }
     }
     /**
@@ -167,7 +168,7 @@ public class Image {
             Variable variable = model.getVariable(variableName);
             if(variable==null)
                 throw new IllegalArgumentException("No variable with name: " + variableName);
-            this.activeVariables.add(new VariableModule(variable.getName(),variable.getTypeStructure(), variableDTO.alias()));
+            this.activeVariables.add(new VariableModule(variable.getName(),variableDTO.structure(), variableDTO.alias()));
         }
         for (ConstraintModuleDTO constraintModuleDTO : imageDTO.constraintModules()) {
             Set<Constraint> constraints = constraintModuleDTO.constraints().stream()
@@ -203,15 +204,15 @@ public class Image {
         }
         for (SetDTO setDTO: imageDTO.sets()){
             ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
-            modelSet.setData(setDTO.values());
-            activeSets.add(new SetModule(modelSet,setDTO.setDefinition().alias()));
-           // model.setInput(modelSet);
+            if(modelSet==null)
+                throw new InvalidModelStateException("No set with name: " + setDTO.setDefinition().name());
+            activeSets.add(new SetModule(modelSet.getName(),setDTO.setDefinition().structure(),setDTO.setDefinition().alias(),setDTO.values()));
         }
         for (ParameterDTO parameterDTO: imageDTO.parameters()){
             ModelParameter modelParameter= model.getParameter(parameterDTO.parameterDefinition().name());
-            modelParameter.setData(parameterDTO.value());
-            activeParams.add(new ParameterModule(modelParameter,parameterDTO.parameterDefinition().alias()));
-            //model.setInput(modelParameter);
+            if(modelParameter==null)
+                throw new InvalidModelStateException("No parameter with name: " + parameterDTO.parameterDefinition().name());
+            activeParams.add(new ParameterModule(modelParameter.getName(),parameterDTO.parameterDefinition().structure(),parameterDTO.parameterDefinition().alias(),parameterDTO.value()));
         }
     }
     public void apply(@NonNull ImageConfigDTO config) {

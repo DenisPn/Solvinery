@@ -17,9 +17,9 @@ public abstract class DataElement extends Element {
         this.type = type;
        // this.alias = null;
     }
-   /* public DataElement (String name, ModelType type,String alias) {
+   /* public DataElement (String name, ModelType structure,String alias) {
         super(name);
-        this.type = type;
+        this.structure = structure;
         this.alias = alias;
     }*/
 

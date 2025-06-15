@@ -9,8 +9,8 @@ import java.util.Set;
  * @param constraints a set of constraints
  * @param preferences a set of preferences
  * @param variables a set of variables
- * @param setTypes a map from a set's name to a list of strings expressing its type
- * @param paramTypes a map from a parameter's name to a list of strings expressing its type
+ * @param setTypes a map from a set's name to a list of strings expressing its structure
+ * @param paramTypes a map from a parameter's name to a list of strings expressing its structure
  *
  * @see ConstraintDTO
  * @see PreferenceDTO

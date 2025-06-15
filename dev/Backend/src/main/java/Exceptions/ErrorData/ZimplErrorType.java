@@ -39,16 +39,16 @@ public enum ZimplErrorType {
     NEGATIVE_FACTORIAL(114, "To compute the factorial of a number it has to be positive."),
     /** 115 Timeout!: You tried to compute a number bigger than 1000!. */
     TIMEOUT(115, "You tried to compute a number bigger than 1000!."),
-    /** 116 Illegal value type in min: xxx only numbers are possible: You tried to build the minimum of some strings. */
+    /** 116 Illegal value structure in min: xxx only numbers are possible: You tried to build the minimum of some strings. */
     INVALID_MIN_TYPE(116, "You tried to build the minimum of some strings."),
-    /** 117 Illegal value type in max: xxx only numbers are possible: You tried to build the maximum of some strings. */
+    /** 117 Illegal value structure in max: xxx only numbers are possible: You tried to build the maximum of some strings. */
     INVALID_MAX_TYPE(117, "You tried to build the maximum of some strings."),
     /** 118 Comparison of different types: You tried to compare apples with oranges, i.e., numbers with strings. */
     TYPE_COMPARISON_ERROR(118, "You tried to compare apples with oranges, i.e., numbers with strings."),
     /** 119 Operation on sets with different dimensions: You tried to apply a set operation (e.g., union, minus) on sets with different dimensions. */
     SET_DIMENSION_MISMATCH(119, "You tried to apply a set operation (e.g., union, minus) on sets with different dimensions."),
-    /** 120 Minus of incompatible sets: To apply Operation xxx (union, minus, intersection, symmetric difference) on two sets, both must have tuples of the same type, i.e., the components of the tuples must have the same type (number, string). */
-    INCOMPATIBLE_SETS(120, "To apply Operation xxx (union, minus, intersection, symmetric difference) on two sets, both must have tuples of the same type, i.e., the components of the tuples must have the same type (number, string)."),
+    /** 120 Minus of incompatible sets: To apply Operation xxx (union, minus, intersection, symmetric difference) on two sets, both must have tuples of the same structure, i.e., the components of the tuples must have the same structure (number, string). */
+    INCOMPATIBLE_SETS(120, "To apply Operation xxx (union, minus, intersection, symmetric difference) on two sets, both must have tuples of the same structure, i.e., the components of the tuples must have the same structure (number, string)."),
     /** 121 Negative exponent on variable: The exponent to a variable was negative. This is not supported. */
     NEGATIVE_EXPONENT(121, "The exponent to a variable was negative. This is not supported."),
     /** 133 Unknown symbol: A name was used that is not defined anywhere in scope. */

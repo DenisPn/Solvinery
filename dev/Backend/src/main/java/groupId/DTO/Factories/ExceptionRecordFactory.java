@@ -66,13 +66,13 @@ public class ExceptionRecordFactory {
     public static ExceptionDTO makeDTO(@NonNull HttpMediaTypeNotSupportedException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
-        return new ExceptionDTO("A server communication error occurred, HTTP content media type not supported." +exception.getMessage() + ")");
+        return new ExceptionDTO("A server communication error occurred, HTTP content media structure not supported." +exception.getMessage() + ")");
     }
     @NonNull
     public static ExceptionDTO makeDTO(@NonNull HttpMessageNotReadableException exception) {
         Objects.requireNonNull(exception,ohNo);
         //TODO: LOG
-        return new ExceptionDTO("A server communication error occurred, HTTP request content type is invalid: " +exception.getMessage() + ")");
+        return new ExceptionDTO("A server communication error occurred, HTTP request content structure is invalid: " +exception.getMessage() + ")");
     }
     @NonNull
     public static ExceptionDTO makeDTO(@NonNull InvalidFormatException exception) {

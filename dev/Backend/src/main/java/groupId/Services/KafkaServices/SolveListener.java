@@ -54,7 +54,7 @@ public void handleSolveRequest(@NonNull @Payload SolveRequest request) {
         solveService.completeSolution(request.requestId(), solution);
         log.info("Completed solve request: {}", request.requestId());
     } catch (Exception e) {
-        log.info("Caught exception of type: {}",e.getClass());
+        log.info("Caught exception of structure: {}",e.getClass());
         log.error("Error while solving: {}", e.getMessage());
         solveService.completeWithError(request.requestId(), e);
         }

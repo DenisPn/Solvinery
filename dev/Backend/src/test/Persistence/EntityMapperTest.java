@@ -84,8 +84,8 @@ public class EntityMapperTest {
         LinkedList<String> setData = new LinkedList<>();
         setData.add("data1");
         setData.add("data2");
-        ParameterModule param = new ParameterModule(new ModelParameter("paramName", ModelPrimitives.INT, "p-data"), "p-alias");
-        SetModule set = new SetModule(new ModelSet("setName", ModelPrimitives.INT, setData), "s-alias");
+        ParameterModule param = new ParameterModule("paramName", "INT", "p-data", "p-alias");
+        SetModule set = new SetModule("setName", ModelPrimitives.INT.toString(), "s-alias",setData);
         List<String> structure = new ArrayList<>();
         structure.add("structure1");
         structure.add("structure2");

@@ -110,7 +110,7 @@ public class RecordFactory {
     @NonNull
     public static SetDTO makeDTO (@NonNull SetModule set) {
 
-        return new SetDTO(new SetDefinitionDTO(set.getOriginalName(), set.getOriginalTypes(), set.getAlias(),set.getTypes())
+        return new SetDTO(new SetDefinitionDTO(set.getOriginalName(), set.getTypes(), set.getAlias()/*,set.getTypes()*/)
                 ,set.getData());
     }
 

@@ -39,8 +39,8 @@ public class KafkaConfig {
     /**
      * Configures and provides a Kafka {@link ProducerFactory} for producing messages.
      *
-     * @return a {@link ProducerFactory} configured for producing messages with a key of type
-     *         {@link String} and value of type {@link SolveRequest}.
+     * @return a {@link ProducerFactory} configured for producing messages with a key of structure
+     *         {@link String} and value of structure {@link SolveRequest}.
      */
     @NonNull
     @Bean
@@ -52,8 +52,8 @@ public class KafkaConfig {
 
 
     /**
-     * Provides a KafkaTemplate bean configured for sending messages with a key of type {@link String}
-     * and a value of type {@link SolveRequest}.
+     * Provides a KafkaTemplate bean configured for sending messages with a key of structure {@link String}
+     * and a value of structure {@link SolveRequest}.
      *
      * @return a {@link KafkaTemplate} instance configured to send messages to Kafka using the
      *         {@link ProducerFactory} returned by {@code producerFactory}.

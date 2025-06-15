@@ -7,8 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -21,9 +21,9 @@ public class ParameterEntity {
     @EmbeddedId
     private ImageComponentKey imageComponentKey;
 
-    @Column(name = "type", nullable = false)
-    @NotBlank(message = "Type cannot be blank")
-    private String type;
+    @Column(name = "structure", nullable = false)
+    @NotBlank(message = "Structure cannot be blank")
+    private String structure;
 
     @Column(name = "data", nullable = false)
     @NotNull(message = "Data cannot be null")
@@ -31,42 +31,40 @@ public class ParameterEntity {
 
 
     @Column(name = "alias")
-    private @Nullable String alias;
+    private @NonNull String alias;
 
 
     public ParameterEntity () {}
 
-    public ParameterEntity (ImageComponentKey imageComponentKey, String type, @NonNull String data) {
-        this.imageComponentKey = imageComponentKey;
-        this.type = type;
-        this.data = data;
-        this.alias = null;
-    }
-    public ParameterEntity (ImageComponentKey imageComponentKey, String type, @NonNull String data, String alias) {
-        this.imageComponentKey = imageComponentKey;
-        this.type = type;
-        this.data = data;
-        this.alias = alias;
-    }
-    public ParameterEntity (UUID id, String name, String type, @NonNull String data) {
-        this.imageComponentKey= new ImageComponentKey(id,name);
-        this.type = type;
-        this.data = data;
-        this.alias = null;
-    }
-    public ParameterEntity (UUID id, String name, String type, @NonNull String data, String alias) {
-        this.imageComponentKey= new ImageComponentKey(id,name);
-        this.type = type;
-        this.data = data;
-        this.alias = alias;
-    }
 
+    public ParameterEntity (ImageComponentKey imageComponentKey, String structure, @NonNull String data,@Nullable String alias) {
+        this.imageComponentKey = imageComponentKey;
+        this.structure = structure;
+        this.data = data;
+        if(alias == null || alias.isBlank())
+            this.alias = imageComponentKey.getName();
+        else this.alias = alias;
+    }
+    public ParameterEntity (UUID id, String name, String structure, @NonNull String data, @Nullable String alias) {
+        this.imageComponentKey= new ImageComponentKey(id,name);
+        this.structure = structure;
+        this.data = data;
+        if(alias == null || alias.isBlank())
+            this.alias = imageComponentKey.getName();
+        else this.alias = alias;
+    }
+    public ParameterEntity (ImageComponentKey imageComponentKey, String structure, @NonNull String data) {
+        this.imageComponentKey = imageComponentKey;
+        this.structure = structure;
+        this.data = data;
+        this.alias = imageComponentKey.getName();
+    }
     public ImageComponentKey getModelDataKey() {
         return imageComponentKey;
     }
 
-    public String getType() {
-        return type;
+    public String getStructure() {
+        return structure;
     }
 
     @NonNull

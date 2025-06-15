@@ -27,7 +27,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
         basicParams = new LinkedList<>();
     }
 
-    // Main visitor methods for type analysis
+    // Main visitor methods for structure analysis
     @Override
     public Void visitSetExprBin (@NonNull FormulationParser.SetExprBinContext ctx) {
         // Handle binary set operations (*, +, \, -)
@@ -38,7 +38,7 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
         ModelSet leftSet = model.getSet(ctx.setExpr(0).getText());
         if (leftSet != null) {
             basicSets.add(leftSet);
-            type = leftSet.getDataType(); // Inherit the type
+            type = leftSet.getDataType(); // Inherit the structure
         } else {
             leftVisitor.visit(ctx.setExpr(0));
             basicSets.addAll(leftVisitor.getBasicSets());
@@ -49,14 +49,14 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
         ModelSet rightSet = model.getSet(ctx.setExpr(1).getText());
         if (rightSet != null) {
             basicSets.add(rightSet);
-            type = rightSet.getDataType(); // Inherit the type
+            type = rightSet.getDataType(); // Inherit the structure
         } else {
             rightVisitor.visit(ctx.setExpr(1));
             basicSets.addAll(rightVisitor.getBasicSets());
             basicParams.addAll(rightVisitor.getBasicParams());
         }
 
-        // Handle type combination based on the operator
+        // Handle structure combination based on the operator
         if (ctx.op.getText().equals("*") || ctx.op.getText().equals("cross")) {
             // For Cartesian product, combine types into a tuple
             type = new Tuple();
@@ -170,14 +170,14 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
         if (ctx.condition() != null) {
             TypeVisitor elementVisitor = new TypeVisitor(model);
             elementVisitor.visit(ctx.condition());
-            /*ModelSet set = new ModelSet("anonymous_set", elementVisitor.type);
+            /*ModelSet set = new ModelSet("anonymous_set", elementVisitor.structure);
             basicSets.add(set);*/
             type = elementVisitor.getType();
         } else if (ctx.csv() != null) {
             // Handle explicit set elements
             TypeVisitor elementVisitor = new TypeVisitor(model);
             elementVisitor.visit(ctx.csv().expr(0));
-            /*ModelSet set = new ModelSet("anonymous_set", elementVisitor.type, elementVisitor.basicSets, elementVisitor.basicParams);
+            /*ModelSet set = new ModelSet("anonymous_set", elementVisitor.structure, elementVisitor.basicSets, elementVisitor.basicParams);
             // Add this as a basic set since it's explicitly defined
             basicSets.add(set);*/
             type = elementVisitor.getType();
@@ -262,10 +262,10 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
             }*//*
             ModelSet newSet = new ModelSet("anonymous_set", visitor.getBasicSets(), visitor.getBasicParams(), resultingStructure);
             basicSets.add(newSet);
-            if (type == null || type == ModelPrimitives.UNKNOWN)
-                type = newSet.getType();
-            else if (type instanceof Tuple)
-                ((Tuple) type).append(newSet.getType());
+            if (structure == null || structure == ModelPrimitives.UNKNOWN)
+                structure = newSet.getType();
+            else if (structure instanceof Tuple)
+                ((Tuple) structure).append(newSet.getType());
 
             return null;
         }*/

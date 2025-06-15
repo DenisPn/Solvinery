@@ -3,7 +3,7 @@ package groupId.DTO.Records.Model.ModelData;
 /**
  *
  * @param name The parameter's name in the zimpl code
- * @param type The parameter's type
+ * @param structure The parameter's structure
  */
-public record ParameterDefinitionDTO(String name, String type, String alias) {
+public record ParameterDefinitionDTO(String name, String structure, String alias) {
 }

@@ -22,7 +22,7 @@ public class Solution {
     /**
      *
      *  Maps variable names to a list of lists with each list holding elements of the solution,
-     *  for example, for variable V of type set1 * set2 where set1= {1,2} and set2= {"a","b"}
+     *  for example, for variable V of structure set1 * set2 where set1= {1,2} and set2= {"a","b"}
      *  an example for a solution is: V -> { [1,"a"], [2, "b"] } note: order matters!
      *  Since from this point on this is only static data to be shown to the user, only Strings are in use
      *

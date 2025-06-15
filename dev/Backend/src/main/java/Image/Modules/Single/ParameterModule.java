@@ -4,42 +4,35 @@ import Model.Data.Elements.Data.ModelParameter;
 import jakarta.annotation.Nullable;
 import org.springframework.lang.NonNull;
 
-public class ParameterModule {
+import java.util.List;
 
+public class ParameterModule extends DataModule {
     @NonNull
-    private final ModelParameter parameter;
+    private final String name;
+    @NonNull
+    private final String data;
+
     @NonNull
     private  String alias;
-
-    public ParameterModule (@NonNull ModelParameter param, @Nullable String alias) {
-        parameter = param;
-        if(alias==null) this.alias=param.getName();
-        else this.alias = alias;
+    public ParameterModule (@NonNull String name, @NonNull List<String> structure, @Nullable String alias, @NonNull String data) {
+        super(structure, alias == null ? name : alias);
+        this.name = name;
+        this.data = data;
+    }
+    public ParameterModule (@NonNull String name, @NonNull String structure, @Nullable String alias, @NonNull String data) {
+        super(structure, alias == null ? name : alias);
+        this.name = name;
+        this.data = data;
     }
 
-    @SuppressWarnings("unused")
-    public ParameterModule (@NonNull ModelParameter param) {
-        parameter = param;
-        alias = param.getName();
-    }
-    @NonNull
-    public  String getAlias() {
-        return alias;
-    }
     @NonNull
     public String getOriginalName(){
-        return parameter.getName();
-    }
-    @NonNull
-    public String getTypeString(){
-        return parameter.getDataType().toString();
-    }
-    @NonNull
-    public String getData(){
-        return parameter.getData();
+        return name;
     }
 
-    public void setAlias (@NonNull String alias) {
-        this.alias = alias;
+    @NonNull
+    public String getData(){
+        return data;
     }
+
 }

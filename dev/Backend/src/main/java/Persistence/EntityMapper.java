@@ -6,11 +6,8 @@ import Image.Modules.Grouping.PreferenceModule;
 import Image.Modules.Single.ParameterModule;
 import Image.Modules.Single.SetModule;
 import Image.Modules.Single.VariableModule;
-import Model.Data.Elements.Data.ModelParameter;
-import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Elements.Operational.Constraint;
 import Model.Data.Elements.Operational.Preference;
-import Model.Data.Elements.Variable;
 import Model.Data.Types.ModelPrimitives;
 import Model.Data.Types.ModelType;
 import Model.Data.Types.Tuple;
@@ -91,8 +88,7 @@ public class EntityMapper {
     }
     @NonNull
     public static SetModule toDomain(@NonNull SetEntity entity){
-        return new SetModule(new ModelSet(entity.getModelDataKey().getName(),
-                toDomain(entity.getType()),entity.getData()),entity.getAlias());
+        return new SetModule(entity.getName(),entity.getStructure(),entity.getAlias(),entity.getData());
     }
     @NonNull
     public static ParameterEntity toEntity(@NonNull ParameterModule parameter, UUID imageId){
@@ -100,7 +96,7 @@ public class EntityMapper {
     }
     @NonNull
     public static ParameterModule toDomain(@NonNull ParameterEntity entity){
-        return new ParameterModule(new ModelParameter(entity.getName(),toDomain(entity.getType()),entity.getData()),entity.getAlias());
+        return new ParameterModule(entity.getName(),entity.getStructure(),entity.getAlias(),entity.getData());
     }
     @NonNull
     public static Constraint toDomain(@NonNull ConstraintEntity entity){
@@ -304,7 +300,7 @@ public class EntityMapper {
                         .map(param -> new ParameterEntity(
                                 imageId,
                                 param.getName(),
-                                param.getType(),
+                                param.getStructure(),
                                 param.getData(),
                                 param.getAlias()
                         ))
@@ -312,7 +308,7 @@ public class EntityMapper {
                 imageEntity.getActiveSets().stream()
                         .map(set -> new SetEntity(
                                 new ImageComponentKey(imageId, set.getName()),
-                                set.getType(),
+                                set.getStructure(),
                                 new ArrayList<>(set.getData()),
                                 set.getAlias()
                         ))
@@ -355,7 +351,7 @@ public class EntityMapper {
                             .map(param -> new ParameterEntity(
                                     imageId,
                                     param.getName(),
-                                    param.getType(),
+                                    param.getStructure(),
                                     param.getData(),
                                     param.getAlias()
                             ))
@@ -363,7 +359,7 @@ public class EntityMapper {
                     toCopy.getActiveSets().stream()
                             .map(set -> new SetEntity(
                                     new ImageComponentKey(imageId, set.getName()),
-                                    set.getType(),
+                                    set.getStructure(),
                                     new ArrayList<>(set.getData()),
                                     set.getAlias()
                             ))
@@ -406,7 +402,7 @@ public class EntityMapper {
                         .map(param -> new ParameterEntity(
                                 imageId,
                                 param.getName(),
-                                param.getType(),
+                                param.getStructure(),
                                 param.getData(),
                                 param.getAlias()
                         ))
@@ -414,7 +410,7 @@ public class EntityMapper {
                 toCopy.getActiveSets().stream()
                         .map(set -> new SetEntity(
                                 new ImageComponentKey(imageId, set.getName()),
-                                set.getType(),
+                                set.getStructure(),
                                 new ArrayList<>(set.getData()),
                                 set.getAlias()
                         ))
