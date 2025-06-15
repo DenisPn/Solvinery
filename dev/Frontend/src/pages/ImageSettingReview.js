@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useZPL } from "../context/ZPLContext"; // now includes aliases
+import { useZPL } from "../context/ZPLContext"; 
 import { useNavigate, Link } from "react-router-dom";
 import "./ImageSettingReview.css";
 
@@ -9,9 +9,9 @@ const ImageSettingReview = () => {
     userId,
     zplCode,
     setTypes,
-    setAliases,     // newly pulled-in aliases map
+    setAliases,
     paramTypes,
-    paramAliases,   // newly pulled-in parameter aliases map
+    paramAliases,
     constraintsModules,
     preferenceModules,
   } = useZPL();
@@ -21,44 +21,55 @@ const ImageSettingReview = () => {
   const [isZplCodeVisible, setIsZplCodeVisible] = useState(false);
   const navigate = useNavigate();
 
-  // Toggle ZPL code visibility
-  const handleShowZplCode = () => {
-    setIsZplCodeVisible(!isZplCodeVisible);
-  };
+  const handleShowZplCode = () => setIsZplCodeVisible(v => !v);
 
-  // Post image data to server
   const handleSaveImage = async () => {
     const requestData = {
-      variables: selectedVars.map(variable => ({
-        identifier: variable.identifier,
-        structure: variable.structure,
-        alias: variable.alias || variable.identifier,
+
+      
+     variables: selectedVars.map(variable => {
+  // Ensure structure is always an array:
+  const struct = Array.isArray(variable.structure)
+    ? variable.structure
+    : (variable.structure || "").split(",").map(s => s.trim()).filter(Boolean);
+
+  return {
+    identifier: variable.identifier,
+    structure:  struct,  // a real array
+    alias:      variable.alias || variable.identifier,
+  };
+}),
+
+
+
+
+
+      constraintModules: constraintsModules.map(mod => ({
+        moduleName: mod.name,
+        description: mod.description,
+        constraints: mod.constraints.map(c => c.identifier),
       })),
-      constraintModules: constraintsModules.map(module => ({
-        moduleName: module.name,
-        description: module.description,
-        constraints: module.constraints.map(c => c.identifier),
-      })),
-      preferenceModules: preferenceModules.map(module => ({
-        moduleName: module.name,
-        description: module.description,
-        preferences: module.preferences.map(p => p.identifier),
+      preferenceModules: preferenceModules.map(mod => ({
+        moduleName: mod.name,
+        description: mod.description,
+        preferences: mod.preferences.map(p => p.identifier),
       })),
 
-      // Use actual aliases from context
       sets: Object.entries(setTypes).map(([setName, rawType]) => {
         const typeArray = Array.isArray(rawType)
           ? rawType
           : rawType.split(",").map(s => s.trim());
 
-        const { alias = setName, typeAlias = [] } = setAliases[setName] || {};
+        // Always default alias to the setName
+        const { alias: userAlias, typeAlias: userTypeAlias = [] } =
+          setAliases[setName] || {};
 
         return {
           setDefinition: {
             name: setName,
             type: typeArray,
-            alias,           // real alias
-            typeAlias,       // real typeAlias
+            alias: userAlias || setName,
+            typeAlias: userTypeAlias.length ? userTypeAlias : typeArray,
           },
           values: [],
         };
@@ -69,14 +80,15 @@ const ImageSettingReview = () => {
           ? rawType
           : rawType.split(",").map(s => s.trim());
 
-        const { alias = paramName, typeAlias = [] } = paramAliases[paramName] || {};
+        const { alias: userParamAlias, typeAlias: userParamTypeAlias = [] } =
+          paramAliases[paramName] || {};
 
         return {
           parameterDefinition: {
             name: paramName,
             type: typeArray,
-            alias,         // real alias
-            typeAlias,     // real typeAlias
+            alias: userParamAlias || paramName,
+            typeAlias: userParamTypeAlias.length ? userParamTypeAlias : typeArray,
           },
           value: "",
         };
@@ -87,53 +99,47 @@ const ImageSettingReview = () => {
       code: zplCode,
     };
 
+    console.log("Request Data:", requestData);
+
     try {
-      console.log("Request Data:", requestData);
       const response = await fetch(`/user/${userId}/image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
       });
-
       if (!response.ok) {
-        const errorMsg = await response.text();
-        alert(`Failed to save image. Error: ${errorMsg || "Unknown error"}`);
+        const err = await response.text();
+        alert(`Failed to save image. Error: ${err || "Unknown error"}`);
         return;
       }
-
       const data = await response.json();
-      console.log("Image saved successfully:", data);
       alert("Image saved successfully!");
       navigate("/");
-    } catch (error) {
-      console.error("Error saving image:", error);
-      alert(`Error: ${error.message}`);
+    } catch (e) {
+      console.error(e);
+      alert(`Error: ${e.message}`);
     }
   };
 
-  // Copy ZPL to clipboard
   const handleCopyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(zplCode);
-      alert("ZPL Code copied to clipboard!");
-    } catch (error) {
-      console.error("Failed to copy to clipboard:", error);
-      alert("Failed to copy the ZPL code.");
+      alert("ZPL Code copied!");
+    } catch {
+      alert("Copy failed.");
     }
   };
 
   return (
     <div className="image-setting-page background">
-      {/* Top Left Buttons */}
       <div className="image-setting-top-left-buttons">
-        <Link to="/" title="Go to Home">
+        <Link to="/" title="Home">
           <img
             src="/images/HomeButton.png"
             alt="Home"
             className="image-setting-home-button"
           />
         </Link>
-
         <img
           src="/images/SaveButton.png"
           alt="Save"
@@ -144,8 +150,6 @@ const ImageSettingReview = () => {
       </div>
 
       <h1 className="page-title">Image Setting: Sets and Parameters</h1>
-
-      {/* Image Name and Description Fields */}
       <div className="image-details">
         <label>Image Name</label>
         <input
@@ -162,18 +166,13 @@ const ImageSettingReview = () => {
         />
       </div>
 
-      {/* Show ZPL Code Button */}
       <button onClick={handleShowZplCode} className="show-zpl-button">
         Show ZPL Code for this Image
       </button>
-
       {isZplCodeVisible && (
         <div className="zpl-code-modal">
           <div className="modal-content">
-            <button
-              className="copy-button"
-              onClick={handleCopyToClipboard}
-            >
+            <button className="copy-button" onClick={handleCopyToClipboard}>
               Copy code to clipboard
             </button>
             <button
@@ -188,7 +187,6 @@ const ImageSettingReview = () => {
         </div>
       )}
 
-      {/* Back Button */}
       <Link to="/image-setting-set-and-params" title="Back">
         <img
           src="/images/RightArrowButton.png"
