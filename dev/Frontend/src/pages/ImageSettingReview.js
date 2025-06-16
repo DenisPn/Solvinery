@@ -14,10 +14,13 @@ const ImageSettingReview = () => {
     paramAliases,
     constraintsModules,
     preferenceModules,
+    imageName,
+    setImageName,
+    imageDescription,
+    setImageDescription,
   } = useZPL();
 
-  const [imageName, setImageName] = useState("");
-  const [imageDescription, setImageDescription] = useState("");
+
   const [isZplCodeVisible, setIsZplCodeVisible] = useState(false);
   const navigate = useNavigate();
 
