@@ -83,6 +83,13 @@ public class ImageService {
         return new CreateImageResponseDTO(imageEntity.getId().toString());
     }
 
+    public void deleteImage(String userId, String imageId) {
+        UserEntity user=userService.getUser(userId)
+                .orElseThrow(()-> new ClientSideError("User id not found during delete image."));
+        ImageEntity imageEntity=imageRepository.findById(UUID.fromString(imageId))
+                .orElseThrow(()->new ClientSideError("Invalid image ID during publish image."));
+        imageRepository.delete(imageEntity);
+    }
 
     /**
      * Fetches a page of published images from the database.
@@ -151,6 +158,7 @@ public class ImageService {
         imageRepository.save(imageEntity);
         return new CreateImageResponseDTO(imageEntity.getId().toString());
     }
+
     @NonNull
     @Transactional(readOnly = true)
     public Optional<ImageEntity> getImage(@NonNull String imageId) {
