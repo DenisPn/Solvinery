@@ -113,13 +113,13 @@ public class Image {
             ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
             if(modelSet==null)
                 throw new InvalidModelStateException("No set with name: " + setDTO.setDefinition().name());
-            activeSets.add(new SetModule(modelSet.getName(),setDTO.setDefinition().structure(),setDTO.setDefinition().alias(),setDTO.values()));
+            activeSets.add(new SetModule(modelSet.getName(),setDTO.setDefinition().structure(),setDTO.setDefinition().alias(),modelSet.getData()));
         }
         for (ParameterDTO parameterDTO: imageDTO.parameters()){
             ModelParameter modelParameter= model.getParameter(parameterDTO.parameterDefinition().name());
             if(modelParameter==null)
                 throw new InvalidModelStateException("No parameter with name: " + parameterDTO.parameterDefinition().name());
-            activeParams.add(new ParameterModule(modelParameter.getName(),parameterDTO.parameterDefinition().structure(),parameterDTO.parameterDefinition().alias(),parameterDTO.value()));
+            activeParams.add(new ParameterModule(modelParameter.getName(),parameterDTO.parameterDefinition().structure(),parameterDTO.parameterDefinition().alias(),modelParameter.getData()));
         }
     }
     /**
@@ -242,9 +242,9 @@ public class Image {
                         Map.Entry::getValue
                 ));
         Map<String, List<String>> sets = this.activeSets.stream()
-                .collect(Collectors.toMap(SetModule::getAlias, SetModule::getData));
+                .collect(Collectors.toMap(SetModule::getOriginalName, SetModule::getData));
         Map<String, String> params = this.activeParams.stream()
-                .collect(Collectors.toMap(ParameterModule::getAlias, ParameterModule::getData));
+                .collect(Collectors.toMap(ParameterModule::getOriginalName, ParameterModule::getData));
         return model.writeToSource(sets,params,inactiveConstraints,preferencesToScalars);
     }
 
