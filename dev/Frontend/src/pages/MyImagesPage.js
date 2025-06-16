@@ -139,6 +139,20 @@ const MyImagesPage = () => {
     img.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+
+  const handleDeleteImage = async () => {
+    if (!selectedImageId || !userId) return;
+    try {
+      await axios.delete(`/user/${userId}/image/${selectedImageId}`);
+      alert("Image deleted successfully!");
+      navigate("/");
+    } catch (err) {
+      const msg = err.response?.data || err.message || "Unknown error";
+      alert(`Delete failed: ${JSON.stringify(msg)}`);
+    }
+  };
+
+
   return (
     <div className="my-images-background">
       <img
@@ -271,6 +285,13 @@ const MyImagesPage = () => {
                 className="modal-copy-button"
                 onClick={handleCopyCode}
                 title="Copy ZPL"
+              />
+               <img
+                src="/images/delete.png"
+                alt="Delete"
+                className="modal-delete-button"
+                onClick={handleDeleteImage}
+                title="Delete"
               />
 
               {/* Modal Content */}
