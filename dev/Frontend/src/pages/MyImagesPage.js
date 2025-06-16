@@ -17,6 +17,19 @@ const MyImagesPage = () => {
 
   const navigate = useNavigate();
   const { userId, constraintsModules, preferenceModules, setSolutionResponse } = useZPL();
+  const {
+  setSelectedVars,
+  setConstraintsModules,
+  setPreferenceModules,
+  setSetTypes,
+  setSetAliases,
+  setParamTypes,
+  setImageId,
+  setImageName,
+  setImageDescription,
+  setZplCode
+} = useZPL();
+
   useEffect(() => {
     if (!userId) return;
 
@@ -118,8 +131,6 @@ const MyImagesPage = () => {
     }
   };
 
-  const handleEdit = () => alert("Edit not available yet.");
-
   const getViewData = () => {
     if (!selectedImage) return null;
     switch (viewSection) {
@@ -151,6 +162,52 @@ const MyImagesPage = () => {
       alert(`Delete failed: ${JSON.stringify(msg)}`);
     }
   };
+
+  const handleEditImage = () => {
+  if (!selectedImageId || !selectedImage) return;
+
+  // 1) put raw image data back into context:
+  setImageId(selectedImageId);
+  setImageName(selectedImage.name);
+  setImageDescription(selectedImage.description);
+  setZplCode(selectedImage.code);
+
+  // 2) restore modules & variables:
+  setConstraintsModules(selectedImage.constraintModules);
+  setPreferenceModules(selectedImage.preferenceModules);
+
+  // 3) restore sets & type aliases:
+  const newSetTypes = {};      
+  const newSetAliases = {};    
+  selectedImage.sets.forEach(s => {
+    newSetTypes[s.setDefinition.name] = s.setDefinition.type;
+    newSetAliases[s.setDefinition.name] = {
+      alias:     s.setDefinition.alias,
+      typeAlias: s.setDefinition.typeAlias
+    };
+  });
+  setSetTypes(newSetTypes);
+  setSetAliases(newSetAliases);
+
+  // 4) restore parameters & param aliases:
+  const newParamTypes   = {};
+  const newParamAliases = {};
+  selectedImage.parameters.forEach(p => {
+    newParamTypes[p.parameterDefinition.name] = p.parameterDefinition.type;
+    newParamAliases[p.parameterDefinition.name] = {
+      alias:     p.parameterDefinition.alias,
+      typeAlias: p.parameterDefinition.typeAlias
+    };
+  });
+  setParamTypes(newParamTypes);
+  // you’ll need a setParamAliases in context if you want to track these separately
+
+  // 5) restore selectedVars array if you’re using it
+  setSelectedVars(selectedImage.variables || []);
+
+  // Finally, navigate into your review page
+  navigate("/image-setting-review");
+};
 
 
   return (
@@ -276,7 +333,7 @@ const MyImagesPage = () => {
                 src="/images/EditButton.png"
                 alt="Edit"
                 className="modal-edit-button"
-                onClick={handleEdit}
+                onClick={handleEditImage}
                 title="Edit"
               />
               <img
