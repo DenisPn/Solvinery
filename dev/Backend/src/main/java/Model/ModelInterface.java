@@ -44,6 +44,7 @@ public interface ModelInterface {
      * @param identifier The constraint identifier
      * @return ModelConstraint object if found, null otherwise
      */
+    @Nullable
     Constraint getConstraint(String identifier);
 
     /**
@@ -57,6 +58,7 @@ public interface ModelInterface {
      * @param identifier The preference identifier
      * @return ModelPreference object if found, null otherwise
      */
+    @Nullable
     Preference getPreference(String identifier);
     /**
      * Retrieves all preferences loaded in the model
@@ -79,7 +81,7 @@ public interface ModelInterface {
     Collection<ModelSet> getSets();
 
     Collection<ModelParameter> getParameters();
-
+    Set<String> getOriginalPreferences();
     //String writeToSource(Set<ModelSet> sets, Set<ModelParameter> params, Set<Constraint> disabledConstraints, Map<String,Float> preferencesScalars);
     String writeToSource(@NonNull Map<String, List<String>> sets, @NonNull Map<String,String> params, Set<String> disabledConstraints, Map<String,Float> preferencesScalars);
 

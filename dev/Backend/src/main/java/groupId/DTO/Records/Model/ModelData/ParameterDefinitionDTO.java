@@ -6,4 +6,6 @@ package groupId.DTO.Records.Model.ModelData;
  * @param structure The parameter's structure
  */
 public record ParameterDefinitionDTO(String name, String structure, String alias) {
+
+
 }

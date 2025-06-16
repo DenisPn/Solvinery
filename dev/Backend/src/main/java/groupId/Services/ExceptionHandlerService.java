@@ -41,7 +41,7 @@ public class ExceptionHandlerService {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionDTO> handleException(@NonNull MethodArgumentNotValidException ex) {
         ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
-        return ResponseEntity.status(500).body(errorResponse);
+        return ResponseEntity.status(400).body(errorResponse);
     }
 
     @NonNull
