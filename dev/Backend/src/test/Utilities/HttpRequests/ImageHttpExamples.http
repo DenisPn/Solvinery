@@ -16,8 +16,11 @@ PATCH http://localhost:4000/user/{{userId}}/image/{{publishedImage}}/get
 ### Get User Images
 GET  http://localhost:4000/user/{{userId}}/image/{{page}}
 
+### Delete User Image
+@imageId_del =e34aafee-6563-4be8-9edd-d7e9fb7c152b
+DELETE  http://localhost:4000/user/{{userId}}/image/{{imageId_del}}
 
-### Parse Model
+### Parse Model 1
 POST http://localhost:4000/user/{{userId}}/image/model
 Content-Type: application/json
 
@@ -61,7 +64,7 @@ Content-Type: application/json
     {
       "setDefinition": {
         "name": "Stations",
-        "type": ["TEST"]
+        "structure": ["TEST"]
       },
       "values": ["Station1", "Station2"]
     }
@@ -70,7 +73,7 @@ Content-Type: application/json
     {
       "parameterDefinition": {
         "name": "soldiers",
-        "type": "INT"
+        "structure": "INT"
       },
       "value": "10"
     }
