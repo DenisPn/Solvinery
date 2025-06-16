@@ -149,35 +149,11 @@
 }
 
 
-.modal-publish-button {
-  position: absolute;
-  top: 25px;
-  right: 25px;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  z-index: 100;
-}
 
-.modal-copy-button {
-  position: absolute;
-  top: 25px;
-  right: 80px; /* Previously 75px — now slightly more */
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  z-index: 100;
-}
 
-.modal-edit-button {
-  position: absolute;
-  top: 25px;
-  right: 125px; /* 25px (margin) + 3 icons of 40px each + spacing */
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  z-index: 100;
-}
+
+
+
 
 .home-button {
   position: absolute;
@@ -201,15 +177,27 @@
   cursor: pointer;
 }
 
-.modal-solve-button {
+
+
+
+.modal-delete-button,
+.modal-publish-button,
+.modal-solve-button,
+.modal-edit-button,
+.modal-copy-button {
   position: absolute;
   top: 25px;
-  right: 170px; /* Leaves room for 4 icons: 40x4 + gaps */
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
   z-index: 100;
 }
+/* Then individually offset them from the right */
+.modal-copy-button   { right:  20px; }
+.modal-edit-button   { right:  60px; }
+.modal-solve-button  { right: 100px; }
+.modal-publish-button{ right: 140px; }
+.modal-delete-button { right: 180px; }
 
 
 
