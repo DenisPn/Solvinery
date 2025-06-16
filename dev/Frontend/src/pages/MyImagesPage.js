@@ -321,7 +321,7 @@ const MyImagesPage = () => {
                   >
                     {selectedImage.sets.map((set, index) => (
                       <option key={index} value={index}>
-                        {set.setDefinition.name}
+                        {set.setDefinition.alias}
                       </option>
                     ))}
                   </select>
