@@ -40,7 +40,7 @@ const MyImagesPage = () => {
       const response = await axios.patch(
         `/user/${userId}/image/${selectedImageId}/publish`
       );
-      alert(`Publish Success: ${JSON.stringify(response.data)}`);
+      alert(`Image was published successfully, you can now see it in the public gallery.`);
     } catch (error) {
       const errMsg = error.response?.data || error.message || "Unknown error";
       alert(`Publish Failed: ${JSON.stringify(errMsg)}`);
