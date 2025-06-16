@@ -6,7 +6,7 @@ import './ConfigureConstraintsPage.css';
 const ConfigureConstraintsPage = () => {
     const navigate = useNavigate();
 
-    const { constraints: jsonConstraints = [], setConstraintsModules = () => { } } = useZPL();
+    const { constraints: jsonConstraints , setConstraintsModules = () => { } } = useZPL();
     const {
         setVariables,
         setSelectedVars,
