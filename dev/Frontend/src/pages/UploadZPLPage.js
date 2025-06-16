@@ -16,6 +16,18 @@ const UploadZPLPage = () => {
     userId
   } = useZPL();
 
+  const {
+    setSelectedVars,
+    setVariablesModule,
+    setConstraintsModules,
+    setPreferenceModules,
+    setSetAliases,
+    setImageId,
+    setImageName,
+    setImageDescription,
+  } = useZPL();
+
+
   const [fileContent, setFileContent] = useState("");
   const [message, setMessage] = useState("");
 
@@ -68,32 +80,52 @@ const UploadZPLPage = () => {
   };
 
   const handleDrop = (e) => {
-  e.preventDefault();
-  e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
 
-  const file = e.dataTransfer.files[0];
-  if (file && (file.name.endsWith(".txt") || file.name.endsWith(".zpl"))) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setFileContent(event.target.result);
-    };
-    reader.readAsText(file);
-  } else {
-    alert("Please drop a valid .zpl or .txt file.");
-  }
-};
+    const file = e.dataTransfer.files[0];
+    if (file && (file.name.endsWith(".txt") || file.name.endsWith(".zpl"))) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setFileContent(event.target.result);
+      };
+      reader.readAsText(file);
+    } else {
+      alert("Please drop a valid .zpl or .txt file.");
+    }
+  };
 
-const handleDragOver = (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-};
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
+  const handleHomeClick = () => {
+    setVariables([]);
+    setSelectedVars([]);
+    setVariablesModule({
+      variablesOfInterest: [],
+      variablesConfigurableSets: [],
+      variablesConfigurableParams: [],
+    });
+    setConstraints([]);
+    setConstraintsModules([]);
+    setPreferences([]);
+    setPreferenceModules([]);
+    setSetTypes({});
+    setSetAliases({});
+    setParamTypes({});
+    setImageId(null);
+    setImageName("");
+    setImageDescription("");
+    setZplCode("");
+  };
 
   return (
     <div className="upload-zpl-page background">
       {/* Home Button */}
       <div className="top-left-buttons">
-        <Link to="/" title="Home">
+        <Link to="/" title="Home" onClick={handleHomeClick}>
           <img
             src="/images/HomeButton.png"
             alt="Home"
@@ -104,18 +136,18 @@ const handleDragOver = (e) => {
 
       <div className="upload-container">
 
-   <h1 className="page-title">Upload ZPL File</h1>
+        <h1 className="page-title">Upload ZPL File</h1>
         <br />
 
         <div
-  className="drop-zone"
-  onDrop={handleDrop}
-  onDragOver={handleDragOver}
->
-  <p>Drag & drop your ZPL file here</p>
-</div>
+          className="drop-zone"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+        >
+          <p>Drag & drop your ZPL file here</p>
+        </div>
 
-     
+
         <button className="button" onClick={handleSelectFile}>
           Select File
         </button>
@@ -127,13 +159,13 @@ const handleDragOver = (e) => {
           onChange={handleFileChange}
         />
         <br />
-       <textarea
-  value={fileContent}
-  onChange={(e) => setFileContent(e.target.value)}
-  rows={15}
-  cols={60}
-  className="zpl-textarea"
-/>
+        <textarea
+          value={fileContent}
+          onChange={(e) => setFileContent(e.target.value)}
+          rows={15}
+          cols={60}
+          className="zpl-textarea"
+        />
 
         <br />
         <button className="button" onClick={handleUpload}>

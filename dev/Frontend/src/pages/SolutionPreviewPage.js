@@ -7,11 +7,22 @@ const SolutionPreviewPage = () => {
   const navigate = useNavigate();
   const {
     selectedVars,
-    setSelectedVars,
     constraintsModules,
     preferenceModules,
+    setVariables,
+    setSelectedVars,
+    setVariablesModule,
+    setConstraints,
     setConstraintsModules,
+    setPreferences,
     setPreferenceModules,
+    setSetTypes,
+    setSetAliases,
+    setParamTypes,
+    setImageId,
+    setImageName,
+    setImageDescription,
+    setZplCode,
   } = useZPL(); // Access selectedVars, constraintsModules, and preferenceModules from context
   const [editingVariable, setEditingVariable] = useState(null); // To keep track of the variable being edited
   const [editedAlias, setEditedAlias] = useState("");
@@ -129,13 +140,36 @@ const SolutionPreviewPage = () => {
     setActiveSection(section); // Switch between "variables", "constraints", "preferences"
   };
 
+  const handleHomeClick = () => {
+    setVariables([]);
+    setSelectedVars([]);
+    setVariablesModule({
+      variablesOfInterest: [],
+      variablesConfigurableSets: [],
+      variablesConfigurableParams: [],
+    });
+    setConstraints([]);
+    setConstraintsModules([]);
+    setPreferences([]);
+    setPreferenceModules([]);
+    setSetTypes({});
+    setSetAliases({});
+    setParamTypes({});
+    setImageId(null);
+    setImageName("");
+    setImageDescription("");
+    setZplCode("");
+    navigate("/")
+  };
+
+
   return (
     <div className="solution-preview-page background">
       <img
         src="/images/HomeButton.png"
         alt="Home"
         className="solution-home-button"
-        onClick={() => navigate("/")}
+        onClick={handleHomeClick}
         title="Go to Home"
       />
 

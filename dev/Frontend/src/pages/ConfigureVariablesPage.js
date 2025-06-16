@@ -12,7 +12,22 @@ const ConfigureVariablesPage = () => {
     const [selectedParams, setSelectedParams] = useState([]); // Stores selected params
     const [displaySets, setDisplaySets] = useState([]);    // Stores sets that should be displayed
     const [displayParams, setDisplayParams] = useState([]); // Stores params that should be displayed
- const navigate = useNavigate();
+    const navigate = useNavigate();
+
+    const {
+        setVariables,
+        setConstraints,
+        setConstraintsModules,
+        setPreferences,
+        setPreferenceModules,
+        setSetTypes,
+        setParamTypes,
+        setImageId,
+        setImageName,
+        setImageDescription,
+        setZplCode,
+    } = useZPL();
+
 
     // State for storing aliases for each selected set
     const [setAliases, setSetAliases] = useState({});
@@ -41,7 +56,7 @@ const ConfigureVariablesPage = () => {
             if (prevSelectedVars.includes(variable)) {
                 return prevSelectedVars.filter(v => v !== variable);
             } else {
-                console.log("Added variable "+variable+" to selectedVars");
+                console.log("Added variable " + variable + " to selectedVars");
                 return [...prevSelectedVars, variable];
             }
         });
@@ -79,9 +94,9 @@ const ConfigureVariablesPage = () => {
 
     // Save selected variables, sets, parameters, and aliases in context when navigating
     const handleContinue = () => {
-       
+
         const variablesOfInterest = selectedVars.map(v => v.identifier);
-    
+
         // Create a map where each variable is mapped to an array of corresponding set aliases
         const variableAliases = Object.fromEntries(
             selectedVars.map(variable => [
@@ -89,94 +104,115 @@ const ConfigureVariablesPage = () => {
                 (variable.dep?.setDependencies ?? []).map(set => setAliases[set] || set) // Use alias or fallback to set name
             ])
         );
-    
+
         setVariablesModule({
             variablesOfInterest,
             variablesConfigurableSets: selectedSets,
             variablesConfigurableParams: selectedParams,
             variableAliases,
         });
-    
+
         setSetAliases(setAliases); // Ensure the latest aliases are saved globally
         console.log("Test");
         navigate("/configure-constraints");
     };
-    
-    
+
+    const handleHomeClick = () => {
+        setVariables([]);
+        setSelectedVars([]);
+        setVariablesModule({
+            variablesOfInterest: [],
+            variablesConfigurableSets: [],
+            variablesConfigurableParams: [],
+        });
+        setConstraints([]);
+        setConstraintsModules([]);
+        setPreferences([]);
+        setPreferenceModules([]);
+        setSetTypes({});
+        setSetAliases({});
+        setParamTypes({});
+        setImageId(null);
+        setImageName("");
+        setImageDescription("");
+        setZplCode("");
+    };
+
+
 
     return (
         <div className="configure-variables-page background">
-           {/* Top Navigation Buttons */}
-{/* Top Navigation Row */}
-<div className="top-bar">
-  <div className="top-bar-left">
-    <Link to="/" title="Home">
-      <img
-        src="/images/HomeButton.png"
-        alt="Home"
-        className="top-bar-button"
-      />
-    </Link>
-    <img
-      src="/images/LeftArrowButton.png"
-      alt="Continue"
-      className="top-bar-button"
-      onClick={handleContinue}
-      title="Continue"
-    />
-  </div>
-  <div className="top-bar-right">
-    <Link to="/upload-zpl" title="Back">
-      <img
-        src="/images/RightArrowButton.png"
-        alt="Back"
-        className="top-bar-button"
-      />
-    </Link>
-  </div>
-</div>
+            {/* Top Navigation Buttons */}
+            {/* Top Navigation Row */}
+            <div className="top-bar">
+                <div className="top-bar-left">
+                    <Link to="/" title="Home" onClick={handleHomeClick}>
+                        <img
+                            src="/images/HomeButton.png"
+                            alt="Home"
+                            className="top-bar-button"
+                        />
+                    </Link>
+                    <img
+                        src="/images/LeftArrowButton.png"
+                        alt="Continue"
+                        className="top-bar-button"
+                        onClick={handleContinue}
+                        title="Continue"
+                    />
+                </div>
+                <div className="top-bar-right">
+                    <Link to="/upload-zpl" title="Back">
+                        <img
+                            src="/images/RightArrowButton.png"
+                            alt="Back"
+                            className="top-bar-button"
+                        />
+                    </Link>
+                </div>
+            </div>
 
 
 
 
             <div className="MainDiv">
-            <h1 className="page-title">Configure Variables</h1>
-            <div className="variables-layout">
-                
-                {/* Variables Section */}
-                <div className="available-variables">
+                <h1 className="page-title">Configure Variables</h1>
+                <div className="variables-layout">
 
-                    <form class="form">
-                    
+                    {/* Variables Section */}
+                    <div className="available-variables">
 
-                    {variables.length > 0 ? (
-                        variables.map((variable, index) => (
-                      
-                         <div class="inputGroup">
-                            <input
-                                id={index}
-                                label={variable.identifier}
-                                checked={selectedVars.includes(variable)}
-                                onChange={() => handleVarCheckboxChange(variable)}
-                                type="checkbox"
-                            />
-                            <label for={index}>{variable.identifier}</label>
-                        </div>
-                        
-                        ))
-                    ) : (
-                        <p>No variables available.</p>
-                    )}
-                    
-                    </form>
-                    
+                        <form class="form">
+
+
+                            {variables.length > 0 ? (
+                                variables.map((variable, index) => (
+
+                                    <div class="inputGroup">
+                                        <input
+                                            id={index}
+                                            label={variable.identifier}
+                                            checked={selectedVars.includes(variable)}
+                                            onChange={() => handleVarCheckboxChange(variable)}
+                                            type="checkbox"
+                                        />
+                                        <label for={index}>{variable.identifier}</label>
+                                    </div>
+
+                                ))
+                            ) : (
+                                <p>No variables available.</p>
+                            )}
+
+                        </form>
+
+
+                    </div>
+
 
                 </div>
-                
-            
+
             </div>
-         
-        </div>
         </div>
     );
 };

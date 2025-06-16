@@ -6,7 +6,22 @@ import './ConfigureConstraintsPage.css';
 const ConfigureConstraintsPage = () => {
     const navigate = useNavigate();
 
-    const { constraints: jsonConstraints = [], constraintsModules = [], setConstraintsModules = () => {} } = useZPL();
+    const { constraints: jsonConstraints = [], constraintsModules = [], setConstraintsModules = () => { } } = useZPL();
+    const {
+        setVariables,
+        setSelectedVars,
+        setVariablesModule,
+        setConstraints,
+        setPreferences,
+        setPreferenceModules,
+        setSetTypes,
+        setSetAliases,
+        setParamTypes,
+        setImageId,
+        setImageName,
+        setImageDescription,
+        setZplCode,
+    } = useZPL();
 
     const [availableConstraints, setAvailableConstraints] = useState([]);
     const [moduleName, setModuleName] = useState('');
@@ -64,36 +79,58 @@ const ConfigureConstraintsPage = () => {
         );
     };
 
+    const handleHomeClick = () => {
+        setVariables([]);
+        setSelectedVars([]);
+        setVariablesModule({
+            variablesOfInterest: [],
+            variablesConfigurableSets: [],
+            variablesConfigurableParams: [],
+        });
+        setConstraints([]);
+        setConstraintsModules([]);
+        setPreferences([]);
+        setPreferenceModules([]);
+        setSetTypes({});
+        setSetAliases({});
+        setParamTypes({});
+        setImageId(null);
+        setImageName("");
+        setImageDescription("");
+        setZplCode("");
+    };
+
+
     return (
         <div className="configure-constraints-page background">
             <div className="top-bar">
-  <div className="top-bar-left">
-    <Link to="/" title="Home">
-      <img
-        src="/images/HomeButton.png"
-        alt="Home"
-        className="top-bar-button"
-      />
-    </Link>
-    <img
-      src="/images/LeftArrowButton.png"
-      alt="Continue"
-      className="top-bar-button"
-      onClick={() => navigate("/configure-preferences")}
-      title="Continue"
-    />
-  </div>
+                <div className="top-bar-left">
+                    <Link to="/" title="Home" onClick={handleHomeClick}>
+                        <img
+                            src="/images/HomeButton.png"
+                            alt="Home"
+                            className="top-bar-button"
+                        />
+                    </Link>
+                    <img
+                        src="/images/LeftArrowButton.png"
+                        alt="Continue"
+                        className="top-bar-button"
+                        onClick={() => navigate("/configure-preferences")}
+                        title="Continue"
+                    />
+                </div>
 
-  <div className="top-bar-right">
-    <Link to="/configure-variables" title="Back">
-      <img
-        src="/images/RightArrowButton.png"
-        alt="Back"
-        className="top-bar-button"
-      />
-    </Link>
-  </div>
-</div>
+                <div className="top-bar-right">
+                    <Link to="/configure-variables" title="Back">
+                        <img
+                            src="/images/RightArrowButton.png"
+                            alt="Back"
+                            className="top-bar-button"
+                        />
+                    </Link>
+                </div>
+            </div>
 
             <h1 className="page-title">Configure High-Level Constraints</h1>
 
@@ -116,7 +153,7 @@ const ConfigureConstraintsPage = () => {
                                 >
                                     {module.name}
                                 </button>
-                             </div>
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -170,8 +207,8 @@ const ConfigureConstraintsPage = () => {
                 </div>
             </div>
 
-       
-         
+
+
         </div>
     );
 };
