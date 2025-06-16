@@ -18,17 +18,20 @@ const MyImagesPage = () => {
   const navigate = useNavigate();
   const { userId, constraintsModules, preferenceModules, setSolutionResponse } = useZPL();
   const {
-  setSelectedVars,
-  setConstraintsModules,
-  setPreferenceModules,
-  setSetTypes,
-  setSetAliases,
-  setParamTypes,
-  setImageId,
-  setImageName,
-  setImageDescription,
-  setZplCode
-} = useZPL();
+    setVariables,
+    setConstraints,
+    setPreferences,
+    setSelectedVars,
+    setConstraintsModules,
+    setPreferenceModules,
+    setSetTypes,
+    setSetAliases,
+    setParamTypes,
+    setImageId,
+    setImageName,
+    setImageDescription,
+    setZplCode
+  } = useZPL();
 
   useEffect(() => {
     if (!userId) return;
@@ -163,51 +166,76 @@ const MyImagesPage = () => {
     }
   };
 
-  const handleEditImage = () => {
-  if (!selectedImageId || !selectedImage) return;
+  const handleEditImage = async () => {
+    if (!selectedImageId || !selectedImage) return;
 
-  // 1) put raw image data back into context:
-  setImageId(selectedImageId);
-  setImageName(selectedImage.name);
-  setImageDescription(selectedImage.description);
-  setZplCode(selectedImage.code);
+    // 1) copy basic image fields
+    setImageId(selectedImageId);
+    setImageName(selectedImage.name);
+    setImageDescription(selectedImage.description);
+    setZplCode(selectedImage.code);
 
-  // 2) restore modules & variables:
-  setConstraintsModules(selectedImage.constraintModules);
-  setPreferenceModules(selectedImage.preferenceModules);
+    // 2) restore vars from the image itself
+    setSelectedVars(selectedImage.variables || []);
 
-  // 3) restore sets & type aliases:
-  const newSetTypes = {};      
-  const newSetAliases = {};    
-  selectedImage.sets.forEach(s => {
-    newSetTypes[s.setDefinition.name] = s.setDefinition.type;
-    newSetAliases[s.setDefinition.name] = {
-      alias:     s.setDefinition.alias,
-      typeAlias: s.setDefinition.typeAlias
-    };
-  });
-  setSetTypes(newSetTypes);
-  setSetAliases(newSetAliases);
+    // 3) fetch the “model” (variables/constraints/preferences) from the server
+    try {
+      const modelResp = await axios.post(
+        `/user/${userId}/image/model`,
+        { code: selectedImage.code },
+        { headers: { "Content-Type": "application/json" } }
+      );
 
-  // 4) restore parameters & param aliases:
-  const newParamTypes   = {};
-  const newParamAliases = {};
-  selectedImage.parameters.forEach(p => {
-    newParamTypes[p.parameterDefinition.name] = p.parameterDefinition.type;
-    newParamAliases[p.parameterDefinition.name] = {
-      alias:     p.parameterDefinition.alias,
-      typeAlias: p.parameterDefinition.typeAlias
-    };
-  });
-  setParamTypes(newParamTypes);
-  // you’ll need a setParamAliases in context if you want to track these separately
+      // assume { variables, constraints, preferences } in response.data
+      const { variables: mdlVars, constraints: mdlCons, preferences: mdlPref } =
+        modelResp.data;
 
-  // 5) restore selectedVars array if you’re using it
-  setSelectedVars(selectedImage.variables || []);
+      setVariables(mdlVars || []);
+      setConstraints(mdlCons || []);
+      setPreferences(mdlPref || []);
+    } catch (err) {
+      console.error("Model fetch failed:", err);
+      alert(
+        `Failed to load image model: ${err.response?.data?.msg || err.message || "Unknown error"
+        }`
+      );
+      // you can choose to abort here if model is required
+    }
 
-  // Finally, navigate into your review page
-  navigate("/image-setting-review");
-};
+    // 4) restore constraint & preference modules from the saved image
+    setConstraintsModules(selectedImage.constraintModules);
+    setPreferenceModules(selectedImage.preferenceModules);
+
+    // 5) rebuild sets & aliases
+    const newSetTypes = {};
+    const newSetAliases = {};
+    selectedImage.sets.forEach((s) => {
+      newSetTypes[s.setDefinition.name] = s.setDefinition.type;
+      newSetAliases[s.setDefinition.name] = {
+        alias: s.setDefinition.alias,
+        typeAlias: s.setDefinition.typeAlias,
+      };
+    });
+    setSetTypes(newSetTypes);
+    setSetAliases(newSetAliases);
+
+    // 6) rebuild params & aliases
+    const newParamTypes = {};
+    const newParamAliases = {};
+    selectedImage.parameters.forEach((p) => {
+      newParamTypes[p.parameterDefinition.name] = p.parameterDefinition.type;
+      newParamAliases[p.parameterDefinition.name] = {
+        alias: p.parameterDefinition.alias,
+        typeAlias: p.parameterDefinition.typeAlias,
+      };
+    });
+    setParamTypes(newParamTypes);
+    // (add setParamAliases if you have it)
+
+    // 7) finally navigate into your review screen
+    navigate("/image-setting-review");
+  };
+
 
 
   return (
@@ -343,7 +371,7 @@ const MyImagesPage = () => {
                 onClick={handleCopyCode}
                 title="Copy ZPL"
               />
-               <img
+              <img
                 src="/images/delete.png"
                 alt="Delete"
                 className="modal-delete-button"
