@@ -1,5 +1,6 @@
 package groupId.DTO.Factories;
 
+import Exceptions.InternalErrors.ClientSideError;
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import Exceptions.SolverExceptions.ValidationException;
 import Exceptions.UserErrors.UserDataException;
@@ -105,6 +106,12 @@ public class ExceptionRecordFactory {
         Objects.requireNonNull(exception,ohNo);
         log.info("Processed Exception: {}",exception.getMessage());
         return new ExceptionDTO(exception.getMessage());
+    }
+    @NonNull
+    public static ExceptionDTO makeDTO(@NonNull ClientSideError exception) {
+        Objects.requireNonNull(exception,ohNo);
+        log.info("Processed Exception: {}",exception.getMessage());
+        return new ExceptionDTO("Clientside error: "+exception.getMessage());
     }
     @NonNull
     public static ExceptionDTO makeDTO(@NonNull UserInputException exception) {

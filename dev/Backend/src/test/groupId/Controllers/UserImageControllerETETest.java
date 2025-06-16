@@ -28,6 +28,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
@@ -51,9 +52,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 //@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class UserImageControllerETETest {
-    private static String soldiersExample;
-    private static String brokenExample;
-    private static String classesExample;
+    private static final String soldiersExample;
+    private static final String brokenExample;
+    private static final String classesExample;
 
     static {
         try {
@@ -68,23 +69,29 @@ public class UserImageControllerETETest {
         }
     }
 
-
-    private String baseUrl;
-
-    @Autowired
-    private TestRestTemplate restTemplate;
-
     @Autowired
     JdbcTemplate jdbcTemplate;
-
+    private String baseUrl;
+    @Autowired
+    private TestRestTemplate restTemplate;
     @LocalServerPort
     private int port;
+
+    static Stream<String> InvalidCaseStream(){
+        return Stream.of(
+                "",
+                " ",
+                "param i",
+                "\n\t",
+                "this should not validate");
+    }
 
     @BeforeEach
     void setUp() {
         String userId = setUpUser();
         baseUrl = "http://localhost:" + port + "/user/" + userId + "/image";
     }
+
     @AfterEach
     void cleanUp() {
         jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE");
@@ -122,12 +129,23 @@ public class UserImageControllerETETest {
         assertNotNull(loginResponse.getBody());
         return loginResponse.getBody().userId();
     }
-    @Disabled
+
+    @ParameterizedTest
+    @MethodSource("InvalidCaseStream")
+    @DisplayName("Given invalid model, when parse model, then should fail")
+    void givenInvalidCode_whenParseModel_thenFail(String invalidCode){
+        CreateImageFromFileDTO createImageFromFileDTO = new CreateImageFromFileDTO(invalidCode);
+        ResponseEntity<ModelDTO> parseResponse = restTemplate.postForEntity(
+                baseUrl + "/model",
+                createImageFromFileDTO,
+                ModelDTO.class
+        );
+        assertTrue(parseResponse.getStatusCode().is4xxClientError());
+    }
+
     @Nested
     @DisplayName("Test Parse Model: POST /model")
     class TestParseModel{
-        record ParseCase(CreateImageFromFileDTO DTO, ModelDTO expectedResponse){}
-
         static Stream<ParseCase> ValidCaseStream(){
             return Stream.of(
                     new ParseCase(new CreateImageFromFileDTO(classesExample),
@@ -177,7 +195,7 @@ public class UserImageControllerETETest {
                                     ),
                                     Map.of("TIME_SLOTS", List.of("INT")
                                             ,"STATIONS",List.of("TEXT"),
-                                    "SOLDIERS",List.of("TEXT")
+                                            "SOLDIERS",List.of("TEXT")
                                     ),
                                     Map.of("MIN_HOURS_BETWEEN_SHIFTS","INT")
                             ))
@@ -208,29 +226,12 @@ public class UserImageControllerETETest {
             assertEquals(parseCase.expectedResponse.paramTypes(), actualResponse.paramTypes());
             assertEquals(parseCase.expectedResponse.setTypes(), actualResponse.setTypes());
         }
+
+        record ParseCase(CreateImageFromFileDTO DTO, ModelDTO expectedResponse){}
     }
-    static Stream<String> InvalidCaseStream(){
-        return Stream.of(
-                "",
-                " ",
-                "param i",
-                "\n\t",
-                "this should not validate");
-    }
-    @ParameterizedTest
-    @MethodSource("InvalidCaseStream")
-    @DisplayName("Given invalid model, when parse model, then should fail")
-    void givenInvalidCode_whenParseModel_thenFail(String invalidCode){
-        CreateImageFromFileDTO createImageFromFileDTO = new CreateImageFromFileDTO(invalidCode);
-        ResponseEntity<ModelDTO> parseResponse = restTemplate.postForEntity(
-                baseUrl + "/model",
-                createImageFromFileDTO,
-                ModelDTO.class
-        );
-        assertTrue(parseResponse.getStatusCode().is4xxClientError());
-    }
+
     @Nested
-    @DisplayName("Test Create Image: POST /image")
+    @DisplayName("Test Create Image: POST /")
     class TestCreateImage {
 
         static Stream<ImageDTO> validCaseStream() {
@@ -310,6 +311,72 @@ public class UserImageControllerETETest {
             assertEquals(1, actualImages.images().size());
             ImageDTO actualImage = actualImages.images().get(imageId);
             assertEquals(imageDTO, actualImage);
+        }
+    }
+    @Nested
+    @DisplayName("Test Delete Images: Delete /{imageId}")
+    class DeleteImageTest {
+        static Stream<ImageDTO> validImageToDelete(){
+            return Stream.of(
+                    new ImageDTO(
+                            Set.of(
+                                    new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
+                                    new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                            ),
+                            Set.of(
+                                    new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
+                            ),
+                            Set.of(
+                                    new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
+                            ),
+                            Set.of(
+                                    new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                            ),
+                            Set.of(
+                            ),
+                            "Class optimizer",
+                            "does stuff and things",
+                            classesExample
+                    )
+            );
+        }
+        @ParameterizedTest
+        @MethodSource("validImageToDelete")
+        void givenValidImage_WhenDeleteImage_thenSuccess(ImageDTO imageDTO) {
+            ResponseEntity<CreateImageResponseDTO> createImageResponse = restTemplate.postForEntity(
+                    baseUrl,
+                    imageDTO,
+                    CreateImageResponseDTO.class
+            );
+            assertTrue(createImageResponse.getStatusCode().is2xxSuccessful());
+            assertNotNull(createImageResponse.getBody());
+            ResponseEntity<Void> deleteImageResponse = restTemplate.exchange(
+                    baseUrl + "/{imageId}",
+                    HttpMethod.DELETE,
+                    null,
+                    Void.class,
+                    createImageResponse.getBody().imageId()
+                    );
+            assertTrue(deleteImageResponse.getStatusCode().is2xxSuccessful());
+            ResponseEntity<ImagesDTO> fetchImageResponse = restTemplate.getForEntity(
+                    baseUrl + "/0",
+                    ImagesDTO.class
+            );
+            assertTrue(fetchImageResponse.getStatusCode().is2xxSuccessful());
+            assertNotNull(fetchImageResponse.getBody());
+            ImagesDTO actualImages = fetchImageResponse.getBody();
+            assertEquals(0, actualImages.images().size());
+        }
+        @Test
+        void givenInvalidImageId_WhenDeleteImage_thenFail() {
+            ResponseEntity<Void> deleteImageResponse = restTemplate.exchange(
+                    baseUrl + "/{imageId}",
+                    HttpMethod.DELETE,
+                    null,
+                    Void.class,
+                    UUID.randomUUID().toString()
+            );
+            assertTrue(deleteImageResponse.getStatusCode().is4xxClientError());
         }
     }
 }

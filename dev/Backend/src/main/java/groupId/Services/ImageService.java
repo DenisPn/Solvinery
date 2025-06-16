@@ -87,7 +87,7 @@ public class ImageService {
         UserEntity user=userService.getUser(userId)
                 .orElseThrow(()-> new ClientSideError("User id not found during delete image."));
         ImageEntity imageEntity=imageRepository.findById(UUID.fromString(imageId))
-                .orElseThrow(()->new ClientSideError("Invalid image ID during publish image."));
+                .orElseThrow(()->new ClientSideError("Invalid image ID during delete image."));
         imageRepository.delete(imageEntity);
     }
 
