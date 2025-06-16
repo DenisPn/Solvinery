@@ -49,6 +49,13 @@ public class UserImageController {
         return ResponseEntity.ok(response);
     }
     @NonNull
+    @DeleteMapping("/{imageId}")
+    public ResponseEntity<Void> deleteImage(@NonNull @PathVariable String userId,
+                                                              @NonNull @PathVariable String imageId) {
+        imageService.deleteImage(userId,imageId);
+        return ResponseEntity.ok().build();
+    }
+    @NonNull
     @GetMapping("/{page}")
     public ResponseEntity<ImagesDTO> getImages(@NonNull @PathVariable String userId,
                                                @PathVariable int page) {
