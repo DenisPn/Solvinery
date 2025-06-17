@@ -156,7 +156,6 @@ const ImageSettingReview = () => {
         alert(`Failed to ${isEditMode ? "update" : "save"} image. Error: ${err || "Unknown error"}`);
         return;
       }
-      await response.json();
       alert(`Image ${isEditMode ? "updated" : "saved"} successfully!`);
 
       // Reset everything
