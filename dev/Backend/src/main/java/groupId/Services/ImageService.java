@@ -68,6 +68,7 @@ public class ImageService {
             throw new ClientSideError("User does not own the image to override.");
         Image image= EntityMapper.toDomain(imageEntity);
         image.override(imageDTO);
+        imageRepository.delete(imageEntity);
         imageRepository.save(EntityMapper.toEntity(imageEntity.getUser(),image,imageEntity.getId()));
     }
 
