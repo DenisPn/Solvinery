@@ -29,10 +29,6 @@ const ConfigureConstraintsPage = () => {
     const [moduleName, setModuleName] = useState('');
     const [selectedModuleIndex, setSelectedModuleIndex] = useState(null);
 
- useEffect(() => {
-  console.log("constraints:", constraints);
-  console.log("preference:", preferences);
-}, [constraints, preferences]); // Log when constraintModules or preferenceModules change
 
 
     // Initialize available constraints dynamically from JSON

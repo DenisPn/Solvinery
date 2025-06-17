@@ -225,10 +225,11 @@ const handleEditImage = async () => {
   const newSetTypes = {};
   const newSetAliases = {};
   (selectedImage.sets || []).forEach(s => {
-    newSetTypes[s.setDefinition.name] = s.setDefinition.type;
+    newSetTypes[s.setDefinition.name] = s.setDefinition.structure;
     newSetAliases[s.setDefinition.name] = {
       alias:     s.setDefinition.alias,
-      typeAlias: s.setDefinition.typeAlias
+      typeAlias: s.setDefinition.structure,
+
     };
   });
   setSetTypes(newSetTypes);
