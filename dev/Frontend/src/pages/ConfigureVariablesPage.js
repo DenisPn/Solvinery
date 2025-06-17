@@ -26,6 +26,7 @@ const ConfigureVariablesPage = () => {
         setImageName,
         setImageDescription,
         setZplCode,
+        constraintsModules, preferenceModules,
     } = useZPL();
 
 
@@ -46,6 +47,7 @@ const ConfigureVariablesPage = () => {
         setDisplayParams(newDisplayParams);
     };
 
+   
     useEffect(() => {
         updateDisplayedSetsAndParams();
     }, [selectedVars]); // Update when selected variables change
