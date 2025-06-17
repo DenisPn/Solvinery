@@ -204,7 +204,7 @@ public class ModelModifierIntegrationTest {
                             Set.of(), //sets
                             Set.of(), //constraints
                             Map.of("((maxGuards-minGuards)+weight)**3", 1F), //scalars
-                            Map.of("(((maxGuards-minGuards)+weight)**3) * scalar1354200841",1F),
+                            Map.of("((maxGuards-minGuards)+weight)**3",1F),
                             SoldiersExampleCode),
                     new TestInput( //16
                             Set.of(), //params
@@ -213,9 +213,9 @@ public class ModelModifierIntegrationTest {
                             Map.of("((maxGuards-minGuards)+weight)**3", 0.5F,
                                    "(minimalSpacing)**2", 0.5F,
                                    "sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))", 0.5F),//scalars
-                            Map.of("(((maxGuards-minGuards)+weight)**3) * scalar1354200841",0.5F,
-                                    "((minimalSpacing)**2) * scalar1883673267",0.5F,
-                                    "(sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))) * scalar692447860",0.5F),
+                            Map.of("((maxGuards-minGuards)+weight)**3",0.5F,
+                                    "(minimalSpacing)**2",0.5F,
+                                    "sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))",0.5F),
                             SoldiersExampleCode),
                     new TestInput( //17
                             Set.of(new ModelParameter("soldiers", ModelPrimitives.INT, "0"),
@@ -231,9 +231,9 @@ public class ModelModifierIntegrationTest {
                             Map.of("((maxGuards-minGuards)+weight)**3", 0.5F,
                                    "(minimalSpacing)**2", 0.5F,
                                    "sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))", 0.5F),//scalars
-                            Map.of("(((maxGuards-minGuards)+weight)**3) * scalar1354200841",0.5F,
-                                    "((minimalSpacing)**2) * scalar1883673267",0.5F,
-                                    "(sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))) * scalar692447860",0.5F),
+                            Map.of("((maxGuards-minGuards)+weight)**3",0.5F,
+                                    "(minimalSpacing)**2",0.5F,
+                                    "sum<i,a,b> in Possible_Soldier_Shifts: sum<m,n> in S | m != a or b!=n :(Soldier_Shift[i,a,b] * Soldier_Shift[i,m,n] * (b-n))",0.5F),
                             SoldiersExampleCode)
             );
         } catch (IOException e) {

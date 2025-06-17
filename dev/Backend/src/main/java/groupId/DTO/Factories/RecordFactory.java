@@ -192,8 +192,8 @@ public class RecordFactory {
         Map<String, String> params = new HashMap<>();
         for (Constraint constraint : modelInterface.getConstraints()) {
             constraints.add(makeDTO(constraint));
-        for (Preference preference : modelInterface.getModifiedPreferences()) {
-            preferences.add(makeDTO(preference));
+        for (String preference : modelInterface.getOriginalPreferences()) {
+            preferences.add(new PreferenceDTO(preference));
         }
         for (Variable variable : modelInterface.getVariables()) {
             variables.add(makeDTO(variable));

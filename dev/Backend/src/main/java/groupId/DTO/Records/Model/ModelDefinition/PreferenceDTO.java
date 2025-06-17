@@ -9,4 +9,5 @@ import jakarta.validation.constraints.NotBlank;
 public record PreferenceDTO(
     @NotBlank String identifier
     //@NotNull @Valid DependenciesDTO structure
-) {}
+) {
+}

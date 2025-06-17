@@ -38,7 +38,7 @@ public class Model implements ModelInterface {
     private final Map<String, Preference> originalToModifiedDereferences = new HashMap<>();
     private final Map<String, Variable> variables = new HashMap<>();
     private final Set<String> uneditedPreferences = new HashSet<>();
-    private final Map<Preference,ModelParameter> preferenceToScalar = new HashMap<>();
+    private final Map<String,ModelParameter> preferenceToScalar = new HashMap<>();
     private final Set<Element> modifiedElements= new HashSet<>();
 
 
@@ -55,10 +55,7 @@ public class Model implements ModelInterface {
         return constraints;
     }
 
-    @NonNull
-    public Map<String,Preference> getPreferencesMap(){
-        return modifiedPreferences;
-    }
+
     @NonNull
     public Set<String> getUneditedPreferences(){
         return uneditedPreferences;
@@ -123,7 +120,7 @@ public class Model implements ModelInterface {
             }
             ModelParameter scalarParam= params.get(paramName);
             Preference preference=new Preference(preferenceBody);
-            preferenceToScalar.put(preference,scalarParam);
+            preferenceToScalar.put(preferenceBody,scalarParam);
             modifiedPreferences.put(preference.getName(),preference);
             originalToModifiedDereferences.put(preferenceBody,preference);
         }
@@ -134,8 +131,10 @@ public class Model implements ModelInterface {
         Pattern pattern = Pattern.compile("\\((.+?)\\)\\s*\\*\\s*(scalar\\d+)");
         Matcher matcher = pattern.matcher(preferenceBody);
         if (!matcher.find()) {
-            log.error("Previously parsed preferences must be in format '(<expression>) * scalar<number>', got: {}", preferenceBody);
-            throw new InvalidModelInputException("Previously parsed preferences must be in format '(<expression>) * scalar<number>', got: " + preferenceBody);
+            log.warn("Previously parsed preferences must be in format '(<expression>) * scalar<number>', got: {}\n" +
+                    "Got different format, assuming original preference body was provided.", preferenceBody);
+            return hashPreference(preferenceBody);
+            //throw new InvalidModelInputException("Previously parsed preferences must be in format '(<expression>) * scalar<number>', got: " + preferenceBody);
         }
         String originalBody = matcher.group(1);
         String scalarParam = matcher.group(2);
@@ -160,7 +159,7 @@ public class Model implements ModelInterface {
             modifiedPreferences.put(newBody,editedPreference);
             ModelParameter preferenceScalar=new ModelParameter(paramName, ModelPrimitives.FLOAT,"1",true);
             params.put(paramName,preferenceScalar);
-            preferenceToScalar.put(editedPreference,preferenceScalar);
+            preferenceToScalar.put(body,preferenceScalar);
             originalToModifiedDereferences.put(body,editedPreference);
         }
     }
@@ -200,9 +199,9 @@ public class Model implements ModelInterface {
         preferencesScalars.keySet().forEach(preference ->
         {
             ModelParameter scalar;
-            if(modifiedPreferences.containsKey(preference))
-                scalar = preferenceToScalar.get(modifiedPreferences.get(preference));
-            else scalar=this.preferenceToScalar.get(originalToModifiedDereferences.get(preference));
+            /*if(modifiedPreferences.containsKey(preference))
+                scalar = preferenceToScalar.get(modifiedPreferences.get(preference).getName());
+            else */scalar=this.preferenceToScalar.get(preference);
             if(scalar == null)
                 throw new InvalidModelStateException("Preference "+preference+" does not have a corresponding scalar parameter");
             scalar.setData(Float.toString(preferencesScalars.get(preference)));
@@ -247,10 +246,10 @@ public class Model implements ModelInterface {
 
 
     public ModelParameter getScalarParam(String preferenceName){
-        return preferenceToScalar.get(originalToModifiedDereferences.get(preferenceName));
+        return preferenceToScalar.get(originalToModifiedDereferences.get(preferenceName).getName());
     }
     public ModelParameter getScalarParam(Preference preference){
-        return preferenceToScalar.get(preference);
+        return preferenceToScalar.get(preference.getName());
     }
     @NonNull
     public Float getScalarValue(@NonNull Preference preference){
@@ -297,8 +296,12 @@ public class Model implements ModelInterface {
         return constraints.values();
     }
 
+    @Nullable
+    @Override
     public Preference getPreference(String identifier) {
-        return modifiedPreferences.get(identifier);
+        if(/*modifiedPreferences.containsKey(identifier) | */originalToModifiedDereferences.containsKey(identifier))
+            return new Preference(identifier);
+        return null;
     }
 
     /**
@@ -312,8 +315,12 @@ public class Model implements ModelInterface {
         }
         return null;
     }
+    @Override
+    public @NonNull Set<String> getOriginalPreferences(){
+        return originalToModifiedDereferences.keySet();
+    }
     public boolean hasPreference(String identifier) {
-        return modifiedPreferences.containsKey(identifier);
+        return /*modifiedPreferences.containsKey(identifier) || */originalToModifiedDereferences.containsKey(identifier);
     }
 
     @NonNull
@@ -389,6 +396,6 @@ public class Model implements ModelInterface {
         return modifiedElements;
     }
     public boolean hasScalar(Preference preference){
-        return preferenceToScalar.containsKey(preference);
+        return preferenceToScalar.containsKey(preference.getName());
     }
 }

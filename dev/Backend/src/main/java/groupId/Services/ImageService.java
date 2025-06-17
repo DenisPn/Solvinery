@@ -13,6 +13,7 @@ import groupId.DTO.Factories.RecordFactory;
 import groupId.DTO.Records.Image.ImageDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ModelDTO;
 import groupId.DTO.Records.Requests.Responses.*;
+import jakarta.persistence.EntityManager;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -66,9 +67,12 @@ public class ImageService {
                 .orElseThrow(()->new ClientSideError("Invalid image ID during override image"));
         if(!imageEntity.getUser().equals(user))
             throw new ClientSideError("User does not own the image to override.");
+        ImageEntity newImageEntity= new ImageEntity();
+        newImageEntity.setId(imageEntity.getId());
         Image image= EntityMapper.toDomain(imageEntity);
         image.override(imageDTO);
-        imageRepository.save(EntityMapper.toEntity(imageEntity.getUser(),image,imageEntity.getId()));
+        EntityMapper.setEntity(newImageEntity,user,image);
+        imageRepository.save(newImageEntity);
     }
 
     @NonNull
@@ -87,7 +91,7 @@ public class ImageService {
         UserEntity user=userService.getUser(userId)
                 .orElseThrow(()-> new ClientSideError("User id not found during delete image."));
         ImageEntity imageEntity=imageRepository.findById(UUID.fromString(imageId))
-                .orElseThrow(()->new ClientSideError("Invalid image ID during publish image."));
+                .orElseThrow(()->new ClientSideError("Invalid image ID during delete image."));
         imageRepository.delete(imageEntity);
     }
 

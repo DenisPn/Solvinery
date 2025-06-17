@@ -99,7 +99,9 @@ public class SolveService {
         }
     }
     @Transactional(readOnly = true)
-    public void validateThreaded(String zimplCode) {
+    public void validateThreaded(@NonNull String zimplCode) {
+        if(zimplCode.isBlank())
+            throw new UserInputException("Code is empty.");
         int timeout = 5;
         String requestId = UUID.randomUUID().toString();
         CompletableFuture<Solution> future = new CompletableFuture<>();

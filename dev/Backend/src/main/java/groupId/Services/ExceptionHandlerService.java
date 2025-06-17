@@ -1,5 +1,6 @@
 package groupId.Services;
 
+import Exceptions.InternalErrors.ClientSideError;
 import Exceptions.InternalErrors.ModelExceptions.ZimplCompileError;
 import Exceptions.SolverExceptions.ValidationException;
 import Exceptions.UserErrors.UserDataException;
@@ -41,7 +42,7 @@ public class ExceptionHandlerService {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionDTO> handleException(@NonNull MethodArgumentNotValidException ex) {
         ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
-        return ResponseEntity.status(500).body(errorResponse);
+        return ResponseEntity.status(400).body(errorResponse);
     }
 
     @NonNull
@@ -100,6 +101,12 @@ public class ExceptionHandlerService {
     @NonNull
     @ExceptionHandler(UserInputException.class)
     public ResponseEntity<ExceptionDTO> handleException(@NonNull UserInputException ex) {
+        ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
+        return ResponseEntity.status(401).body(errorResponse);
+    }
+    @NonNull
+    @ExceptionHandler(ClientSideError.class)
+    public ResponseEntity<ExceptionDTO> handleException(@NonNull ClientSideError ex) {
         ExceptionDTO errorResponse = ExceptionRecordFactory.makeDTO(ex);
         return ResponseEntity.status(400).body(errorResponse);
     }
