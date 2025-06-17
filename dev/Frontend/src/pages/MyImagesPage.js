@@ -196,21 +196,25 @@ const handleEditImage = async () => {
     );
   }
 
-  // 4) Restore constraintModules, guarding against undefined
+  // 4) Restore constraintModules, preserving { identifier } objects
   setConstraintsModules(
     (selectedImage.constraintModules || []).map(mod => ({
       name:        mod.moduleName,
       description: mod.description || "",
-      constraints: Array.isArray(mod.constraints) ? mod.constraints : []
+      constraints: Array.isArray(mod.constraints)
+        ? mod.constraints.map(c => ({ identifier: c }))
+        : []
     }))
   );
 
-  // 5) Restore preferenceModules, guarding against undefined
+  // 5) Restore preferenceModules, preserving { identifier } objects
   setPreferenceModules(
     (selectedImage.preferenceModules || []).map(mod => ({
       name:        mod.moduleName,
       description: mod.description || "",
-      preferences: Array.isArray(mod.preferences) ? mod.preferences : []
+      preferences: Array.isArray(mod.preferences)
+        ? mod.preferences.map(p => ({ identifier: p }))
+        : []
     }))
   );
 
@@ -238,12 +242,13 @@ const handleEditImage = async () => {
     };
   });
   setParamTypes(newParamTypes);
-  // if you have setParamAliases in context:
+  // If tracking parameter aliases separately:
   // setParamAliases(newParamAliases);
 
-  // 8) Navigate to the review page
+  // 8) Navigate to the review screen
   navigate("/image-setting-review");
 };
+
 
 
 
