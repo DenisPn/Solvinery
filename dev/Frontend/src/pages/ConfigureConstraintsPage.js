@@ -6,7 +6,7 @@ import './ConfigureConstraintsPage.css';
 const ConfigureConstraintsPage = () => {
     const navigate = useNavigate();
 
-    const { constraints: jsonConstraints = [], constraintsModules = [], setConstraintsModules = () => { } } = useZPL();
+    const { preferences,constraints , setConstraintsModules = () => { } } = useZPL();
     const {
         setVariables,
         setSelectedVars,
@@ -21,16 +21,20 @@ const ConfigureConstraintsPage = () => {
         setImageName,
         setImageDescription,
         setZplCode,
+        constraintsModules,
+        preferenceModules,
     } = useZPL();
 
     const [availableConstraints, setAvailableConstraints] = useState([]);
     const [moduleName, setModuleName] = useState('');
     const [selectedModuleIndex, setSelectedModuleIndex] = useState(null);
 
+
+
     // Initialize available constraints dynamically from JSON
     useEffect(() => {
-        setAvailableConstraints(jsonConstraints);
-    }, [jsonConstraints]);
+        setAvailableConstraints(constraints);
+    }, [constraints]);
 
     // Add a new module
     const addConstraintModule = () => {

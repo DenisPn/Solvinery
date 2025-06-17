@@ -8,7 +8,7 @@ const ConfigurePreferencesPage = () => {
     const navigate = useNavigate();
 
     // Fetch preferences & modules from ZPL context
-    const { preferences: jsonPreferences = [], preferenceModules = [], setPreferenceModules = () => { } } = useZPL();
+    const { preferences, setPreferenceModules = () => { } } = useZPL();
     const {
         setVariables,
         setSelectedVars,
@@ -23,6 +23,8 @@ const ConfigurePreferencesPage = () => {
         setImageName,
         setImageDescription,
         setZplCode,
+        constraintsModules,
+        preferenceModules,
     } = useZPL();
 
 
@@ -33,8 +35,8 @@ const ConfigurePreferencesPage = () => {
 
     // Initialize available preferences dynamically from JSON
     useEffect(() => {
-        setAvailablePreferences(jsonPreferences);
-    }, [jsonPreferences]);
+        setAvailablePreferences(preferences);
+    }, [preferences]);
 
     // Add a new module
     const addPreferenceModule = () => {
@@ -71,9 +73,7 @@ const ConfigurePreferencesPage = () => {
                     if (!module.preferences.some(p => p.identifier === preference.identifier)) {
                         return {
                             ...module,
-                            preferences: [...module.preferences, preference],
-                            involvedSets: [...new Set([...module.involvedSets, ...(preference.dep?.setDependencies || [])])],
-                            involvedParams: [...new Set([...module.involvedParams, ...(preference.dep?.paramDependencies || [])])]
+                            preferences: [...module.preferences, preference]
                         };
                     }
                 }
@@ -196,18 +196,6 @@ const ConfigurePreferencesPage = () => {
                                     <p>No preferences added</p>
                                 )}
                             </div>
-                            <h3>Involved Sets</h3>
-                            <ul>
-                                {preferenceModules[selectedModuleIndex]?.involvedSets.map((set, i) => (
-                                    <li key={i}>{set}</li>
-                                ))}
-                            </ul>
-                            <h3>Involved Parameters</h3>
-                            <ul>
-                                {preferenceModules[selectedModuleIndex]?.involvedParams.map((param, i) => (
-                                    <li key={i}>{param}</li>
-                                ))}
-                            </ul>
                         </>
                     )}
                 </div>

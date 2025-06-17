@@ -26,6 +26,8 @@ export default function ImageSettingSetAndParams() {
     console.log("setAliases:", setAliases);
   }, [setTypes, setAliases]);
 
+
+  
   const [activeSection, setActiveSection] = useState("sets");
   const [editingSet, setEditingSet] = useState(null);
   const [editedAlias, setEditedAlias] = useState("");
