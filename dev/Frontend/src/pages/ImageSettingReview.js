@@ -30,6 +30,9 @@ const ImageSettingReview = () => {
     setImageName,
     setImageDescription,
     setZplCode,
+    isEditMode,
+    setIsEditMode,
+    imageId
   } = useZPL();
 
 
@@ -137,20 +140,26 @@ const ImageSettingReview = () => {
 
     console.log("Request Data:", requestData);
 
+    const url = isEditMode
+      ? `/user/${userId}/image/${imageId}`
+      : `/user/${userId}/image`;
+    const method = isEditMode ? "PATCH" : "POST";
+
     try {
-      const response = await fetch(`/user/${userId}/image`, {
-        method: "POST",
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
       });
       if (!response.ok) {
         const err = await response.text();
-        alert(`Failed to save image. Error: ${err || "Unknown error"}`);
+        alert(`Failed to ${isEditMode ? "update" : "save"} image. Error: ${err || "Unknown error"}`);
         return;
       }
-      const data = await response.json();
-      alert("Image saved successfully!");
+      await response.json();
+      alert(`Image ${isEditMode ? "updated" : "saved"} successfully!`);
 
+      // Reset everything
       setVariables([]);
       setSelectedVars([]);
       setVariablesModule({
@@ -169,6 +178,11 @@ const ImageSettingReview = () => {
       setImageName("");
       setImageDescription("");
       setZplCode("");
+
+      // Turn off edit mode if it was on
+      if (isEditMode) {
+        setIsEditMode(false);
+      }
 
       navigate("/");
     } catch (e) {

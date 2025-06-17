@@ -31,7 +31,8 @@ const MyImagesPage = () => {
     setImageName,
     setImageDescription,
     setZplCode,
-    selectedVars
+    selectedVars,
+    setIsEditMode
   } = useZPL();
 
   useEffect(() => {
@@ -167,91 +168,93 @@ const MyImagesPage = () => {
     }
   };
 
-const handleEditImage = async () => {
-  if (!selectedImageId || !selectedImage) return;
+  const handleEditImage = async () => {
+    if (!selectedImageId || !selectedImage) return;
 
-  // 1) Copy basic image fields into context
-  setImageId(selectedImageId);
-  setImageName(selectedImage.name);
-  setImageDescription(selectedImage.description);
-  setZplCode(selectedImage.code);
+    // 1) Copy basic image fields into context
+    setImageId(selectedImageId);
+    setImageName(selectedImage.name);
+    setImageDescription(selectedImage.description);
+    setZplCode(selectedImage.code);
 
-  // 2) Restore the image’s own selectedVars
-  setSelectedVars(selectedImage.variables || []);
+    // 2) Restore the image’s own selectedVars
+    setSelectedVars(selectedImage.variables || []);
 
-  // 3) (Optional) fetch full model variables from server
-  try {
-    const modelResp = await axios.post(
-      `/user/${userId}/image/model`,
-      { code: selectedImage.code },
-      { headers: { "Content-Type": "application/json" } }
+    // 3) (Optional) fetch full model variables from server
+    try {
+      const modelResp = await axios.post(
+        `/user/${userId}/image/model`,
+        { code: selectedImage.code },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      setVariables(modelResp.data.variables || []);
+      setConstraints(modelResp.data.constraints || []);
+      setPreferences(modelResp.data.preferences || []);
+
+    } catch (err) {
+      console.error("Model fetch failed:", err);
+      alert(
+        `Failed to load image model: ${err.response?.data?.msg || err.message || "Unknown error"
+        }`
+      );
+    }
+
+    // 4) Restore constraintModules, preserving { identifier } objects
+    setConstraintsModules(
+      (selectedImage.constraintModules || []).map(mod => ({
+        name: mod.moduleName,
+        description: mod.description || "",
+        constraints: Array.isArray(mod.constraints)
+          ? mod.constraints.map(c => ({ identifier: c }))
+          : []
+      }))
     );
-    setVariables(modelResp.data.variables || []);
-    setConstraints(modelResp.data.constraints || []);
-    setPreferences(modelResp.data.preferences || []);
-    
-  } catch (err) {
-    console.error("Model fetch failed:", err);
-    alert(
-      `Failed to load image model: ${
-        err.response?.data?.msg || err.message || "Unknown error"
-      }`
+
+    // 5) Restore preferenceModules, preserving { identifier } objects
+    setPreferenceModules(
+      (selectedImage.preferenceModules || []).map(mod => ({
+        name: mod.moduleName,
+        description: mod.description || "",
+        preferences: Array.isArray(mod.preferences)
+          ? mod.preferences.map(p => ({ identifier: p }))
+          : []
+      }))
     );
-  }
 
-  // 4) Restore constraintModules, preserving { identifier } objects
-  setConstraintsModules(
-    (selectedImage.constraintModules || []).map(mod => ({
-      name:        mod.moduleName,
-      description: mod.description || "",
-      constraints: Array.isArray(mod.constraints)
-        ? mod.constraints.map(c => ({ identifier: c }))
-        : []
-    }))
-  );
+    // 6) Rebuild sets & aliases
+    const newSetTypes = {};
+    const newSetAliases = {};
+    (selectedImage.sets || []).forEach(s => {
+      newSetTypes[s.setDefinition.name] = s.setDefinition.structure;
+      newSetAliases[s.setDefinition.name] = {
+        alias: s.setDefinition.alias,
+        typeAlias: s.setDefinition.structure,
 
-  // 5) Restore preferenceModules, preserving { identifier } objects
-  setPreferenceModules(
-    (selectedImage.preferenceModules || []).map(mod => ({
-      name:        mod.moduleName,
-      description: mod.description || "",
-      preferences: Array.isArray(mod.preferences)
-        ? mod.preferences.map(p => ({ identifier: p }))
-        : []
-    }))
-  );
+      };
+    });
+    setSetTypes(newSetTypes);
+    setSetAliases(newSetAliases);
 
-  // 6) Rebuild sets & aliases
-  const newSetTypes = {};
-  const newSetAliases = {};
-  (selectedImage.sets || []).forEach(s => {
-    newSetTypes[s.setDefinition.name] = s.setDefinition.structure;
-    newSetAliases[s.setDefinition.name] = {
-      alias:     s.setDefinition.alias,
-      typeAlias: s.setDefinition.structure,
+    // 7) Rebuild params & aliases
+    const newParamTypes = {};
+    const newParamAliases = {};
+    (selectedImage.parameters || []).forEach(p => {
+      newParamTypes[p.parameterDefinition.name] = p.parameterDefinition.type;
+      newParamAliases[p.parameterDefinition.name] = {
+        alias: p.parameterDefinition.alias,
+        typeAlias: p.parameterDefinition.typeAlias
+      };
+    });
+    setParamTypes(newParamTypes);
+    // If tracking parameter aliases separately:
+    // setParamAliases(newParamAliases);
 
-    };
-  });
-  setSetTypes(newSetTypes);
-  setSetAliases(newSetAliases);
+    // 8) Set Edit Mode
+    setIsEditMode(true);
 
-  // 7) Rebuild params & aliases
-  const newParamTypes   = {};
-  const newParamAliases = {};
-  (selectedImage.parameters || []).forEach(p => {
-    newParamTypes[p.parameterDefinition.name] = p.parameterDefinition.type;
-    newParamAliases[p.parameterDefinition.name] = {
-      alias:     p.parameterDefinition.alias,
-      typeAlias: p.parameterDefinition.typeAlias
-    };
-  });
-  setParamTypes(newParamTypes);
-  // If tracking parameter aliases separately:
-  // setParamAliases(newParamAliases);
-
-  // 8) Navigate to the review screen
-  navigate("/image-setting-review");
-};
+    // 9) Navigate to the review screen
+    navigate("/image-setting-review");
+  };
 
 
 
