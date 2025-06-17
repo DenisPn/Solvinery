@@ -29,6 +29,9 @@ export const ZPLProvider = ({ children }) => {
     const [imageDescription, setImageDescription] = useState('');
     const [zplCode, setZplCode] = useState('');
 
+    const [isEditMode, setIsEditMode] = useState(false);
+
+
     return (
         <ZPLContext.Provider value={{
 
@@ -62,6 +65,10 @@ export const ZPLProvider = ({ children }) => {
 
             // Solution
             solutionResponse, setSolutionResponse,
+
+            // Edit mode
+            isEditMode, setIsEditMode,
+            
         }}>
             {children}
         </ZPLContext.Provider>
