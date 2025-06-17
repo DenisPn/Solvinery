@@ -5,24 +5,21 @@ import Model.Data.Types.ModelType;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.lang.NonNull;
 
+import java.util.List;
 import java.util.Objects;
 
 public abstract class DataElement extends Element {
     protected final ModelType type;
-   // protected final String alias;
 
 
     public DataElement (String name, ModelType type) {
         super(name);
         this.type = type;
-       // this.alias = null;
     }
-   /* public DataElement (String name, ModelType structure,String alias) {
-        super(name);
-        this.structure = structure;
-        this.alias = alias;
-    }*/
 
+   public boolean isCompatible(List<String> content){
+       return content.stream().allMatch(type::isCompatible);
+   }
     public boolean isCompatible (@NonNull DataElement element){
         return this.type.isCompatible(element.getDataType());
     }
@@ -33,13 +30,7 @@ public abstract class DataElement extends Element {
     public ModelType getDataType() {
         return type;
     }
-/*
-    public String getAlias() {
-        return alias;
-    }
-    public boolean hasAlias() {
-        return alias!=null;
-    }*/
+
 
     @Override
     public boolean equals(@Nullable Object o) {

@@ -30,8 +30,8 @@ public class PreferenceModule extends OperationalModule {
     public PreferenceModule(@NonNull String name, @NonNull String description, @NonNull Collection<Preference> preferences, @Nullable Float scalar) {
         super(name, description);
         this.preferences = new HashMap<>();
-        for (Preference constraint : preferences) {
-            this.preferences.put(constraint.getName(), constraint);
+        for (Preference preference : preferences) {
+            this.preferences.put(preference.getName(), preference);
         }
         if(scalar==null) this.scalar=DEFAULT_SCALAR;
         else this.scalar=scalar;
