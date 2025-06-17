@@ -137,6 +137,7 @@ public class ImageEntity {
         //this.zimplCode = zimplCode;
     }
     public void setAll(String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModuleEntities, Set<ConstraintModuleEntity> constraintModuleEntities, Set<VariableEntity> variableEntities, Set<ParameterEntity> paramEntities, Set<SetEntity> setEntities, String sourceCode, @NonNull UserEntity user) {
+        //clearChildren();
         this.preferenceModules = preferenceModuleEntities;
         this.constraintModules = constraintModuleEntities;
         this.variables = variableEntities;
@@ -150,7 +151,13 @@ public class ImageEntity {
         this.original_code = sourceCode;
     }
 
-
+    public void clearChildren(){
+        this.preferenceModules.clear();
+        this.constraintModules.clear();
+        this.variables.clear();
+        this.activeParams.clear();
+        this.activeSets.clear();
+    }
     @NonNull
     public UserEntity getUser() {
         if(user == null)
@@ -292,5 +299,9 @@ public class ImageEntity {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, description, creationDate, activeSets, activeParams, variables, constraintModules, preferenceModules, user, /*zimplCode,*/ original_code);
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 }

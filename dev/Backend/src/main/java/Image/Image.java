@@ -40,8 +40,8 @@ public class Image {
     private final Set<VariableModule> activeVariables;
     @NonNull
     private final ModelInterface model;
-    private final @NonNull String name;
-    private final @NonNull String description;
+    private @NonNull String name;
+    private @NonNull String description;
     private final @NonNull LocalDateTime creationDate;
 
     /**
@@ -162,7 +162,8 @@ public class Image {
         this.activeSets.clear();
         this.activeParams.clear();
         this.activeVariables.clear();
-        
+        this.name = imageDTO.name();
+        this.description = imageDTO.description();
         for (VariableDTO variableDTO: imageDTO.variables()){
             String variableName= variableDTO.identifier();
             Variable variable = model.getVariable(variableName);
