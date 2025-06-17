@@ -40,7 +40,7 @@ const MyImagesPage = () => {
       const response = await axios.patch(
         `/user/${userId}/image/${selectedImageId}/publish`
       );
-      alert(`Publish Success: ${JSON.stringify(response.data)}`);
+      alert(`Image was published successfully, you can now see it in the public gallery.`);
     } catch (error) {
       const errMsg = error.response?.data || error.message || "Unknown error";
       alert(`Publish Failed: ${JSON.stringify(errMsg)}`);
@@ -138,6 +138,20 @@ const MyImagesPage = () => {
   const filteredEntries = imageEntries.filter(([_, img]) =>
     img.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+
+  const handleDeleteImage = async () => {
+    if (!selectedImageId || !userId) return;
+    try {
+      await axios.delete(`/user/${userId}/image/${selectedImageId}`);
+      alert("Image deleted successfully!");
+      navigate("/");
+    } catch (err) {
+      const msg = err.response?.data || err.message || "Unknown error";
+      alert(`Delete failed: ${JSON.stringify(msg)}`);
+    }
+  };
+
 
   return (
     <div className="my-images-background">
@@ -271,6 +285,13 @@ const MyImagesPage = () => {
                 className="modal-copy-button"
                 onClick={handleCopyCode}
                 title="Copy ZPL"
+              />
+               <img
+                src="/images/delete.png"
+                alt="Delete"
+                className="modal-delete-button"
+                onClick={handleDeleteImage}
+                title="Delete"
               />
 
               {/* Modal Content */}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useZPL } from "../context/ZPLContext"; 
+import { useZPL } from "../context/ZPLContext";
 import { useNavigate, Link } from "react-router-dom";
 import "./ImageSettingReview.css";
 
@@ -14,12 +14,49 @@ const ImageSettingReview = () => {
     paramAliases,
     constraintsModules,
     preferenceModules,
+    imageName,
+    imageDescription,
+    setVariables,
+    setSelectedVars,
+    setVariablesModule,
+    setConstraints,
+    setConstraintsModules,
+    setPreferences,
+    setPreferenceModules,
+    setSetTypes,
+    setSetAliases,
+    setParamTypes,
+    setImageId,
+    setImageName,
+    setImageDescription,
+    setZplCode,
   } = useZPL();
 
-  const [imageName, setImageName] = useState("");
-  const [imageDescription, setImageDescription] = useState("");
+
   const [isZplCodeVisible, setIsZplCodeVisible] = useState(false);
   const navigate = useNavigate();
+
+  const handleHomeClick = () => {
+    setVariables([]);
+    setSelectedVars([]);
+    setVariablesModule({
+      variablesOfInterest: [],
+      variablesConfigurableSets: [],
+      variablesConfigurableParams: [],
+    });
+    setConstraints([]);
+    setConstraintsModules([]);
+    setPreferences([]);
+    setPreferenceModules([]);
+    setSetTypes({});
+    setSetAliases({});
+    setParamTypes({});
+    setImageId(null);
+    setImageName("");
+    setImageDescription("");
+    setZplCode("");
+  };
+
 
   const handleShowZplCode = () => setIsZplCodeVisible(v => !v);
 
@@ -27,18 +64,18 @@ const ImageSettingReview = () => {
     const requestData = {
 
 
-     variables: selectedVars.map(variable => {
-  // Ensure structure is always an array:
-  const struct = Array.isArray(variable.structure)
-    ? variable.structure
-    : (variable.structure || "").split(",").map(s => s.trim()).filter(Boolean);
+      variables: selectedVars.map(variable => {
+        // Ensure structure is always an array:
+        const struct = Array.isArray(variable.structure)
+          ? variable.structure
+          : (variable.structure || "").split(",").map(s => s.trim()).filter(Boolean);
 
-  return {
-    identifier: variable.identifier,
-    structure:  struct,  // a real array
-    alias:      variable.alias || variable.identifier,
-  };
-}),
+        return {
+          identifier: variable.identifier,
+          structure: struct,  // a real array
+          alias: variable.alias || variable.identifier,
+        };
+      }),
 
 
 
@@ -66,7 +103,7 @@ const ImageSettingReview = () => {
 
         return {
           setDefinition: {
-            name: setName,            
+            name: setName,
             alias: userAlias || setName,
             structure: userTypeAlias.length ? userTypeAlias : typeArray,
           },
@@ -113,6 +150,26 @@ const ImageSettingReview = () => {
       }
       const data = await response.json();
       alert("Image saved successfully!");
+
+      setVariables([]);
+      setSelectedVars([]);
+      setVariablesModule({
+        variablesOfInterest: [],
+        variablesConfigurableSets: [],
+        variablesConfigurableParams: [],
+      });
+      setConstraints([]);
+      setConstraintsModules([]);
+      setPreferences([]);
+      setPreferenceModules([]);
+      setSetTypes({});
+      setSetAliases({});
+      setParamTypes({});
+      setImageId(null);
+      setImageName("");
+      setImageDescription("");
+      setZplCode("");
+
       navigate("/");
     } catch (e) {
       console.error(e);
@@ -132,7 +189,7 @@ const ImageSettingReview = () => {
   return (
     <div className="image-setting-page background">
       <div className="image-setting-top-left-buttons">
-        <Link to="/" title="Home">
+        <Link to="/" title="Home" onClick={handleHomeClick}>
           <img
             src="/images/HomeButton.png"
             alt="Home"

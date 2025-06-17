@@ -4,7 +4,20 @@ import { useZPL } from "../context/ZPLContext";
 import "./ImageSettingSetAndParams.css";
 
 export default function ImageSettingSetAndParams() {
-  const { setTypes, setSetTypes, setAliases, setSetAliases } = useZPL();
+  const { setTypes, setAliases, setVariables,
+    setSelectedVars,
+    setVariablesModule,
+    setConstraints,
+    setConstraintsModules,
+    setPreferences,
+    setPreferenceModules,
+    setSetTypes,
+    setSetAliases,
+    setParamTypes,
+    setImageId,
+    setImageName,
+    setImageDescription,
+    setZplCode, } = useZPL();
   const navigate = useNavigate();
 
   // Debug: log both maps
@@ -48,10 +61,32 @@ export default function ImageSettingSetAndParams() {
     setSetAliases(updatedAliases);
   };
 
+  const handleHomeClick = () => {
+    setVariables([]);
+    setSelectedVars([]);
+    setVariablesModule({
+      variablesOfInterest: [],
+      variablesConfigurableSets: [],
+      variablesConfigurableParams: [],
+    });
+    setConstraints([]);
+    setConstraintsModules([]);
+    setPreferences([]);
+    setPreferenceModules([]);
+    setSetTypes({});
+    setSetAliases({});
+    setParamTypes({});
+    setImageId(null);
+    setImageName("");
+    setImageDescription("");
+    setZplCode("");
+  };
+
+
   return (
     <div className="image-setting-page background">
       <div className="image-setting-top-left-buttons">
-        <Link to="/">
+        <Link to="/" onClick={handleHomeClick}>
           <img src="/images/HomeButton.png" alt="Home" className="icon-btn" />
         </Link>
         <img

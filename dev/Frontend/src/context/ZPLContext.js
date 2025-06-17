@@ -50,12 +50,12 @@ export const ZPLProvider = ({ children }) => {
             setAliases, setSetAliases,
             paramTypes, setParamTypes,
 
-            // Image and User
-            imageId, setImageId,
+            //User
             userId, setUserId,
             username, setUsername,
 
-            // Image name, description, and ZPL code
+            // Image id, name, description, and ZPL code
+            imageId, setImageId,
             imageName, setImageName,
             imageDescription, setImageDescription,
             zplCode, setZplCode,
