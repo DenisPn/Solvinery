@@ -25,8 +25,7 @@ import java.util.stream.Collectors;
 public class ExceptionRecordFactory {
     private static final String ohNo= "An extra extra fatal occurred while handling an error";
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ExceptionRecordFactory.class);
-    //TODO A singular exceptionDTO factory, made with the purpose of having a central fatal/non fatal error logging class,
-    // need to implement logger. Remove informative errors messages from user side, for network/internal errors.
+
     @NonNull
     public static ExceptionDTO makeDTO(Exception exception) {
         Objects.requireNonNull(exception,ohNo);

@@ -5,6 +5,7 @@ import config.KafkaConfig;
 import groupId.DTO.Records.Image.ConstraintModuleDTO;
 import groupId.DTO.Records.Image.ImageDTO;
 import groupId.DTO.Records.Image.PreferenceModuleDTO;
+import groupId.DTO.Records.Model.ModelData.ParameterDTO;
 import groupId.DTO.Records.Model.ModelData.SetDTO;
 import groupId.DTO.Records.Model.ModelData.SetDefinitionDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ConstraintDTO;
@@ -18,13 +19,11 @@ import groupId.DTO.Records.Requests.Responses.ConfirmationDTO;
 import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
 import groupId.DTO.Records.Requests.Responses.ImagesDTO;
 import groupId.DTO.Records.Requests.Responses.LoginResponseDTO;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -32,9 +31,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -64,34 +61,24 @@ public class UserImageControllerETETest {
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
-        if(soldiersExample == null || brokenExample == null || classesExample == null){
-            throw new ExceptionInInitializerError("failed to load one of the example files");
-        }
     }
 
     @Autowired
     JdbcTemplate jdbcTemplate;
-    private String baseUrl;
+    private static final String baseUriTemplate = "http://localhost:4000/user/{userId}/image";
+    private String baseUri;
     @Autowired
     private TestRestTemplate restTemplate;
     @LocalServerPort
     private int port;
 
-    static Stream<String> InvalidCaseStream(){
-        return Stream.of(
-                "",
-                " ",
-                "param i",
-                "\n\t",
-                "this should not validate");
-    }
+
 
     @BeforeEach
     void setUp() {
         String userId = setUpUser();
-        baseUrl = "http://localhost:" + port + "/user/" + userId + "/image";
+        baseUri = "http://localhost:" + port + "/user/" + userId + "/image";
     }
-
     @AfterEach
     void cleanUp() {
         jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE");
@@ -103,15 +90,13 @@ public class UserImageControllerETETest {
                 jdbcTemplate.execute("TRUNCATE TABLE " + table)
         );
         jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY TRUE");
-
-
     }
 
     private String setUpUser(){
-        baseUrl = "http://localhost:" + port;
+        baseUri = "http://localhost:" + port;
         RegisterDTO registerDTO = new RegisterDTO("testUser", "testUser", "test12345", "test@mail.com");
         ResponseEntity<ConfirmationDTO> regResponse = restTemplate.postForEntity(
-                baseUrl + "/users",
+                baseUri + "/users",
                 registerDTO,
                 ConfirmationDTO.class
         );
@@ -121,7 +106,7 @@ public class UserImageControllerETETest {
 
         LoginDTO loginDTO= new LoginDTO("testUser", "test12345");
         ResponseEntity<LoginResponseDTO> loginResponse = restTemplate.postForEntity(
-                baseUrl + "/users/session",
+                baseUri + "/users/session",
                 loginDTO,
                 LoginResponseDTO.class
         );
@@ -129,23 +114,46 @@ public class UserImageControllerETETest {
         assertNotNull(loginResponse.getBody());
         return loginResponse.getBody().userId();
     }
-
-    @ParameterizedTest
-    @MethodSource("InvalidCaseStream")
-    @DisplayName("Given invalid model, when parse model, then should fail")
-    void givenInvalidCode_whenParseModel_thenFail(String invalidCode){
-        CreateImageFromFileDTO createImageFromFileDTO = new CreateImageFromFileDTO(invalidCode);
-        ResponseEntity<ModelDTO> parseResponse = restTemplate.postForEntity(
-                baseUrl + "/model",
-                createImageFromFileDTO,
-                ModelDTO.class
+    static Stream<ImageDTO> validExampleImagesStream() {
+        return Stream.of(
+                new ImageDTO(
+                        Set.of(
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                        ),
+                        Set.of(
+                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
+                        ),
+                        Set.of(
+                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
+                        ),
+                        Set.of(
+                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                        ),
+                        Set.of(
+                        ),
+                        "Class optimizer",
+                        "does stuff and things",
+                        classesExample
+                )
         );
-        assertTrue(parseResponse.getStatusCode().is4xxClientError());
     }
 
+
     @Nested
-    @DisplayName("Test Parse Model: POST /model")
+    @DisplayName("Test Parse Model: POST "+baseUriTemplate+"/model")
     class TestParseModel{
+
+        static Stream<String> InvalidCaseStream(){
+            return Stream.of(
+                    "",
+                    " ",
+                    "param i",
+                    "\n\t",
+                    "this should not validate");
+        }
+        record ParseCase(CreateImageFromFileDTO DTO, ModelDTO expectedResponse){}
+
         static Stream<ParseCase> ValidCaseStream(){
             return Stream.of(
                     new ParseCase(new CreateImageFromFileDTO(classesExample),
@@ -213,7 +221,7 @@ public class UserImageControllerETETest {
         @DisplayName("Given valid model, when parse model, then shouldn't fail")
         void givenValidModel_whenParseModel_thenSuccess(ParseCase parseCase) {
             ResponseEntity<ModelDTO> parseResponse = restTemplate.postForEntity(
-                    baseUrl + "/model",
+                    baseUri + "/model",
                     parseCase.DTO,
                     ModelDTO.class
             );
@@ -227,11 +235,24 @@ public class UserImageControllerETETest {
             assertEquals(parseCase.expectedResponse.setTypes(), actualResponse.setTypes());
         }
 
-        record ParseCase(CreateImageFromFileDTO DTO, ModelDTO expectedResponse){}
+        @ParameterizedTest
+        @MethodSource("InvalidCaseStream")
+        @DisplayName("Given invalid model, when parse model, then should fail")
+        void givenInvalidCode_whenParseModel_thenFail(String invalidCode){
+            CreateImageFromFileDTO createImageFromFileDTO = new CreateImageFromFileDTO(invalidCode);
+            ResponseEntity<ModelDTO> parseResponse = restTemplate.postForEntity(
+                    baseUri + "/model",
+                    createImageFromFileDTO,
+                    ModelDTO.class
+            );
+            assertTrue(parseResponse.getStatusCode().is4xxClientError());
+        }
     }
 
+
+
     @Nested
-    @DisplayName("Test Create Image: POST /")
+    @DisplayName("Test Create Image: POST  "+baseUriTemplate+"/")
     class TestCreateImage {
 
         static Stream<ImageDTO> validCaseStream() {
@@ -291,9 +312,10 @@ public class UserImageControllerETETest {
 
         @ParameterizedTest
         @MethodSource("validCaseStream")
+        @DisplayName("Given valid image, when create image, then should not fail")
         void givenValidImage_WhenCreateImage_thenSuccess(ImageDTO imageDTO) {
             ResponseEntity<CreateImageResponseDTO> createImageResponse = restTemplate.postForEntity(
-                    baseUrl,
+                    baseUri,
                     imageDTO,
                     CreateImageResponseDTO.class
             );
@@ -302,7 +324,7 @@ public class UserImageControllerETETest {
             CreateImageResponseDTO actualResponse = createImageResponse.getBody();
             UUID imageId = UUID.fromString(actualResponse.imageId());
             ResponseEntity<ImagesDTO> fetchImageResponse = restTemplate.getForEntity(
-                    baseUrl + "/0",
+                    baseUri + "/0",
                     ImagesDTO.class
             );
             assertTrue(fetchImageResponse.getStatusCode().is2xxSuccessful());
@@ -314,52 +336,30 @@ public class UserImageControllerETETest {
         }
     }
     @Nested
-    @DisplayName("Test Delete Images: Delete /{imageId}")
+    @DisplayName("Test Delete Images: DELETE  "+baseUriTemplate+"/{imageId}")
     class DeleteImageTest {
-        static Stream<ImageDTO> validImageToDelete(){
-            return Stream.of(
-                    new ImageDTO(
-                            Set.of(
-                                    new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                    new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
-                            ),
-                            Set.of(
-                                    new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                            ),
-                            Set.of(
-                                    new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                            ),
-                            Set.of(
-                                    new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                            ),
-                            Set.of(
-                            ),
-                            "Class optimizer",
-                            "does stuff and things",
-                            classesExample
-                    )
-            );
-        }
+
         @ParameterizedTest
-        @MethodSource("validImageToDelete")
+        @MethodSource("groupId.Controllers.UserImageControllerETETest#validExampleImagesStream")
+        @DisplayName("Given valid image, when delete image, then should not fail")
         void givenValidImage_WhenDeleteImage_thenSuccess(ImageDTO imageDTO) {
             ResponseEntity<CreateImageResponseDTO> createImageResponse = restTemplate.postForEntity(
-                    baseUrl,
+                    baseUri,
                     imageDTO,
                     CreateImageResponseDTO.class
             );
             assertTrue(createImageResponse.getStatusCode().is2xxSuccessful());
             assertNotNull(createImageResponse.getBody());
             ResponseEntity<Void> deleteImageResponse = restTemplate.exchange(
-                    baseUrl + "/{imageId}",
+                    baseUri + "/{imageId}",
                     HttpMethod.DELETE,
                     null,
                     Void.class,
                     createImageResponse.getBody().imageId()
-                    );
+            );
             assertTrue(deleteImageResponse.getStatusCode().is2xxSuccessful());
             ResponseEntity<ImagesDTO> fetchImageResponse = restTemplate.getForEntity(
-                    baseUrl + "/0",
+                    baseUri + "/0",
                     ImagesDTO.class
             );
             assertTrue(fetchImageResponse.getStatusCode().is2xxSuccessful());
@@ -367,10 +367,12 @@ public class UserImageControllerETETest {
             ImagesDTO actualImages = fetchImageResponse.getBody();
             assertEquals(0, actualImages.images().size());
         }
+
         @Test
+        @DisplayName("Given no image with given id, when delete image, then should fail")
         void givenInvalidImageId_WhenDeleteImage_thenFail() {
             ResponseEntity<Void> deleteImageResponse = restTemplate.exchange(
-                    baseUrl + "/{imageId}",
+                    baseUri + "/{imageId}",
                     HttpMethod.DELETE,
                     null,
                     Void.class,
@@ -378,5 +380,93 @@ public class UserImageControllerETETest {
             );
             assertTrue(deleteImageResponse.getStatusCode().is4xxClientError());
         }
+    }
+    @Nested
+    @DisplayName("Test Fetch Images: GET "+baseUriTemplate+"/{page}")
+    class TestFetchImages{
+        static final int DEFAULT_PAGE_SIZE = 10;
+        private record ImageAndCountPair(ImageDTO imageDTO, int saveCount){}
+
+        static Stream<ImageAndCountPair> validExampleImagesAndCountStream() {
+            return validExampleImagesStream().flatMap(imageDTO -> Stream.of(
+                    new ImageAndCountPair(imageDTO, 0), //check that fetch returns an empty list
+                    new ImageAndCountPair(imageDTO, 1),
+                    new ImageAndCountPair(imageDTO, 10),
+                    new ImageAndCountPair(imageDTO, 11),
+                    new ImageAndCountPair(imageDTO, 22),
+                    new ImageAndCountPair(imageDTO, 100)
+            ));
+        }
+        @ParameterizedTest
+        @MethodSource("validExampleImagesAndCountStream")
+        @DisplayName("Given images, when saved many times, fetch pages correctly")
+        void givenImages_whenSavedManyTimes_fetchPagesCorrectly(ImageAndCountPair imageAndCountPair) {
+            ImageDTO imageDTO = imageAndCountPair.imageDTO();
+            int saveCount = imageAndCountPair.saveCount();
+            //save count number of images
+            for(int i = 0; i < saveCount; i++){
+                ResponseEntity<CreateImageResponseDTO> createImageResponse = restTemplate.postForEntity(
+                        baseUri,
+                        imageDTO,
+                        CreateImageResponseDTO.class
+                );
+                assertTrue(createImageResponse.getStatusCode().is2xxSuccessful());
+                assertNotNull(createImageResponse.getBody());
+            }
+            //fetch all full pages
+            for(int page=0; page < (saveCount / DEFAULT_PAGE_SIZE); page++){
+                ResponseEntity<ImagesDTO> imagesResponseEntityFullPage = restTemplate.getForEntity(
+                        baseUri +"/"+page,
+                        ImagesDTO.class
+                );
+                assertTrue(imagesResponseEntityFullPage.getStatusCode().is2xxSuccessful());
+                assertNotNull(imagesResponseEntityFullPage.getBody());
+                assertEquals(DEFAULT_PAGE_SIZE, imagesResponseEntityFullPage.getBody().images().size());
+                for (ImageDTO image : imagesResponseEntityFullPage.getBody().images().values()) {
+                    assertEquals(imageDTO.code(), image.code());
+                    assertEquals(imageDTO.description(), image.description());
+                    assertEquals(imageDTO.name(), image.name());
+                    assertEquals(imageDTO.constraintModules(), image.constraintModules());
+                    assertEquals(imageDTO.preferenceModules(), image.preferenceModules());
+                    assertEquals(imageDTO.variables(), image.variables());
+                    assertEquals(imageDTO.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()), image.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()));
+                    assertEquals(imageDTO.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()), image.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()));
+                }
+            }
+            //if exists, fetch partially full last page
+            if(saveCount % DEFAULT_PAGE_SIZE != 0){
+                ResponseEntity<ImagesDTO> imagesResponseEntityPartialPage = restTemplate.getForEntity(
+                        baseUri +"/"+(saveCount / DEFAULT_PAGE_SIZE),
+                        ImagesDTO.class
+                );
+                assertTrue(imagesResponseEntityPartialPage.getStatusCode().is2xxSuccessful());
+                assertNotNull(imagesResponseEntityPartialPage.getBody());
+                assertEquals(saveCount % DEFAULT_PAGE_SIZE, imagesResponseEntityPartialPage.getBody().images().size());
+                //ignoring params and sets data, since additional data may be read from source code.
+                for (ImageDTO image : imagesResponseEntityPartialPage.getBody().images().values()) {
+                    assertEquals(imageDTO.code(), image.code());
+                    assertEquals(imageDTO.description(), image.description());
+                    assertEquals(imageDTO.name(), image.name());
+                    assertEquals(imageDTO.constraintModules(), image.constraintModules());
+                    assertEquals(imageDTO.preferenceModules(), image.preferenceModules());
+                    assertEquals(imageDTO.variables(), image.variables());
+                    assertEquals(imageDTO.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()), image.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()));
+                    assertEquals(imageDTO.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()), image.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()));
+                }
+            }
+            //fetch empty page
+            ResponseEntity<ImagesDTO> imagesResponseEntityEmptyPage = restTemplate.getForEntity(
+                    baseUri +"/"+(saveCount / DEFAULT_PAGE_SIZE + 1),
+                    ImagesDTO.class
+            );
+            assertTrue(imagesResponseEntityEmptyPage.getStatusCode().is2xxSuccessful());
+            assertNotNull(imagesResponseEntityEmptyPage.getBody());
+            assertEquals(0, imagesResponseEntityEmptyPage.getBody().images().size());
+        }
+    }
+    @Nested
+    @DisplayName("Test Configure Images: PATCH "+baseUriTemplate+"/{imageId}")
+    class ConfigureImage{
+
     }
 }
