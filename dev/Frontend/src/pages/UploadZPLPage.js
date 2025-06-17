@@ -64,6 +64,7 @@ const UploadZPLPage = () => {
       setPreferences(responseData.preferences);
       setSetTypes(responseData.setTypes);
       setParamTypes(responseData.paramTypes);
+      console.log("Response Data:", responseData);
 
       setMessage("File uploaded successfully!");
       navigate("/configure-variables");
