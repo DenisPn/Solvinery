@@ -6,7 +6,7 @@ import './ConfigureConstraintsPage.css';
 const ConfigureConstraintsPage = () => {
     const navigate = useNavigate();
 
-    const { constraints , setConstraintsModules = () => { } } = useZPL();
+    const { preferences,constraints , setConstraintsModules = () => { } } = useZPL();
     const {
         setVariables,
         setSelectedVars,
@@ -30,9 +30,9 @@ const ConfigureConstraintsPage = () => {
     const [selectedModuleIndex, setSelectedModuleIndex] = useState(null);
 
  useEffect(() => {
-  console.log("constraintsModules:", constraintsModules);
-  console.log("preferenceModules:", preferenceModules);
-}, [constraintsModules, preferenceModules]); // Log when constraintModules or preferenceModules change
+  console.log("constraints:", constraints);
+  console.log("preference:", preferences);
+}, [constraints, preferences]); // Log when constraintModules or preferenceModules change
 
 
     // Initialize available constraints dynamically from JSON

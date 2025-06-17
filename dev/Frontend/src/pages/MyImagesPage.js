@@ -187,6 +187,9 @@ const handleEditImage = async () => {
       { headers: { "Content-Type": "application/json" } }
     );
     setVariables(modelResp.data.variables || []);
+    setConstraints(modelResp.data.constraints || []);
+    setPreferences(modelResp.data.preferences || []);
+    
   } catch (err) {
     console.error("Model fetch failed:", err);
     alert(
