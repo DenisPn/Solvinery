@@ -4,7 +4,15 @@ import { useZPL } from "../context/ZPLContext";
 import "./ImageSettingSetAndParams.css";
 
 export default function ImageSettingSetAndParams() {
-  const { setTypes, setAliases, setVariables,
+  const {
+    // Context values and setters
+    setTypes,
+    setAliases,
+    paramTypes,
+    paramAliases,
+    setParamTypes,
+    setParamAliases,
+    setVariables,
     setSelectedVars,
     setVariablesModule,
     setConstraints,
@@ -13,56 +21,81 @@ export default function ImageSettingSetAndParams() {
     setPreferenceModules,
     setSetTypes,
     setSetAliases,
-    setParamTypes,
     setImageId,
     setImageName,
     setImageDescription,
-    setZplCode, } = useZPL();
+    setZplCode,
+  } = useZPL();
+
   const navigate = useNavigate();
 
-  // Debug: log both maps
+  // Debug log
   useEffect(() => {
     console.log("setTypes:", setTypes);
     console.log("setAliases:", setAliases);
-  }, [setTypes, setAliases]);
+    console.log("paramTypes:", paramTypes);
+    console.log("paramAliases:", paramAliases);
+  }, [setTypes, setAliases, paramTypes, paramAliases]);
 
-
-  
   const [activeSection, setActiveSection] = useState("sets");
+
+  // --- Set editing state ---
   const [editingSet, setEditingSet] = useState(null);
-  const [editedAlias, setEditedAlias] = useState("");
-  const [editedTypeAlias, setEditedTypeAlias] = useState("");
+  const [editedSetAlias, setEditedSetAlias] = useState("");
 
   const handleEditSetClick = (setName) => {
     setEditingSet(setName);
-    const { alias = setName, typeAlias = [] } = setAliases[setName] || {};
-    setEditedAlias(alias);
-    setEditedTypeAlias(Array.isArray(typeAlias) ? typeAlias.join(",") : "");
+    const { alias = setName } = setAliases[setName] || {};
+    setEditedSetAlias(alias);
   };
 
   const handleSaveSetEdit = () => {
-    setSetAliases(prev => ({
+    setSetAliases((prev) => ({
       ...prev,
-      [editingSet]: {
-        alias: editedAlias.trim(),
-        typeAlias: editedTypeAlias
-          .split(",")
-          .map(s => s.trim())
-          .filter(s => s),
-      }
+      [editingSet]: { alias: editedSetAlias.trim() },
     }));
     setEditingSet(null);
   };
 
   const handleDeleteSet = (setName) => {
-    const updated = { ...setTypes };
-    delete updated[setName];
-    setSetTypes(updated);
-    const updatedAliases = { ...setAliases };
-    delete updatedAliases[setName];
-    setSetAliases(updatedAliases);
+    const newTypes = { ...setTypes };
+    delete newTypes[setName];
+    setSetTypes(newTypes);
+
+    const newAliases = { ...setAliases };
+    delete newAliases[setName];
+    setSetAliases(newAliases);
   };
 
+  // --- Param editing state ---
+  const [editingParam, setEditingParam] = useState(null);
+  const [editedParamAlias, setEditedParamAlias] = useState("");
+
+  const handleEditParamClick = (paramName) => {
+    setEditingParam(paramName);
+    const { alias = paramName } = paramAliases[paramName] || {};
+    setEditedParamAlias(alias);
+  };
+
+  const handleSaveParamEdit = () => {
+    setParamAliases((prev) => ({
+      ...prev,
+      [editingParam]: { alias: editedParamAlias.trim() },
+    }));
+    setEditingParam(null);
+  };
+
+  const handleDeleteParam = (paramName) => {
+    const newTypes = { ...paramTypes };
+    delete newTypes[paramName];
+    setParamTypes(newTypes);
+
+    const newAliases = { ...paramAliases };
+    delete newAliases[paramName];
+    setParamAliases(newAliases);
+  };
+
+  // --- Reset and navigate home ---
   const handleHomeClick = () => {
     setVariables([]);
     setSelectedVars([]);
@@ -78,12 +111,13 @@ export default function ImageSettingSetAndParams() {
     setSetTypes({});
     setSetAliases({});
     setParamTypes({});
+    setParamAliases({});
     setImageId(null);
     setImageName("");
     setImageDescription("");
     setZplCode("");
+    navigate("/");
   };
-
 
   return (
     <div className="image-setting-page background">
@@ -105,12 +139,18 @@ export default function ImageSettingSetAndParams() {
         />
       </div>
 
-      <h1 className="page-title">Image Settings - Sets and Parameters</h1>
+      <h1 className="page-title">Image Settings – Sets &amp; Parameters</h1>
       <div className="toggle-section">
-        <button onClick={() => setActiveSection("sets")} className="toggle-button">
+        <button
+          onClick={() => setActiveSection("sets")}
+          className="toggle-button"
+        >
           Show Sets
         </button>
-        <button onClick={() => setActiveSection("params")} className="toggle-button">
+        <button
+          onClick={() => setActiveSection("params")}
+          className="toggle-button"
+        >
           Show Parameters
         </button>
       </div>
@@ -121,29 +161,19 @@ export default function ImageSettingSetAndParams() {
           <div className="slider-container">
             <div className="slider">
               {Object.entries(setTypes).map(([setName, data], idx) => {
-                const { alias = setName, typeAlias = [] } = setAliases[setName] || {};
+                const { alias = setName } = setAliases[setName] || {};
                 return (
                   <div key={idx} className="slide">
                     <h4>{setName}</h4>
                     <div className="field">
                       <span className="field-label">Type:</span>
                       <span className="field-value">
-                        {Array.isArray(data)
-                          ? data.join(", ")
-                          : data}
+                        {Array.isArray(data) ? data.join(", ") : data}
                       </span>
                     </div>
                     <div className="field">
                       <span className="field-label">Alias:</span>
                       <span className="field-value">{alias}</span>
-                    </div>
-                    <div className="field">
-                      <span className="field-label">Type Alias:</span>
-                      <span className="field-value">
-                        {Array.isArray(typeAlias)
-                          ? typeAlias.join(", ")
-                          : ""}
-                      </span>
                     </div>
                     <div className="buttons-container">
                       <img
@@ -170,28 +200,78 @@ export default function ImageSettingSetAndParams() {
       {activeSection === "params" && (
         <div className="parameters-section">
           <h2 className="section-title">Parameters</h2>
+          <div className="slider-container">
+            <div className="slider">
+              {Object.entries(paramTypes).map(([paramName, data], idx) => {
+                const { alias = paramName } = paramAliases[paramName] || {};
+                return (
+                  <div key={idx} className="slide">
+                    <h4>{paramName}</h4>
+                    <div className="field">
+                      <span className="field-label">Type:</span>
+                      <span className="field-value">
+                        {Array.isArray(data) ? data.join(", ") : data}
+                      </span>
+                    </div>
+                    <div className="field">
+                      <span className="field-label">Alias:</span>
+                      <span className="field-value">{alias}</span>
+                    </div>
+                    <div className="buttons-container">
+                      <img
+                        src="/images/edit-button.png"
+                        alt="Edit"
+                        className="edit-image"
+                        onClick={() => handleEditParamClick(paramName)}
+                      />
+                      <img
+                        src="/images/delete.png"
+                        alt="Delete"
+                        className="delete-image"
+                        onClick={() => handleDeleteParam(paramName)}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
 
+      {/* Edit Set Modal */}
       {editingSet && (
         <div className="modal-overlay" onClick={() => setEditingSet(null)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Edit {editingSet}</h2>
             <label>Alias:</label>
             <input
               type="text"
-              value={editedAlias}
-              onChange={e => setEditedAlias(e.target.value)}
-            />
-            <label>Type Alias (comma separated):</label>
-            <input
-              type="text"
-              value={editedTypeAlias}
-              onChange={e => setEditedTypeAlias(e.target.value)}
+              value={editedSetAlias}
+              onChange={(e) => setEditedSetAlias(e.target.value)}
             />
             <div className="modal-buttons">
               <button onClick={handleSaveSetEdit}>Save</button>
               <button onClick={() => setEditingSet(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Param Modal */}
+      {editingParam && (
+        <div className="modal-overlay" onClick={() => setEditingParam(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Edit {editingParam}</h2>
+            <label>Alias:</label>
+            <input
+              type="text"
+              value={editedParamAlias}
+              onChange={(e) => setEditedParamAlias(e.target.value)}
+            />
+            <div className="modal-buttons">
+              <button onClick={handleSaveParamEdit}>Save</button>
+              <button onClick={() => setEditingParam(null)}>Cancel</button>
             </div>
           </div>
         </div>
