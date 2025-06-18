@@ -3,6 +3,7 @@ package groupId.DTO.Records.Model.ModelDefinition;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
@@ -14,8 +15,6 @@ import java.util.List;
  */
 public record VariableDTO(
     @NotBlank String identifier,
-    @Valid @NotNull List<@NotBlank String> structure,
-    //@Valid @NotNull List<@NotBlank String> structureAliases,
-   // @Valid @NotNull List<String> basicSets,
+    @Valid @NotNull @Size(min = 1,message = "Variable size has to be at least one.") List<@NotBlank String> structure,
     String alias
 ) {}
