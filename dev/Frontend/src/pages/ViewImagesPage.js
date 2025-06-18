@@ -20,6 +20,7 @@ const ViewImagesPage = () => {
         setImageMap(response.data.images || {});
       } catch (error) {
         console.error("Error fetching view images:", error);
+        alert(`Error fetching images: ${error.response?.data?.message || error.message}`);
       }
     };
 
@@ -113,7 +114,6 @@ const ViewImagesPage = () => {
               >
                 <div className="image-thumbnail-text">
                   <h4>{image.name}</h4>
-                  <p>{image.description}</p>
                 </div>
               </div>
             ))

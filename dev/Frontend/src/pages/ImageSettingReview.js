@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useZPL } from "../context/ZPLContext";
 import { useNavigate, Link } from "react-router-dom";
 import "./ImageSettingReview.css";
@@ -35,7 +35,7 @@ const ImageSettingReview = () => {
     imageId
   } = useZPL();
 
-   useEffect(() => {
+  useEffect(() => {
     console.log('paramAliases in context:', paramAliases);
   }, [paramAliases]);
 
@@ -67,6 +67,13 @@ const ImageSettingReview = () => {
   const handleShowZplCode = () => setIsZplCodeVisible(v => !v);
 
   const handleSaveImage = async () => {
+
+    // Validate name & description
+    if (!imageName.trim() || !imageDescription.trim()) {
+      alert("Please enter both an image name and a description.");
+      return;
+    }
+
     const requestData = {
 
 

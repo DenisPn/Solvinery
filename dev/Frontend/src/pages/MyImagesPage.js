@@ -9,8 +9,6 @@ const MyImagesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [imagesMap, setImagesMap] = useState({});
   const [page, setPage] = useState(0);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [selectedImageId, setSelectedImageId] = useState(null);
   const [viewSection, setViewSection] = useState(null);
   const [selectedSetIndex, setSelectedSetIndex] = useState(0);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -21,18 +19,22 @@ const MyImagesPage = () => {
   const [newTupleValues, setNewTupleValues] = useState([]);        // for “Add row” inputs
   const [editingRow, setEditingRow] = useState(null);            // index of the row being edited
   const [editTupleValues, setEditTupleValues] = useState([]);    // for “Edit row” inputs
-  useEffect(() => {
-    if (!selectedImage) return;
-    const struct = selectedImage.sets[selectedSetIndex]?.setDefinition?.structure || [];
-    setNewTupleValues(Array(struct.length).fill(""));
-    setEditingRow(null);
-    setEditTupleValues([]);
-  }, [selectedSetIndex, selectedImage]);
 
 
-  const navigate = useNavigate();
-  const { userId, constraintsModules, preferenceModules, setSolutionResponse } = useZPL();
+
   const {
+    userId,
+    constraintsModules,
+    preferenceModules,
+    setSolutionResponse,
+
+    // these come from your context’s provider
+    selectedImage,
+    setSelectedImage,
+    selectedImageId,
+    setSelectedImageId,
+
+    // and the rest you already were grabbing:
     setVariables,
     setConstraints,
     setPreferences,
@@ -50,6 +52,27 @@ const MyImagesPage = () => {
     setIsEditMode
   } = useZPL();
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!selectedImage) return;
+    const struct = selectedImage.sets[selectedSetIndex]?.setDefinition?.structure || [];
+    setNewTupleValues(Array(struct.length).fill(""));
+    setEditingRow(null);
+    setEditTupleValues([]);
+  }, [selectedSetIndex, selectedImage]);
+
+  useEffect(() => {
+    // once imagesMap is populated, and context has an image ID...
+    if (selectedImageId && imagesMap[selectedImageId]) {
+      setSelectedImage(imagesMap[selectedImageId]);
+      // optional: also set viewSection if you want to remember which tab
+    }
+  }, [imagesMap, selectedImageId]);
+
+
+
+
   useEffect(() => {
     if (!userId) return;
 
@@ -60,6 +83,7 @@ const MyImagesPage = () => {
         setImagesMap(response.data.images || {});
       } catch (error) {
         console.error("Error fetching images:", error);
+        alert(`Error fetching images: ${error.response?.data?.message || error.message}`);
       }
     };
 
@@ -111,70 +135,70 @@ const MyImagesPage = () => {
     }
   };
 
-// PATCH the full ImageDTO to the server
-async function updateImageOnServer() {
-  // Build the payload exactly matching ImageDTO
-  const payload = {
-    // VariableDTO: { identifier }
-    variables: selectedVars.map(v => ({
-      identifier: v.identifier
-    })),
+  // PATCH the full ImageDTO to the server
+  async function updateImageOnServer() {
+    // Build the payload exactly matching ImageDTO
+    const payload = {
+      // VariableDTO: { identifier }
+      variables: selectedVars.map(v => ({
+        identifier: v.identifier
+      })),
 
-    // ConstraintModuleDTO: { moduleName, description, constraints }
-    constraintModules: constraintsModules.map(mod => ({
-      moduleName: mod.name,
-      description: mod.description,
-      constraints: mod.constraints.map(c => c.identifier)
-    })),
+      // ConstraintModuleDTO: { moduleName, description, constraints }
+      constraintModules: constraintsModules.map(mod => ({
+        moduleName: mod.name,
+        description: mod.description,
+        constraints: mod.constraints.map(c => c.identifier)
+      })),
 
-    // PreferenceModuleDTO: { moduleName, description, preferences }
-    preferenceModules: preferenceModules.map(mod => ({
-      moduleName: mod.name,
-      description: mod.description,
-      preferences: mod.preferences.map(p => p.identifier)
-    })),
+      // PreferenceModuleDTO: { moduleName, description, preferences }
+      preferenceModules: preferenceModules.map(mod => ({
+        moduleName: mod.name,
+        description: mod.description,
+        preferences: mod.preferences.map(p => p.identifier)
+      })),
 
-    // SetDTO: { setDefinition: { name, structure, alias }, values }
-    sets: (selectedImage.sets || []).map(s => ({
-      setDefinition: {
-        name: s.setDefinition.name,
-        structure: s.setDefinition.structure,
-        alias: s.setDefinition.alias
-      },
-      values: s.values
-    })),
+      // SetDTO: { setDefinition: { name, structure, alias }, values }
+      sets: (selectedImage.sets || []).map(s => ({
+        setDefinition: {
+          name: s.setDefinition.name,
+          structure: s.setDefinition.structure,
+          alias: s.setDefinition.alias
+        },
+        values: s.values
+      })),
 
-    // ParameterDTO: { name, alias, value }
-    parameters: (selectedImage.parameters || []).map(p => ({
-      name: p.parameterDefinition.name,
-      alias: p.parameterDefinition.alias,
-      value: p.value
-    })),
+      // ParameterDTO: { name, alias, value }
+      parameters: (selectedImage.parameters || []).map(p => ({
+        name: p.parameterDefinition.name,
+        alias: p.parameterDefinition.alias,
+        value: p.value
+      })),
 
-    // Other fields
-    name: selectedImage.name,
-    description: selectedImage.description,
-    code: selectedImage.code
-  };
+      // Other fields
+      name: selectedImage.name,
+      description: selectedImage.description,
+      code: selectedImage.code
+    };
 
-  console.log("🛠 updateImage payload:", payload);
+    console.log("🛠 updateImage payload:", payload);
 
-  try {
-    await axios.patch(
-      `/user/${userId}/image/${selectedImageId}`,
-      payload,
-      { headers: { "Content-Type": "application/json" } }
-    );
-    console.log("✅ updateImageOnServer succeeded");
-  } catch (err) {
-    console.error(
-      "❌ updateImageOnServer failed:",
-      err.response?.status,
-      err.response?.data || err.message
-    );
-    throw err;
+    try {
+      await axios.patch(
+        `/user/${userId}/image/${selectedImageId}`,
+        payload,
+        { headers: { "Content-Type": "application/json" } }
+      );
+      console.log("✅ updateImageOnServer succeeded");
+    } catch (err) {
+      console.error(
+        "❌ updateImageOnServer failed:",
+        err.response?.status,
+        err.response?.data || err.message
+      );
+      throw err;
+    }
   }
-}
 
 
 
@@ -259,7 +283,7 @@ async function updateImageOnServer() {
   const handleEditImage = async () => {
     if (!selectedImageId || !selectedImage) return;
 
-await updateImageOnServer();
+    await updateImageOnServer();
 
     // 1) Copy basic image fields into context
     setImageId(selectedImageId);
@@ -393,7 +417,6 @@ await updateImageOnServer();
               >
                 <div className="image-thumbnail-text">
                   <strong>{image.name}</strong>
-                  <p>{image.description}</p>
                 </div>
               </div>
             ))
