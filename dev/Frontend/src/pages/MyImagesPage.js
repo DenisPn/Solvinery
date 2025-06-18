@@ -113,43 +113,45 @@ const MyImagesPage = () => {
 
 // PATCH the full ImageDTO to the server
 async function updateImageOnServer() {
-  // 1. Build the payload exactly as the ImageDTO expects
+  // Build the payload exactly matching ImageDTO
   const payload = {
-    // VariableDTO: here we only have identifier
+    // VariableDTO: { identifier }
     variables: selectedVars.map(v => ({
       identifier: v.identifier
     })),
 
-    // ConstraintModuleDTO: name, description, list of constraint identifiers
+    // ConstraintModuleDTO: { moduleName, description, constraints }
     constraintModules: constraintsModules.map(mod => ({
       moduleName: mod.name,
       description: mod.description,
       constraints: mod.constraints.map(c => c.identifier)
     })),
 
-    // PreferenceModuleDTO: name, description, list of preference identifiers
+    // PreferenceModuleDTO: { moduleName, description, preferences }
     preferenceModules: preferenceModules.map(mod => ({
       moduleName: mod.name,
       description: mod.description,
       preferences: mod.preferences.map(p => p.identifier)
     })),
 
-    // SetDTO: name, alias, structure (array of column names), values (array of "<...>" strings)
+    // SetDTO: { setDefinition: { name, structure, alias }, values }
     sets: (selectedImage.sets || []).map(s => ({
-      name: s.setDefinition.name,
-      alias: s.setDefinition.alias,
-      structure: s.setDefinition.structure,
+      setDefinition: {
+        name: s.setDefinition.name,
+        structure: s.setDefinition.structure,
+        alias: s.setDefinition.alias
+      },
       values: s.values
     })),
 
-    // ParameterDTO: name, alias, value
+    // ParameterDTO: { name, alias, value }
     parameters: (selectedImage.parameters || []).map(p => ({
       name: p.parameterDefinition.name,
       alias: p.parameterDefinition.alias,
       value: p.value
     })),
 
-    // The remaining String fields
+    // Other fields
     name: selectedImage.name,
     description: selectedImage.description,
     code: selectedImage.code
@@ -173,6 +175,7 @@ async function updateImageOnServer() {
     throw err;
   }
 }
+
 
 
   const handleSolveImage = async () => {
@@ -209,6 +212,8 @@ async function updateImageOnServer() {
         payload,
         { headers: { "Content-Type": "application/json" } }
       );
+      console.log("UserId : ", userId);
+      console.log("Selected ImageId : ", selectedImageId);
       // 3. Store in context
       setSolutionResponse(response.data);
       // 4. Redirect
