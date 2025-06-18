@@ -71,6 +71,7 @@ public interface ModelInterface {
      * @param identifier The variable identifier
      * @return ModelVariable object if found, null otherwise
      */
+    @Nullable
     Variable getVariable(String identifier);
 
     Collection<Variable> getVariables();

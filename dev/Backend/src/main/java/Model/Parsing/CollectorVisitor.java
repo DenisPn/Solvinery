@@ -30,7 +30,6 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         typer.visit(ctx.expr());
         ModelParameter param = new ModelParameter(paramName,
                 typer.getType(),ctx.expr().getText());
-          //  param.setValue(ctx.expr().getText());
         model.getParamsMap().put(paramName, param);
         return super.visitParamDecl(ctx);
     }
@@ -38,7 +37,6 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
     @Override
     public Void visitSetDecl (@NonNull FormulationParser.SetDeclContext ctx) {
         String setName = extractName(ctx.sqRef().getText());
-        //change?
         model.getSetsMap().put(setName, new ModelSet(setName, ModelPrimitives.UNKNOWN,new LinkedList<>()));
         return super.visitSetDecl(ctx);
     }

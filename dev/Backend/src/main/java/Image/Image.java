@@ -1,6 +1,8 @@
 package Image;
 
+import Exceptions.InternalErrors.ClientSideError;
 import Exceptions.InternalErrors.ModelExceptions.InvalidModelStateException;
+import Exceptions.UserErrors.UserInputException;
 import Image.Modules.Grouping.ConstraintModule;
 import Image.Modules.Grouping.PreferenceModule;
 import Image.Modules.Single.ParameterModule;
@@ -82,7 +84,7 @@ public class Image {
                     .map(constraintName -> {
                         Constraint constraint = model.getConstraint(constraintName);
                         if (constraint == null) {
-                            throw new IllegalArgumentException("No constraint with name: " + constraintName);
+                            throw new InvalidModelStateException("No constraint with name: " + constraintName);
                         }
                         return constraint;
                     }).collect(Collectors.toSet());
@@ -98,7 +100,7 @@ public class Image {
                     .map(preferenceName -> {
                         Preference preference = model.getPreference(preferenceName);
                         if (preference == null) {
-                            throw new IllegalArgumentException("No preference with name: " + preferenceName);
+                            throw new InvalidModelStateException("No preference with name: " + preferenceName);
                         }
                         return preference;
                     }).collect(Collectors.toSet());
@@ -113,12 +115,22 @@ public class Image {
             ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
             if(modelSet==null)
                 throw new InvalidModelStateException("No set with name: " + setDTO.setDefinition().name());
+            for(String value: setDTO.values()) {
+                if (!modelSet.isCompatible(value))
+                    throw new InvalidModelStateException(String.format("Data mismatch in set %s. Expected: %s, Actual: %s", setDTO.setDefinition().name(),
+                            modelSet.getDataType().toString(),
+                            value));
+            }
             activeSets.add(new SetModule(modelSet.getName(),setDTO.setDefinition().structure(),setDTO.setDefinition().alias(),modelSet.getData()));
         }
         for (ParameterDTO parameterDTO: imageDTO.parameters()){
             ModelParameter modelParameter= model.getParameter(parameterDTO.parameterDefinition().name());
             if(modelParameter==null)
                 throw new InvalidModelStateException("No parameter with name: " + parameterDTO.parameterDefinition().name());
+            if(!modelParameter.isCompatible(parameterDTO.value()))
+                throw new InvalidModelStateException(String.format("Data mismatch in parameter %s. Expected: %s, Actual: %s",parameterDTO.parameterDefinition().name(),
+                        modelParameter.getDataType().toString(),
+                        parameterDTO.value()));
             activeParams.add(new ParameterModule(modelParameter.getName(),parameterDTO.parameterDefinition().structure(),parameterDTO.parameterDefinition().alias(),modelParameter.getData()));
         }
     }
@@ -168,7 +180,7 @@ public class Image {
             String variableName= variableDTO.identifier();
             Variable variable = model.getVariable(variableName);
             if(variable==null)
-                throw new IllegalArgumentException("No variable with name: " + variableName);
+                throw new ClientSideError("No variable with name: " + variableName);
             this.activeVariables.add(new VariableModule(variable.getName(),variableDTO.structure(), variableDTO.alias()));
         }
         for (ConstraintModuleDTO constraintModuleDTO : imageDTO.constraintModules()) {
@@ -176,7 +188,7 @@ public class Image {
                     .map(constraintName -> {
                         Constraint constraint = model.getConstraint(constraintName);
                         if (constraint == null) {
-                            throw new IllegalArgumentException("No constraint with name: " + constraintName);
+                            throw new ClientSideError("No constraint with name: " + constraintName);
                         }
                         return constraint;
                     }).collect(Collectors.toSet());
@@ -192,7 +204,7 @@ public class Image {
                     .map(preferenceName -> {
                         Preference preference = model.getPreference(preferenceName);
                         if (preference == null) {
-                            throw new IllegalArgumentException("No preference with name: " + preferenceName);
+                            throw new ClientSideError("No preference with name: " + preferenceName);
                         }
                         return preference;
                     }).collect(Collectors.toSet());
@@ -206,13 +218,21 @@ public class Image {
         for (SetDTO setDTO: imageDTO.sets()){
             ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
             if(modelSet==null)
-                throw new InvalidModelStateException("No set with name: " + setDTO.setDefinition().name());
+                throw new ClientSideError("No set with name: " + setDTO.setDefinition().name());
+            if(!modelSet.isCompatible(setDTO.values()))
+                throw new UserInputException(String.format("Data mismatch in set %s. Expected: %s, Actual: %s",setDTO.setDefinition().name(),
+                        modelSet.getDataType().toString(),
+                        String.join(",", setDTO.values())));
             activeSets.add(new SetModule(modelSet.getName(),setDTO.setDefinition().structure(),setDTO.setDefinition().alias(),setDTO.values()));
         }
         for (ParameterDTO parameterDTO: imageDTO.parameters()){
             ModelParameter modelParameter= model.getParameter(parameterDTO.parameterDefinition().name());
             if(modelParameter==null)
-                throw new InvalidModelStateException("No parameter with name: " + parameterDTO.parameterDefinition().name());
+                throw new ClientSideError("No parameter with name: " + parameterDTO.parameterDefinition().name());
+            if(!modelParameter.isCompatible(parameterDTO.value()))
+                throw new UserInputException(String.format("Data mismatch in parameter %s. Expected: %s, Actual: %s",parameterDTO.parameterDefinition().name(),
+                        modelParameter.getDataType().toString(),
+                        parameterDTO.value()));
             activeParams.add(new ParameterModule(modelParameter.getName(),parameterDTO.parameterDefinition().structure(),parameterDTO.parameterDefinition().alias(),parameterDTO.value()));
         }
     }
@@ -220,13 +240,13 @@ public class Image {
         for(String prefModuleName: config.preferenceModulesScalars().keySet()){
             PreferenceModule prefModule = this.preferenceModules.get(prefModuleName);
             if(prefModule==null)
-                throw new IllegalArgumentException("No preference module with name: " + prefModuleName);
+                throw new ClientSideError("No preference module with name: " + prefModuleName);
             prefModule.setScalar(config.preferenceModulesScalars().get(prefModuleName));
         }
         for(String constraintModuleName: config.enabledConstraintModules()){
             ConstraintModule constraintModule = this.constraintsModules.get(constraintModuleName);
             if(constraintModule==null)
-                throw new IllegalArgumentException("No constraint module with name: " + constraintModuleName);
+                throw new ClientSideError("No constraint module with name: " + constraintModuleName);
             constraintModule.enable();
         }
     }
@@ -284,10 +304,7 @@ public class Image {
     public void addPreferenceModule(@NonNull PreferenceModule module) {
         preferenceModules.put(module.getName(), module);
     }
-    @SuppressWarnings("unused")
-    public void addPreference(@NonNull String moduleName, @NonNull String description) {
-        preferenceModules.put(moduleName, new PreferenceModule(moduleName, description));
-    }
+
     public void addPreferenceModule(@NonNull String moduleName, @NonNull String description, @NonNull Collection<String> preferences) {
         HashSet<Preference> modelPreferences = new HashSet<>();
         for (String name : preferences) {
@@ -311,40 +328,10 @@ public class Image {
     public Map<String, PreferenceModule> getPreferenceModules() {
         return preferenceModules;
     }
-    @SuppressWarnings("unused")
-    public void addConstraint(String moduleName, @NonNull ConstraintDTO constraint) {
-        if(!constraintsModules.containsKey(moduleName))
-            throw new IllegalArgumentException("No constraint module with name: " + moduleName);
-        constraintsModules.get(moduleName).addConstraint(model.getConstraint(constraint.identifier()));
-    }
-    @SuppressWarnings("unused")
-    public void removeConstraint(String moduleName, @NonNull ConstraintDTO constraint) {
-        if(!constraintsModules.containsKey(moduleName))
-            throw new IllegalArgumentException("No constraint module with name: " + moduleName);
-        constraintsModules.get(moduleName).removeConstraint(model.getConstraint(constraint.identifier()));
-    }
-    @SuppressWarnings("unused")
-    public void addPreference(String moduleName, @NonNull PreferenceDTO preferenceDTO) {
-        if(!preferenceModules.containsKey(moduleName))
-            throw new IllegalArgumentException("No preference module with name: " + moduleName);
-        preferenceModules.get(moduleName).addPreference(model.getPreference(preferenceDTO.identifier()));
-    }
-    @SuppressWarnings("unused")
-    public void removePreference(String moduleName, @NonNull PreferenceDTO preferenceDTO) {
-        if(!preferenceModules.containsKey(moduleName))
-            throw new IllegalArgumentException("No preference module with name: " + moduleName);
-        preferenceModules.get(moduleName).removePreference(model.getPreference(preferenceDTO.identifier()));
-    }
+
     @NonNull
     public Set<VariableModule> getActiveVariables () {
         return activeVariables;
-    }
-    @SuppressWarnings("unused")
-    public void addVariable(String name) {
-        Variable varName= model.getVariable(name);
-        if(varName==null)
-            throw new IllegalArgumentException("No variable with name: " + name);
-        activeVariables.add(new VariableModule(varName.getName(),varName.getTypeStructure(), varName.getName()));
     }
 
     @NonNull

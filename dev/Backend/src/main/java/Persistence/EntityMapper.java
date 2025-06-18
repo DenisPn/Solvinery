@@ -48,39 +48,6 @@ public class EntityMapper {
     public static UserEntity toEntity(@NonNull User user, @NonNull String rawPassword){
        return new UserEntity(user.getUsername(),user.getEmail(),rawPassword);
     }
-    /*@NonNull
-    public static ModelType toDomain(@NonNull String type){
-        List<List<String>> atoms=ModelType.convertStringToAtoms(type);
-        if(atoms.size()==1){
-            return ModelPrimitives.valueOf(atoms.getFirst().getFirst());
-        }
-        else {
-            Tuple tuple=new Tuple();
-            for(List<String> atom:atoms){
-                ModelType innerType=toDomain(atom);
-                tuple.append(innerType);
-            }
-            return tuple;
-        }
-    }
-    @NonNull
-    public static ModelType toDomain(@NonNull List<String> atoms){
-        if(atoms.size()==1){
-            return ModelPrimitives.valueOf(atoms.getFirst());
-        }
-        else {
-            Tuple tuple=new Tuple();
-            for(String atom:atoms){
-                ModelType type=toDomain(atom);
-                tuple.append(type);
-            }
-            return tuple;
-        }
-    }*/
-    
-    public static String toEntity(@NonNull ModelType type){
-        return type.toString();
-    }
     @NonNull
     public static SetEntity toEntity(@NonNull SetModule set, UUID imageId){
         ImageComponentKey key= new ImageComponentKey(imageId,set.getOriginalName());
