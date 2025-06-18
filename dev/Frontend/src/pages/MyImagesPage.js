@@ -69,6 +69,8 @@ const MyImagesPage = () => {
   const handlePublishImage = async () => {
     if (!selectedImageId || !userId) return;
 
+    await updateImageOnServer();
+
     try {
       const response = await axios.patch(
         `/user/${userId}/image/${selectedImageId}/publish`
@@ -109,8 +111,74 @@ const MyImagesPage = () => {
     }
   };
 
+// PATCH the full ImageDTO to the server
+async function updateImageOnServer() {
+  // 1. Build the payload exactly as the ImageDTO expects
+  const payload = {
+    // VariableDTO: here we only have identifier
+    variables: selectedVars.map(v => ({
+      identifier: v.identifier
+    })),
+
+    // ConstraintModuleDTO: name, description, list of constraint identifiers
+    constraintModules: constraintsModules.map(mod => ({
+      moduleName: mod.name,
+      description: mod.description,
+      constraints: mod.constraints.map(c => c.identifier)
+    })),
+
+    // PreferenceModuleDTO: name, description, list of preference identifiers
+    preferenceModules: preferenceModules.map(mod => ({
+      moduleName: mod.name,
+      description: mod.description,
+      preferences: mod.preferences.map(p => p.identifier)
+    })),
+
+    // SetDTO: name, alias, structure (array of column names), values (array of "<...>" strings)
+    sets: (selectedImage.sets || []).map(s => ({
+      name: s.setDefinition.name,
+      alias: s.setDefinition.alias,
+      structure: s.setDefinition.structure,
+      values: s.values
+    })),
+
+    // ParameterDTO: name, alias, value
+    parameters: (selectedImage.parameters || []).map(p => ({
+      name: p.parameterDefinition.name,
+      alias: p.parameterDefinition.alias,
+      value: p.value
+    })),
+
+    // The remaining String fields
+    name: selectedImage.name,
+    description: selectedImage.description,
+    code: selectedImage.code
+  };
+
+  console.log("🛠 updateImage payload:", payload);
+
+  try {
+    await axios.patch(
+      `/user/${userId}/image/${selectedImageId}`,
+      payload,
+      { headers: { "Content-Type": "application/json" } }
+    );
+    console.log("✅ updateImageOnServer succeeded");
+  } catch (err) {
+    console.error(
+      "❌ updateImageOnServer failed:",
+      err.response?.status,
+      err.response?.data || err.message
+    );
+    throw err;
+  }
+}
+
+
   const handleSolveImage = async () => {
     if (!selectedImageId || !selectedImage) return;
+
+    await updateImageOnServer();
 
     // 1. Build preferenceModulesScalars (0–1)
     const preferenceModulesScalars = {};
@@ -185,6 +253,8 @@ const MyImagesPage = () => {
 
   const handleEditImage = async () => {
     if (!selectedImageId || !selectedImage) return;
+
+await updateImageOnServer();
 
     // 1) Copy basic image fields into context
     setImageId(selectedImageId);
@@ -365,7 +435,8 @@ const MyImagesPage = () => {
                   src="/images/ExitButton2.png"
                   alt="Close"
                   className="modal-corner-button"
-                  onClick={() => {
+                  onClick={async () => {
+                    await updateImageOnServer();
                     setSelectedImage(null);
                     setViewSection(null);
                   }}
