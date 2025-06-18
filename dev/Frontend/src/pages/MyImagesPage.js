@@ -136,69 +136,81 @@ const MyImagesPage = () => {
   };
 
   // PATCH the full ImageDTO to the server
-  async function updateImageOnServer() {
-    // Build the payload exactly matching ImageDTO
-    const payload = {
-      // VariableDTO: { identifier }
-      variables: selectedVars.map(v => ({
-        identifier: v.identifier
-      })),
+async function updateImageOnServer() {
+  if (!selectedImage || !selectedImageId || !userId) return;
 
-      // ConstraintModuleDTO: { moduleName, description, constraints }
-      constraintModules: constraintsModules.map(mod => ({
-        moduleName: mod.name,
-        description: mod.description,
-        constraints: mod.constraints.map(c => c.identifier)
-      })),
+  // Build the payload exactly matching your ImageDTO
+  const payload = {
+    // 1. VariableDTO: identifier, structure (string[]), alias
+    variables: (selectedImage.variables || []).map(v => ({
+      identifier: v.identifier,
+      structure: Array.isArray(v.structure) ? v.structure : [],
+      alias: v.alias || v.identifier
+    })),
 
-      // PreferenceModuleDTO: { moduleName, description, preferences }
-      preferenceModules: preferenceModules.map(mod => ({
-        moduleName: mod.name,
-        description: mod.description,
-        preferences: mod.preferences.map(p => p.identifier)
-      })),
+    // 2. ConstraintModuleDTO: moduleName, description, constraints
+    constraintModules: (selectedImage.constraintModules || []).map(mod => ({
+      moduleName: mod.moduleName,
+      description: mod.description,
+      constraints: Array.isArray(mod.constraints) ? mod.constraints : []
+    })),
 
-      // SetDTO: { setDefinition: { name, structure, alias }, values }
-      sets: (selectedImage.sets || []).map(s => ({
-        setDefinition: {
-          name: s.setDefinition.name,
-          structure: s.setDefinition.structure,
-          alias: s.setDefinition.alias
-        },
-        values: s.values
-      })),
+    // 3. PreferenceModuleDTO: moduleName, description, preferences
+    preferenceModules: (selectedImage.preferenceModules || []).map(mod => ({
+      moduleName: mod.moduleName,
+      description: mod.description,
+      preferences: Array.isArray(mod.preferences) ? mod.preferences : []
+    })),
 
-      // ParameterDTO: { name, alias, value }
-      parameters: (selectedImage.parameters || []).map(p => ({
+    // 4. SetDTO: setDefinition + values from the sets UI
+    sets: (selectedImage.sets || []).map(s => ({
+      setDefinition: {
+        name: s.setDefinition.name,
+        structure: Array.isArray(s.setDefinition.structure)
+          ? s.setDefinition.structure
+          : [],
+        alias: s.setDefinition.alias
+      },
+      values: Array.isArray(s.values) ? s.values : []
+    })),
+
+    // 5. ParameterDTO: parameterDefinition + live value
+    parameters: (selectedImage.parameters || []).map(p => ({
+      parameterDefinition: {
         name: p.parameterDefinition.name,
-        alias: p.parameterDefinition.alias,
-        value: p.value
-      })),
+        structure: p.parameterDefinition.structure,
+        alias: p.parameterDefinition.alias
+      },
+      value: p.value != null ? String(p.value) : ""
+    })),
 
-      // Other fields
-      name: selectedImage.name,
-      description: selectedImage.description,
-      code: selectedImage.code
-    };
+    // 6. Top-level image fields
+    name: selectedImage.name,
+    description: selectedImage.description,
+    code: selectedImage.code
+  };
 
-    console.log("🛠 updateImage payload:", payload);
+  console.log("🛠 updateImage payload:", payload);
 
-    try {
-      await axios.patch(
-        `/user/${userId}/image/${selectedImageId}`,
-        payload,
-        { headers: { "Content-Type": "application/json" } }
-      );
-      console.log("✅ updateImageOnServer succeeded");
-    } catch (err) {
-      console.error(
-        "❌ updateImageOnServer failed:",
-        err.response?.status,
-        err.response?.data || err.message
-      );
-      throw err;
-    }
+  try {
+    await axios.patch(
+      `/user/${userId}/image/${selectedImageId}`,
+      payload,
+      { headers: { "Content-Type": "application/json" } }
+    );
+    console.log("✅ updateImageOnServer succeeded");
+  } catch (err) {
+    console.error(
+      "❌ updateImageOnServer failed:",
+      err.response?.status,
+      err.response?.data || err.message
+    );
+    throw err;
   }
+}
+
+
+
 
 
 
