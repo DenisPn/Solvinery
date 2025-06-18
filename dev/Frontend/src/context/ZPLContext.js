@@ -30,6 +30,7 @@ export const ZPLProvider = ({ children }) => {
     const [zplCode, setZplCode] = useState('');
 
     const [isEditMode, setIsEditMode] = useState(false);
+    const [paramAliases, setParamAliases] = useState({});
 
 
     return (
@@ -52,6 +53,7 @@ export const ZPLProvider = ({ children }) => {
             setTypes, setSetTypes,
             setAliases, setSetAliases,
             paramTypes, setParamTypes,
+            paramAliases, setParamAliases,
 
             //User
             userId, setUserId,

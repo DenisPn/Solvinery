@@ -115,23 +115,25 @@ const ImageSettingReview = () => {
       }),
 
       parameters: Object.entries(paramTypes).map(([paramName, rawType]) => {
-        const typeArray = Array.isArray(rawType)
-          ? rawType
-          : rawType.split(",").map(s => s.trim());
+        // rawType may already be a string or an array—normalize to a CSV string
+        const structString = Array.isArray(rawType)
+          ? rawType.join(",")
+          : rawType;
 
-        const { alias: userParamAlias, typeAlias: userParamTypeAlias = [] } =
+        // pull alias from your new paramAliases map
+        const { alias: userParamAlias = paramName } =
           paramAliases[paramName] || {};
 
         return {
           parameterDefinition: {
             name: paramName,
-            type: typeArray,
-            alias: userParamAlias || paramName,
-            typeAlias: userParamTypeAlias.length ? userParamTypeAlias : typeArray,
+            structure: structString,     // now a single string
+            alias: userParamAlias
           },
-          value: "",
+          value: ""
         };
       }),
+
 
       name: imageName,
       description: imageDescription,
