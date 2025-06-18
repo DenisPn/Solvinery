@@ -13,6 +13,17 @@ const MyImagesPage = () => {
   const [selectedImageId, setSelectedImageId] = useState(null);
   const [viewSection, setViewSection] = useState(null);
   const [selectedSetIndex, setSelectedSetIndex] = useState(0);
+  // at the top of MyImagesPage:
+  const [newTupleValues, setNewTupleValues] = useState([]);        // for “Add row” inputs
+  const [editingRow, setEditingRow] = useState(null);            // index of the row being edited
+  const [editTupleValues, setEditTupleValues] = useState([]);    // for “Edit row” inputs
+  useEffect(() => {
+    if (!selectedImage) return;
+    const struct = selectedImage.sets[selectedSetIndex]?.setDefinition?.structure || [];
+    setNewTupleValues(Array(struct.length).fill(""));
+    setEditingRow(null);
+    setEditTupleValues([]);
+  }, [selectedSetIndex, selectedImage]);
 
 
   const navigate = useNavigate();
@@ -438,6 +449,7 @@ const MyImagesPage = () => {
                 </>
               ) : viewSection === "sets" ? (
                 <div className="modal-section-data sets-modal">
+                  {/* Set selector */}
                   <label htmlFor="set-select" className="sets-label">
                     Choose a set:
                   </label>
@@ -454,121 +466,210 @@ const MyImagesPage = () => {
                     ))}
                   </select>
 
-                  <div className="add-value-section">
-                    <input
-                      type="text"
-                      className="add-value-input"
-                      placeholder="New value"
-                      value={selectedImage.sets[selectedSetIndex].newValue || ""}
-                      onChange={(e) => {
-                        const img = { ...selectedImage };
-                        img.sets[selectedSetIndex].newValue = e.target.value;
-                        setSelectedImage(img);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          const val = selectedImage.sets[selectedSetIndex].newValue?.trim();
-                          if (!val) return;
-                          const img = { ...selectedImage };
-                          img.sets[selectedSetIndex].values.push(val);
-                          img.sets[selectedSetIndex].newValue = "";
-                          setSelectedImage(img);
-                        }
-                      }}
-                    />
-                    <button
-                      className="add-value-button"
-                      onClick={() => {
-                        const val = selectedImage.sets[selectedSetIndex].newValue?.trim();
-                        if (!val) return;
-                        const img = { ...selectedImage };
-                        img.sets[selectedSetIndex].values.push(val);
-                        img.sets[selectedSetIndex].newValue = "";
-                        setSelectedImage(img);
-                      }}
-                    >
-                      Add
-                    </button>
-                  </div>
-
+                  {/* Values section */}
                   <h4>Values:</h4>
                   {(() => {
-                    const vals =
-                      selectedImage.sets[selectedSetIndex]?.values || [];
-                    const struct =
-                      selectedImage.sets[selectedSetIndex]?.setDefinition
-                        ?.structure || [];
-                    const isTuple =
-                      vals.length > 0 && vals.every((v) => /^<.*>$/.test(v));
+                    const setObj = selectedImage.sets[selectedSetIndex];
+                    const vals = setObj?.values || [];
+                    const struct = setObj?.setDefinition?.structure || [];
+                    const isTuple = vals.length > 0 && vals.every((v) => /^<.*>$/.test(v));
 
                     if (isTuple) {
-                      // parse "<a,b,c>" → ["a","b","c"]
+                      // === TUPLE MODE ===
+
+                      // Parse each "<a,b,c>" → [ "a","b","c" ]
                       const rows = vals.map((v) =>
                         v.slice(1, -1).split(",").map((c) => c.trim())
                       );
 
                       return (
-                        <table className="tuple-values-table">
-                          <thead>
-                            <tr>
-                              {struct.length > 0
-                                ? struct.map((col, ci) => <th key={ci}>{col}</th>)
-                                : rows[0].map((_, ci) => (
-                                  <th key={ci}>Col {ci + 1}</th>
+                        <>
+                          {/* --- Add New Tuple Row --- */}
+                          <div className="tuple-add-row">
+                            {struct.map((col, ci) => (
+                              <input
+                                key={ci}
+                                className="tuple-add-input"
+                                placeholder={col}
+                                value={newTupleValues[ci] || ""}
+                                onChange={(e) => {
+                                  const copy = [...newTupleValues];
+                                  copy[ci] = e.target.value;
+                                  setNewTupleValues(copy);
+                                }}
+                              />
+                            ))}
+                            <button
+                              className="add-value-button"
+                              onClick={() => {
+                                const joined = `<${newTupleValues.join(",")}>`;
+                                const img = { ...selectedImage };
+                                img.sets[selectedSetIndex].values.push(joined);
+                                setSelectedImage(img);
+                                setNewTupleValues(Array(struct.length).fill(""));
+                              }}
+                            >
+                              Add Row
+                            </button>
+                          </div>
+
+                          {/* --- Tuple Table --- */}
+                          <table className="tuple-values-table">
+                            <thead>
+                              <tr>
+                                {struct.map((col, ci) => (
+                                  <th key={ci}>{col}</th>
                                 ))}
-                              <th>Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {rows.map((row, ri) => (
-                              <tr key={ri}>
-                                {row.map((cell, ci) => (
-                                  <td key={ci}>{cell}</td>
-                                ))}
-                                <td>
-                                  {/* Edit via prompt */}
+                                <th>Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {rows.map((row, ri) => {
+                                const isEditing = editingRow === ri;
+                                return (
+                                  <tr key={ri}>
+                                    {row.map((cell, ci) => (
+                                      <td key={ci}>
+                                        {isEditing ? (
+                                          <input
+                                            className="tuple-edit-input"
+                                            value={editTupleValues[ci] ?? row[ci]}
+                                            onChange={(e) => {
+                                              const copy = [...editTupleValues];
+                                              copy[ci] = e.target.value;
+                                              setEditTupleValues(copy);
+                                            }}
+                                          />
+                                        ) : (
+                                          cell
+                                        )}
+                                      </td>
+                                    ))}
+                                    <td>
+                                      {isEditing ? (
+                                        <>
+                                          <button
+                                            onClick={() => {
+                                              const newString = `<${editTupleValues.join(
+                                                ","
+                                              )}>`;
+                                              const img = { ...selectedImage };
+                                              img.sets[selectedSetIndex].values[ri] = newString;
+                                              setSelectedImage(img);
+                                              setEditingRow(null);
+                                            }}
+                                          >
+                                            ✅
+                                          </button>
+                                          <button onClick={() => setEditingRow(null)}>
+                                            ✕
+                                          </button>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <button
+                                            onClick={() => {
+                                              setEditingRow(ri);
+                                              setEditTupleValues(rows[ri]);
+                                            }}
+                                          >
+                                            ✎
+                                          </button>
+                                          <button
+                                            onClick={() => {
+                                              const img = { ...selectedImage };
+                                              img.sets[selectedSetIndex].values.splice(ri, 1);
+                                              setSelectedImage(img);
+                                            }}
+                                          >
+                                            🗑
+                                          </button>
+                                        </>
+                                      )}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </>
+                      );
+                    } else {
+                      // === FALLBACK LIST MODE ===
+                      return (
+                        <>
+                          {/* Single‐string “Add New Value” */}
+                          <div className="add-value-section">
+                            <input
+                              type="text"
+                              className="add-value-input"
+                              placeholder="New value"
+                              value={selectedImage.sets[selectedSetIndex].newValue || ""}
+                              onChange={(e) => {
+                                const img = { ...selectedImage };
+                                img.sets[selectedSetIndex].newValue = e.target.value;
+                                setSelectedImage(img);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  const val =
+                                    selectedImage.sets[selectedSetIndex].newValue?.trim();
+                                  if (!val) return;
+                                  const img = { ...selectedImage };
+                                  img.sets[selectedSetIndex].values.push(val);
+                                  img.sets[selectedSetIndex].newValue = "";
+                                  setSelectedImage(img);
+                                }
+                              }}
+                            />
+                            <button
+                              className="add-value-button"
+                              onClick={() => {
+                                const val =
+                                  selectedImage.sets[selectedSetIndex].newValue?.trim();
+                                if (!val) return;
+                                const img = { ...selectedImage };
+                                img.sets[selectedSetIndex].values.push(val);
+                                img.sets[selectedSetIndex].newValue = "";
+                                setSelectedImage(img);
+                              }}
+                            >
+                              Add
+                            </button>
+                          </div>
+
+                          {/* Existing list of values */}
+                          <ul className="set-values-list">
+                            {selectedImage.sets[selectedSetIndex].values.map((val, i) => (
+                              <li key={i} className="set-value-item">
+                                <span>{val}</span>
+                                <div className="value-buttons">
                                   <button
                                     onClick={() => {
-                                      const img = { ...selectedImage };
-                                      const current = row.join(", ");
-                                      const input = prompt(
-                                        "Edit values (comma-separated):",
-                                        current
-                                      );
-                                      if (input != null) {
-                                        img.sets[selectedSetIndex].values[ri] = `<${input}>`;
+                                      const newValue = prompt("Edit value:", val);
+                                      if (newValue != null) {
+                                        const img = { ...selectedImage };
+                                        img.sets[selectedSetIndex].values[i] = newValue;
                                         setSelectedImage(img);
                                       }
                                     }}
                                   >
                                     ✎
                                   </button>
-                                  {/* Remove */}
                                   <button
                                     onClick={() => {
                                       const img = { ...selectedImage };
-                                      img.sets[selectedSetIndex].values.splice(ri, 1);
+                                      img.sets[selectedSetIndex].values.splice(i, 1);
                                       setSelectedImage(img);
                                     }}
                                   >
                                     ✕
                                   </button>
-                                </td>
-                              </tr>
+                                </div>
+                              </li>
                             ))}
-                          </tbody>
-                        </table>
-                      );
-                    } else {
-                      return (
-                        <ul className="set-values-list">
-                          {vals.map((val, i) => (
-                            <li key={i} className="set-value-item">
-                              {val}
-                              {/* …your existing edit/remove buttons for list items… */}
-                            </li>
-                          ))}
-                        </ul>
+                          </ul>
+                        </>
                       );
                     }
                   })()}
