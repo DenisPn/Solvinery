@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect,useState } from "react";
 import { useZPL } from "../context/ZPLContext";
 import { useNavigate, Link } from "react-router-dom";
 import "./ImageSettingReview.css";
@@ -35,6 +35,9 @@ const ImageSettingReview = () => {
     imageId
   } = useZPL();
 
+   useEffect(() => {
+    console.log('paramAliases in context:', paramAliases);
+  }, [paramAliases]);
 
   const [isZplCodeVisible, setIsZplCodeVisible] = useState(false);
   const navigate = useNavigate();
@@ -114,24 +117,30 @@ const ImageSettingReview = () => {
         };
       }),
 
+      // …
       parameters: Object.entries(paramTypes).map(([paramName, rawType]) => {
-        const typeArray = Array.isArray(rawType)
-          ? rawType
-          : rawType.split(",").map(s => s.trim());
+        // normalize the structure to a string
+        const structString = Array.isArray(rawType)
+          ? rawType.join(",")
+          : rawType;
 
-        const { alias: userParamAlias, typeAlias: userParamTypeAlias = [] } =
-          paramAliases[paramName] || {};
+        // **grab the user‐entered alias from paramAliases**
+        const { alias: userParamAlias } = paramAliases[paramName] || {};
 
         return {
           parameterDefinition: {
             name: paramName,
-            type: typeArray,
-            alias: userParamAlias || paramName,
-            typeAlias: userParamTypeAlias.length ? userParamTypeAlias : typeArray,
+            structure: structString,
+            // if they never set an alias, send empty string (or omit if you prefer)
+            alias: userParamAlias || ""
           },
-          value: "",
+          value: ""
         };
       }),
+      // …
+
+
+
 
       name: imageName,
       description: imageDescription,

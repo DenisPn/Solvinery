@@ -104,7 +104,19 @@
   font-weight: 700;
   margin-bottom: 12px;
   color: #333;
+    white-space: normal ;
+  word-break: break-all;      /* break in the middle of long words if necessary */
+  overflow-wrap: anywhere; 
 }
+
+/* Allow long words to break onto the next line */
+.slide h4,
+.slide .field-value {
+  white-space: normal;        /* allow wrapping */
+  overflow-wrap: break-word;  /* break inside words if necessary */
+  word-wrap: break-word;      /* legacy name */
+}
+
 .slide .field {
    margin: 8px 0 4px;    /* top 8px, bottom 4px */
   padding-bottom: 4px;  /* smaller padding */
