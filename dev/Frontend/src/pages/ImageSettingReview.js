@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect,useState } from "react";
 import { useZPL } from "../context/ZPLContext";
 import { useNavigate, Link } from "react-router-dom";
 import "./ImageSettingReview.css";
@@ -35,6 +35,9 @@ const ImageSettingReview = () => {
     imageId
   } = useZPL();
 
+   useEffect(() => {
+    console.log('paramAliases in context:', paramAliases);
+  }, [paramAliases]);
 
   const [isZplCodeVisible, setIsZplCodeVisible] = useState(false);
   const navigate = useNavigate();
@@ -114,25 +117,29 @@ const ImageSettingReview = () => {
         };
       }),
 
+      // …
       parameters: Object.entries(paramTypes).map(([paramName, rawType]) => {
-        // rawType may already be a string or an array—normalize to a CSV string
+        // normalize the structure to a string
         const structString = Array.isArray(rawType)
           ? rawType.join(",")
           : rawType;
 
-        // pull alias from your new paramAliases map
-        const { alias: userParamAlias = paramName } =
-          paramAliases[paramName] || {};
+        // **grab the user‐entered alias from paramAliases**
+        const { alias: userParamAlias } = paramAliases[paramName] || {};
 
         return {
           parameterDefinition: {
             name: paramName,
-            structure: structString,     // now a single string
-            alias: userParamAlias
+            structure: structString,
+            // if they never set an alias, send empty string (or omit if you prefer)
+            alias: userParamAlias || ""
           },
           value: ""
         };
       }),
+      // …
+
+
 
 
       name: imageName,

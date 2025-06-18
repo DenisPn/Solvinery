@@ -36,6 +36,11 @@ export const ZPLProvider = ({ children }) => {
     return (
         <ZPLContext.Provider value={{
 
+            //User
+            userId, setUserId,
+            username, setUsername,
+
+
             // Variables
             variables, setVariables,
             selectedVars, setSelectedVars,
@@ -49,17 +54,15 @@ export const ZPLProvider = ({ children }) => {
             preferences, setPreferences,
             preferenceModules, setPreferenceModules,
 
-            // Sets and Params
+            // Sets
             setTypes, setSetTypes,
             setAliases, setSetAliases,
+
+            // Params
             paramTypes, setParamTypes,
             paramAliases, setParamAliases,
 
-            //User
-            userId, setUserId,
-            username, setUsername,
-
-            // Image id, name, description, and ZPL code
+            // Image
             imageId, setImageId,
             imageName, setImageName,
             imageDescription, setImageDescription,
