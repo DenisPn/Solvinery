@@ -13,6 +13,10 @@ const MyImagesPage = () => {
   const [selectedImageId, setSelectedImageId] = useState(null);
   const [viewSection, setViewSection] = useState(null);
   const [selectedSetIndex, setSelectedSetIndex] = useState(0);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ colIndex: null, direction: "asc" });
+
+
   // at the top of MyImagesPage:
   const [newTupleValues, setNewTupleValues] = useState([]);        // for “Add row” inputs
   const [editingRow, setEditingRow] = useState(null);            // index of the row being edited
@@ -65,6 +69,8 @@ const MyImagesPage = () => {
   const handlePublishImage = async () => {
     if (!selectedImageId || !userId) return;
 
+    await updateImageOnServer();
+
     try {
       const response = await axios.patch(
         `/user/${userId}/image/${selectedImageId}/publish`
@@ -105,8 +111,74 @@ const MyImagesPage = () => {
     }
   };
 
+// PATCH the full ImageDTO to the server
+async function updateImageOnServer() {
+  // 1. Build the payload exactly as the ImageDTO expects
+  const payload = {
+    // VariableDTO: here we only have identifier
+    variables: selectedVars.map(v => ({
+      identifier: v.identifier
+    })),
+
+    // ConstraintModuleDTO: name, description, list of constraint identifiers
+    constraintModules: constraintsModules.map(mod => ({
+      moduleName: mod.name,
+      description: mod.description,
+      constraints: mod.constraints.map(c => c.identifier)
+    })),
+
+    // PreferenceModuleDTO: name, description, list of preference identifiers
+    preferenceModules: preferenceModules.map(mod => ({
+      moduleName: mod.name,
+      description: mod.description,
+      preferences: mod.preferences.map(p => p.identifier)
+    })),
+
+    // SetDTO: name, alias, structure (array of column names), values (array of "<...>" strings)
+    sets: (selectedImage.sets || []).map(s => ({
+      name: s.setDefinition.name,
+      alias: s.setDefinition.alias,
+      structure: s.setDefinition.structure,
+      values: s.values
+    })),
+
+    // ParameterDTO: name, alias, value
+    parameters: (selectedImage.parameters || []).map(p => ({
+      name: p.parameterDefinition.name,
+      alias: p.parameterDefinition.alias,
+      value: p.value
+    })),
+
+    // The remaining String fields
+    name: selectedImage.name,
+    description: selectedImage.description,
+    code: selectedImage.code
+  };
+
+  console.log("🛠 updateImage payload:", payload);
+
+  try {
+    await axios.patch(
+      `/user/${userId}/image/${selectedImageId}`,
+      payload,
+      { headers: { "Content-Type": "application/json" } }
+    );
+    console.log("✅ updateImageOnServer succeeded");
+  } catch (err) {
+    console.error(
+      "❌ updateImageOnServer failed:",
+      err.response?.status,
+      err.response?.data || err.message
+    );
+    throw err;
+  }
+}
+
+
   const handleSolveImage = async () => {
     if (!selectedImageId || !selectedImage) return;
+
+    await updateImageOnServer();
 
     // 1. Build preferenceModulesScalars (0–1)
     const preferenceModulesScalars = {};
@@ -181,6 +253,8 @@ const MyImagesPage = () => {
 
   const handleEditImage = async () => {
     if (!selectedImageId || !selectedImage) return;
+
+await updateImageOnServer();
 
     // 1) Copy basic image fields into context
     setImageId(selectedImageId);
@@ -361,7 +435,8 @@ const MyImagesPage = () => {
                   src="/images/ExitButton2.png"
                   alt="Close"
                   className="modal-corner-button"
-                  onClick={() => {
+                  onClick={async () => {
+                    await updateImageOnServer();
                     setSelectedImage(null);
                     setViewSection(null);
                   }}
@@ -466,7 +541,6 @@ const MyImagesPage = () => {
                     ))}
                   </select>
 
-                  {/* Values section */}
                   <h4>Values:</h4>
                   {(() => {
                     const setObj = selectedImage.sets[selectedSetIndex];
@@ -475,50 +549,115 @@ const MyImagesPage = () => {
                     const isTuple = vals.length > 0 && vals.every((v) => /^<.*>$/.test(v));
 
                     if (isTuple) {
-                      // === TUPLE MODE ===
-
-                      // Parse each "<a,b,c>" → [ "a","b","c" ]
-                      const rows = vals.map((v) =>
+                      // parse "<a,b,c>" → ["a","b","c"]
+                      let rows = vals.map((v) =>
                         v.slice(1, -1).split(",").map((c) => c.trim())
                       );
 
+                      // apply sorting
+                      const { colIndex, direction } = sortConfig;
+                      if (colIndex !== null) {
+                        rows = [...rows].sort((a, b) => {
+                          const aVal = a[colIndex] ?? "";
+                          const bVal = b[colIndex] ?? "";
+                          if (aVal < bVal) return direction === "asc" ? -1 : 1;
+                          if (aVal > bVal) return direction === "asc" ? 1 : -1;
+                          return 0;
+                        });
+                      }
+
                       return (
                         <>
-                          {/* --- Add New Tuple Row --- */}
-                          <div className="tuple-add-row">
-                            {struct.map((col, ci) => (
-                              <input
-                                key={ci}
-                                className="tuple-add-input"
-                                placeholder={col}
-                                value={newTupleValues[ci] || ""}
-                                onChange={(e) => {
-                                  const copy = [...newTupleValues];
-                                  copy[ci] = e.target.value;
-                                  setNewTupleValues(copy);
-                                }}
-                              />
-                            ))}
-                            <button
-                              className="add-value-button"
-                              onClick={() => {
-                                const joined = `<${newTupleValues.join(",")}>`;
-                                const img = { ...selectedImage };
-                                img.sets[selectedSetIndex].values.push(joined);
-                                setSelectedImage(img);
-                                setNewTupleValues(Array(struct.length).fill(""));
-                              }}
-                            >
-                              Add Row
-                            </button>
-                          </div>
+                          {/* Button to open Add-Row modal */}
+                          <button
+                            className="add-value-button"
+                            onClick={() => setShowAddModal(true)}
+                          >
+                            Add New Value
+                          </button>
 
-                          {/* --- Tuple Table --- */}
+                          {/* Add-Row Modal */}
+                          {showAddModal && (
+                            <div className="modal-overlay">
+                              <div className="nested-modal-content">
+                                <h3>Add New {setObj.setDefinition.alias} Row</h3>
+                                <div className="tuple-add-row">
+                                  {struct.map((col, ci) => (
+                                    <input
+                                      key={ci}
+                                      className="tuple-add-input"
+                                      placeholder={col}
+                                      value={newTupleValues[ci] || ""}
+                                      onChange={(e) => {
+                                        const copy = [...newTupleValues];
+                                        copy[ci] = e.target.value;
+                                        setNewTupleValues(copy);
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+                                <div style={{ marginTop: 12, textAlign: "right" }}>
+                                  <button
+                                    onClick={() => {
+                                      const joined = `<${newTupleValues.join(",")}>`;
+                                      const img = { ...selectedImage };
+                                      img.sets[selectedSetIndex].values.push(joined);
+                                      setSelectedImage(img);
+                                      setNewTupleValues(Array(struct.length).fill(""));
+                                      setShowAddModal(false);
+                                    }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setNewTupleValues(Array(struct.length).fill(""));
+                                      setShowAddModal(false);
+                                    }}
+                                    style={{ marginLeft: 8 }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Tuple Table with Sort & Actions */}
                           <table className="tuple-values-table">
                             <thead>
                               <tr>
                                 {struct.map((col, ci) => (
-                                  <th key={ci}>{col}</th>
+                                  <th key={ci}>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <span>{col}</span>
+                                      <div style={{ marginTop: 4 }}>
+                                        <button
+                                          onClick={() =>
+                                            setSortConfig({ colIndex: ci, direction: "asc" })
+                                          }
+                                          title="Sort Asc"
+                                        >
+                                          ▲
+                                        </button>
+                                        <button
+                                          onClick={() =>
+                                            setSortConfig({ colIndex: ci, direction: "desc" })
+                                          }
+                                          title="Sort Desc"
+                                          style={{ marginLeft: 6 }}
+                                        >
+                                          ▼
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </th>
                                 ))}
                                 <th>Actions</th>
                               </tr>
@@ -561,9 +700,7 @@ const MyImagesPage = () => {
                                           >
                                             ✅
                                           </button>
-                                          <button onClick={() => setEditingRow(null)}>
-                                            ✕
-                                          </button>
+                                          <button onClick={() => setEditingRow(null)}>✕</button>
                                         </>
                                       ) : (
                                         <>
@@ -598,47 +735,54 @@ const MyImagesPage = () => {
                       // === FALLBACK LIST MODE ===
                       return (
                         <>
-                          {/* Single‐string “Add New Value” */}
-                          <div className="add-value-section">
-                            <input
-                              type="text"
-                              className="add-value-input"
-                              placeholder="New value"
-                              value={selectedImage.sets[selectedSetIndex].newValue || ""}
-                              onChange={(e) => {
-                                const img = { ...selectedImage };
-                                img.sets[selectedSetIndex].newValue = e.target.value;
-                                setSelectedImage(img);
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  const val =
-                                    selectedImage.sets[selectedSetIndex].newValue?.trim();
-                                  if (!val) return;
-                                  const img = { ...selectedImage };
-                                  img.sets[selectedSetIndex].values.push(val);
-                                  img.sets[selectedSetIndex].newValue = "";
-                                  setSelectedImage(img);
-                                }
-                              }}
-                            />
-                            <button
-                              className="add-value-button"
-                              onClick={() => {
-                                const val =
-                                  selectedImage.sets[selectedSetIndex].newValue?.trim();
-                                if (!val) return;
-                                const img = { ...selectedImage };
-                                img.sets[selectedSetIndex].values.push(val);
-                                img.sets[selectedSetIndex].newValue = "";
-                                setSelectedImage(img);
-                              }}
-                            >
-                              Add
-                            </button>
-                          </div>
+                          <button
+                            className="add-value-button"
+                            onClick={() => setShowAddModal(true)}
+                          >
+                            Add New Value
+                          </button>
 
-                          {/* Existing list of values */}
+                          {showAddModal && (
+                            <div className="modal-overlay">
+                              <div className="nested-modal-content">
+                                <h3>Add New Value</h3>
+                                <input
+                                  type="text"
+                                  className="add-value-input"
+                                  placeholder="New value"
+                                  value={selectedImage.sets[selectedSetIndex].newValue || ""}
+                                  onChange={(e) => {
+                                    const img = { ...selectedImage };
+                                    img.sets[selectedSetIndex].newValue = e.target.value;
+                                    setSelectedImage(img);
+                                  }}
+                                />
+                                <div style={{ marginTop: 12, textAlign: "right" }}>
+                                  <button
+                                    onClick={() => {
+                                      const val =
+                                        selectedImage.sets[selectedSetIndex].newValue?.trim();
+                                      if (!val) return;
+                                      const img = { ...selectedImage };
+                                      img.sets[selectedSetIndex].values.push(val);
+                                      img.sets[selectedSetIndex].newValue = "";
+                                      setSelectedImage(img);
+                                      setShowAddModal(false);
+                                    }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => setShowAddModal(false)}
+                                    style={{ marginLeft: 8 }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
                           <ul className="set-values-list">
                             {selectedImage.sets[selectedSetIndex].values.map((val, i) => (
                               <li key={i} className="set-value-item">
