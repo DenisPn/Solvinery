@@ -13,16 +13,17 @@ import groupId.DTO.Factories.RecordFactory;
 import groupId.DTO.Records.Image.ImageDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ModelDTO;
 import groupId.DTO.Records.Requests.Responses.*;
-import jakarta.persistence.EntityManager;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class ImageService {
-    private final static int PAGE_SIZE = 10;
+    private final static int DEFAULT_PAGE_SIZE = 10;
 
     private final ImageRepository imageRepository;
 
@@ -97,18 +98,17 @@ public class ImageService {
 
     /**
      * Fetches a page of published images from the database.
-     * @param pageNumber the page number to fetch
+     * @param page the page number to fetch
      * @return a DTO object containing a list of image data DTOs and the total number of pages in the database.
      * if the page doesn't exist, returns an empty DTO. is the page is the last one, returns a possibly partially filled DTO.
      * @see PublishedImagesDTO
      */
     @NonNull
     @Transactional(readOnly = true)
-    public PublishedImagesDTO fetchPublishedImages(@Min(0) int pageNumber) {
-
+    public PublishedImagesDTO fetchPublishedImages(int page, int pageSize, @Nullable String name,@Nullable String description,@Nullable LocalDate before,@Nullable LocalDate after,@Nullable String author) {
         PageRequest pageRequest = PageRequest.of(
-                pageNumber,
-                PAGE_SIZE,
+                page,
+                pageSize,
                 Sort.by(Sort.Direction.DESC, "publishDate")
         );
 
@@ -140,7 +140,7 @@ public class ImageService {
         UserEntity user = userService.getUser(userId)
                 .orElseThrow(() -> new ClientSideError("User id not found"));
 
-        Page<ImageEntity> userImages = imageRepository.findByUser(user, PageRequest.of(pageNumber, PAGE_SIZE) );
+        Page<ImageEntity> userImages = imageRepository.findByUser(user, PageRequest.of(pageNumber, DEFAULT_PAGE_SIZE) );
 
         Map<UUID,ImageDTO> imageDTOs = userImages.stream()
                 .collect(Collectors.toMap(
@@ -168,4 +168,6 @@ public class ImageService {
     public Optional<ImageEntity> getImage(@NonNull String imageId) {
         return imageRepository.findById(UUID.fromString(imageId));
     }
+
+
 }
