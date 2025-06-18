@@ -212,6 +212,8 @@ async function updateImageOnServer() {
         payload,
         { headers: { "Content-Type": "application/json" } }
       );
+      console.log("UserId : ", userId);
+      console.log("Selected ImageId : ", selectedImageId);
       // 3. Store in context
       setSolutionResponse(response.data);
       // 4. Redirect
