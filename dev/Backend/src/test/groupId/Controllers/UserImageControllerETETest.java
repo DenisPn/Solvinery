@@ -171,9 +171,9 @@ public class UserImageControllerETETest {
                                     ),
                                     Set.of(
                                             new VariableDTO("day_has_class", List.of("UNKNOWN"), null),
-                                            new VariableDTO("selection", List.of("TEXT","TEXT","INT","INT"), null)
+                                            new VariableDTO("selection", List.of("TEXT","TEXT","INT","FLOAT"), null)
                                     ),
-                                    Map.of("CLASS_OPTIONS",List.of("TEXT", "TEXT", "INT", "INT")),
+                                    Map.of("CLASS_OPTIONS",List.of("TEXT", "TEXT", "INT", "FLOAT")),
                                     Map.of()
                             )),
                     new ParseCase(
@@ -255,9 +255,32 @@ public class UserImageControllerETETest {
     @DisplayName("Test Create Image: POST  "+baseUriTemplate+"/")
     class TestCreateImage {
 
-        static Stream<ImageDTO> validCaseStream() {
+        record CreateImageCase(ImageDTO given, ImageDTO expected){}
+
+        static Stream<CreateImageCase> validCaseStream() {
             return Stream.of(
-                    new ImageDTO(
+                    new CreateImageCase(
+                            new ImageDTO(
+                                    Set.of(
+                                            new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
+                                            new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                                    ),
+                                    Set.of(
+                                            new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
+                                    ),
+                                    Set.of(
+                                            new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
+                                    ),
+                                    Set.of(
+                                            new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                                    ),
+                                    Set.of(
+                                    ),
+                                    "Class optimizer",
+                                    "does stuff and things",
+                                    classesExample
+                            ),
+                            new ImageDTO(
                             Set.of(
                                     new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
                                     new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
@@ -301,22 +324,182 @@ public class UserImageControllerETETest {
                                                     "<\"Statistics102\",\"FRIDAY\",15,1.5>"
                                             ))
                             ),
-                            Set.of(
-                            ),
+                            Set.of(),
                             "Class optimizer",
                             "does stuff and things",
                             classesExample
                     )
-            );
+            ));
         }
+        static Stream<ImageDTO> invalidCaseStream() {
+        return Stream.of(
+                new ImageDTO( //No variables
+                        Set.of(
 
+                        ),
+                        Set.of(
+                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
+                        ),
+                        Set.of(
+                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
+                        ),
+                        Set.of(
+                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                        ),
+                        Set.of(
+                        ),
+                        "Class optimizer",
+                        "does stuff and things",
+                        classesExample
+                ),
+                new ImageDTO( //null code
+                        Set.of(
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                        ),
+                        Set.of(
+                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
+                        ),
+                        Set.of(
+                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
+                        ),
+                        Set.of(
+                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                        ),
+                        Set.of(
+                        ),
+                        "Class optimizer",
+                        "does stuff and things",
+                        null
+                ),
+                new ImageDTO( //blank code
+                        Set.of(
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                        ),
+                        Set.of(
+                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
+                        ),
+                        Set.of(
+                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
+                        ),
+                        Set.of(
+                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                        ),
+                        Set.of(
+                        ),
+                        "Class optimizer",
+                        "does stuff and things",
+                        "\t\t\n\t"
+                ),
+                new ImageDTO( //invalid variable name
+                    Set.of(
+                            new VariableDTO("I don't exist", List.of("Weekday"), "days with classes")
+                    ),
+                    Set.of(
+                            new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
+                    ),
+                    Set.of(
+                            new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
+                    ),
+                    Set.of(
+                            new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                    ),
+                    Set.of(
+                    ),
+                    "Class optimizer",
+                    "does stuff and things",
+                    classesExample
+            ),
+                new ImageDTO( //empty constraint module
+                        Set.of(
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                        ),
+                        Set.of(
+                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of(), false)
+                        ),
+                        Set.of(
+                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
+                        ),
+                        Set.of(
+                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                        ),
+                        Set.of(
+                        ),
+                        "Class optimizer",
+                        "does stuff and things",
+                        classesExample
+                ),
+                new ImageDTO( //invalid constraint in module
+                        Set.of(
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                        ),
+                        Set.of(
+                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("I dont exist"), false)
+                        ),
+                        Set.of(
+                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
+                        ),
+                        Set.of(
+                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                        ),
+                        Set.of(
+                        ),
+                        "Class optimizer",
+                        "does stuff and things",
+                        classesExample
+                ),
+                new ImageDTO( //Empty preference module
+                        Set.of(
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                        ),
+                        Set.of(
+                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
+                        ),
+                        Set.of(
+                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of(), 0.5F)
+                        ),
+                        Set.of(
+                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                        ),
+                        Set.of(
+                        ),
+                        "Class optimizer",
+                        "does stuff and things",
+                        classesExample
+                ),
+                new ImageDTO( //invalid preference in module
+                        Set.of(
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                        ),
+                        Set.of(
+                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
+                        ),
+                        Set.of(
+                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("I don't exist"), 0.5F)
+                        ),
+                        Set.of(
+                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                        ),
+                        Set.of(
+                        ),
+                        "Class optimizer",
+                        "does stuff and things",
+                        classesExample
+                )
+        );
+        }
         @ParameterizedTest
         @MethodSource("validCaseStream")
         @DisplayName("Given valid image, when create image, then should not fail")
-        void givenValidImage_WhenCreateImage_thenSuccess(ImageDTO imageDTO) {
+        void givenValidImage_WhenCreateImage_thenSuccess(CreateImageCase createImageCase) {
             ResponseEntity<CreateImageResponseDTO> createImageResponse = restTemplate.postForEntity(
                     baseUri,
-                    imageDTO,
+                    createImageCase.given,
                     CreateImageResponseDTO.class
             );
             assertTrue(createImageResponse.getStatusCode().is2xxSuccessful());
@@ -332,7 +515,26 @@ public class UserImageControllerETETest {
             ImagesDTO actualImages = fetchImageResponse.getBody();
             assertEquals(1, actualImages.images().size());
             ImageDTO actualImage = actualImages.images().get(imageId);
-            assertEquals(imageDTO, actualImage);
+            assertEquals(createImageCase.expected, actualImage);
+        }
+        @ParameterizedTest
+        @MethodSource("invalidCaseStream")
+        @DisplayName("Given invalid image, when create image, then should fail")
+        void givenInvalidImage_WhenCreateImage_thenFail(ImageDTO imageDTO) {
+            ResponseEntity<CreateImageResponseDTO> createImageResponse = restTemplate.postForEntity(
+                    baseUri,
+                    imageDTO,
+                    CreateImageResponseDTO.class
+            );
+            assertFalse(createImageResponse.getStatusCode().is2xxSuccessful());
+            ResponseEntity<ImagesDTO> fetchImageResponse = restTemplate.getForEntity(
+                    baseUri + "/0",
+                    ImagesDTO.class
+            );
+            assertTrue(fetchImageResponse.getStatusCode().is2xxSuccessful());
+            assertNotNull(fetchImageResponse.getBody());
+            ImagesDTO actualImages = fetchImageResponse.getBody();
+            assertEquals(0, actualImages.images().size());
         }
     }
     @Nested
