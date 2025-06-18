@@ -8,7 +8,7 @@ export const ZPLProvider = ({ children }) => {
 
     const [constraintsModules, setConstraintsModules] = useState([]);
     const [preferenceModules, setPreferenceModules] = useState([]);
-    
+
     const [variables, setVariables] = useState([]);
     const [setTypes, setSetTypes] = useState({});
     const [paramTypes, setParamTypes] = useState({});
@@ -22,7 +22,7 @@ export const ZPLProvider = ({ children }) => {
     const [setAliases, setSetAliases] = useState({});
     const [username, setUsername] = useState('');
     const [userId, setUserId] = useState(null);
-    const [selectedVars, setSelectedVars] = useState([]); 
+    const [selectedVars, setSelectedVars] = useState([]);
 
     // Add imageName, imageDescription, and zplCode to the context
     const [imageName, setImageName] = useState('');
@@ -31,6 +31,9 @@ export const ZPLProvider = ({ children }) => {
 
     const [isEditMode, setIsEditMode] = useState(false);
     const [paramAliases, setParamAliases] = useState({});
+
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImageId, setSelectedImageId] = useState(null);
 
 
     return (
@@ -70,10 +73,12 @@ export const ZPLProvider = ({ children }) => {
 
             // Solution
             solutionResponse, setSolutionResponse,
+            selectedImage, setSelectedImage,
+            selectedImageId, setSelectedImageId,
 
             // Edit mode
             isEditMode, setIsEditMode,
-            
+
         }}>
             {children}
         </ZPLContext.Provider>
