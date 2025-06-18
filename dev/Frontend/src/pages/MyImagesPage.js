@@ -493,28 +493,67 @@ const MyImagesPage = () => {
 
                   <h4>Values:</h4>
                   {(() => {
-                    const vals = selectedImage.sets[selectedSetIndex]?.values || [];
-                    const isTuple = vals.length > 0 && vals.every(v => /^<.*>$/.test(v));
+                    const vals =
+                      selectedImage.sets[selectedSetIndex]?.values || [];
+                    const struct =
+                      selectedImage.sets[selectedSetIndex]?.setDefinition
+                        ?.structure || [];
+                    const isTuple =
+                      vals.length > 0 && vals.every((v) => /^<.*>$/.test(v));
+
                     if (isTuple) {
-                      const rows = vals.map(v =>
-                        v.slice(1, -1).split(",").map(c => c.trim())
+                      // parse "<a,b,c>" → ["a","b","c"]
+                      const rows = vals.map((v) =>
+                        v.slice(1, -1).split(",").map((c) => c.trim())
                       );
-                      const cols = rows[0].length;
+
                       return (
                         <table className="tuple-values-table">
                           <thead>
                             <tr>
-                              {Array.from({ length: cols }).map((_, c) => (
-                                <th key={c}>Col {c + 1}</th>
-                              ))}
+                              {struct.length > 0
+                                ? struct.map((col, ci) => <th key={ci}>{col}</th>)
+                                : rows[0].map((_, ci) => (
+                                  <th key={ci}>Col {ci + 1}</th>
+                                ))}
+                              <th>Actions</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {rows.map((row, r) => (
-                              <tr key={r}>
-                                {row.map((cell, c) => (
-                                  <td key={c}>{cell}</td>
+                            {rows.map((row, ri) => (
+                              <tr key={ri}>
+                                {row.map((cell, ci) => (
+                                  <td key={ci}>{cell}</td>
                                 ))}
+                                <td>
+                                  {/* Edit via prompt */}
+                                  <button
+                                    onClick={() => {
+                                      const img = { ...selectedImage };
+                                      const current = row.join(", ");
+                                      const input = prompt(
+                                        "Edit values (comma-separated):",
+                                        current
+                                      );
+                                      if (input != null) {
+                                        img.sets[selectedSetIndex].values[ri] = `<${input}>`;
+                                        setSelectedImage(img);
+                                      }
+                                    }}
+                                  >
+                                    ✎
+                                  </button>
+                                  {/* Remove */}
+                                  <button
+                                    onClick={() => {
+                                      const img = { ...selectedImage };
+                                      img.sets[selectedSetIndex].values.splice(ri, 1);
+                                      setSelectedImage(img);
+                                    }}
+                                  >
+                                    ✕
+                                  </button>
+                                </td>
                               </tr>
                             ))}
                           </tbody>
@@ -526,7 +565,7 @@ const MyImagesPage = () => {
                           {vals.map((val, i) => (
                             <li key={i} className="set-value-item">
                               {val}
-                              {/* …your edit/remove buttons here… */}
+                              {/* …your existing edit/remove buttons for list items… */}
                             </li>
                           ))}
                         </ul>
