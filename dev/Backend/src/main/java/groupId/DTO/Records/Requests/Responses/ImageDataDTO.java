@@ -1,6 +1,6 @@
 package groupId.DTO.Records.Requests.Responses;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * Data of an image.
@@ -9,5 +9,5 @@ import java.time.LocalDateTime;
  * @param creationDate the date the image was created
  * @param authorName the image author's name. By default, the user's nickname is used.
  */
-public record ImageDataDTO(String name, String description, LocalDateTime creationDate, String authorName) {
+public record ImageDataDTO(String name, String description, LocalDate creationDate, String authorName) {
 }

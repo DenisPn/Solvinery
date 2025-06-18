@@ -32,6 +32,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -113,7 +114,7 @@ public class EntityMapperTest {
         preferenceModules.add(preferenceModule);
         String name= "stub name";
         String description= "stub description";
-        LocalDateTime creationDate= LocalDateTime.now();
+        LocalDate creationDate= LocalDate.now();
         // Create and return the Image object
         return new Image(simpleCodeExample,name,description,creationDate, constraintModules, preferenceModules, sets, params, variables);
     }
@@ -159,7 +160,7 @@ public class EntityMapperTest {
         preferenceModules.add(preferenceModule);
         String nameStub = "stub name";
         String descriptionStub = "stub description";
-        LocalDateTime dateStub = LocalDateTime.now();
+        LocalDate dateStub = LocalDate.now();
         // Add children to the parent
         //    public void setAll(String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModuleEntities, Set<ConstraintModuleEntity> constraintModuleEntities, Set<VariableEntity> variableEntities, Set<ParameterEntity> paramEntities, Set<SetEntity> setEntities, String sourceCode, UserEntity user)
         stub.setAll(nameStub,descriptionStub,dateStub,preferenceModules, constraintModules, variables, params, sets,simpleCodeExample,userStub);

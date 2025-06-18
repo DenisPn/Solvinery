@@ -19,6 +19,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -84,7 +85,7 @@ class ImageEntityTest {
         String emptyZimplCode= "";
         String nameStub = "stub name";
         String descriptionStub = "stub description";
-        LocalDateTime dateStub = LocalDateTime.now();
+        LocalDate dateStub = LocalDate.now();
         // Add children to the parent
         stub.setAll(nameStub,descriptionStub,dateStub,preferenceModules, constraintModules, variables, params, sets,emptyZimplCode,userStub);
         return stub;
@@ -285,7 +286,7 @@ class ImageEntityTest {
         imageRepository.save(validEntity);
 
         // Act - remove all child entities from parent
-        validEntity.setAll("","",LocalDateTime.now(),new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(),"",makeUserStub());
+        validEntity.setAll("","",LocalDate.now(),new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(),"",makeUserStub());
         imageRepository.save(validEntity);
 
         ImageEntity retrievedEntity = imageRepository.findById(validEntity.getId()).orElse(null);

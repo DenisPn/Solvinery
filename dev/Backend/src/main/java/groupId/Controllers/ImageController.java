@@ -36,5 +36,4 @@ public class ImageController {
                                                                    @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(imageService.fetchPublishedImages(page,size,name,description,before,after,author));
     }
-
 }

@@ -8,7 +8,7 @@ import Persistence.Entities.Image.Operational.PreferenceModuleEntity;
 import jakarta.persistence.*;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -30,7 +30,7 @@ public class PublishedImageEntity {
     private String description;
 
     @Column(name = "creation_date", nullable = false)
-    private LocalDateTime creationDate;
+    private LocalDate creationDate;
 
     @OneToMany(mappedBy = "imageComponentKey.imageId",
             cascade = CascadeType.ALL, orphanRemoval = false)
@@ -59,7 +59,7 @@ public class PublishedImageEntity {
     private String original_code;
 
     @Column(name = "publish_date", nullable = false, updatable = false)
-    private LocalDateTime publishDate;
+    private LocalDate publishDate;
 
     @Column(name = "author", nullable = false)
     private String author;
@@ -76,11 +76,11 @@ public class PublishedImageEntity {
         this.author = "";
         this.name = "";
         this.description = "";
-        this.publishDate = LocalDateTime.now();
-        this.creationDate = LocalDateTime.now();
+        this.publishDate = LocalDate.now();
+        this.creationDate = LocalDate.now();
     }
 
-    public PublishedImageEntity (String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String originalCode,String author) {
+    public PublishedImageEntity (String name, String description, LocalDate creationDate, Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String originalCode,String author) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
         this.variables = variables;
@@ -90,11 +90,11 @@ public class PublishedImageEntity {
         this.name = name;
         this.description = description;
         this.creationDate = creationDate;
-        this.publishDate = LocalDateTime.now();
+        this.publishDate = LocalDate.now();
         this.author = author;
     }
 
-    public void setAll(String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModuleEntities, Set<ConstraintModuleEntity> constraintModuleEntities, Set<VariableEntity> variableEntities, Set<ParameterEntity> parameterEntities, Set<SetEntity> setEntities, String originalCode, String author) {
+    public void setAll(String name, String description, LocalDate creationDate, Set<PreferenceModuleEntity> preferenceModuleEntities, Set<ConstraintModuleEntity> constraintModuleEntities, Set<VariableEntity> variableEntities, Set<ParameterEntity> parameterEntities, Set<SetEntity> setEntities, String originalCode, String author) {
         this.preferenceModules = preferenceModuleEntities;
         this.constraintModules = constraintModuleEntities;
         this.variables = variableEntities;
@@ -104,7 +104,7 @@ public class PublishedImageEntity {
         this.name = name;
         this.description = description;
         this.creationDate = creationDate;
-        this.publishDate = LocalDateTime.now();
+        this.publishDate = LocalDate.now();
         this.author = author;
     }
 
@@ -155,7 +155,7 @@ public class PublishedImageEntity {
         return description;
     }
 
-    public LocalDateTime getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
 
@@ -183,7 +183,7 @@ public class PublishedImageEntity {
         return original_code;
     }
 
-    public LocalDateTime getPublishDate() {
+    public LocalDate getPublishDate() {
         return publishDate;
     }
 

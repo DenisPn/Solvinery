@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.data.jpa.domain.Specification;
 
 @Service
 public class ImageService {
@@ -105,23 +106,72 @@ public class ImageService {
      */
     @NonNull
     @Transactional(readOnly = true)
-    public PublishedImagesDTO fetchPublishedImages(int page, int pageSize, @Nullable String name,@Nullable String description,@Nullable LocalDate before,@Nullable LocalDate after,@Nullable String author) {
-        PageRequest pageRequest = PageRequest.of(
-                page,
-                pageSize,
-                Sort.by(Sort.Direction.DESC, "publishDate")
-        );
+    public PublishedImagesDTO fetchPublishedImages(int page, int pageSize, 
+    @Nullable String name, @Nullable String description,
+    @Nullable LocalDate before, @Nullable LocalDate after,
+    @Nullable String author) {
+    
+    PageRequest pageRequest = PageRequest.of(
+        page,
+        pageSize,
+        Sort.by(Sort.Direction.DESC, "publishDate")
+    );
 
-        Page<PublishedImageEntity> imagesPage = publishedImagesRepository.findAll(pageRequest);
-        Map<UUID,ImageDataDTO> imageDTOs = imagesPage.getContent().stream()
-                .collect(Collectors.toMap(PublishedImageEntity::getId,image -> new ImageDataDTO(
-                        image.getName(),
-                        image.getDescription(),
-                        image.getCreationDate(),
-                        image.getAuthor())));
+    Specification<PublishedImageEntity> spec = Specification.where(null);
 
-        return new PublishedImagesDTO(imageDTOs);
+    if (name != null && !name.trim().isEmpty()) {
+        spec = spec.and((root, query, cb) ->
+            cb.like(cb.lower(root.get("name")), 
+                   "%" + name.toLowerCase() + "%"));
     }
+
+    if (description != null && !description.trim().isEmpty()) {
+        spec = spec.and((root, query, cb) ->
+            cb.like(cb.lower(root.get("description")), 
+                   "%" + description.toLowerCase() + "%"));
+    }
+
+    if (before != null) {
+        spec = spec.and((root, query, cb) ->
+            cb.lessThanOrEqualTo(root.get("publishDate"),
+                               before));
+    }
+
+    if (after != null) {
+        spec = spec.and((root, query, cb) ->
+            cb.greaterThanOrEqualTo(root.get("publishDate"), 
+                                  after));
+    }
+
+    if (author != null && !author.trim().isEmpty()) {
+        spec = spec.and((root, query, cb) ->
+            cb.like(cb.lower(root.get("author")), 
+                   "%" + author.toLowerCase() + "%"));
+    }
+
+    Page<PublishedImageEntity> imagesPage = 
+        publishedImagesRepository.findAll(spec, pageRequest);
+
+    Map<UUID, ImageDataDTO> imageDTOs = imagesPage.getContent().stream()
+        .collect(Collectors.toMap(
+            PublishedImageEntity::getId,
+            image -> new ImageDataDTO(
+                image.getName(),
+                image.getDescription(),
+                image.getCreationDate(),
+                image.getAuthor()
+            )));
+
+    return new PublishedImagesDTO(
+        imageDTOs,
+        imagesPage.getNumber(),
+        imagesPage.getSize(),
+        imagesPage.getTotalPages(),
+        imagesPage.getTotalElements(),
+        imagesPage.hasNext(),
+        imagesPage.hasPrevious()
+    );
+}
     @Transactional
     public void publishImage(@NonNull String userId, @NonNull String imageId) {
         UserEntity user=userService.getUser(userId).orElseThrow(()-> new ClientSideError("Invalid User id during publish image."));

@@ -27,7 +27,7 @@ import groupId.DTO.Records.Model.ModelDefinition.VariableDTO;
 import groupId.DTO.Records.Requests.Commands.ImageConfigDTO;
 import org.springframework.lang.NonNull;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,7 +44,7 @@ public class Image {
     private final ModelInterface model;
     private @NonNull String name;
     private @NonNull String description;
-    private final @NonNull LocalDateTime creationDate;
+    private final @NonNull LocalDate creationDate;
 
     /**
      * Constructs a new empty image, given a Model.
@@ -58,7 +58,7 @@ public class Image {
         this.activeSets = new HashSet<>();
         this.name = name;
         this.description = description;
-        this.creationDate = LocalDateTime.now();
+        this.creationDate = LocalDate.now();
         this.model = model;
     }
 
@@ -71,7 +71,7 @@ public class Image {
         this.model = new Model(imageDTO.code());
         this.name = imageDTO.name();
         this.description = imageDTO.description();
-        this.creationDate = LocalDateTime.now();
+        this.creationDate = LocalDate.now();
         for (VariableDTO variableDTO: imageDTO.variables()){
             String variableName= variableDTO.identifier();
             Variable variable = model.getVariable(variableName);
@@ -136,7 +136,7 @@ public class Image {
      * @param activeParams       The active parameters used in the model.
      * @param activeVariables    The active variables used in the model.
      */
-    public Image (@NonNull String code,@NonNull  String name,@NonNull  String description,@NonNull  LocalDateTime creationDate,
+    public Image (@NonNull String code,@NonNull  String name,@NonNull  String description,@NonNull  LocalDate creationDate,
                   @NonNull Set<ConstraintModule> constraintsModules, @NonNull Set<PreferenceModule> preferenceModules,
                   Set<SetModule> activeSets, Set<ParameterModule> activeParams, Set<VariableModule> activeVariables) {
         this.constraintsModules = constraintsModules.stream().collect(Collectors.toMap(ConstraintModule::getName, constraintModule -> constraintModule));
@@ -273,7 +273,7 @@ public class Image {
     }
 
     @NonNull
-    public LocalDateTime getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
 

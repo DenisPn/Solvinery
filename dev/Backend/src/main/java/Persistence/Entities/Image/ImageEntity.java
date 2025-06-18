@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.lang.NonNull;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -32,7 +32,7 @@ public class ImageEntity {
     private String description;
 
     @Column(name = "creation_date", nullable = false)
-    private LocalDateTime creationDate;
+    private LocalDate creationDate;
 
     @OneToMany(mappedBy = "imageComponentKey.imageId",
             cascade = CascadeType.ALL, orphanRemoval = true)
@@ -80,7 +80,7 @@ public class ImageEntity {
         this.original_code = "";
         this.name = "";
         this.description = "";
-        this.creationDate = LocalDateTime.now();
+        this.creationDate = LocalDate.now();
         this.user = null;
     }
     public ImageEntity (@NonNull UserEntity user) {
@@ -93,10 +93,10 @@ public class ImageEntity {
         this.original_code = "";
         this.name = "";
         this.description = "";
-        this.creationDate = LocalDateTime.now();
+        this.creationDate = LocalDate.now();
         this.user = user;
     }
-    public ImageEntity (String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String original_code, @NonNull UserEntity user) {
+    public ImageEntity (String name, String description, LocalDate creationDate, Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, String original_code, @NonNull UserEntity user) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
         this.variables = variables;
@@ -110,7 +110,7 @@ public class ImageEntity {
         this.creationDate = creationDate;
     }
     @Deprecated(forRemoval = true)
-    public ImageEntity (String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, @NonNull UserEntity user) {
+    public ImageEntity (String name, String description, LocalDate creationDate, Set<PreferenceModuleEntity> preferenceModules, Set<ConstraintModuleEntity> constraintModules, Set<VariableEntity> variables, Set<ParameterEntity> activeParams, Set<SetEntity> activeSets, @NonNull UserEntity user) {
         this.preferenceModules = preferenceModules;
         this.constraintModules = constraintModules;
         this.variables = variables;
@@ -136,7 +136,7 @@ public class ImageEntity {
         this.activeSets = activeSets;
         //this.zimplCode = zimplCode;
     }
-    public void setAll(String name, String description, LocalDateTime creationDate, Set<PreferenceModuleEntity> preferenceModuleEntities, Set<ConstraintModuleEntity> constraintModuleEntities, Set<VariableEntity> variableEntities, Set<ParameterEntity> paramEntities, Set<SetEntity> setEntities, String sourceCode, @NonNull UserEntity user) {
+    public void setAll(String name, String description, LocalDate creationDate, Set<PreferenceModuleEntity> preferenceModuleEntities, Set<ConstraintModuleEntity> constraintModuleEntities, Set<VariableEntity> variableEntities, Set<ParameterEntity> paramEntities, Set<SetEntity> setEntities, String sourceCode, @NonNull UserEntity user) {
         //clearChildren();
         this.preferenceModules = preferenceModuleEntities;
         this.constraintModules = constraintModuleEntities;
@@ -264,7 +264,7 @@ public class ImageEntity {
         return description;
     }
 
-    public LocalDateTime getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
 
