@@ -15,7 +15,7 @@ public class Solution {
     private static final Pattern statusPattern = Pattern.compile("SCIP Status +: +problem is solved.*optimal solution found");
     private static final Pattern solvingTimePattern = Pattern.compile("Solving Time \\(sec\\) +: +(\\d+(?:\\.\\d+)?)");
     // private static final Pattern solvingTimePattern = Pattern.compile("Solving Time \\(sec\\) +: +(\\d+\\.\\d+)");
-    private static final Pattern objectiveValuePattern = Pattern.compile("objective value:\\s+(\\d+(\\.\\d+)?)");
+    private static final Pattern objectiveValuePattern = Pattern.compile("objective value:\\s+(-?\\d+(\\.\\d+)?)");
     private static final Pattern variablePattern = Pattern.compile("^(.*?)[ \\t]+(\\d+)[ \\t]+\\(obj:(\\d+)\\)");
     boolean solved;
 

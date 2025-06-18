@@ -115,22 +115,13 @@ public class Image {
             ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
             if(modelSet==null)
                 throw new InvalidModelStateException("No set with name: " + setDTO.setDefinition().name());
-            for(String value: setDTO.values()) {
-                if (!modelSet.isCompatible(value))
-                    throw new InvalidModelStateException(String.format("Data mismatch in set %s. Expected: %s, Actual: %s", setDTO.setDefinition().name(),
-                            modelSet.getDataType().toString(),
-                            value));
-            }
+
             activeSets.add(new SetModule(modelSet.getName(),setDTO.setDefinition().structure(),setDTO.setDefinition().alias(),modelSet.getData()));
         }
         for (ParameterDTO parameterDTO: imageDTO.parameters()){
             ModelParameter modelParameter= model.getParameter(parameterDTO.parameterDefinition().name());
             if(modelParameter==null)
                 throw new InvalidModelStateException("No parameter with name: " + parameterDTO.parameterDefinition().name());
-            if(!modelParameter.isCompatible(parameterDTO.value()))
-                throw new InvalidModelStateException(String.format("Data mismatch in parameter %s. Expected: %s, Actual: %s",parameterDTO.parameterDefinition().name(),
-                        modelParameter.getDataType().toString(),
-                        parameterDTO.value()));
             activeParams.add(new ParameterModule(modelParameter.getName(),parameterDTO.parameterDefinition().structure(),parameterDTO.parameterDefinition().alias(),modelParameter.getData()));
         }
     }
