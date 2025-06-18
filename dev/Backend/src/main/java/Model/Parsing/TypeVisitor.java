@@ -1,5 +1,6 @@
 package Model.Parsing;
 
+import Exceptions.InternalErrors.ModelExceptions.InvalidModelInputException;
 import Model.Data.Elements.Data.ModelParameter;
 import Model.Data.Elements.Data.ModelSet;
 import Model.Data.Types.ModelPrimitives;
@@ -11,6 +12,7 @@ import org.springframework.lang.NonNull;
 import parser.FormulationBaseVisitor;
 import parser.FormulationParser;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -166,21 +168,56 @@ public class TypeVisitor extends FormulationBaseVisitor<Void> {
     @Override
     //dependencies are not longer used, avoid deletion for now since that will take changing parser def (.g4 file)
     public @Nullable Void visitSetDescStack (@NonNull FormulationParser.SetDescStackContext ctx) {
-
         if (ctx.condition() != null) {
             TypeVisitor elementVisitor = new TypeVisitor(model);
             elementVisitor.visit(ctx.condition());
             /*ModelSet set = new ModelSet("anonymous_set", elementVisitor.structure);
             basicSets.add(set);*/
             type = elementVisitor.getType();
-        } else if (ctx.csv() != null) {
-            // Handle explicit set elements
+        }
+        else if (ctx.csv() != null) {
+            ModelType inferredType = ModelPrimitives.UNKNOWN;
+
+            for (FormulationParser.ExprContext exprContext : ctx.csv().expr()) {
+                TypeVisitor elementVisitor = new TypeVisitor(model);
+                elementVisitor.visit(exprContext);
+                ModelType elementType = elementVisitor.getType();
+
+                if (inferredType == ModelPrimitives.UNKNOWN) {
+                    inferredType = elementType;
+                }
+                else if(elementType == ModelPrimitives.UNKNOWN){
+                    inferredType = ModelPrimitives.UNKNOWN;
+                    break;
+                }
+                else if(!inferredType.primitive() && !inferredType.equals(elementType)){
+                    //size not checked, code assumed to have passed validation
+                    List<ModelType> currTypeList = elementType.getTypes();
+                    List<ModelType> inferredTypeList = inferredType.getTypes();
+                    for(int i=0; i< currTypeList.size(); i++){
+                        ModelType currType = currTypeList.get(i);
+                        ModelType currInferredType = inferredTypeList.get(i);
+                        if(!currInferredType.equals(currType)){
+                            if(currType == ModelPrimitives.FLOAT && currInferredType == ModelPrimitives.INT){
+                                inferredType = elementType;
+                                break;
+                            }
+                        }
+                    }
+                }
+                basicSets.addAll(elementVisitor.getBasicSets());
+                basicParams.addAll(elementVisitor.getBasicParams());
+            }
+
+            type = inferredType;
+
+           /* // Handle explicit set elements
             TypeVisitor elementVisitor = new TypeVisitor(model);
             elementVisitor.visit(ctx.csv().expr(0));
-            /*ModelSet set = new ModelSet("anonymous_set", elementVisitor.structure, elementVisitor.basicSets, elementVisitor.basicParams);
+            *//*ModelSet set = new ModelSet("anonymous_set", elementVisitor.structure, elementVisitor.basicSets, elementVisitor.basicParams);
             // Add this as a basic set since it's explicitly defined
-            basicSets.add(set);*/
-            type = elementVisitor.getType();
+            basicSets.add(set);*//*
+            type = elementVisitor.getType();*/
         } else if (ctx.range() != null) {
             /*ModelSet set = new ModelSet("anonymous_set", ModelPrimitives.INT);
             basicSets.add(set);*/

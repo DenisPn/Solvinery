@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.constraints.Size;
 import org.springframework.lang.NonNull;
 
 import java.util.Set;
@@ -23,7 +24,7 @@ import java.util.Set;
  * @see PreferenceModuleDTO
  */
 public record ImageDTO(
-                       @NotNull @Valid Set<VariableDTO> variables,
+                       @NotNull @Valid @Size(min = 1, message = "An image has to have at least one active variable.") Set<VariableDTO> variables,
                        @NotNull @Valid Set<ConstraintModuleDTO> constraintModules,
                        @NotNull @Valid Set<PreferenceModuleDTO> preferenceModules,
                        @NotNull Set<@NotNull @Valid SetDTO> sets,

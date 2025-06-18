@@ -14,7 +14,10 @@ public enum ModelPrimitives implements ModelType{
     public boolean isCompatible(ModelType val){
         return this == val;
     }
-
+    @Override
+    public boolean primitive(){
+        return true;
+    }
     public boolean isCompatible(@NonNull String str){
         switch(this) {
             case BINARY, INFINITY:
@@ -51,10 +54,9 @@ public enum ModelPrimitives implements ModelType{
           return "TEXT";
         case INT:
           return "INT";
-          
         case INFINITY:
           return "INFINITY";
-          
+
         case FLOAT:
           return "FLOAT";
         default:
@@ -67,6 +69,10 @@ public enum ModelPrimitives implements ModelType{
         return List.of(this.toString());
     }
 
+    @Override
+    public List<ModelType> getTypes(){
+        return List.of(this);
+    }
     
     public static String convertArrayOfAtoms(String[] atoms, @NonNull ModelType type) {
       switch(type) {

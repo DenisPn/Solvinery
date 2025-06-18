@@ -9,6 +9,7 @@ import java.util.List;
 public interface ModelType {
     boolean isCompatible(ModelType type);
     boolean isCompatible(String str);
+    boolean primitive();
     String toString();
     List<String> typeList();
     //dynamic dispatch somewhat doesnt work with static methods...
@@ -18,7 +19,7 @@ public interface ModelType {
         else    
             return ModelPrimitives.convertArrayOfAtoms(atoms,type);
     }
-
+    List<ModelType> getTypes();
     /**
      * Converts a string formatted as an element into a list of atomic strings.
      * This method extracts atomic components from the input string based on specific formats:

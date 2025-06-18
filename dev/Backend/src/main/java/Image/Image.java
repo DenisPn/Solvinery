@@ -219,10 +219,12 @@ public class Image {
             ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
             if(modelSet==null)
                 throw new ClientSideError("No set with name: " + setDTO.setDefinition().name());
-            if(!modelSet.isCompatible(setDTO.values()))
-                throw new UserInputException(String.format("Data mismatch in set %s. Expected: %s, Actual: %s",setDTO.setDefinition().name(),
-                        modelSet.getDataType().toString(),
-                        String.join(",", setDTO.values())));
+            for(String value: setDTO.values()) {
+                if (!modelSet.isCompatible(value))
+                    throw new InvalidModelStateException(String.format("Data mismatch in set %s. Expected: %s, Actual: %s", setDTO.setDefinition().name(),
+                            modelSet.getDataType().toString(),
+                            value));
+            }
             activeSets.add(new SetModule(modelSet.getName(),setDTO.setDefinition().structure(),setDTO.setDefinition().alias(),setDTO.values()));
         }
         for (ParameterDTO parameterDTO: imageDTO.parameters()){

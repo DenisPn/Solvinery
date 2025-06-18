@@ -3,31 +3,28 @@ package Model.Data.Types;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.lang.NonNull;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Tuple implements ModelType {
-    private List<ModelPrimitives> val;
+    private final List<ModelType> val;
 
-    public Tuple(ModelPrimitives[] val){
-        this.val = Arrays.asList(val);
-    }
 
     public Tuple() {
-        val = new LinkedList();
+        val = new ArrayList<>();
     }
 
-    public List<ModelPrimitives> getTypes(){
+    public List<ModelType> getTypes(){
         return val;
     }
-
+    @Override
+    public boolean primitive(){
+        return false;
+    }
     public boolean isCompatible(ModelType p){
         if(p instanceof Tuple){
             if(((Tuple)p).val.size() == this.val.size()){
-                Iterator<ModelPrimitives> it1 = ((Tuple)p).val.iterator();
-                Iterator<ModelPrimitives> it2 = val.iterator();
+                Iterator<ModelType> it1 = ((Tuple)p).val.iterator();
+                Iterator<ModelType> it2 = val.iterator();
                 while(it1.hasNext()){
                     if(it1.next() != it2.next())
                         return false;
@@ -62,7 +59,7 @@ public class Tuple implements ModelType {
         
         for (int i = 0; i < elements.length; i++) {
             String element = elements[i].trim();
-            ModelPrimitives currentPrimitive = val.get(i);
+            ModelType currentPrimitive = val.get(i);
             
             if (!currentPrimitive.isCompatible(element)) {
                 return false;
@@ -76,15 +73,14 @@ public class Tuple implements ModelType {
         if(tmp instanceof ModelPrimitives)
             val.add((ModelPrimitives)tmp);
         else {
-            for(ModelPrimitives p : ((Tuple)tmp).getTypes())
-                val.add(p);
+            val.addAll(((Tuple) tmp).getTypes());
         }
 
     }
 
     @NonNull
     public String toString() {
-        if (val == null || val.isEmpty()) {
+        if (val.isEmpty()) {
             return "<>";
         }
         
@@ -105,7 +101,7 @@ public class Tuple implements ModelType {
     @Override
     public List<String> typeList(){
         List<String> types = new LinkedList<>();
-        for(ModelPrimitives primitives:val){
+        for(ModelType primitives:val){
             types.add(primitives.toString());
         }
         return types;
@@ -118,15 +114,26 @@ public class Tuple implements ModelType {
     @NonNull
     public static String convertArrayOfAtoms(@NonNull String[] atoms, ModelType type) {
         Tuple tup = ((Tuple)type);
-        String ans = "";
+        StringBuilder ans = new StringBuilder();
         for(int i = 0; i < atoms.length ; i++){
-            ans += ModelPrimitives.convertArrayOfAtoms(new String[] {atoms[i]},tup.getTypes().get(i)) + ",";
+            ans.append(ModelPrimitives.convertArrayOfAtoms(new String[]{atoms[i]}, tup.getTypes().get(i))).append(",");
         }
-        ans = ans.substring(0, ans.length()-1);
+        ans = new StringBuilder(ans.substring(0, ans.length() - 1));
         if(atoms.length == 1)
-            return ans;
+            return ans.toString();
         return "<" + ans + ">";
     }
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Tuple tuple = (Tuple) o;
+        return Objects.equals(val, tuple.val);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(val);
+    }
 }
 

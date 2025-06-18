@@ -234,12 +234,12 @@ ifExpr	:	'vif' boolExpr 'then' thenExpr=expr ('else' elseExpr=expr)? 'end' #VarI
 
 // Numbers
 //---------------------------------------------------------
-INT : [0-9]+ ;
+
 FLOAT
 	:	[0-9]* '.' INT Exponent?
 	|	INT Exponent
 	;
-
+INT : [0-9]+ ;
 fragment Exponent :	ExponentIndicator Sign? [0-9]+ ;
 fragment ExponentIndicator : [eE] ;
 fragment Sign :	[+-] ;
