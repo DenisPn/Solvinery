@@ -12,6 +12,7 @@ const ViewImagesPage = () => {
   // pagination
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 5;
+  const [totalPages, setTotalPages] = useState(1);
 
   // filters
   const [filterName, setFilterName] = useState("");
@@ -20,10 +21,12 @@ const ViewImagesPage = () => {
   const [filterAfter, setFilterAfter] = useState("");
   const [filterBefore, setFilterBefore] = useState("");
 
-  // images + loading
+  // images + loading + page flags
   const [imageMap, setImageMap] = useState({});
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [hasPrevious, setHasPrevious] = useState(false);
+  const [hasNext, setHasNext] = useState(false);
 
   // fetch images
   const fetchImages = async () => {
@@ -40,6 +43,9 @@ const ViewImagesPage = () => {
       };
       const resp = await axios.get("/image/view", { params });
       setImageMap(resp.data.images || {});
+      setHasPrevious(!!resp.data.hasPrevious);
+      setHasNext(!!resp.data.hasNext);
+      setTotalPages(resp.data.totalPages ?? 1);
     } catch (err) {
       console.error("Error fetching view images:", err);
       alert(
@@ -63,8 +69,8 @@ const ViewImagesPage = () => {
     setPage(0);
     fetchImages();
   };
-  const handlePrevPage = () => setPage((p) => Math.max(p - 1, 0));
-  const handleNextPage = () => setPage((p) => p + 1);
+  const handlePrevPage = () => hasPrevious && setPage((p) => Math.max(p - 1, 0));
+  const handleNextPage = () => hasNext && setPage((p) => p + 1);
   const handleBack = () => navigate("/");
 
   const handleSaveImage = async () => {
@@ -187,16 +193,22 @@ const ViewImagesPage = () => {
             className="prev-page-button"
             onClick={handlePrevPage}
             style={{
-              opacity: page === 0 ? 0.3 : 1,
-              pointerEvents: page === 0 ? "none" : "auto",
+              opacity: hasPrevious ? 1 : 0.3,
+              pointerEvents: hasPrevious ? "auto" : "none",
             }}
           />
-          <span>Page {page + 1}</span>
+          <span>
+            Page {page + 1} out of {totalPages}
+          </span>
           <img
             src="/images/RightArrowButton.png"
             alt="Next"
             className="next-page-button"
             onClick={handleNextPage}
+            style={{
+              opacity: hasNext ? 1 : 0.3,
+              pointerEvents: hasNext ? "auto" : "none",
+            }}
           />
         </div>
 
