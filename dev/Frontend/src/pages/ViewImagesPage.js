@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../Themes/MainTheme.css";
@@ -6,76 +6,87 @@ import "./ViewImagesPage.css";
 import { useZPL } from "../context/ZPLContext";
 
 const ViewImagesPage = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [imageMap, setImageMap] = useState({});
-  const [page, setPage] = useState(0);
-  const [selectedImage, setSelectedImage] = useState(null);
   const navigate = useNavigate();
   const { userId } = useZPL();
 
-  useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const response = await axios.get(`/image/view/${page}`);
-        setImageMap(response.data.images || {});
-      } catch (error) {
-        console.error("Error fetching view images:", error);
-        alert(`Error fetching images: ${error.response?.data?.message || error.message}`);
-      }
-    };
+  // pagination
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
 
+  // filters
+  const [filterName, setFilterName] = useState("");
+  const [filterDescription, setFilterDescription] = useState("");
+  const [filterAuthor, setFilterAuthor] = useState("");
+  const [filterBefore, setFilterBefore] = useState("");
+  const [filterAfter, setFilterAfter] = useState("");
+
+  // images
+  const [imageMap, setImageMap] = useState({});
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  // central fetch function (now GET with query params)
+  const fetchImages = async () => {
+    try {
+      const params = {
+        name: filterName,
+        description: filterDescription,
+        author: filterAuthor,
+        before: filterBefore,
+        after: filterAfter,
+        page,
+        size,
+      };
+      const response = await axios.get("/image/view", { params });
+      setImageMap(response.data.images || {});
+    } catch (error) {
+      console.error("Error fetching view images:", error);
+      alert(
+        `Error fetching images: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  };
+
+  // handlers
+  const handleSearchClick = () => {
+    setPage(0);
     fetchImages();
-  }, [page]);
-
-  const images = Object.entries(imageMap).map(([imageId, imageData]) => ({
-    ...imageData,
-    imageId,
-  }));
-
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handleBack = () => {
-    navigate("/");
-  };
-
-  const handleNextPage = () => {
-    setPage((prev) => prev + 1);
-    setSelectedImage(null);
   };
 
   const handlePrevPage = () => {
-    setPage((prev) => Math.max(prev - 1, 0));
+    setPage((p) => Math.max(p - 1, 0));
+    fetchImages();
     setSelectedImage(null);
   };
 
-  const handleCopyCode = () => {
-    if (selectedImage?.code) {
-      navigator.clipboard
-        .writeText(selectedImage.code)
-        .then(() => alert("ZPL code copied to clipboard!"))
-        .catch(() => alert("Failed to copy ZPL code."));
-    }
+  const handleNextPage = () => {
+    setPage((p) => p + 1);
+    fetchImages();
+    setSelectedImage(null);
   };
+
+  const handleBack = () => navigate("/");
 
   const handleSaveImage = async () => {
     if (!selectedImage || !selectedImage.imageId || !userId) {
       alert("Missing image or user information.");
       return;
     }
-
     try {
-      const response = await axios.patch(`/user/${userId}/image/${selectedImage.imageId}/get`);
-      alert(`Response: ${JSON.stringify(response.data)}`);
+      const res = await axios.patch(
+        `/user/${userId}/image/${selectedImage.imageId}/get`
+      );
+      alert(`Response: ${JSON.stringify(res.data)}`);
     } catch (error) {
       alert(`Error: ${error.response?.data?.message || error.message}`);
     }
   };
 
-  const filteredImages = images.filter((img) =>
-    img.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const images = Object.entries(imageMap).map(([imageId, data]) => ({
+    ...data,
+    imageId,
+  }));
 
   return (
     <div className="view-images-background">
@@ -90,30 +101,77 @@ const ViewImagesPage = () => {
       <div className="view-images-form-container">
         <h1 className="main-view-images-title">Public Images</h1>
 
-        <div className="group">
-          <input
-            type="text"
-            placeholder="Search Images"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="input-box-view-images"
-          />
-          <span className="highlight-view-images"></span>
-          <span className="bar-view-images"></span>
+        {/* Filters */}
+        <div className="filter-grid">
+          <div>
+            <label>Name:</label>
+            <input
+              type="text"
+              value={filterName}
+              onChange={(e) => setFilterName(e.target.value)}
+            />
+          </div>
+          <div>
+            <label>Description:</label>
+            <input
+              type="text"
+              value={filterDescription}
+              onChange={(e) => setFilterDescription(e.target.value)}
+            />
+          </div>
+          <div>
+            <label>Author:</label>
+            <input
+              type="text"
+              value={filterAuthor}
+              onChange={(e) => setFilterAuthor(e.target.value)}
+            />
+          </div>
+          <div>
+            <label>After:</label>
+            <input
+              type="datetime-local"
+              value={filterAfter}
+              onChange={(e) => setFilterAfter(e.target.value)}
+            />
+          </div>
+          <div>
+            <label>Before:</label>
+            <input
+              type="datetime-local"
+              value={filterBefore}
+              onChange={(e) => setFilterBefore(e.target.value)}
+            />
+          </div>
+          <div>
+            <label>Page Size:</label>
+            <input
+              type="number"
+              min="1"
+              value={size}
+              onChange={(e) => setSize(Number(e.target.value))}
+            />
+          </div>
         </div>
 
+        {/* Search button */}
+        <button className="search-button" onClick={handleSearchClick}>
+          Search
+        </button>
+
         <div className="images-section">
-          {filteredImages.length === 0 ? (
+          {images.length === 0 ? (
             <p>No images available.</p>
           ) : (
-            filteredImages.map((image, index) => (
+            images.map((image) => (
               <div
-                key={index}
+                key={image.imageId}
                 className="image-item"
                 onClick={() => setSelectedImage(image)}
               >
                 <div className="image-thumbnail-text">
                   <h4>{image.name}</h4>
+                  <p>{image.description}</p>
                 </div>
               </div>
             ))
@@ -121,7 +179,14 @@ const ViewImagesPage = () => {
         </div>
 
         {/* Pagination */}
-        <div style={{ marginTop: "20px", display: "flex", gap: "10px", alignItems: "center" }}>
+        <div
+          style={{
+            marginTop: "20px",
+            display: "flex",
+            gap: "10px",
+            alignItems: "center",
+          }}
+        >
           <img
             src="/images/LeftArrowButton.png"
             alt="Previous Page"
@@ -145,14 +210,33 @@ const ViewImagesPage = () => {
 
         {/* Modal */}
         {selectedImage && (
-          <div className="modal-overlay" onClick={() => setSelectedImage(null)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-overlay"
+            onClick={() => setSelectedImage(null)}
+          >
+            <div
+              className="modal-content"
+              onClick={(e) => e.stopPropagation()}
+            >
               <h2>{selectedImage.name}</h2>
-              <p><strong>Description:</strong> {selectedImage.description}</p>
-              <p><strong>Author:</strong> {selectedImage.authorName}</p>
-              <p><strong>Creation Date:</strong> {new Date(selectedImage.creationDate).toLocaleString()}</p>
+              <p>
+                <strong>Description:</strong> {selectedImage.description}
+              </p>
+              <p>
+                <strong>Author:</strong> {selectedImage.authorName}
+              </p>
+              <p>
+                <strong>Creation Date:</strong>{" "}
+                {new Date(selectedImage.creationDate).toLocaleString()}
+              </p>
 
-              <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+              <div
+                style={{
+                  marginTop: "20px",
+                  display: "flex",
+                  gap: "10px",
+                }}
+              >
                 <img
                   src="/images/ExitButton2.png"
                   alt="Close"
@@ -169,14 +253,14 @@ const ViewImagesPage = () => {
                 />
                 <img
                   src="/images/CopyZPLButton.png"
-                  alt="Copy ZPL"
+                  alt="Copy Description"
                   className="modal-copy-button"
-                  onClick={() => {
+                  onClick={() =>
                     navigator.clipboard
                       .writeText(selectedImage.description || "")
                       .then(() => alert("Description copied!"))
-                      .catch(() => alert("Failed to copy description."));
-                  }}
+                      .catch(() => alert("Failed to copy description."))
+                  }
                   title="Copy image description"
                 />
               </div>
