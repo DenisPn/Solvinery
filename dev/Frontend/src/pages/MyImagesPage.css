@@ -746,3 +746,15 @@ td input[type="text"] {
 .tuple-values-table tbody tr:last-child td {
   border-bottom: none;
 }
+
+.pagination-row {
+  display: flex;
+  align-items: center;    /* vertical centering */
+  justify-content: center; /* horizontal centering */
+  gap: 10px;               /* space between arrow ↔ text ↔ arrow */
+  margin-top: 20px;
+}
+
+.pagination-row span {
+  align-self: center;
+}

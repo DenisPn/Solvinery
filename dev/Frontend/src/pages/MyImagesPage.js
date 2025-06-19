@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useZPL } from "../context/ZPLContext";
@@ -6,35 +6,42 @@ import "../Themes/MainTheme.css";
 import "./MyImagesPage.css";
 
 const MyImagesPage = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+  // Local filter inputs
+  const [filterName, setFilterName] = useState("");
+  const [filterDescription, setFilterDescription] = useState("");
+
+  // Search criteria & pagination
+  const [criteria, setCriteria] = useState({ name: "", description: "", page: 0 });
+  const PAGE_SIZE = 10;
+
+  // Data + loading + pagination metadata
   const [imagesMap, setImagesMap] = useState({});
-  const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrevious, setHasPrevious] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Modal/detail
   const [viewSection, setViewSection] = useState(null);
   const [selectedSetIndex, setSelectedSetIndex] = useState(0);
   const [showAddModal, setShowAddModal] = useState(false);
   const [sortConfig, setSortConfig] = useState({ colIndex: null, direction: "asc" });
 
+  // Tuple‐editing
+  const [newTupleValues, setNewTupleValues] = useState([]);
+  const [editingRow, setEditingRow] = useState(null);
+  const [editTupleValues, setEditTupleValues] = useState([]);
 
-  // at the top of MyImagesPage:
-  const [newTupleValues, setNewTupleValues] = useState([]);        // for “Add row” inputs
-  const [editingRow, setEditingRow] = useState(null);            // index of the row being edited
-  const [editTupleValues, setEditTupleValues] = useState([]);    // for “Edit row” inputs
-
-
-
+  // Context & nav
   const {
     userId,
     constraintsModules,
     preferenceModules,
     setSolutionResponse,
-
-    // these come from your context’s provider
     selectedImage,
     setSelectedImage,
     selectedImageId,
     setSelectedImageId,
-
-    // and the rest you already were grabbing:
     setVariables,
     setConstraints,
     setPreferences,
@@ -51,320 +58,188 @@ const MyImagesPage = () => {
     selectedVars,
     setIsEditMode
   } = useZPL();
-
   const navigate = useNavigate();
 
+  // Fetch images according to current criteria
+  const fetchImages = useCallback(async () => {
+    if (!userId) return;
+    setLoading(true);
+    try {
+      const resp = await axios.get(`/user/${userId}/image/view`, {
+        params: {
+          name: criteria.name || undefined,
+          description: criteria.description || undefined,
+          page: criteria.page,
+          size: PAGE_SIZE
+        }
+      });
+      setImagesMap(resp.data.images || {});
+      setHasNext(Boolean(resp.data.hasNext));
+      setHasPrevious(Boolean(resp.data.hasPrevious));
+      setTotalPages(resp.data.totalPages || 1);
+    } catch (err) {
+      console.error(err);
+      alert(`Error fetching images: ${err.response?.data?.message || err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, criteria]);
+
+  // On mount and whenever criteria changes
+  useEffect(() => {
+    fetchImages();
+  }, [fetchImages]);
+
+  // Restore selectedImage from map
+  useEffect(() => {
+    if (selectedImageId && imagesMap[selectedImageId]) {
+      setSelectedImage(imagesMap[selectedImageId]);
+    }
+  }, [imagesMap, selectedImageId, setSelectedImage]);
+
+  // Initialize tuple inputs when selectedImage or set index changes
   useEffect(() => {
     if (!selectedImage) return;
     const struct = selectedImage.sets[selectedSetIndex]?.setDefinition?.structure || [];
     setNewTupleValues(Array(struct.length).fill(""));
     setEditingRow(null);
     setEditTupleValues([]);
-  }, [selectedSetIndex, selectedImage]);
+  }, [selectedImage, selectedSetIndex]);
 
-  useEffect(() => {
-    // once imagesMap is populated, and context has an image ID...
-    if (selectedImageId && imagesMap[selectedImageId]) {
-      setSelectedImage(imagesMap[selectedImageId]);
-      // optional: also set viewSection if you want to remember which tab
-    }
-  }, [imagesMap, selectedImageId]);
-
-
-
-
-  useEffect(() => {
-    if (!userId) return;
-
-    const fetchImages = async () => {
-      try {
-        const response = await axios.get(`/user/${userId}/image/${page}`);
-        console.log("Raw images response:", response.data.images);
-        setImagesMap(response.data.images || {});
-      } catch (error) {
-        console.error("Error fetching images:", error);
-        alert(`Error fetching images: ${error.response?.data?.message || error.message}`);
-      }
+  // Helper: PATCH full image
+  async function updateImageOnServer() {
+    if (!selectedImage || !selectedImageId || !userId) return;
+    const payload = {
+      variables: (selectedImage.variables || []).map(v => ({
+        identifier: v.identifier,
+        structure: Array.isArray(v.structure) ? v.structure : [],
+        alias: v.alias || v.identifier
+      })),
+      constraintModules: (selectedImage.constraintModules || []).map(mod => ({
+        moduleName: mod.moduleName,
+        description: mod.description,
+        constraints: Array.isArray(mod.constraints) ? mod.constraints : []
+      })),
+      preferenceModules: (selectedImage.preferenceModules || []).map(mod => ({
+        moduleName: mod.moduleName,
+        description: mod.description,
+        preferences: Array.isArray(mod.preferences) ? mod.preferences : []
+      })),
+      sets: (selectedImage.sets || []).map(s => ({
+        setDefinition: {
+          name: s.setDefinition.name,
+          structure: Array.isArray(s.setDefinition.structure)
+            ? s.setDefinition.structure
+            : [],
+          alias: s.setDefinition.alias
+        },
+        values: Array.isArray(s.values) ? s.values : []
+      })),
+      parameters: (selectedImage.parameters || []).map(p => ({
+        parameterDefinition: {
+          name: p.parameterDefinition.name,
+          structure: p.parameterDefinition.structure,
+          alias: p.parameterDefinition.alias
+        },
+        value: p.value != null ? String(p.value) : ""
+      })),
+      name: selectedImage.name,
+      description: selectedImage.description,
+      code: selectedImage.code
     };
-
-    fetchImages();
-  }, [userId, page]);
-
-  const handlePublishImage = async () => {
-    if (!selectedImageId || !userId) return;
-
-    await updateImageOnServer();
-
-    try {
-      const response = await axios.patch(
-        `/user/${userId}/image/${selectedImageId}/publish`
-      );
-      alert(`Image was published successfully, you can now see it in the public gallery.`);
-    } catch (error) {
-      const errMsg = error.response?.data || error.message || "Unknown error";
-      alert(`Publish Failed: ${JSON.stringify(errMsg)}`);
-    }
-  };
-
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handleBack = () => {
-    navigate("/main-page");
-  };
-
-  const handleNextPage = () => {
-    setPage((prev) => prev + 1);
-    setSelectedImage(null);
-    setSelectedImageId(null);
-  };
-
-  const handlePrevPage = () => {
-    setPage((prev) => Math.max(prev - 1, 0));
-    setSelectedImage(null);
-    setSelectedImageId(null);
-  };
-
-  const handleCopyCode = () => {
-    if (selectedImage?.code) {
-      navigator.clipboard
-        .writeText(selectedImage.code)
-        .then(() => alert("ZPL code copied to clipboard!"))
-        .catch(() => alert("Failed to copy ZPL code."));
-    }
-  };
-
-  // PATCH the full ImageDTO to the server
-async function updateImageOnServer() {
-  if (!selectedImage || !selectedImageId || !userId) return;
-
-  // Build the payload exactly matching your ImageDTO
-  const payload = {
-    // 1. VariableDTO: identifier, structure (string[]), alias
-    variables: (selectedImage.variables || []).map(v => ({
-      identifier: v.identifier,
-      structure: Array.isArray(v.structure) ? v.structure : [],
-      alias: v.alias || v.identifier
-    })),
-
-    // 2. ConstraintModuleDTO: moduleName, description, constraints
-    constraintModules: (selectedImage.constraintModules || []).map(mod => ({
-      moduleName: mod.moduleName,
-      description: mod.description,
-      constraints: Array.isArray(mod.constraints) ? mod.constraints : []
-    })),
-
-    // 3. PreferenceModuleDTO: moduleName, description, preferences
-    preferenceModules: (selectedImage.preferenceModules || []).map(mod => ({
-      moduleName: mod.moduleName,
-      description: mod.description,
-      preferences: Array.isArray(mod.preferences) ? mod.preferences : []
-    })),
-
-    // 4. SetDTO: setDefinition + values from the sets UI
-    sets: (selectedImage.sets || []).map(s => ({
-      setDefinition: {
-        name: s.setDefinition.name,
-        structure: Array.isArray(s.setDefinition.structure)
-          ? s.setDefinition.structure
-          : [],
-        alias: s.setDefinition.alias
-      },
-      values: Array.isArray(s.values) ? s.values : []
-    })),
-
-    // 5. ParameterDTO: parameterDefinition + live value
-    parameters: (selectedImage.parameters || []).map(p => ({
-      parameterDefinition: {
-        name: p.parameterDefinition.name,
-        structure: p.parameterDefinition.structure,
-        alias: p.parameterDefinition.alias
-      },
-      value: p.value != null ? String(p.value) : ""
-    })),
-
-    // 6. Top-level image fields
-    name: selectedImage.name,
-    description: selectedImage.description,
-    code: selectedImage.code
-  };
-
-  console.log("🛠 updateImage payload:", payload);
-
-  try {
     await axios.patch(
       `/user/${userId}/image/${selectedImageId}`,
       payload,
       { headers: { "Content-Type": "application/json" } }
     );
-    console.log("✅ updateImageOnServer succeeded");
-  } catch (err) {
-    console.error(
-      "❌ updateImageOnServer failed:",
-      err.response?.status,
-      err.response?.data || err.message
-    );
-    throw err;
   }
-}
 
-
-
-
-
-
+  // Action handlers
+  const handlePublishImage = async () => {
+    if (!selectedImageId || !userId) return;
+    await updateImageOnServer();
+    try {
+      await axios.patch(`/user/${userId}/image/${selectedImageId}/publish`);
+      alert("Published successfully");
+    } catch (err) {
+      alert(`Publish failed: ${err.message}`);
+    }
+  };
   const handleSolveImage = async () => {
     if (!selectedImageId || !selectedImage) return;
-
     await updateImageOnServer();
-
-    // 1. Build preferenceModulesScalars (0–1)
     const preferenceModulesScalars = {};
-    selectedImage.preferenceModules.forEach((mod) => {
-      const raw = mod.value != null ? Number(mod.value) : 50; // slider 0–100 or default 50
-      preferenceModulesScalars[mod.moduleName] = Math.min(
-        Math.max(raw / 100, 0),
-        1
-      );
+    selectedImage.preferenceModules.forEach(mod => {
+      const raw = Number(mod.value ?? 50);
+      preferenceModulesScalars[mod.moduleName] = Math.min(Math.max(raw / 100,0),1);
     });
-
-    // 2. Build enabledConstraintModules
     const enabledConstraintModules = selectedImage.constraintModules
-      .filter((mod) => mod.enabled ?? true)
-      .map((mod) => mod.moduleName);
-
-    const payload = {
-      preferenceModulesScalars,
-      enabledConstraintModules,
-      timeout: 20,
-    };
-
-    console.log("Solve payload:", payload);
-
+      .filter(mod => mod.enabled ?? true)
+      .map(mod => mod.moduleName);
     try {
-      const response = await axios.post(
+      const resp = await axios.post(
         `/user/${userId}/image/${selectedImageId}/solver`,
-        payload,
-        { headers: { "Content-Type": "application/json" } }
+        { preferenceModulesScalars, enabledConstraintModules, timeout: 20 }
       );
-      console.log("UserId : ", userId);
-      console.log("Selected ImageId : ", selectedImageId);
-      // 3. Store in context
-      setSolutionResponse(response.data);
-      // 4. Redirect
+      setSolutionResponse(resp.data);
       navigate("/solution-results");
     } catch (err) {
-      console.error("Solver error:", err);
-      alert(`Solver error: ${err.response?.data?.msg || err.message}`);
+      alert(`Solve error: ${err.message}`);
     }
   };
-
-  const getViewData = () => {
-    if (!selectedImage) return null;
-    switch (viewSection) {
-      case "params":
-        return JSON.stringify(selectedImage.parameters, null, 2);
-      case "constraints":
-        return JSON.stringify(selectedImage.constraintModules, null, 2);
-      case "preferences":
-        return JSON.stringify(selectedImage.preferenceModules, null, 2);
-      default:
-        return null;
-    }
-  };
-
-  const imageEntries = Object.entries(imagesMap);
-  const filteredEntries = imageEntries.filter(([_, img]) =>
-    img.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-
   const handleDeleteImage = async () => {
     if (!selectedImageId || !userId) return;
     try {
       await axios.delete(`/user/${userId}/image/${selectedImageId}`);
-      alert("Image deleted successfully!");
+      alert("Deleted");
       navigate("/main-page");
     } catch (err) {
-      const msg = err.response?.data || err.message || "Unknown error";
-      alert(`Delete failed: ${JSON.stringify(msg)}`);
+      alert(`Delete failed: ${err.message}`);
     }
   };
-
   const handleEditImage = async () => {
     if (!selectedImageId || !selectedImage) return;
-
     await updateImageOnServer();
-
-    // 1) Copy basic image fields into context
     setImageId(selectedImageId);
     setImageName(selectedImage.name);
     setImageDescription(selectedImage.description);
     setZplCode(selectedImage.code);
-
-    // 2) Restore the image’s own selectedVars
     setSelectedVars(selectedImage.variables || []);
-
-    // 3) (Optional) fetch full model variables from server
     try {
       const modelResp = await axios.post(
         `/user/${userId}/image/model`,
-        { code: selectedImage.code },
-        { headers: { "Content-Type": "application/json" } }
+        { code: selectedImage.code }
       );
       setVariables(modelResp.data.variables || []);
       setConstraints(modelResp.data.constraints || []);
       setPreferences(modelResp.data.preferences || []);
-
-    } catch (err) {
-      console.error("Model fetch failed:", err);
-      alert(
-        `Failed to load image model: ${err.response?.data?.msg || err.message || "Unknown error"
-        }`
-      );
-    }
-
-    // 4) Restore constraintModules, preserving { identifier } objects
+    } catch {}
     setConstraintsModules(
-      (selectedImage.constraintModules || []).map(mod => ({
+      selectedImage.constraintModules.map(mod => ({
         name: mod.moduleName,
-        description: mod.description || "",
-        constraints: Array.isArray(mod.constraints)
-          ? mod.constraints.map(c => ({ identifier: c }))
-          : []
+        description: mod.description,
+        constraints: mod.constraints.map(c => ({ identifier: c }))
       }))
     );
-
-    // 5) Restore preferenceModules, preserving { identifier } objects
     setPreferenceModules(
-      (selectedImage.preferenceModules || []).map(mod => ({
+      selectedImage.preferenceModules.map(mod => ({
         name: mod.moduleName,
-        description: mod.description || "",
-        preferences: Array.isArray(mod.preferences)
-          ? mod.preferences.map(p => ({ identifier: p }))
-          : []
+        description: mod.description,
+        preferences: mod.preferences.map(p => ({ identifier: p }))
       }))
     );
-
-    // 6) Rebuild sets & aliases
-    const newSetTypes = {};
-    const newSetAliases = {};
-    (selectedImage.sets || []).forEach(s => {
+    const newSetTypes = {}, newSetAliases = {};
+    selectedImage.sets.forEach(s => {
       newSetTypes[s.setDefinition.name] = s.setDefinition.structure;
       newSetAliases[s.setDefinition.name] = {
         alias: s.setDefinition.alias,
-        typeAlias: s.setDefinition.structure,
-
+        typeAlias: s.setDefinition.structure
       };
     });
     setSetTypes(newSetTypes);
     setSetAliases(newSetAliases);
-
-    // 7) Rebuild params & aliases
-    const newParamTypes = {};
-    const newParamAliases = {};
-    (selectedImage.parameters || []).forEach(p => {
+    const newParamTypes = {}, newParamAliases = {};
+    selectedImage.parameters.forEach(p => {
       newParamTypes[p.parameterDefinition.name] = p.parameterDefinition.type;
       newParamAliases[p.parameterDefinition.name] = {
         alias: p.parameterDefinition.alias,
@@ -372,91 +247,127 @@ async function updateImageOnServer() {
       };
     });
     setParamTypes(newParamTypes);
-    // If tracking parameter aliases separately:
-    // setParamAliases(newParamAliases);
-
-    // 8) Set Edit Mode
     setIsEditMode(true);
-
-    // 9) Navigate to the review screen
     navigate("/image-setting-review");
   };
-
-
-
-
-
-
+  const handleCopyCode = () => {
+    if (selectedImage?.code) {
+      navigator.clipboard.writeText(selectedImage.code)
+        .then(() => alert("Copied"))
+        .catch(() => alert("Copy failed"));
+    }
+  };
 
   return (
     <div className="my-images-background">
+      {/* Loading spinner modal */}
+      {loading && (
+        <div className="modal-overlay">
+          <div className="spinner-modal">
+            <div className="spinner" />
+            <p>Loading…</p>
+          </div>
+        </div>
+      )}
+
       <img
         src="/images/HomeButton.png"
         alt="Home"
         className="home-button"
-        onClick={handleBack}
-        title="Go to Home"
+        onClick={() => navigate("/main-page")}
       />
 
       <div className="my-images-form-container">
         <h1 className="main-my-images-title">My Images</h1>
 
-        <div className="group">
+        {/* FILTER ROW */}
+        <div
+          className="filter-row"
+          style={{
+            display: "flex",
+            gap: "8px",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "20px"
+          }}
+        >
           <input
             type="text"
-            placeholder="Search My Images"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="input-box-my-images"
+            className="filter-input"
+            placeholder="Name"
+            value={filterName}
+            onChange={e => setFilterName(e.target.value)}
           />
-          <span className="highlight-my-images"></span>
-          <span className="bar-my-images"></span>
+          <input
+            type="text"
+            className="filter-input"
+            placeholder="Description"
+            value={filterDescription}
+            onChange={e => setFilterDescription(e.target.value)}
+          />
+          <button
+            className="search-button"
+            onClick={() =>
+              setCriteria({ name: filterName, description: filterDescription, page: 0 })
+            }
+            style={{ padding: "8px 16px", cursor: "pointer" }}
+          >
+            Search
+          </button>
         </div>
 
+        {/* IMAGES GRID */}
         <div className="images-section">
-          {filteredEntries.length === 0 ? (
+          {Object.entries(imagesMap).length === 0 ? (
             <p>No images available.</p>
           ) : (
-            filteredEntries.map(([imageId, image]) => (
+            Object.entries(imagesMap).map(([id, img]) => (
               <div
-                key={imageId}
+                key={id}
                 className="image-item clickable"
                 onClick={() => {
-                  setSelectedImage(image);
-                  setSelectedImageId(imageId);
-                  console.log("Selected image:", image);
+                  setSelectedImage(img);
+                  setSelectedImageId(id);
                 }}
               >
                 <div className="image-thumbnail-text">
-                  <strong>{image.name}</strong>
+                  <strong>{img.name}</strong>
                 </div>
               </div>
             ))
           )}
         </div>
 
-        <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+        {/* PAGINATION */}
+        <div className="pagination-row">
           <img
             src="/images/LeftArrowButton.png"
-            alt="Previous Page"
+            alt="Prev"
+            onClick={() =>
+              hasPrevious && setCriteria(c => ({ ...c, page: c.page - 1 }))
+            }
             className="prev-page-button"
-            onClick={handlePrevPage}
-            title="Previous Page"
             style={{
-              opacity: page === 0 ? 0.3 : 1,
-              pointerEvents: page === 0 ? "none" : "auto",
+              opacity: hasPrevious ? 1 : 0.3,
+              pointerEvents: hasPrevious ? "auto" : "none"
             }}
           />
-          <span>Page {page + 1}</span>
+          <span>Page {criteria.page + 1} out of {totalPages}</span>
           <img
             src="/images/RightArrowButton.png"
-            alt="Next Page"
+            alt="Next"
+            onClick={() =>
+              hasNext && setCriteria(c => ({ ...c, page: c.page + 1 }))
+            }
             className="next-page-button"
-            onClick={handleNextPage}
-            title="Next Page"
+            style={{
+              opacity: hasNext ? 1 : 0.3,
+              pointerEvents: hasNext ? "auto" : "none"
+            }}
           />
         </div>
 
+        {/* DETAIL MODAL */}
         {selectedImage && (
           <div
             className="modal-overlay"
@@ -467,9 +378,9 @@ async function updateImageOnServer() {
           >
             <div
               className="modal-content-fixed"
-              onClick={(e) => e.stopPropagation()}
+              onClick={e => e.stopPropagation()}
             >
-              {/* Top-left: Close or Back */}
+              {/* Top-left Close/Back */}
               {viewSection === null ? (
                 <img
                   src="/images/ExitButton2.png"
@@ -480,7 +391,6 @@ async function updateImageOnServer() {
                     setSelectedImage(null);
                     setViewSection(null);
                   }}
-                  title="Close"
                 />
               ) : (
                 <img
@@ -488,53 +398,45 @@ async function updateImageOnServer() {
                   alt="Back"
                   className="modal-corner-button"
                   onClick={() => setViewSection(null)}
-                  title="Back"
                 />
               )}
 
-              {/* Top-right Action Buttons */}
+              {/* Top-right Actions */}
               <img
                 src="/images/PublishButton.png"
                 alt="Publish"
                 className="modal-publish-button"
                 onClick={handlePublishImage}
-                title="Publish"
               />
               <img
                 src="/images/Solve.png"
                 alt="Solve"
                 className="modal-solve-button"
                 onClick={handleSolveImage}
-                title="Solve"
               />
               <img
                 src="/images/EditButton.png"
                 alt="Edit"
                 className="modal-edit-button"
                 onClick={handleEditImage}
-                title="Edit"
               />
               <img
                 src="/images/CopyZPLButton.png"
                 alt="Copy ZPL"
                 className="modal-copy-button"
                 onClick={handleCopyCode}
-                title="Copy ZPL"
               />
               <img
                 src="/images/delete.png"
                 alt="Delete"
                 className="modal-delete-button"
                 onClick={handleDeleteImage}
-                title="Delete"
               />
 
               {/* Modal Content */}
               {viewSection === null ? (
                 <>
-                  <p>
-                    <strong>Description:</strong> {selectedImage.description}
-                  </p>
+                  <p><strong>Description:</strong> {selectedImage.description}</p>
                   <div className="grid-button-section">
                     <button
                       className="modal-square-button"
@@ -564,7 +466,7 @@ async function updateImageOnServer() {
                 </>
               ) : viewSection === "sets" ? (
                 <div className="modal-section-data sets-modal">
-                  {/* Set selector */}
+                  {/* --- Sets Section Start --- */}
                   <label htmlFor="set-select" className="sets-label">
                     Choose a set:
                   </label>
@@ -572,7 +474,7 @@ async function updateImageOnServer() {
                     id="set-select"
                     className="set-dropdown"
                     value={selectedSetIndex}
-                    onChange={(e) => setSelectedSetIndex(Number(e.target.value))}
+                    onChange={e => setSelectedSetIndex(Number(e.target.value))}
                   >
                     {selectedImage.sets.map((set, idx) => (
                       <option key={idx} value={idx}>
@@ -586,15 +488,12 @@ async function updateImageOnServer() {
                     const setObj = selectedImage.sets[selectedSetIndex];
                     const vals = setObj?.values || [];
                     const struct = setObj?.setDefinition?.structure || [];
-                    const isTuple = vals.length > 0 && vals.every((v) => /^<.*>$/.test(v));
+                    const isTuple = vals.length > 0 && vals.every(v => /^<.*>$/.test(v));
 
                     if (isTuple) {
-                      // parse "<a,b,c>" → ["a","b","c"]
-                      let rows = vals.map((v) =>
-                        v.slice(1, -1).split(",").map((c) => c.trim())
+                      let rows = vals.map(v =>
+                        v.slice(1, -1).split(",").map(c => c.trim())
                       );
-
-                      // apply sorting
                       const { colIndex, direction } = sortConfig;
                       if (colIndex !== null) {
                         rows = [...rows].sort((a, b) => {
@@ -605,18 +504,14 @@ async function updateImageOnServer() {
                           return 0;
                         });
                       }
-
                       return (
                         <>
-                          {/* Button to open Add-Row modal */}
                           <button
                             className="add-value-button"
                             onClick={() => setShowAddModal(true)}
                           >
                             Add New Value
                           </button>
-
-                          {/* Add-Row Modal */}
                           {showAddModal && (
                             <div className="modal-overlay">
                               <div className="nested-modal-content">
@@ -628,7 +523,7 @@ async function updateImageOnServer() {
                                       className="tuple-add-input"
                                       placeholder={col}
                                       value={newTupleValues[ci] || ""}
-                                      onChange={(e) => {
+                                      onChange={e => {
                                         const copy = [...newTupleValues];
                                         copy[ci] = e.target.value;
                                         setNewTupleValues(copy);
@@ -662,8 +557,6 @@ async function updateImageOnServer() {
                               </div>
                             </div>
                           )}
-
-                          {/* Tuple Table with Sort & Actions */}
                           <table className="tuple-values-table">
                             <thead>
                               <tr>
@@ -673,7 +566,7 @@ async function updateImageOnServer() {
                                       style={{
                                         display: "flex",
                                         flexDirection: "column",
-                                        alignItems: "center",
+                                        alignItems: "center"
                                       }}
                                     >
                                       <span>{col}</span>
@@ -713,7 +606,7 @@ async function updateImageOnServer() {
                                           <input
                                             className="tuple-edit-input"
                                             value={editTupleValues[ci] ?? row[ci]}
-                                            onChange={(e) => {
+                                            onChange={e => {
                                               const copy = [...editTupleValues];
                                               copy[ci] = e.target.value;
                                               setEditTupleValues(copy);
@@ -772,7 +665,6 @@ async function updateImageOnServer() {
                         </>
                       );
                     } else {
-                      // === FALLBACK LIST MODE ===
                       return (
                         <>
                           <button
@@ -781,7 +673,6 @@ async function updateImageOnServer() {
                           >
                             Add New Value
                           </button>
-
                           {showAddModal && (
                             <div className="modal-overlay">
                               <div className="nested-modal-content">
@@ -790,8 +681,10 @@ async function updateImageOnServer() {
                                   type="text"
                                   className="add-value-input"
                                   placeholder="New value"
-                                  value={selectedImage.sets[selectedSetIndex].newValue || ""}
-                                  onChange={(e) => {
+                                  value={
+                                    selectedImage.sets[selectedSetIndex].newValue || ""
+                                  }
+                                  onChange={e => {
                                     const img = { ...selectedImage };
                                     img.sets[selectedSetIndex].newValue = e.target.value;
                                     setSelectedImage(img);
@@ -822,7 +715,6 @@ async function updateImageOnServer() {
                               </div>
                             </div>
                           )}
-
                           <ul className="set-values-list">
                             {selectedImage.sets[selectedSetIndex].values.map((val, i) => (
                               <li key={i} className="set-value-item">
@@ -857,9 +749,11 @@ async function updateImageOnServer() {
                       );
                     }
                   })()}
+                  {/* --- Sets Section End --- */}
                 </div>
               ) : viewSection === "params" ? (
                 <div className="modal-section-data parameters-modal">
+                  {/* --- Parameters Section Start --- */}
                   <table className="parameters-table">
                     <thead>
                       <tr>
@@ -880,9 +774,7 @@ async function updateImageOnServer() {
                                     const newImage = { ...selectedImage };
                                     newImage.parameters[index].value =
                                       param.tempValue ?? param.value;
-                                    newImage.parameters[
-                                      index
-                                    ].isEditing = false;
+                                    newImage.parameters[index].isEditing = false;
                                     delete newImage.parameters[index].tempValue;
                                     setSelectedImage(newImage);
                                   }}
@@ -892,9 +784,7 @@ async function updateImageOnServer() {
                                 <button
                                   onClick={() => {
                                     const newImage = { ...selectedImage };
-                                    newImage.parameters[
-                                      index
-                                    ].isEditing = false;
+                                    newImage.parameters[index].isEditing = false;
                                     delete newImage.parameters[index].tempValue;
                                     setSelectedImage(newImage);
                                   }}
@@ -907,8 +797,7 @@ async function updateImageOnServer() {
                                 onClick={() => {
                                   const newImage = { ...selectedImage };
                                   newImage.parameters[index].isEditing = true;
-                                  newImage.parameters[index].tempValue =
-                                    param.value;
+                                  newImage.parameters[index].tempValue = param.value;
                                   setSelectedImage(newImage);
                                 }}
                               >
@@ -923,16 +812,16 @@ async function updateImageOnServer() {
                               <input
                                 type="text"
                                 value={param.tempValue}
-                                onChange={(e) => {
+                                onChange={e => {
                                   const newImage = { ...selectedImage };
                                   newImage.parameters[index].tempValue = e.target.value;
                                   setSelectedImage(newImage);
                                 }}
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                   if (e.key === "Enter") {
-                                    // Update value on Enter press
                                     const newImage = { ...selectedImage };
-                                    newImage.parameters[index].value = param.tempValue ?? param.value;
+                                    newImage.parameters[index].value =
+                                      param.tempValue ?? param.value;
                                     newImage.parameters[index].isEditing = false;
                                     delete newImage.parameters[index].tempValue;
                                     setSelectedImage(newImage);
@@ -948,35 +837,26 @@ async function updateImageOnServer() {
                       ))}
                     </tbody>
                   </table>
+                  {/* --- Parameters Section End --- */}
                 </div>
               ) : viewSection === "constraints" ? (
                 <div className="modal-section-data constraints-modal">
+                  {/* --- Constraints Section Start --- */}
                   {selectedImage.constraintModules.length === 0 ? (
                     <p>No constraints available.</p>
                   ) : (
                     selectedImage.constraintModules.map((mod, index) => (
                       <div key={index} className="module-box">
                         <div className="module-title">{mod.moduleName}</div>
-                        <div className="module-description">
-                          {mod.description}
-                        </div>
+                        <div className="module-description">{mod.description}</div>
                         <div className="module-checkbox">
                           <input
                             type="checkbox"
                             checked={mod.enabled ?? true}
                             onChange={() => {
-                              // flip the flag
                               const newImage = { ...selectedImage };
-                              newImage.constraintModules[index].enabled = !(
-                                mod.enabled ?? true
-                              );
+                              newImage.constraintModules[index].enabled = !(mod.enabled ?? true);
                               setSelectedImage(newImage);
-
-                              // log the full array so we can inspect each module's enabled state
-                              console.log(
-                                "constraintModules after toggle:",
-                                newImage.constraintModules
-                              );
                             }}
                           />
                           <label>Enabled</label>
@@ -984,18 +864,18 @@ async function updateImageOnServer() {
                       </div>
                     ))
                   )}
+                  {/* --- Constraints Section End --- */}
                 </div>
-              ) : viewSection === "preferences" ? (
+              ) : (
                 <div className="modal-section-data preferences-modal">
+                  {/* --- Preferences Section Start --- */}
                   {selectedImage.preferenceModules.length === 0 ? (
                     <p>No preferences available.</p>
                   ) : (
                     selectedImage.preferenceModules.map((mod, index) => (
                       <div key={index} className="module-box">
                         <div className="module-title">{mod.moduleName}</div>
-                        <div className="module-description">
-                          {mod.description}
-                        </div>
+                        <div className="module-description">{mod.description}</div>
                         <div className="slider-container">
                           <label htmlFor={`slider-${index}`}>Value:</label>
                           <input
@@ -1004,10 +884,9 @@ async function updateImageOnServer() {
                             min="0"
                             max="100"
                             value={mod.value ?? 50}
-                            onChange={(e) => {
+                            onChange={e => {
                               const newImage = { ...selectedImage };
-                              newImage.preferenceModules[index].value =
-                                parseInt(e.target.value);
+                              newImage.preferenceModules[index].value = parseInt(e.target.value);
                               setSelectedImage(newImage);
                             }}
                           />
@@ -1016,8 +895,9 @@ async function updateImageOnServer() {
                       </div>
                     ))
                   )}
+                  {/* --- Preferences Section End --- */}
                 </div>
-              ) : null}
+              )}
             </div>
           </div>
         )}
