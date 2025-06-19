@@ -36,6 +36,7 @@ public record ImageDTO(
 {
     @NonNull
     @Override
+    //for readable logs
     public String toString() {
         try {
             return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this);
