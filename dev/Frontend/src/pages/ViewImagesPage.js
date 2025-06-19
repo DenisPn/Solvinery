@@ -71,7 +71,7 @@ const ViewImagesPage = () => {
   };
   const handlePrevPage = () => hasPrevious && setPage((p) => Math.max(p - 1, 0));
   const handleNextPage = () => hasNext && setPage((p) => p + 1);
-  const handleBack = () => navigate("/");
+  const handleBack = () => navigate("/main-page");
 
   const handleSaveImage = async () => {
     if (!selectedImage?.imageId || !userId) {

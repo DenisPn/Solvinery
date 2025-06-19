@@ -13,7 +13,7 @@ const WorkAssignmentPage = () => {
                 <button className="main-button">Continute</button>
             </div>
             {/* Back Button */}
-            <Link to="/" className="back-button">
+            <Link to="/main-page" className="back-button">
                 Back
             </Link>
         </div>

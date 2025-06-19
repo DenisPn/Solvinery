@@ -113,7 +113,7 @@ const ConfigurePreferencesPage = () => {
         <div className="configure-constraints-page background">
             <div className="top-bar">
                 <div className="top-bar-left">
-                    <Link to="/" title="Home" onClick={handleHomeClick}>
+                    <Link to="/main-page" title="Home" onClick={handleHomeClick}>
                         <img
                             src="/images/HomeButton.png"
                             alt="Home"
