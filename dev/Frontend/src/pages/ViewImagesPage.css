@@ -214,3 +214,102 @@
   cursor: pointer;
   z-index: 100;
 }
+
+/* Container for all filters in grid */
+.filter-grid {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Two columns layout when desired */
+.filter-grid.two-columns {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+/* Individual filter item styling */
+.filter-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-item label {
+  margin-bottom: 0.25rem;
+  font-weight: bold;
+}
+
+.filter-item input {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* Center the Search button */
+.search-button-container {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.search-button {
+  padding: 0.6rem 1.2rem;
+  background-color: #2a7b9b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.search-button:hover {
+  background-color: #1f5d75;
+}
+
+/* Pagination */
+.pagination-container {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal action buttons container */
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.loading-indicator {
+  text-align: center;
+  font-size: 1.2rem;
+  margin: 2rem 0;
+}
+
+
+
+/* container for the white box */
+.loading-modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 120px;
+  height: 120px;
+}
+
+/* the spinner itself */
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 6px solid #ddd;
+  border-top-color: #2a7b9b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* spin animation */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

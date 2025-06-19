@@ -20,19 +20,21 @@ const ViewImagesPage = () => {
   const [filterBefore, setFilterBefore] = useState("");
   const [filterAfter, setFilterAfter] = useState("");
 
-  // images
+  // images + loading
   const [imageMap, setImageMap] = useState({});
   const [selectedImage, setSelectedImage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // central fetch function (now GET with query params)
+  // fetch images (GET with query params)
   const fetchImages = async () => {
+    setLoading(true);
     try {
       const params = {
         name: filterName,
         description: filterDescription,
         author: filterAuthor,
-        before: filterBefore,
         after: filterAfter,
+        before: filterBefore,
         page,
         size,
       };
@@ -41,10 +43,11 @@ const ViewImagesPage = () => {
     } catch (error) {
       console.error("Error fetching view images:", error);
       alert(
-        `Error fetching images: ${
-          error.response?.data?.message || error.message
+        `Error fetching images: ${error.response?.data?.message || error.message
         }`
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -101,92 +104,87 @@ const ViewImagesPage = () => {
       <div className="view-images-form-container">
         <h1 className="main-view-images-title">Public Images</h1>
 
-        {/* Filters */}
-        <div className="filter-grid">
-          <div>
-            <label>Name:</label>
-            <input
-              type="text"
-              value={filterName}
-              onChange={(e) => setFilterName(e.target.value)}
-            />
-          </div>
-          <div>
-            <label>Description:</label>
-            <input
-              type="text"
-              value={filterDescription}
-              onChange={(e) => setFilterDescription(e.target.value)}
-            />
-          </div>
-          <div>
-            <label>Author:</label>
-            <input
-              type="text"
-              value={filterAuthor}
-              onChange={(e) => setFilterAuthor(e.target.value)}
-            />
-          </div>
-          <div>
-            <label>After:</label>
-            <input
-              type="datetime-local"
-              value={filterAfter}
-              onChange={(e) => setFilterAfter(e.target.value)}
-            />
-          </div>
-          <div>
-            <label>Before:</label>
-            <input
-              type="datetime-local"
-              value={filterBefore}
-              onChange={(e) => setFilterBefore(e.target.value)}
-            />
-          </div>
-          <div>
-            <label>Page Size:</label>
-            <input
-              type="number"
-              min="1"
-              value={size}
-              onChange={(e) => setSize(Number(e.target.value))}
-            />
-          </div>
+        {/* Filters in one row of 6 columns */}
+        <div className="filter-grid two-columns">
+          <input
+            type="text"
+            placeholder="Name"
+            value={filterName}
+            onChange={(e) => setFilterName(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Description"
+            value={filterDescription}
+            onChange={(e) => setFilterDescription(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Author"
+            value={filterAuthor}
+            onChange={(e) => setFilterAuthor(e.target.value)}
+          />
+          <input
+            type="date"
+            placeholder="After"
+            value={filterAfter}
+            onChange={(e) => setFilterAfter(e.target.value)}
+          />
+          <input
+            type="date"
+            placeholder="Before"
+            value={filterBefore}
+            onChange={(e) => setFilterBefore(e.target.value)}
+          />
+          <input
+            type="number"
+            min="1"
+            placeholder="Page Size"
+            value={size}
+            onChange={(e) => setSize(Number(e.target.value))}
+          />
         </div>
 
         {/* Search button */}
-        <button className="search-button" onClick={handleSearchClick}>
-          Search
-        </button>
-
-        <div className="images-section">
-          {images.length === 0 ? (
-            <p>No images available.</p>
-          ) : (
-            images.map((image) => (
-              <div
-                key={image.imageId}
-                className="image-item"
-                onClick={() => setSelectedImage(image)}
-              >
-                <div className="image-thumbnail-text">
-                  <h4>{image.name}</h4>
-                  <p>{image.description}</p>
-                </div>
-              </div>
-            ))
-          )}
+        <div className="search-button-container">
+          <button className="search-button" onClick={handleSearchClick}>
+            Search
+          </button>
         </div>
 
+        {/* Loading Modal */}
+        {loading && (
+          <div className="modal-overlay">
+            <div className="loading-modal">
+                     <div className="spinner" />
+                  </div>
+          </div>
+        )}
+
+        {/* Image Grid */}
+        {!loading && (
+          <div className="images-section">
+            {images.length === 0 ? (
+              <p>No images available.</p>
+            ) : (
+              images.map((image) => (
+                <div
+                  key={image.imageId}
+                  className="image-item"
+                  onClick={() => setSelectedImage(image)}
+                >
+                  <div className="image-thumbnail-text">
+                    <h4>{image.name}</h4>
+                    <p>{image.description}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
         {/* Pagination */}
-        <div
-          style={{
-            marginTop: "20px",
-            display: "flex",
-            gap: "10px",
-            alignItems: "center",
-          }}
-        >
+        <div className="pagination-container">
           <img
             src="/images/LeftArrowButton.png"
             alt="Previous Page"
@@ -208,7 +206,7 @@ const ViewImagesPage = () => {
           />
         </div>
 
-        {/* Modal */}
+        {/* Detail Modal */}
         {selectedImage && (
           <div
             className="modal-overlay"
@@ -227,16 +225,10 @@ const ViewImagesPage = () => {
               </p>
               <p>
                 <strong>Creation Date:</strong>{" "}
-                {new Date(selectedImage.creationDate).toLocaleString()}
+                {new Date(selectedImage.creationDate).toLocaleDateString()}
               </p>
 
-              <div
-                style={{
-                  marginTop: "20px",
-                  display: "flex",
-                  gap: "10px",
-                }}
-              >
+              <div className="modal-buttons">
                 <img
                   src="/images/ExitButton2.png"
                   alt="Close"
