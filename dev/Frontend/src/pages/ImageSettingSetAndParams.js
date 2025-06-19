@@ -116,13 +116,13 @@ export default function ImageSettingSetAndParams() {
     setImageName("");
     setImageDescription("");
     setZplCode("");
-    navigate("/");
+    navigate("/main-page");
   };
 
   return (
     <div className="image-setting-page background">
       <div className="image-setting-top-left-buttons">
-        <Link to="/" onClick={handleHomeClick}>
+        <Link to="/main-page" onClick={handleHomeClick}>
           <img src="/images/HomeButton.png" alt="Home" className="icon-btn" />
         </Link>
         <img

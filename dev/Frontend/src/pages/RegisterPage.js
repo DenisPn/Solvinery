@@ -50,7 +50,7 @@ const RegisterPage = () => {
 
   return (
     <div className="register-background">
-      <button className="back-button" onClick={() => navigate("/")}>Log In</button>
+      <button className="back-button" onClick={() => navigate("/log-in")}>Log In</button>
 
       <div className="register-form-container">
         <h1 className="main-register-title">Register</h1>

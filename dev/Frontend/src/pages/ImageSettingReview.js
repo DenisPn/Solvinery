@@ -199,7 +199,7 @@ const ImageSettingReview = () => {
         setIsEditMode(false);
       }
 
-      navigate("/");
+      navigate("/main-page");
     } catch (e) {
       console.error(e);
       alert(`Error: ${e.message}`);
@@ -218,7 +218,7 @@ const ImageSettingReview = () => {
   return (
     <div className="image-setting-page background">
       <div className="image-setting-top-left-buttons">
-        <Link to="/" title="Home" onClick={handleHomeClick}>
+        <Link to="/main-page" title="Home" onClick={handleHomeClick}>
           <img
             src="/images/HomeButton.png"
             alt="Home"

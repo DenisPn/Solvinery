@@ -74,7 +74,7 @@ export default function SolutionResultsPage() {
     <div className="solution-container">
       <div className="top-controls">
         <Link
-          to="/"
+          to="/main-page"
           className="nav-btn home-btn"
           style={{ backgroundImage: `url(${publicUrl}/Images/HomeButton.png)` }}
           title="Home"

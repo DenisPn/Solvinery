@@ -159,7 +159,7 @@ const SolutionPreviewPage = () => {
     setImageName("");
     setImageDescription("");
     setZplCode("");
-    navigate("/")
+    navigate("/main-page")
   };
 
 

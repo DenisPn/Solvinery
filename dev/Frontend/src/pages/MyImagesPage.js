@@ -111,7 +111,7 @@ const MyImagesPage = () => {
   };
 
   const handleBack = () => {
-    navigate("/");
+    navigate("/main-page");
   };
 
   const handleNextPage = () => {
@@ -285,7 +285,7 @@ async function updateImageOnServer() {
     try {
       await axios.delete(`/user/${userId}/image/${selectedImageId}`);
       alert("Image deleted successfully!");
-      navigate("/");
+      navigate("/main-page");
     } catch (err) {
       const msg = err.response?.data || err.message || "Unknown error";
       alert(`Delete failed: ${JSON.stringify(msg)}`);
