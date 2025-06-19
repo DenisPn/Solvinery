@@ -87,13 +87,16 @@ subto spending_stability:
                 end;
 
 minimize budget_allocation:
-    sum <m> in MONTHS: (
-        # Penalties for variable spending categories, weighted by priority
-        sum <c> in CATEGORIES: (
-            sum <cat, minval, maxval, weight> in Bills with cat == c and minval != maxval and weight > 0: (
-                (weight/10) * (spending[c,m] - maxval)^2  # Scale penalty by priority weight
+    (
+        sum <m> in MONTHS: (
+            sum <c> in CATEGORIES: (
+                sum <cat, minval, maxval, weight> in Bills with cat == c and minval != maxval and weight > 0: (
+                    (weight/10) * (spending[c,m] - maxval)^2
+                )
             )
-        ) +
-        # Penalty for not meeting desired savings
-        (savings_deficit[m])^2
+        )
+    ) + (
+        sum <m> in MONTHS: (
+            (savings_deficit[m])^2
+        )
     );
