@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../Themes/MainTheme.css";
@@ -11,21 +11,21 @@ const ViewImagesPage = () => {
 
   // pagination
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10);
+  const PAGE_SIZE = 5;
 
   // filters
   const [filterName, setFilterName] = useState("");
   const [filterDescription, setFilterDescription] = useState("");
   const [filterAuthor, setFilterAuthor] = useState("");
-  const [filterBefore, setFilterBefore] = useState("");
   const [filterAfter, setFilterAfter] = useState("");
+  const [filterBefore, setFilterBefore] = useState("");
 
   // images + loading
   const [imageMap, setImageMap] = useState({});
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // fetch images (GET with query params)
+  // fetch images
   const fetchImages = async () => {
     setLoading(true);
     try {
@@ -36,14 +36,15 @@ const ViewImagesPage = () => {
         after: filterAfter,
         before: filterBefore,
         page,
-        size,
+        size: PAGE_SIZE,
       };
-      const response = await axios.get("/image/view", { params });
-      setImageMap(response.data.images || {});
-    } catch (error) {
-      console.error("Error fetching view images:", error);
+      const resp = await axios.get("/image/view", { params });
+      setImageMap(resp.data.images || {});
+    } catch (err) {
+      console.error("Error fetching view images:", err);
       alert(
-        `Error fetching images: ${error.response?.data?.message || error.message
+        `Error fetching images: ${
+          err.response?.data?.message || err.message
         }`
       );
     } finally {
@@ -51,28 +52,23 @@ const ViewImagesPage = () => {
     }
   };
 
+  // initial load & when page changes
+  useEffect(() => {
+    fetchImages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
   // handlers
   const handleSearchClick = () => {
     setPage(0);
     fetchImages();
   };
-
-  const handlePrevPage = () => {
-    setPage((p) => Math.max(p - 1, 0));
-    fetchImages();
-    setSelectedImage(null);
-  };
-
-  const handleNextPage = () => {
-    setPage((p) => p + 1);
-    fetchImages();
-    setSelectedImage(null);
-  };
-
+  const handlePrevPage = () => setPage((p) => Math.max(p - 1, 0));
+  const handleNextPage = () => setPage((p) => p + 1);
   const handleBack = () => navigate("/");
 
   const handleSaveImage = async () => {
-    if (!selectedImage || !selectedImage.imageId || !userId) {
+    if (!selectedImage?.imageId || !userId) {
       alert("Missing image or user information.");
       return;
     }
@@ -81,14 +77,14 @@ const ViewImagesPage = () => {
         `/user/${userId}/image/${selectedImage.imageId}/get`
       );
       alert(`Response: ${JSON.stringify(res.data)}`);
-    } catch (error) {
-      alert(`Error: ${error.response?.data?.message || error.message}`);
+    } catch (err) {
+      alert(`Error: ${err.response?.data?.message || err.message}`);
     }
   };
 
-  const images = Object.entries(imageMap).map(([imageId, data]) => ({
+  const images = Object.entries(imageMap).map(([id, data]) => ({
+    imageId: id,
     ...data,
-    imageId,
   }));
 
   return (
@@ -98,13 +94,12 @@ const ViewImagesPage = () => {
         alt="Home"
         className="home-button"
         onClick={handleBack}
-        title="Go to Home"
       />
 
       <div className="view-images-form-container">
         <h1 className="main-view-images-title">Public Images</h1>
 
-        {/* Filters in one row of 6 columns */}
+        {/* Filters */}
         <div className="filter-grid two-columns">
           <input
             type="text"
@@ -124,24 +119,25 @@ const ViewImagesPage = () => {
             value={filterAuthor}
             onChange={(e) => setFilterAuthor(e.target.value)}
           />
+
+          {/* After */}
           <input
-            type="date"
+            type="text"
             placeholder="After"
             value={filterAfter}
+            onFocus={(e) => (e.target.type = "date")}
+            onBlur={(e) => !e.target.value && (e.target.type = "text")}
             onChange={(e) => setFilterAfter(e.target.value)}
           />
+
+          {/* Before */}
           <input
-            type="date"
+            type="text"
             placeholder="Before"
             value={filterBefore}
+            onFocus={(e) => (e.target.type = "date")}
+            onBlur={(e) => !e.target.value && (e.target.type = "text")}
             onChange={(e) => setFilterBefore(e.target.value)}
-          />
-          <input
-            type="number"
-            min="1"
-            placeholder="Page Size"
-            value={size}
-            onChange={(e) => setSize(Number(e.target.value))}
           />
         </div>
 
@@ -152,30 +148,30 @@ const ViewImagesPage = () => {
           </button>
         </div>
 
-        {/* Loading Modal */}
+        {/* Loading modal */}
         {loading && (
           <div className="modal-overlay">
             <div className="loading-modal">
-                     <div className="spinner" />
-                  </div>
+              <div className="spinner" />
+            </div>
           </div>
         )}
 
-        {/* Image Grid */}
+        {/* Images grid */}
         {!loading && (
           <div className="images-section">
             {images.length === 0 ? (
               <p>No images available.</p>
             ) : (
-              images.map((image) => (
+              images.map((img) => (
                 <div
-                  key={image.imageId}
+                  key={img.imageId}
                   className="image-item"
-                  onClick={() => setSelectedImage(image)}
+                  onClick={() => setSelectedImage(img)}
                 >
                   <div className="image-thumbnail-text">
-                    <h4>{image.name}</h4>
-                    <p>{image.description}</p>
+                    <h4>{img.name}</h4>
+                    <p>{img.description}</p>
                   </div>
                 </div>
               ))
@@ -187,10 +183,9 @@ const ViewImagesPage = () => {
         <div className="pagination-container">
           <img
             src="/images/LeftArrowButton.png"
-            alt="Previous Page"
+            alt="Prev"
             className="prev-page-button"
             onClick={handlePrevPage}
-            title="Previous Page"
             style={{
               opacity: page === 0 ? 0.3 : 1,
               pointerEvents: page === 0 ? "none" : "auto",
@@ -199,14 +194,13 @@ const ViewImagesPage = () => {
           <span>Page {page + 1}</span>
           <img
             src="/images/RightArrowButton.png"
-            alt="Next Page"
+            alt="Next"
             className="next-page-button"
             onClick={handleNextPage}
-            title="Next Page"
           />
         </div>
 
-        {/* Detail Modal */}
+        {/* Detail modal */}
         {selectedImage && (
           <div
             className="modal-overlay"
@@ -234,26 +228,23 @@ const ViewImagesPage = () => {
                   alt="Close"
                   className="modal-close-button"
                   onClick={() => setSelectedImage(null)}
-                  title="Close"
                 />
                 <img
                   src="/images/downloadButton.png"
-                  alt="Save to My Images"
+                  alt="Save"
                   className="modal-save-button"
                   onClick={handleSaveImage}
-                  title="Save image in My Images"
                 />
                 <img
                   src="/images/CopyZPLButton.png"
-                  alt="Copy Description"
+                  alt="Copy"
                   className="modal-copy-button"
-                  onClick={() =>
+                  onClick={() => {
                     navigator.clipboard
                       .writeText(selectedImage.description || "")
                       .then(() => alert("Description copied!"))
-                      .catch(() => alert("Failed to copy description."))
-                  }
-                  title="Copy image description"
+                      .catch(() => alert("Copy failed."));
+                  }}
                 />
               </div>
             </div>

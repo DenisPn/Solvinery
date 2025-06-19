@@ -224,7 +224,7 @@
 
 /* Two columns layout when desired */
 .filter-grid.two-columns {
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
 }
 
 /* Individual filter item styling */
@@ -312,4 +312,14 @@
 /* spin animation */
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.filter-item-date {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-item-date span {
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
 }
