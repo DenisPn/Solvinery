@@ -507,7 +507,7 @@ public class UserImageControllerETETest {
             CreateImageResponseDTO actualResponse = createImageResponse.getBody();
             UUID imageId = UUID.fromString(actualResponse.imageId());
             ResponseEntity<ImagesDTO> fetchImageResponse = restTemplate.getForEntity(
-                    baseUri + "/0",
+                    baseUri + "/view?page=0",
                     ImagesDTO.class
             );
             assertTrue(fetchImageResponse.getStatusCode().is2xxSuccessful());
@@ -528,7 +528,7 @@ public class UserImageControllerETETest {
             );
             assertFalse(createImageResponse.getStatusCode().is2xxSuccessful());
             ResponseEntity<ImagesDTO> fetchImageResponse = restTemplate.getForEntity(
-                    baseUri + "/0",
+                    baseUri + "/view?page=0",
                     ImagesDTO.class
             );
             assertTrue(fetchImageResponse.getStatusCode().is2xxSuccessful());
@@ -561,7 +561,7 @@ public class UserImageControllerETETest {
             );
             assertTrue(deleteImageResponse.getStatusCode().is2xxSuccessful());
             ResponseEntity<ImagesDTO> fetchImageResponse = restTemplate.getForEntity(
-                    baseUri + "/0",
+                    baseUri + "/view?page=0",
                     ImagesDTO.class
             );
             assertTrue(fetchImageResponse.getStatusCode().is2xxSuccessful());
@@ -618,7 +618,7 @@ public class UserImageControllerETETest {
             //fetch all full pages
             for(int page=0; page < (saveCount / DEFAULT_PAGE_SIZE); page++){
                 ResponseEntity<ImagesDTO> imagesResponseEntityFullPage = restTemplate.getForEntity(
-                        baseUri +"/"+page,
+                        baseUri +"/view?page="+page,
                         ImagesDTO.class
                 );
                 assertTrue(imagesResponseEntityFullPage.getStatusCode().is2xxSuccessful());
@@ -638,7 +638,7 @@ public class UserImageControllerETETest {
             //if exists, fetch partially full last page
             if(saveCount % DEFAULT_PAGE_SIZE != 0){
                 ResponseEntity<ImagesDTO> imagesResponseEntityPartialPage = restTemplate.getForEntity(
-                        baseUri +"/"+(saveCount / DEFAULT_PAGE_SIZE),
+                        baseUri +"/view?page="+(saveCount / DEFAULT_PAGE_SIZE),
                         ImagesDTO.class
                 );
                 assertTrue(imagesResponseEntityPartialPage.getStatusCode().is2xxSuccessful());
@@ -658,7 +658,7 @@ public class UserImageControllerETETest {
             }
             //fetch empty page
             ResponseEntity<ImagesDTO> imagesResponseEntityEmptyPage = restTemplate.getForEntity(
-                    baseUri +"/"+(saveCount / DEFAULT_PAGE_SIZE + 1),
+                    baseUri +"/view?page="+(saveCount / DEFAULT_PAGE_SIZE + 1),
                     ImagesDTO.class
             );
             assertTrue(imagesResponseEntityEmptyPage.getStatusCode().is2xxSuccessful());

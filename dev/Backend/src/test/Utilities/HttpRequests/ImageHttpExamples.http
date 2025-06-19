@@ -15,7 +15,7 @@ PATCH http://localhost:4000/user/{{userId}}/image/{{imageId}}/publish
 PATCH http://localhost:4000/user/{{userId}}/image/{{publishedImage}}/get
 
 ### Get User Images
-GET  http://localhost:4000/user/{{userId}}/image/{{page}}
+GET  http://localhost:4000/user/{{userId}}/image/view
 
 ### Delete User Image
 @imageId_del =6dbf2067-0682-45d6-a241-72f4abaa7aa7

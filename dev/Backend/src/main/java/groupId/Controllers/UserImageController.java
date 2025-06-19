@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 /**
  * User owned image-related operations.
  */
@@ -56,10 +58,13 @@ public class UserImageController {
         return ResponseEntity.ok().build();
     }
     @NonNull
-    @GetMapping("/{page}")
+    @GetMapping("/view")
     public ResponseEntity<ImagesDTO> getImages(@NonNull @PathVariable String userId,
-                                               @PathVariable int page) {
-        ImagesDTO response = imageService.fetchUserImages(page,userId);
+                                               @RequestParam(required = false) String name,
+                                               @RequestParam(required = false) String description,
+                                               @RequestParam(defaultValue = "0") int page,
+                                               @RequestParam(defaultValue = "10") int size) {
+        ImagesDTO response = imageService.fetchUserImages(page,size,userId,name,description);
         return ResponseEntity.ok(response);
     }
 

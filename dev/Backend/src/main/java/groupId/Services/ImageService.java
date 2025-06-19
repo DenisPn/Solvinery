@@ -186,18 +186,47 @@ public class ImageService {
     }
     @NonNull
     @Transactional(readOnly = true)
-    public ImagesDTO fetchUserImages(@Min(0) int pageNumber, @NonNull String userId) {
+    public ImagesDTO fetchUserImages(@Min(0) int page,int size, @NonNull String userId,
+                                     @Nullable String name, @Nullable String description) {
         UserEntity user = userService.getUser(userId)
                 .orElseThrow(() -> new ClientSideError("User id not found"));
+        PageRequest pageRequest = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "name")
+        );
+        Specification<ImageEntity> spec = Specification.where(null);
 
-        Page<ImageEntity> userImages = imageRepository.findByUser(user, PageRequest.of(pageNumber, DEFAULT_PAGE_SIZE) );
+        if (name != null && !name.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("name")),
+                            "%" + name.toLowerCase() + "%"));
+        }
+
+        if (description != null && !description.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("description")),
+                            "%" + description.toLowerCase() + "%"));
+        }
+
+        spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("user"), user));
+
+        Page<ImageEntity> userImages = imageRepository.findAll(spec, pageRequest);
 
         Map<UUID,ImageDTO> imageDTOs = userImages.stream()
                 .collect(Collectors.toMap(
                         ImageEntity::getId,
                         image -> RecordFactory.makeDTO(EntityMapper.toDomain(image))
                 ));
-        return new ImagesDTO(imageDTOs);
+        return new ImagesDTO(imageDTOs,
+                userImages.getNumber(),
+                userImages.getSize(),
+                userImages.getTotalPages(),
+                userImages.getTotalElements(),
+                userImages.hasNext(),
+                userImages.hasPrevious()
+        );
     }
     @NonNull
     @Transactional
