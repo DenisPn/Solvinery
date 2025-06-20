@@ -171,7 +171,7 @@ const MyImagesPage = () => {
     const preferenceModulesScalars = {};
     selectedImage.preferenceModules.forEach(mod => {
       const raw = Number(mod.value ?? 50);
-      preferenceModulesScalars[mod.moduleName] = Math.min(Math.max(raw / 100,0),1);
+      preferenceModulesScalars[mod.moduleName] = Math.min(Math.max(raw / 100, 0), 1);
     });
     const enabledConstraintModules = selectedImage.constraintModules
       .filter(mod => mod.enabled ?? true)
@@ -213,7 +213,7 @@ const MyImagesPage = () => {
       setVariables(modelResp.data.variables || []);
       setConstraints(modelResp.data.constraints || []);
       setPreferences(modelResp.data.preferences || []);
-    } catch {}
+    } catch { }
     setConstraintsModules(
       selectedImage.constraintModules.map(mod => ({
         name: mod.moduleName,
@@ -436,320 +436,234 @@ const MyImagesPage = () => {
               {/* Modal Content */}
               {viewSection === null ? (
                 <>
-                  <p><strong>Description:</strong> {selectedImage.description}</p>
-                  <div className="grid-button-section">
-                    <button
-                      className="modal-square-button"
-                      onClick={() => setViewSection("sets")}
-                    >
+                  {/* Button row */}
+                  <div className="modal-button-group">
+                    <button className="fancy-button" onClick={() => setViewSection("sets")}>
                       Sets
                     </button>
-                    <button
-                      className="modal-square-button"
-                      onClick={() => setViewSection("params")}
-                    >
+                    <button className="fancy-button" onClick={() => setViewSection("params")}>
                       Parameters
                     </button>
-                    <button
-                      className="modal-square-button"
-                      onClick={() => setViewSection("constraints")}
-                    >
+                    <button className="fancy-button" onClick={() => setViewSection("constraints")}>
                       Constraints
                     </button>
-                    <button
-                      className="modal-square-button"
-                      onClick={() => setViewSection("preferences")}
-                    >
+                    <button className="fancy-button" onClick={() => setViewSection("preferences")}>
                       Preferences
                     </button>
                   </div>
+
+                  {/* Description under the buttons */}
+                  <div className="modal-desc">
+                    <p>{selectedImage.description}</p>
+                  </div>
                 </>
+
               ) : viewSection === "sets" ? (
                 <div className="modal-section-data sets-modal">
-                  {/* --- Sets Section Start --- */}
-                  <label htmlFor="set-select" className="sets-label">
-                    Choose a set:
-                  </label>
-                  <select
-                    id="set-select"
-                    className="set-dropdown"
-                    value={selectedSetIndex}
-                    onChange={e => setSelectedSetIndex(Number(e.target.value))}
+                  {/* Header with dropdown on left and button on right */}
+                  <div
+                    className="sets-header"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: "12px"
+                    }}
                   >
-                    {selectedImage.sets.map((set, idx) => (
-                      <option key={idx} value={idx}>
-                        {set.setDefinition.alias}
-                      </option>
-                    ))}
-                  </select>
+                    <select
+                      id="set-select"
+                      className="sets-header__select"
+                      value={selectedSetIndex}
+                      onChange={e => setSelectedSetIndex(Number(e.target.value))}
+                    >
+                      {selectedImage.sets.map((set, idx) => (
+                        <option key={idx} value={idx}>
+                          {set.setDefinition.alias}
+                        </option>
+                      ))}
+                    </select>
 
-                  <h4>Values:</h4>
-                  {(() => {
-                    const setObj = selectedImage.sets[selectedSetIndex];
-                    const vals = setObj?.values || [];
-                    const struct = setObj?.setDefinition?.structure || [];
-                    const isTuple = vals.length > 0 && vals.every(v => /^<.*>$/.test(v));
+                    <button
+                      className="add-row-button"
+                      onClick={() => {
+                        setEditingRow(-1);
+                        setEditTupleValues(
+                          selectedImage.sets[selectedSetIndex].setDefinition.structure.map(
+                            () => ""
+                          )
+                        );
+                      }}
+                    >
+                      Add New Value
+                    </button>
+                  </div>
 
-                    if (isTuple) {
-                      let rows = vals.map(v =>
-                        v.slice(1, -1).split(",").map(c => c.trim())
-                      );
-                      const { colIndex, direction } = sortConfig;
-                      if (colIndex !== null) {
-                        rows = [...rows].sort((a, b) => {
-                          const aVal = a[colIndex] ?? "";
-                          const bVal = b[colIndex] ?? "";
-                          if (aVal < bVal) return direction === "asc" ? -1 : 1;
-                          if (aVal > bVal) return direction === "asc" ? 1 : -1;
-                          return 0;
-                        });
-                      }
-                      return (
-                        <>
-                          <button
-                            className="add-value-button"
-                            onClick={() => setShowAddModal(true)}
-                          >
-                            Add New Value
-                          </button>
-                          {showAddModal && (
-                            <div className="modal-overlay">
-                              <div className="nested-modal-content">
-                                <h3>Add New {setObj.setDefinition.alias} Row</h3>
-                                <div className="tuple-add-row">
-                                  {struct.map((col, ci) => (
+                  {/* Tuple table */}
+                  <table className="tuple-values-table">
+                    <thead>
+                      <tr>
+                        {selectedImage.sets[selectedSetIndex].setDefinition.structure.map(
+                          (col, ci) => (
+                            <th key={ci}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "center"
+                                }}
+                              >
+                                <span>{col}</span>
+                                <div style={{ marginTop: 4 }}>
+                                  <button
+                                    onClick={() =>
+                                      setSortConfig({ colIndex: ci, direction: "asc" })
+                                    }
+                                    title="Sort Asc"
+                                  >
+                                    ▲
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      setSortConfig({ colIndex: ci, direction: "desc" })
+                                    }
+                                    title="Sort Desc"
+                                    style={{ marginLeft: 6 }}
+                                  >
+                                    ▼
+                                  </button>
+                                </div>
+                              </div>
+                            </th>
+                          )
+                        )}
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(() => {
+                        const vals =
+                          selectedImage.sets[selectedSetIndex].values || [];
+                        let rows = vals.map(v =>
+                          v
+                            .slice(1, -1)
+                            .split(",")
+                            .map(c => c.trim())
+                        );
+                        const { colIndex, direction } = sortConfig;
+                        if (colIndex !== null) {
+                          rows = [...rows].sort((a, b) => {
+                            const aVal = a[colIndex] ?? "";
+                            const bVal = b[colIndex] ?? "";
+                            if (aVal < bVal) return direction === "asc" ? -1 : 1;
+                            if (aVal > bVal) return direction === "asc" ? 1 : -1;
+                            return 0;
+                          });
+                        }
+
+                        const toRender = [];
+                        if (editingRow === -1) {
+                          toRender.push(
+                            <tr key="new">
+                              {editTupleValues.map((val, ci) => (
+                                <td key={ci}>
+                                  <input
+                                    className="tuple-edit-input"
+                                    value={val}
+                                    onChange={e => {
+                                      const copy = [...editTupleValues];
+                                      copy[ci] = e.target.value;
+                                      setEditTupleValues(copy);
+                                    }}
+                                  />
+                                </td>
+                              ))}
+                              <td>
+                                <button
+                                  onClick={() => {
+                                    const joined = `<${editTupleValues.join(",")}>`;
+                                    const img = { ...selectedImage };
+                                    img.sets[selectedSetIndex].values.unshift(joined);
+                                    setSelectedImage(img);
+                                    setEditingRow(null);
+                                  }}
+                                >
+                                  ✅
+                                </button>
+                                <button onClick={() => setEditingRow(null)}>✕</button>
+                              </td>
+                            </tr>
+                          );
+                        }
+
+                        rows.forEach((row, ri) => {
+                          const isEditing = editingRow === ri;
+                          toRender.push(
+                            <tr key={ri}>
+                              {row.map((cell, ci) => (
+                                <td key={ci}>
+                                  {isEditing ? (
                                     <input
-                                      key={ci}
-                                      className="tuple-add-input"
-                                      placeholder={col}
-                                      value={newTupleValues[ci] || ""}
+                                      className="tuple-edit-input"
+                                      value={editTupleValues[ci] ?? row[ci]}
                                       onChange={e => {
-                                        const copy = [...newTupleValues];
+                                        const copy = [...editTupleValues];
                                         copy[ci] = e.target.value;
-                                        setNewTupleValues(copy);
+                                        setEditTupleValues(copy);
                                       }}
                                     />
-                                  ))}
-                                </div>
-                                <div style={{ marginTop: 12, textAlign: "right" }}>
-                                  <button
-                                    onClick={() => {
-                                      const joined = `<${newTupleValues.join(",")}>`;
-                                      const img = { ...selectedImage };
-                                      img.sets[selectedSetIndex].values.push(joined);
-                                      setSelectedImage(img);
-                                      setNewTupleValues(Array(struct.length).fill(""));
-                                      setShowAddModal(false);
-                                    }}
-                                  >
-                                    Save
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      setNewTupleValues(Array(struct.length).fill(""));
-                                      setShowAddModal(false);
-                                    }}
-                                    style={{ marginLeft: 8 }}
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          <table className="tuple-values-table">
-                            <thead>
-                              <tr>
-                                {struct.map((col, ci) => (
-                                  <th key={ci}>
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        alignItems: "center"
+                                  ) : (
+                                    cell
+                                  )}
+                                </td>
+                              ))}
+                              <td>
+                                {isEditing ? (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        const newString = `<${editTupleValues.join(
+                                          ","
+                                        )}>`;
+                                        const img = { ...selectedImage };
+                                        img.sets[selectedSetIndex].values[ri] = newString;
+                                        setSelectedImage(img);
+                                        setEditingRow(null);
                                       }}
                                     >
-                                      <span>{col}</span>
-                                      <div style={{ marginTop: 4 }}>
-                                        <button
-                                          onClick={() =>
-                                            setSortConfig({ colIndex: ci, direction: "asc" })
-                                          }
-                                          title="Sort Asc"
-                                        >
-                                          ▲
-                                        </button>
-                                        <button
-                                          onClick={() =>
-                                            setSortConfig({ colIndex: ci, direction: "desc" })
-                                          }
-                                          title="Sort Desc"
-                                          style={{ marginLeft: 6 }}
-                                        >
-                                          ▼
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </th>
-                                ))}
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {rows.map((row, ri) => {
-                                const isEditing = editingRow === ri;
-                                return (
-                                  <tr key={ri}>
-                                    {row.map((cell, ci) => (
-                                      <td key={ci}>
-                                        {isEditing ? (
-                                          <input
-                                            className="tuple-edit-input"
-                                            value={editTupleValues[ci] ?? row[ci]}
-                                            onChange={e => {
-                                              const copy = [...editTupleValues];
-                                              copy[ci] = e.target.value;
-                                              setEditTupleValues(copy);
-                                            }}
-                                          />
-                                        ) : (
-                                          cell
-                                        )}
-                                      </td>
-                                    ))}
-                                    <td>
-                                      {isEditing ? (
-                                        <>
-                                          <button
-                                            onClick={() => {
-                                              const newString = `<${editTupleValues.join(
-                                                ","
-                                              )}>`;
-                                              const img = { ...selectedImage };
-                                              img.sets[selectedSetIndex].values[ri] = newString;
-                                              setSelectedImage(img);
-                                              setEditingRow(null);
-                                            }}
-                                          >
-                                            ✅
-                                          </button>
-                                          <button onClick={() => setEditingRow(null)}>✕</button>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <button
-                                            onClick={() => {
-                                              setEditingRow(ri);
-                                              setEditTupleValues(rows[ri]);
-                                            }}
-                                          >
-                                            ✎
-                                          </button>
-                                          <button
-                                            onClick={() => {
-                                              const img = { ...selectedImage };
-                                              img.sets[selectedSetIndex].values.splice(ri, 1);
-                                              setSelectedImage(img);
-                                            }}
-                                          >
-                                            🗑
-                                          </button>
-                                        </>
-                                      )}
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </>
-                      );
-                    } else {
-                      return (
-                        <>
-                          <button
-                            className="add-value-button"
-                            onClick={() => setShowAddModal(true)}
-                          >
-                            Add New Value
-                          </button>
-                          {showAddModal && (
-                            <div className="modal-overlay">
-                              <div className="nested-modal-content">
-                                <h3>Add New Value</h3>
-                                <input
-                                  type="text"
-                                  className="add-value-input"
-                                  placeholder="New value"
-                                  value={
-                                    selectedImage.sets[selectedSetIndex].newValue || ""
-                                  }
-                                  onChange={e => {
-                                    const img = { ...selectedImage };
-                                    img.sets[selectedSetIndex].newValue = e.target.value;
-                                    setSelectedImage(img);
-                                  }}
-                                />
-                                <div style={{ marginTop: 12, textAlign: "right" }}>
-                                  <button
-                                    onClick={() => {
-                                      const val =
-                                        selectedImage.sets[selectedSetIndex].newValue?.trim();
-                                      if (!val) return;
-                                      const img = { ...selectedImage };
-                                      img.sets[selectedSetIndex].values.push(val);
-                                      img.sets[selectedSetIndex].newValue = "";
-                                      setSelectedImage(img);
-                                      setShowAddModal(false);
-                                    }}
-                                  >
-                                    Save
-                                  </button>
-                                  <button
-                                    onClick={() => setShowAddModal(false)}
-                                    style={{ marginLeft: 8 }}
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          <ul className="set-values-list">
-                            {selectedImage.sets[selectedSetIndex].values.map((val, i) => (
-                              <li key={i} className="set-value-item">
-                                <span>{val}</span>
-                                <div className="value-buttons">
-                                  <button
-                                    onClick={() => {
-                                      const newValue = prompt("Edit value:", val);
-                                      if (newValue != null) {
+                                      ✅
+                                    </button>
+                                    <button onClick={() => setEditingRow(null)}>✕</button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        setEditingRow(ri);
+                                        setEditTupleValues(rows[ri]);
+                                      }}
+                                    >
+                                      ✎
+                                    </button>
+                                    <button
+                                      onClick={() => {
                                         const img = { ...selectedImage };
-                                        img.sets[selectedSetIndex].values[i] = newValue;
+                                        img.sets[selectedSetIndex].values.splice(ri, 1);
                                         setSelectedImage(img);
-                                      }
-                                    }}
-                                  >
-                                    ✎
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      const img = { ...selectedImage };
-                                      img.sets[selectedSetIndex].values.splice(i, 1);
-                                      setSelectedImage(img);
-                                    }}
-                                  >
-                                    ✕
-                                  </button>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
-                        </>
-                      );
-                    }
-                  })()}
-                  {/* --- Sets Section End --- */}
+                                      }}
+                                    >
+                                      🗑
+                                    </button>
+                                  </>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        });
+
+                        return toRender;
+                      })()}
+                    </tbody>
+                  </table>
                 </div>
               ) : viewSection === "params" ? (
                 <div className="modal-section-data parameters-modal">

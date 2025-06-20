@@ -368,22 +368,95 @@
 }
 
 .grid-button-section {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 50px;             
-  width: 100%;
-  max-width: 500px;
-  margin-top: 40px;
-  justify-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.modal-button-group {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 80px;
+  margin-bottom: 16px;
+  flex-wrap: nowrap;
+  z-index: 1;  
+}
+
+.modal-nav-group {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-button-group .button {
+  flex: 1;              /* each button takes equal share */
+  max-width: 200px;     /* optional cap if you don’t want them too wide */
+  min-width: 120px;     /* optional floor so they’re never too narrow */
+  box-sizing: border-box;
+  text-align: center;
+}
+.modal-desc {
+  /* keep your existing frame & grid background */
+  position: relative;
+  width: 90%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  overflow: hidden;
+      background: #fff;
+  background-image:
+    linear-gradient(
+      135deg,
+      rgba(200,200,200,0.1) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(200,200,200,0.1) 50%,
+      rgba(200,200,200,0.1) 75%,
+      transparent 75%,
+      transparent
+    );
+  background-size: 40px 40px;
+}
+
+.modal-desc p {
+  margin: 0 auto;
+  max-width: 85%;
+  font-family: "Merriweather", Georgia, serif;
+  font-size: 1.2rem;
+  line-height: 1.75;
+  color: #444;
+  text-align: center;
+  font-style: italic;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+/* subtle accent underline */
+.modal-desc p::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 2px;
+  background: #50e3c2;
+  margin: 0.75rem auto 0;
+  border-radius: 1px;
+}
+
+/* highlight the first sentence */
+.modal-desc p span.first-sentence {
+  font-weight: 600;
+  color: #333;
+  font-style: normal;
 }
 
 
-.modal-grid-buttons {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
-  margin-top: 40px;
-}
 
 .modal-square-button {
   width: 200px;
@@ -423,8 +496,8 @@
   position: relative;
   background: white;
   border-radius: 12px;
-  width: 900px;
-  height: 600px;
+  width: 95vw;    /* take 95% of viewport width */
+  height: 95vh;   /* take 95% of viewport height */
   padding: 30px 40px;
   display: flex;
   flex-direction: column;
@@ -757,4 +830,135 @@ td input[type="text"] {
 
 .pagination-row span {
   align-self: center;
+}
+
+.add-row-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background-color: #2a7b9b;      /* main brand color */
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.add-row-button:hover {
+  background-color: #1f5d75;      /* darker on hover */
+  transform: translateY(-1px);
+}
+.add-row-button:active {
+  background-color: #244f64;      /* even darker when pressed */
+  transform: translateY(0);
+}
+
+/* Container for header row */
+.sets-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Restyled “Choose a set” label */
+.sets-header__label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2a7b9b;
+}
+
+/* Pill‐shaped dropdown */
+.sets-header__select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-size: 15px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+.sets-header__select:focus {
+  outline: none;
+  border-color: #2a7b9b;
+}
+
+/* Reuse your existing add-row-button styling from before */
+.add-row-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background-color: #2a7b9b;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.add-row-button:hover {
+  background-color: #1f5d75;
+  transform: translateY(-1px);
+}
+.add-row-button:active {
+  background-color: #244f64;
+  transform: translateY(0);
+}
+
+.fancy-button {
+  flex: 0 0 300px;
+  position: relative;
+  padding: 12px 0;
+  border: 3px solid #666;
+  border-radius: 30px;
+  background: transparent;
+  color: #666;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: .21em;
+  line-height: 54px;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: color .3s, background 0s;
+  cursor: pointer;
+}
+
+.fancy-button:before,
+.fancy-button:after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #e3e2db;
+  z-index: -1;
+  opacity: .5;
+  transform: translateY(200%);
+  transition: transform .3s;
+}
+
+
+.fancy-button:hover {
+  background: #e3e2db;
+  color: #000;
+  transition: background .3s .2s, color .3s;
+}
+
+
+.fancy-button:hover:before,
+.fancy-button:hover:after {
+  transform: translateY(100%);
+}
+
+.fancy-button:hover:before {
+  transition-delay: .175s;
 }
