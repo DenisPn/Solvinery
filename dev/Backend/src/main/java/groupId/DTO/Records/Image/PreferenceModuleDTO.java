@@ -15,5 +15,5 @@ import java.util.Set;
 public record PreferenceModuleDTO(@NotBlank String moduleName,
                                   @NotNull String description,
                                   @Size(min = 1, message = "Preference module has to have at least one preference") @Valid Set<@NotBlank String> preferences,
-                                  @NotNull @Min(0) @Max(1) Float scalar
+                                  @Min(0) @Max(1) Float scalar
                                 ) {}

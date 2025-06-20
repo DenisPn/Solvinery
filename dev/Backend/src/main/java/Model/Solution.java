@@ -16,7 +16,7 @@ public class Solution {
     private static final Pattern solvingTimePattern = Pattern.compile("Solving Time \\(sec\\) +: +(\\d+(?:\\.\\d+)?)");
     // private static final Pattern solvingTimePattern = Pattern.compile("Solving Time \\(sec\\) +: +(\\d+\\.\\d+)");
     private static final Pattern objectiveValuePattern = Pattern.compile("objective value:\\s+(-?\\d+(\\.\\d+)?)");
-    private static final Pattern variablePattern = Pattern.compile("^(.*?)[ \\t]+(\\d+)[ \\t]+\\(obj:(\\d+)\\)");
+    private static final Pattern variablePattern = Pattern.compile("^(.*?)[ \\t]+(-?\\d+)[ \\t]+\\(obj:(-?\\d+(?:\\.\\d+)?)\\)");
     boolean solved;
 
     /**
@@ -88,7 +88,7 @@ public class Solution {
                 List<String> splitSolution = new LinkedList<>(Arrays.asList(solution.split("[#$]"))); //need a new array to remove dependence
                 String variableIdentifier = splitSolution.getFirst();
                 splitSolution.removeFirst();
-                if(objectiveValue != 0 && !variableIdentifier.isBlank()) {
+                if(/*objectiveValue != 0 &&*/ !variableIdentifier.isBlank()) {
                     if (!rawVariableSolution.containsKey(variableIdentifier))
                         rawVariableSolution.put(variableIdentifier, new LinkedList<>());
                     rawVariableSolution.get(variableIdentifier).add(new VariableSolution(splitSolution, objectiveValue));

@@ -148,7 +148,6 @@ public class Model implements ModelInterface {
     }
     private void parsePreferences(){
         for(String body : uneditedPreferences){
-            //build new data
             String paramName=hashPreference(body);
             String newBody="(" +body+ ") * " + paramName;
             String paramDeclaration= "param " + paramName + " := 1;\n";
@@ -161,6 +160,7 @@ public class Model implements ModelInterface {
             params.put(paramName,preferenceScalar);
             preferenceToScalar.put(body,preferenceScalar);
             originalToModifiedDereferences.put(body,editedPreference);
+            modifiedElements.add(new Preference(newBody));
         }
     }
 
@@ -199,9 +199,7 @@ public class Model implements ModelInterface {
         preferencesScalars.keySet().forEach(preference ->
         {
             ModelParameter scalar;
-            /*if(modifiedPreferences.containsKey(preference))
-                scalar = preferenceToScalar.get(modifiedPreferences.get(preference).getName());
-            else */scalar=this.preferenceToScalar.get(preference);
+            scalar=this.preferenceToScalar.get(preference);
             if(scalar == null)
                 throw new InvalidModelStateException("Preference "+preference+" does not have a corresponding scalar parameter");
             scalar.setData(Float.toString(preferencesScalars.get(preference)));
@@ -320,7 +318,10 @@ public class Model implements ModelInterface {
         return originalToModifiedDereferences.keySet();
     }
     public boolean hasPreference(String identifier) {
-        return /*modifiedPreferences.containsKey(identifier) || */originalToModifiedDereferences.containsKey(identifier);
+        return originalToModifiedDereferences.containsKey(identifier);
+    }
+    public boolean isModified(String preferenceName){
+        return modifiedPreferences.containsKey(preferenceName);
     }
 
     @NonNull
