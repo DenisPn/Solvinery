@@ -204,6 +204,8 @@ const MyImagesPage = () => {
     try {
       await axios.delete(`/user/${userId}/image/${selectedImageId}`);
       alert("Deleted");
+      setSelectedImage(null);
+      setViewSection(null);
       navigate("/main-page");
     } catch (err) {
       alert(`Delete failed: ${err.message}`);
