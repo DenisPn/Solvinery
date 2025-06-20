@@ -109,50 +109,62 @@ const MyImagesPage = () => {
   // Helper: PATCH full image
   async function updateImageOnServer() {
     if (!selectedImage || !selectedImageId || !userId) return;
-    const payload = {
-      variables: (selectedImage.variables || []).map(v => ({
-        identifier: v.identifier,
-        structure: Array.isArray(v.structure) ? v.structure : [],
-        alias: v.alias || v.identifier
-      })),
-      constraintModules: (selectedImage.constraintModules || []).map(mod => ({
-        moduleName: mod.moduleName,
-        description: mod.description,
-        constraints: Array.isArray(mod.constraints) ? mod.constraints : []
-      })),
-      preferenceModules: (selectedImage.preferenceModules || []).map(mod => ({
-        moduleName: mod.moduleName,
-        description: mod.description,
-        preferences: Array.isArray(mod.preferences) ? mod.preferences : []
-      })),
-      sets: (selectedImage.sets || []).map(s => ({
-        setDefinition: {
-          name: s.setDefinition.name,
-          structure: Array.isArray(s.setDefinition.structure)
-            ? s.setDefinition.structure
-            : [],
-          alias: s.setDefinition.alias
-        },
-        values: Array.isArray(s.values) ? s.values : []
-      })),
-      parameters: (selectedImage.parameters || []).map(p => ({
-        parameterDefinition: {
-          name: p.parameterDefinition.name,
-          structure: p.parameterDefinition.structure,
-          alias: p.parameterDefinition.alias
-        },
-        value: p.value != null ? String(p.value) : ""
-      })),
-      name: selectedImage.name,
-      description: selectedImage.description,
-      code: selectedImage.code
-    };
-    await axios.patch(
-      `/user/${userId}/image/${selectedImageId}`,
-      payload,
-      { headers: { "Content-Type": "application/json" } }
-    );
+
+    try {
+      const payload = {
+        variables: (selectedImage.variables || []).map(v => ({
+          identifier: v.identifier,
+          structure: Array.isArray(v.structure) ? v.structure : [],
+          alias: v.alias || v.identifier
+        })),
+        constraintModules: (selectedImage.constraintModules || []).map(mod => ({
+          moduleName: mod.moduleName,
+          description: mod.description,
+          constraints: Array.isArray(mod.constraints) ? mod.constraints : []
+        })),
+        preferenceModules: (selectedImage.preferenceModules || []).map(mod => ({
+          moduleName: mod.moduleName,
+          description: mod.description,
+          preferences: Array.isArray(mod.preferences) ? mod.preferences : []
+        })),
+        sets: (selectedImage.sets || []).map(s => ({
+          setDefinition: {
+            name: s.setDefinition.name,
+            structure: Array.isArray(s.setDefinition.structure)
+              ? s.setDefinition.structure
+              : [],
+            alias: s.setDefinition.alias
+          },
+          values: Array.isArray(s.values) ? s.values : []
+        })),
+        parameters: (selectedImage.parameters || []).map(p => ({
+          parameterDefinition: {
+            name: p.parameterDefinition.name,
+            structure: p.parameterDefinition.structure,
+            alias: p.parameterDefinition.alias
+          },
+          value: p.value != null ? String(p.value) : ""
+        })),
+        name: selectedImage.name,
+        description: selectedImage.description,
+        code: selectedImage.code
+      };
+
+      await axios.patch(
+        `/user/${userId}/image/${selectedImageId}`,
+        payload,
+        { headers: { "Content-Type": "application/json" } }
+      );
+    } catch (err) {
+      // Try to extract a server-sent message if available
+      const message = err.response?.data?.message
+        || err.response?.data
+        || err.message
+        || "Unknown error";
+      alert(`Update failed: ${JSON.stringify(message)}`);
+    }
   }
+
 
   // Action handlers
   const handlePublishImage = async () => {
@@ -455,7 +467,7 @@ const MyImagesPage = () => {
 
                   {/* Description under the buttons */}
                   <div className="modal-desc">
-                      <h2 className="modal-title">{selectedImage.name}</h2>
+                    <h2 className="modal-title">{selectedImage.name}</h2>
 
                     <p>{selectedImage.description}</p>
                   </div>
@@ -670,27 +682,32 @@ const MyImagesPage = () => {
                 </div>
               ) : viewSection === "params" ? (
                 <div className="modal-section-data parameters-modal">
-                  {/* --- Parameters Section Start --- */}
                   <table className="parameters-table">
+                    <colgroup>
+                      <col style={{ width: "120px" }} />
+                      <col style={{ width: "50%" }} />
+                      <col style={{ width: "50%" }} />
+                    </colgroup>
                     <thead>
                       <tr>
                         <th>Edit</th>
-                        <th>Name</th>
-                        <th>Alias</th>
+                        <th>Parameter's name</th>
                         <th>Value</th>
                       </tr>
                     </thead>
                     <tbody>
                       {selectedImage.parameters.map((param, index) => (
                         <tr key={index}>
-                          <td>
+                          {/* EDIT BUTTONS */}
+                          <td className="param-cell-edit">
                             {param.isEditing ? (
                               <>
                                 <button
+                                  className="param-btn"
                                   onClick={() => {
+                                    // Save changes
                                     const newImage = { ...selectedImage };
-                                    newImage.parameters[index].value =
-                                      param.tempValue ?? param.value;
+                                    newImage.parameters[index].value = param.tempValue ?? param.value;
                                     newImage.parameters[index].isEditing = false;
                                     delete newImage.parameters[index].tempValue;
                                     setSelectedImage(newImage);
@@ -699,7 +716,9 @@ const MyImagesPage = () => {
                                   ✅
                                 </button>
                                 <button
+                                  className="param-btn"
                                   onClick={() => {
+                                    // Cancel edit
                                     const newImage = { ...selectedImage };
                                     newImage.parameters[index].isEditing = false;
                                     delete newImage.parameters[index].tempValue;
@@ -711,7 +730,9 @@ const MyImagesPage = () => {
                               </>
                             ) : (
                               <button
+                                className="param-btn"
                                 onClick={() => {
+                                  // Enter edit mode
                                   const newImage = { ...selectedImage };
                                   newImage.parameters[index].isEditing = true;
                                   newImage.parameters[index].tempValue = param.value;
@@ -722,29 +743,33 @@ const MyImagesPage = () => {
                               </button>
                             )}
                           </td>
-                          <td>{param.parameterDefinition.name}</td>
-                          <td>{param.parameterDefinition.alias || "—"}</td>
-                          <td>
+
+                          {/* ALIAS */}
+                          <td className="param-cell">
+                            {param.parameterDefinition.alias || "—"}
+                          </td>
+
+                          {/* VALUE */}
+                          <td className="param-cell param-cell-value">
                             {param.isEditing ? (
                               <input
+                                className="param-input"
                                 type="text"
                                 value={param.tempValue}
-                                onChange={e => {
+                                onChange={(e) => {
                                   const newImage = { ...selectedImage };
                                   newImage.parameters[index].tempValue = e.target.value;
                                   setSelectedImage(newImage);
                                 }}
-                                onKeyDown={e => {
+                                onKeyDown={(e) => {
                                   if (e.key === "Enter") {
                                     const newImage = { ...selectedImage };
-                                    newImage.parameters[index].value =
-                                      param.tempValue ?? param.value;
+                                    newImage.parameters[index].value = param.tempValue ?? param.value;
                                     newImage.parameters[index].isEditing = false;
                                     delete newImage.parameters[index].tempValue;
                                     setSelectedImage(newImage);
                                   }
                                 }}
-                                style={{ textAlign: "center" }}
                               />
                             ) : (
                               param.value
@@ -754,7 +779,6 @@ const MyImagesPage = () => {
                       ))}
                     </tbody>
                   </table>
-                  {/* --- Parameters Section End --- */}
                 </div>
               ) : viewSection === "constraints" ? (
                 <div className="modal-section-data constraints-modal">
