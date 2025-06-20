@@ -452,8 +452,11 @@ const MyImagesPage = () => {
                     </button>
                   </div>
 
+
                   {/* Description under the buttons */}
                   <div className="modal-desc">
+                      <h2 className="modal-title">{selectedImage.name}</h2>
+
                     <p>{selectedImage.description}</p>
                   </div>
                 </>

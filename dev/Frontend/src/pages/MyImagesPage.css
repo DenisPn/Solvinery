@@ -399,6 +399,31 @@
   box-sizing: border-box;
   text-align: center;
 }
+.modal-title {
+  position: relative;
+  margin: 1.5rem auto 0.5rem;
+  text-align: center;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #333;
+  text-transform: capitalize;
+  letter-spacing: 0.05em;
+    text-transform: uppercase;
+
+}
+
+/* the little accent bar underneath */
+.modal-title::after {
+  content: "";
+  display: block;
+  width: 4rem;            /* adjust length */
+  height: 3px;           /* stripe thickness */
+  margin: 0.5rem auto;   /* space above & center */
+  background: #50e3c2;   /* your green */
+  border-radius: 2px;
+}
+
 .modal-desc {
   /* keep your existing frame & grid background */
   position: relative;
@@ -438,16 +463,7 @@
   position: relative;
 }
 
-/* subtle accent underline */
-.modal-desc p::after {
-  content: "";
-  display: block;
-  width: 60px;
-  height: 2px;
-  background: #50e3c2;
-  margin: 0.75rem auto 0;
-  border-radius: 1px;
-}
+
 
 /* highlight the first sentence */
 .modal-desc p span.first-sentence {
