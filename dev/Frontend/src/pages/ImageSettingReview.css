@@ -16,6 +16,16 @@
     text-align: center;
 }
 
+.image-setting-top-left-buttons {
+  position: fixed;      /* קיבוע כל הקבוצה */
+  top: 50px;
+  left: 30px;
+  display: flex;
+  gap: 10px;            /* רווח קבוע בין האיקונים */
+  align-items: center;
+  z-index: 10;
+}
+
 /* Image Settings Form */
 .image-settings-form {
     width: 100%;
@@ -190,26 +200,13 @@ input:focus, textarea:focus {
     width: 30%;
 }
 
-.image-setting-home-button {
-  position: fixed;
-  top: 50px;
-  left: 30px;
-  width: 35px;
-  height: 35px;
-  cursor: pointer;
-  z-index: 10;
-}
-
+.image-setting-home-button,
 .image-setting-save-button {
-  position: fixed;
-  top: 50px;
-  left: 75px; /* 30 (home left) + 35 (home width) + 10 spacing */
+  position: static !important;   /* מבטל את fixed הישן */
   width: 35px;
   height: 35px;
   cursor: pointer;
-  z-index: 10;
 }
-
 
 
 /* Modal background */
@@ -296,3 +293,35 @@ input:focus, textarea:focus {
 }
 
 
+.image-setting-back-button {
+  position: fixed;
+  top: 50px;
+  right: 30px;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+
+.show-zpl-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px; /* נסה גם 3 או 4 אם צריך */
+}
+
+.show-zpl-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+   align-self: center;
+  transform: translateY(2px); 
+}
