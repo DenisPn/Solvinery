@@ -77,7 +77,7 @@ public class Image {
             Variable variable = model.getVariable(variableName);
             if(variable==null)
                 throw new IllegalArgumentException("No variable with name: " + variableName);
-            this.activeVariables.add(new VariableModule(variable.getName(),variableDTO.structure(), variableDTO.alias()));
+            this.activeVariables.add(new VariableModule(variable.getName(),variableDTO.structure(), variableDTO.alias(),variableDTO.objectiveValueAlias()));
         }
         for (ConstraintModuleDTO constraintModuleDTO : imageDTO.constraintModules()) {
             Set<Constraint> constraints = constraintModuleDTO.constraints().stream()
@@ -172,7 +172,7 @@ public class Image {
             Variable variable = model.getVariable(variableName);
             if(variable==null)
                 throw new ClientSideError("No variable with name: " + variableName);
-            this.activeVariables.add(new VariableModule(variable.getName(),variableDTO.structure(), variableDTO.alias()));
+            this.activeVariables.add(new VariableModule(variable.getName(),variableDTO.structure(), variableDTO.alias(),variableDTO.objectiveValueAlias()));
         }
         for (ConstraintModuleDTO constraintModuleDTO : imageDTO.constraintModules()) {
             Set<Constraint> constraints = constraintModuleDTO.constraints().stream()

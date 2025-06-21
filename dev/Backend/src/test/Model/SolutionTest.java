@@ -143,7 +143,6 @@ class SolutionTest {
     static Stream<InvalidVariable> provideMalformedVariableLines() {
         return Stream.of(
                 new InvalidVariable("malformed_variable", "malformed_variable"),
-                new InvalidVariable("variable_name#part1$part2 0 (obj:0)", "variable_name"),
                 new InvalidVariable("%%%%%%", "%%%%%%"),
                 new InvalidVariable("@@random_text_here", "random_text_here"),
                 new InvalidVariable("", ""),

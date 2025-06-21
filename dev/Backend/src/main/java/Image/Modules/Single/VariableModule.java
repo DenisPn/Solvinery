@@ -4,6 +4,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 public class VariableModule {
 
@@ -13,12 +14,14 @@ public class VariableModule {
     private final List<String> typeStructure;
     @NonNull
     private final String variableName;
+    @NonNull
+    private final String objectiveValueAlias;
 
-    public VariableModule(@NonNull String variableName, @NonNull List<String> typeStructure,@Nullable String alias) {
+    public VariableModule(@NonNull String variableName, @NonNull List<String> typeStructure,@Nullable String alias,String objectiveValueAlias) {
         this.variableName = variableName;
         this.typeStructure = typeStructure;
-        if(alias==null) this.alias=variableName;
-        else this.alias = alias;
+        this.alias = Objects.requireNonNullElse(alias,variableName);
+        this.objectiveValueAlias = Objects.requireNonNullElse(objectiveValueAlias,"Objective Value");
     }
 
     @NonNull
@@ -48,10 +51,27 @@ public class VariableModule {
         else this.alias = alias;
     }
 
+    @NonNull
+    public String getObjectiveValueAlias() {
+        return objectiveValueAlias;
+    }
+
     /**
      * Sets alias to be the same as the variable name.
      */
     public void removeAlias () {
         this.alias = variableName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        VariableModule that = (VariableModule) o;
+        return Objects.equals(alias, that.alias) && Objects.equals(typeStructure, that.typeStructure) && Objects.equals(variableName, that.variableName) && Objects.equals(objectiveValueAlias, that.objectiveValueAlias);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(alias, typeStructure, variableName, objectiveValueAlias);
     }
 }

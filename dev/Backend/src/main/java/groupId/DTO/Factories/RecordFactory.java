@@ -44,14 +44,15 @@ public class RecordFactory {
         HashMap<String, SolutionVariable> variables = new HashMap<>();
         for (String variableName : solution.getActiveVariables()) {
             Set<SolutionValueDTO> variableValues = new HashSet<>();
-            List<String> variableStructure = List.copyOf(solution.getVariableStructure(variableName));
-/*
-            List<String> variableTypes = List.copyOf(solution.getVariableTypes(variableName));
-*/
-            for (Solution.VariableSolution variableSolution: solution.getVariableSolution(variableName)) {
+            List<String> variableStructure = Objects.requireNonNull(solution.getVariableStructure(variableName),
+                    "Got null value for variable structure for variable: " + variableName + " in solution:\n" + solution);
+            String objectiveValueAlias = Objects.requireNonNullElse(solution.getObjectiveValueAlias(variableName),"Objective Value");
+            List<Solution.VariableSolution> variableSolutionValues = Objects.requireNonNull(solution.getVariableSolution(variableName),
+                    "Got null value for variable solution for variable: " + variableName + " in solution:\n" + solution);
+            for (Solution.VariableSolution variableSolution: variableSolutionValues) {
                 variableValues.add(new SolutionValueDTO(variableSolution.solution(), variableSolution.objectiveValue()));
             }
-            variables.put(variableName, new SolutionVariable(variableStructure, /*variableTypes,*/ variableValues));
+            variables.put(variableName, new SolutionVariable(variableStructure,objectiveValueAlias, variableValues));
         }
         return new SolutionDTO(solved, solvingTime, objectiveValue, variables);
     }
@@ -126,7 +127,7 @@ public class RecordFactory {
     }
     @NonNull
     public static ParameterDefinitionDTO makeDTO (@NonNull ModelParameter parameter) {
-        return new ParameterDefinitionDTO(parameter.getName(), parameter.getDataType().toString(), null);
+        return new ParameterDefinitionDTO(parameter.getName(), parameter.getDataType().toString(), parameter.getName());
     }
 
 
@@ -137,12 +138,12 @@ public class RecordFactory {
      */
     @NonNull
     private static VariableDTO makeDTO (@NonNull VariableModule variable) {
-        return new VariableDTO(variable.getName(), variable.getTypeStructure(), variable.getAlias());
+        return new VariableDTO(variable.getName(), variable.getTypeStructure(), variable.getAlias(), variable.getObjectiveValueAlias());
     }
 
     @NonNull
     private static VariableDTO makeDTO (@NonNull Variable variable) {
-        return new VariableDTO(variable.getName(), variable.getTypeStructure(), null);
+        return new VariableDTO(variable.getName(), variable.getTypeStructure(), variable.getName(), "Objective Value");
     }
 
     /**

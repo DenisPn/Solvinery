@@ -2,8 +2,8 @@ package Persistence.Entities.Image.Data;
 
 import Persistence.Entities.Image.ImageComponentKey;
 import jakarta.persistence.*;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,6 +21,9 @@ public class VariableEntity {
     @NonNull
     private String alias;
 
+    @Column(name = "ObjectiveValueAlias")
+    @Nullable
+    String objectiveValueAlias;
 
     @ElementCollection
     @CollectionTable(name = "variable_type_structure", joinColumns = {
@@ -34,12 +37,13 @@ public class VariableEntity {
 
     public VariableEntity() {}
 
-    public VariableEntity(UUID id, @NonNull String varName, @Nullable String alias,@NonNull List<String> typeStructure) {
+    public VariableEntity(UUID id, @NonNull String varName, @Nullable String alias, @NonNull List<String> typeStructure,@Nullable String objectiveValueAlias) {
         this.imageComponentKey= new ImageComponentKey(id,varName);
         this.typeStructure = typeStructure;
         if(alias == null || alias.isBlank())
             this.alias = varName;
         else this.alias = alias;
+        this.objectiveValueAlias = Objects.requireNonNullElse(objectiveValueAlias, "Objective Value");
     }
 
 
@@ -47,12 +51,12 @@ public class VariableEntity {
     public boolean equals(@Nullable Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         VariableEntity that = (VariableEntity) o;
-        return Objects.equals(imageComponentKey, that.imageComponentKey) && Objects.equals(alias, that.alias) && Objects.equals(typeStructure, that.typeStructure);
+        return Objects.equals(imageComponentKey, that.imageComponentKey) && Objects.equals(alias, that.alias) && Objects.equals(typeStructure, that.typeStructure) && Objects.equals(objectiveValueAlias, that.objectiveValueAlias) ;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(imageComponentKey, alias, typeStructure);
+        return Objects.hash(imageComponentKey, alias, typeStructure,objectiveValueAlias);
     }
 
     @NonNull
@@ -61,10 +65,14 @@ public class VariableEntity {
     }
 
     public String getAlias() {
-        if(alias == null || alias.isBlank())
-            return getName();
-        else return alias;
+        return Objects.requireNonNullElse(alias, imageComponentKey.getName());
     }
+
+    @Nullable
+    public String getObjectiveValueAlias() {
+        return Objects.requireNonNullElse(objectiveValueAlias, "Objective Value");
+    }
+
     public void setAlias(@NonNull String alias) {
         this.alias = alias;
     }
