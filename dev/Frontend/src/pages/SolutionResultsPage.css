@@ -1,14 +1,17 @@
 /* overall card */
+
 .solution-container {
-  max-width: 800px;
-  margin: 40px auto;
+  width: 95%;
+  height: 95vh;        /* span 95% of viewport height */
+  max-width: none;
+  margin: 2.5vh auto;  /* vertical centering via equal top/bottom margins */
   padding: 20px;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  
 }
+
 
 /* Top controls layout */
 .top-controls {
@@ -18,6 +21,9 @@
   flex-wrap: wrap;
   margin-bottom: 16px;
 }
+
+/* ...the rest of your CSS remains unchanged... */
+
 
 .var-label {
   font-weight: 600;
