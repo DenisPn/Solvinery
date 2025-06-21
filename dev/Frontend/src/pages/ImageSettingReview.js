@@ -232,6 +232,17 @@ const ImageSettingReview = () => {
           onClick={handleSaveImage}
           title="Save Image"
         />
+        <button
+  onClick={handleShowZplCode}
+  className="show-zpl-button"
+  title="Show ZPL Code"
+>
+  <img
+    src="/images/CopyZPLButton.png"
+    alt="Show ZPL Code"
+    className="show-zpl-icon"
+  />
+</button>
       </div>
 
       <h1 className="page-title">Image Setting: Sets and Parameters</h1>
@@ -251,9 +262,7 @@ const ImageSettingReview = () => {
         />
       </div>
 
-      <button onClick={handleShowZplCode} className="show-zpl-button">
-        Show ZPL Code for this Image
-      </button>
+     
       {isZplCodeVisible && (
         <div className="zpl-code-modal">
           <div className="modal-content">
