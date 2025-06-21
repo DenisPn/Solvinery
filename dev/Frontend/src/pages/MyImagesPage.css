@@ -548,7 +548,7 @@
 .preferences-modal .module-box .module-title::before,
 .preferences-modal .module-box .module-title::after {
   display: none !important;
-  content:  none !important;
+  content: none !important;
 }
 
 .slider-info-row {
@@ -579,6 +579,7 @@
   cursor: help;
   transition: background 0.2s, color 0.2s, transform 0.2s;
 }
+
 .info-tooltip {
   visibility: hidden;
   opacity: 0;
@@ -1288,4 +1289,280 @@ td input[type="text"] {
 
 .fancy-button:hover:before {
   transition-delay: .175s;
+}
+
+/* —— CONSTRAINTS cards reuse the Preferences look —— */
+/* exactly the same card styling as preferences */
+.constraints-modal .module-box {
+  width: 75%;
+  /* 75% of the full modal width */
+  margin: 2rem auto;
+  /* centered with vertical spacing */
+  padding: 1.5rem;
+  background-image: repeating-linear-gradient(45deg,
+      #fff,
+      #fff 10px,
+      #f0f0f0 10px,
+      #f0f0f0 20px);
+  border-radius: 1rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+
+}
+
+/* mirror the prefs parent‐wrapper */
+.modal-section-data.constraints-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* center the 75%-wide cards */
+  width: 100%;
+  /* span the full modal */
+  clear: both;
+  /* ensure it sits below the tabs */
+  margin-top: 4rem;
+  /* push it down under the buttons */
+}
+
+
+
+.constraints-modal .module-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.constraints-modal .module-underline {
+  width: 4rem;
+  height: 3px;
+  background: #50e3c2;
+  border-radius: 2px;
+  margin-top: 0.25rem;
+}
+
+/* keep header-row flex layout */
+.constraints-modal .module-box .header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* thin green bar under title */
+.constraints-modal .module-underline {
+  height: 3px;
+  width: 40px;
+  background: #50e3c2;
+  border-radius: 2px;
+  margin-left: 0;
+  /* align with title's left edge */
+}
+
+/* title styling, uppercase like preferences */
+.constraints-modal .module-title {
+  position: relative;
+  font-size: 1.25rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #333;
+}
+
+.constraints-modal .module-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  /* sits exactly at the baseline of the title */
+  left: 0;
+  /* flush with the left edge */
+  width: 8rem;
+  /* make this as long as you like */
+  height: 3px;
+  background: #50e3c2;
+  border-radius: 2px;
+  transform: translateY(0.25em);
+  /* drop it just below the text */
+}
+
+/* description italics */
+.constraints-modal .module-description {
+  font-style: italic;
+  color: #666;
+  line-height: 1.5;
+  padding-left: .5rem;
+}
+
+/* make sure the constraints-panel wrapper stretches its children */
+.constraints-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch !important;
+  /* if you’d previously set align-items:center, this will override it */
+}
+
+/* checkbox stays at bottom-right */
+.constraints-modal .module-checkbox {
+  position: absolute;
+  top: 50%;
+  right: 60px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+/* hide native box */
+.fancy-checkbox input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* the visible box */
+.fancy-checkbox .checkbox-box {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #50e3c2;
+  border-radius: 4px;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  position: relative;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+/* check mark */
+.fancy-checkbox .checkbox-box::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.2s ease-out;
+}
+
+/* when checked */
+.fancy-checkbox input:checked+.checkbox-box {
+  background: #50e3c2;
+  border-color: #50e3c2;
+}
+
+.fancy-checkbox input:checked+.checkbox-box::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.info-icon {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  color: #50e3c2;
+  border: 2px solid #50e3c2;
+  border-radius: 50%;
+  font-weight: bold;
+  cursor: help;
+  margin-left: 0.5rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.info-icon:hover {
+  background: #50e3c2;
+  color: #fff;
+}
+
+.info-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.info-icon:hover .info-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.constraints-modal input[type="checkbox"] {
+  /* reset native checkbox */
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  outline: none;
+
+  /* outer shell */
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #ececec;
+  box-shadow:
+    /* top-left highlight */
+    -6px -6px 12px rgba(255, 255, 255, 0.7),
+    /* bottom-right shadow */
+    6px 6px 12px rgba(70, 70, 70, 0.15);
+
+  position: relative;
+  cursor: pointer;
+}
+
+/* inner “pressed-in” disc */
+.constraints-modal input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ececec;
+  box-shadow:
+    inset -4px -4px 8px rgba(255, 255, 255, 0.7),
+    inset 4px 4px 8px rgba(70, 70, 70, 0.1);
+}
+
+/* power icon */
+.constraints-modal input[type="checkbox"]::after {
+  font-family: FontAwesome;
+  content: "\f011";
+  font-weight: 900;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  color: #7a7a7a;
+  transition: color 0.2s;
+}
+
+/* when checked, deepen the inset & turn icon green */
+.constraints-modal input[type="checkbox"]:checked {
+  box-shadow:
+    inset -6px -6px 12px rgba(255, 255, 255, 0.7),
+    inset 6px 6px 12px rgba(70, 70, 70, 0.15);
+}
+
+.constraints-modal input[type="checkbox"]:checked::before {
+  /* keep the inner disc consistent */
+}
+
+.constraints-modal input[type="checkbox"]:checked::after {
+  color: #15e38a;
 }
