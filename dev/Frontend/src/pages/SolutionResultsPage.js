@@ -219,65 +219,68 @@ export default function SolutionResultsPage() {
           const pts = xs.map((x, i) => ({ x: xScale(x, i), y: yScale(ys[i]) }));
 
           return (
-            <svg width={width} height={height}>
-              {/* Y‐axis integer ticks */}
-              {Array.from({ length: maxY + 1 }, (_, y) => y).map(y => (
-                <g key={y} transform={`translate(0,${yScale(y)})`}>
-                  <line x1={margin.left} x2={width - margin.right} stroke="#eee" />
+            <div className="graph-wrapper">
+
+              <svg width={width} height={height}>
+                {/* Y‐axis integer ticks */}
+                {Array.from({ length: maxY + 1 }, (_, y) => y).map(y => (
+                  <g key={y} transform={`translate(0,${yScale(y)})`}>
+                    <line x1={margin.left} x2={width - margin.right} stroke="#eee" />
+                    <text
+                      x={margin.left - 8}
+                      y={0}
+                      dy="0.32em"
+                      textAnchor="end"
+                      fontSize="12"
+                      fill="#333"
+                    >
+                      {y}
+                    </text>
+                  </g>
+                ))}
+
+                {/* X‐axis labels */}
+                {xs.map((x, i) => (
                   <text
-                    x={margin.left - 8}
-                    y={0}
-                    dy="0.32em"
-                    textAnchor="end"
+                    key={i}
+                    x={xScale(x, i)}
+                    y={height - margin.bottom + 18}
+                    textAnchor="middle"
                     fontSize="12"
                     fill="#333"
                   >
-                    {y}
+                    {x}
                   </text>
-                </g>
-              ))}
+                ))}
 
-              {/* X‐axis labels */}
-              {xs.map((x, i) => (
-                <text
-                  key={i}
-                  x={xScale(x, i)}
-                  y={height - margin.bottom + 18}
-                  textAnchor="middle"
-                  fontSize="12"
-                  fill="#333"
-                >
-                  {x}
-                </text>
-              ))}
+                {/* Chart rendering */}
+                {graphType === 'bar' &&
+                  pts.map((p, i) => (
+                    <rect
+                      key={i}
+                      x={p.x - 10}
+                      y={p.y}
+                      width={20}
+                      height={height - margin.bottom - p.y}
+                      fill="#007BFF"
+                    />
+                  ))}
 
-              {/* Chart rendering */}
-              {graphType === 'bar' &&
-                pts.map((p, i) => (
-                  <rect
-                    key={i}
-                    x={p.x - 10}
-                    y={p.y}
-                    width={20}
-                    height={height - margin.bottom - p.y}
-                    fill="#007BFF"
+                {graphType === 'point' &&
+                  pts.map((p, i) => (
+                    <circle key={i} cx={p.x} cy={p.y} r={4} fill="#007BFF" />
+                  ))}
+
+                {graphType === 'line' && (
+                  <polyline
+                    fill="none"
+                    stroke="#007BFF"
+                    strokeWidth={2}
+                    points={pts.map(p => `${p.x},${p.y}`).join(' ')}
                   />
-                ))}
-
-              {graphType === 'point' &&
-                pts.map((p, i) => (
-                  <circle key={i} cx={p.x} cy={p.y} r={4} fill="#007BFF" />
-                ))}
-
-              {graphType === 'line' && (
-                <polyline
-                  fill="none"
-                  stroke="#007BFF"
-                  strokeWidth={2}
-                  points={pts.map(p => `${p.x},${p.y}`).join(' ')}
-                />
-              )}
-            </svg>
+                )}
+              </svg>
+            </div>
           );
         })()}
 
