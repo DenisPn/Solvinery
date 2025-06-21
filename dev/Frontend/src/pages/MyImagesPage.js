@@ -817,25 +817,40 @@ const MyImagesPage = () => {
                   ) : (
                     selectedImage.preferenceModules.map((mod, index) => (
                       <div key={index} className="module-box">
-                        <div className="module-title">{mod.moduleName}</div>
-                        <div className="module-description">{mod.description}</div>
-                        <div className="slider-container">
-                          <label htmlFor={`slider-${index}`}>Value:</label>
-                          <input
-                            type="range"
-                            id={`slider-${index}`}
-                            min="0"
-                            max="100"
-                            value={mod.value ?? 50}
-                            onChange={e => {
-                              const newImage = { ...selectedImage };
-                              newImage.preferenceModules[index].value = parseInt(e.target.value);
-                              setSelectedImage(newImage);
-                            }}
-                          />
-                          <span>{mod.value ?? 50}</span>
+                        <div className="header-row">
+                          <div className="module-title">{mod.moduleName}</div>
+
+                          {/* ← INFO + SLIDER ROW → */}
+                          <div className="slider-info-row">
+                            <span className="info-icon">
+                              ?
+                              <div className="info-tooltip">
+                                Adjusts how strongly this preference is applied (0–100).
+                              </div>
+                            </span>
+
+                            <label htmlFor={`slider-${index}`}>Value:</label>
+
+                            <input
+                              type="range"
+                              id={`slider-${index}`}
+                              min="0"
+                              max="100"
+                              value={mod.value ?? 50}
+                              onChange={e => {
+                                const newImage = { ...selectedImage };
+                                newImage.preferenceModules[index].value = parseInt(e.target.value);
+                                setSelectedImage(newImage);
+                              }}
+                            />
+                            <span>{mod.value ?? 50}</span>
+                          </div>
                         </div>
+
+                        <div className="module-description">{mod.description}</div>
                       </div>
+
+
                     ))
                   )}
                   {/* --- Preferences Section End --- */}

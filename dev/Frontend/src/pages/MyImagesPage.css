@@ -530,6 +530,79 @@
   text-align: center;
 }
 
+/* force the preferences panel to clear the top buttons */
+.modal-section-data.preferences-modal {
+  /* make it a block‐level, column‐stacked container */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* push it down so it’s clearly below the buttons row */
+  margin-top: 4rem;
+  /* make sure it spans the full inner width of the modal */
+  width: 100%;
+  clear: both;
+}
+
+.preferences-modal .module-box::before,
+.preferences-modal .module-box::after,
+.preferences-modal .module-box .module-title::before,
+.preferences-modal .module-box .module-title::after {
+  display: none !important;
+  content:  none !important;
+}
+
+.slider-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.info-icon:hover {
+  background: #50e3c2;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.info-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #50e3c2;
+  border-radius: 50%;
+  background: #fff;
+  color: #50e3c2;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: help;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+.info-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 110%;
+  transform: translateY(-50%);
+  padding: 0.5rem;
+  background: #333;
+  color: #fff;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.info-icon:hover .info-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+
 .modal-back-button {
   display: block;
   margin: 20px auto 0 auto;
@@ -717,12 +790,14 @@
 
 .parameters-modal {
   /* if you already have padding, just increase the top */
-  padding-top: 2rem;   /* adjust this value as desired */
+  padding-top: 2rem;
+  /* adjust this value as desired */
 }
 
 /* Optional: if you prefer to target the table itself */
 .parameters-modal .parameters-table {
-  margin-top: 1rem;    /* adds space above the table */
+  margin-top: 1rem;
+  /* adds space above the table */
 }
 
 .parameters-table-container {
@@ -828,32 +903,77 @@ td input[type="text"] {
   font-size: 0.9rem;
 }
 
-.module-box {
-  background-color: #f9f9f9;
-  border: 2px solid #00afb9;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
+.module-box::before,
+.module-box::after {
+  content: none !important;
+  display: none !important;
 }
 
-.module-box:hover {
-  transform: translateY(-3px);
-  background-color: #f0fefe;
+.preferences-modal .module-box {
+  display: flex;
+  flex-direction: column;
+  /* stack rows vertically */
+  padding: 1.5rem;
+  gap: 1rem;
+  background-image: repeating-linear-gradient(45deg,
+      #fff,
+      #fff 10px,
+      #f0f0f0 10px,
+      #f0f0f0 20px);
+  border-radius: 1rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  width: 75%;
+  margin: 2rem auto;
 }
 
 
-.module-title {
-  font-weight: bold;
-  font-size: 18px;
-  margin-bottom: 6px;
-  color: #2a7b9b;
+
+/* Slider sits to the right of the title */
+.preferences-modal .module-box .slider-container {
+  flex: 0 0 30%;
+  margin-left: auto;
 }
 
-.module-description {
-  font-size: 14px;
-  margin-bottom: 10px;
+/* Description forced to next “row” */
+.preferences-modal .module-box .module-description {
+  font-style: italic;
+  color: #666;
+  line-height: 1.5;
+  padding-left: .5rem;
+}
+
+.preferences-modal .module-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.preferences-modal .module-box .module-title {
+  flex: 1;
+  text-transform: uppercase;
+  font-size: 1.25rem;
+  letter-spacing: .1em;
+  border-bottom: 2px solid #50e3c2;
+  /* underline */
+  padding-bottom: .25rem;
+}
+
+.preferences-modal .module-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: #50e3c2;
+  border-radius: 2px;
+}
+
+.preferences-modal .module-description {
+  font-style: italic;
+  color: #666;
+  margin: 0;
 }
 
 .module-checkbox {
@@ -864,11 +984,10 @@ td input[type="text"] {
   margin-top: 8px;
 }
 
-.slider-container {
+.preferences-modal .slider-container {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 10px;
+  gap: 0.5rem;
 }
 
 .preference-slider {
@@ -897,6 +1016,89 @@ td input[type="text"] {
   max-height: 65vh;
   overflow-y: auto;
   padding-right: 6px;
+}
+
+.preferences-modal .slider-container input[type="range"] {
+  width: 150px;
+  height: 8px;
+  cursor: pointer;
+}
+
+/* Base reset */
+.preferences-modal input[type="range"] {
+  -webkit-appearance: none;
+  width: 75%;
+  /* or whatever width you need */
+  height: 8px;
+  /* track thickness */
+  margin: 0 1rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* WebKit browsers */
+.preferences-modal input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, #4a90e2, #50e3c2);
+  height: 8px;
+  border-radius: 4px;
+}
+
+.preferences-modal input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: 3px solid #4a90e2;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  margin-top: -6px;
+  /* half of thumb height minus half of track height */
+  transition: transform 0.2s ease;
+}
+
+.preferences-modal input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Firefox */
+.preferences-modal input[type="range"]::-moz-range-track {
+  background: linear-gradient(90deg, #4a90e2, #50e3c2);
+  height: 8px;
+  border-radius: 4px;
+}
+
+.preferences-modal input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: 3px solid #4a90e2;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.preferences-modal input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Optional: hide outline when dragging */
+.preferences-modal input[type="range"]:focus {
+  outline: none;
+}
+
+
+.preferences-modal .slider-container span {
+  min-width: 2rem;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+}
+
+.preferences-modal .module-box .header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 /* ===== Tuple Values Table Styling ===== */

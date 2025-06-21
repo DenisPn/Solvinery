@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useZPL } from '../context/ZPLContext';
 import './SolutionResultsPage.css';
@@ -16,10 +16,11 @@ export default function SolutionResultsPage() {
 
   const variableNames = Object.keys(solutionMap);
   const [selectedVar, setSelectedVar] = useState('');
-  const [viewMode, setViewMode] = useState(0); // 0 = table, 1 = pivot
+  const [view, setView] = useState('Table'); // 'Table' | 'Pivot' | 'Graph' | 'Calendar'
+  const [graphType, setGraphType] = useState('line'); // 'bar' | 'point' | 'line'
   const [showConfig, setShowConfig] = useState(false);
 
-  // Auto-select first variable
+  // Auto‐select first variable
   useEffect(() => {
     if (variableNames.length > 0 && !selectedVar) {
       setSelectedVar(variableNames[0]);
@@ -55,7 +56,7 @@ export default function SolutionResultsPage() {
   const rows = [];
   const cols = [];
   const cellMap = {};
-  if (columnTypes.length === 3 && viewMode === 1) {
+  if (columnTypes.length === 3 && view === 'Pivot') {
     solutionsArray.forEach(sol => {
       const r = sol.values[mapping.rowIndex];
       const c = sol.values[mapping.colIndex];
@@ -74,7 +75,7 @@ export default function SolutionResultsPage() {
     <div className="solution-container">
       <div className="top-controls">
         <Link
-          to="/main-page"
+          to="/"
           className="nav-btn home-btn"
           style={{ backgroundImage: `url(${publicUrl}/Images/HomeButton.png)` }}
           title="Home"
@@ -96,16 +97,20 @@ export default function SolutionResultsPage() {
           {variableNames.map(n => <option key={n} value={n}>{n}</option>)}
         </select>
 
-        {columnTypes.length === 3 && (
-          <button
-            className="view-toggle-btn"
-            onClick={() => setViewMode(v => (v === 0 ? 1 : 0))}
-          >
-            {viewMode === 0 ? 'Pivot View' : 'Table View'}
-          </button>
-        )}
+        <label htmlFor="view-select" className="var-label">View:</label>
+        <select
+          id="view-select"
+          className="var-select"
+          value={view}
+          onChange={e => { setView(e.target.value); setShowConfig(false); }}
+        >
+          <option value="Table">Table</option>
+          {columnTypes.length === 3 && <option value="Pivot">Pivot</option>}
+          {columnTypes.length === 1 && <option value="Graph">Graph</option>}
+          {columnTypes.includes('DATE') && <option value="Calendar">Calendar</option>}
+        </select>
 
-        {viewMode === 1 && columnTypes.length === 3 && (
+        {view === 'Pivot' && (
           <button
             className="config-btn"
             onClick={() => setShowConfig(true)}
@@ -113,9 +118,25 @@ export default function SolutionResultsPage() {
             Configure Pivot
           </button>
         )}
+
+        {view === 'Graph' && columnTypes.length === 1 && (
+          <>
+            <label htmlFor="chart-select" className="var-label">Chart:</label>
+            <select
+              id="chart-select"
+              className="var-select"
+              value={graphType}
+              onChange={e => setGraphType(e.target.value)}
+            >
+              <option value="bar">Columns</option>
+              <option value="point">Points</option>
+              <option value="line">Line</option>
+            </select>
+          </>
+        )}
       </div>
 
-      {showConfig && (
+      {showConfig && view === 'Pivot' && (
         <div className="modal-overlay" onClick={() => setShowConfig(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h3>Configure Pivot</h3>
@@ -141,7 +162,8 @@ export default function SolutionResultsPage() {
       )}
 
       <div className="table-wrapper">
-        {viewMode === 0 ? (
+        {/* Table View */}
+        {view === 'Table' && (
           <table className="solutions-table">
             <thead>
               <tr>
@@ -158,7 +180,10 @@ export default function SolutionResultsPage() {
               ))}
             </tbody>
           </table>
-        ) : (
+        )}
+
+        {/* Pivot View */}
+        {view === 'Pivot' && (
           <table className="pivot-table">
             <thead>
               <tr>
@@ -175,6 +200,96 @@ export default function SolutionResultsPage() {
               ))}
             </tbody>
           </table>
+        )}
+
+        {/* Graph View */}
+        {view === 'Graph' && columnTypes.length === 1 && (() => {
+          const xs = solutionsArray.map(sol => sol.values[0]);
+          const ys = solutionsArray.map(sol => sol.objectiveValue);
+          const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+          const width = 600;
+          const height = 300;
+          const maxY = Math.max(...ys, 0);
+
+          const xScale = (d, i) =>
+            margin.left + (i / (xs.length - 1 || 1)) * (width - margin.left - margin.right);
+          const yScale = y =>
+            height - margin.bottom - (y / (maxY || 1)) * (height - margin.top - margin.bottom);
+
+          const pts = xs.map((x, i) => ({ x: xScale(x, i), y: yScale(ys[i]) }));
+
+          return (
+            <div className="graph-wrapper">
+
+              <svg width={width} height={height}>
+                {/* Y‐axis integer ticks */}
+                {Array.from({ length: maxY + 1 }, (_, y) => y).map(y => (
+                  <g key={y} transform={`translate(0,${yScale(y)})`}>
+                    <line x1={margin.left} x2={width - margin.right} stroke="#eee" />
+                    <text
+                      x={margin.left - 8}
+                      y={0}
+                      dy="0.32em"
+                      textAnchor="end"
+                      fontSize="12"
+                      fill="#333"
+                    >
+                      {y}
+                    </text>
+                  </g>
+                ))}
+
+                {/* X‐axis labels */}
+                {xs.map((x, i) => (
+                  <text
+                    key={i}
+                    x={xScale(x, i)}
+                    y={height - margin.bottom + 18}
+                    textAnchor="middle"
+                    fontSize="12"
+                    fill="#333"
+                  >
+                    {x}
+                  </text>
+                ))}
+
+                {/* Chart rendering */}
+                {graphType === 'bar' &&
+                  pts.map((p, i) => (
+                    <rect
+                      key={i}
+                      x={p.x - 10}
+                      y={p.y}
+                      width={20}
+                      height={height - margin.bottom - p.y}
+                      fill="#007BFF"
+                    />
+                  ))}
+
+                {graphType === 'point' &&
+                  pts.map((p, i) => (
+                    <circle key={i} cx={p.x} cy={p.y} r={4} fill="#007BFF" />
+                  ))}
+
+                {graphType === 'line' && (
+                  <polyline
+                    fill="none"
+                    stroke="#007BFF"
+                    strokeWidth={2}
+                    points={pts.map(p => `${p.x},${p.y}`).join(' ')}
+                  />
+                )}
+              </svg>
+            </div>
+          );
+        })()}
+
+        {/* Calendar View */}
+        {view === 'Calendar' && (
+          <div style={{ padding: 20, textAlign: 'center', color: '#666' }}>
+            {/* placeholder */}
+            <p>Calendar view not implemented yet.</p>
+          </div>
         )}
       </div>
     </div>
