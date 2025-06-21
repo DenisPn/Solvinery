@@ -784,31 +784,36 @@ const MyImagesPage = () => {
                 </div>
               ) : viewSection === "constraints" ? (
                 <div className="modal-section-data constraints-modal">
-                  {/* --- Constraints Section Start --- */}
-                  {selectedImage.constraintModules.length === 0 ? (
-                    <p>No constraints available.</p>
-                  ) : (
-                    selectedImage.constraintModules.map((mod, index) => (
-                      <div key={index} className="module-box">
+                  {selectedImage.constraintModules.map((mod, idx) => (
+                    <div key={idx} className="module-box">
+                      <div className="header-row">
                         <div className="module-title">{mod.moduleName}</div>
-                        <div className="module-description">{mod.description}</div>
-                        <div className="module-checkbox">
-                          <input
-                            type="checkbox"
-                            checked={mod.enabled ?? true}
-                            onChange={() => {
-                              const newImage = { ...selectedImage };
-                              newImage.constraintModules[index].enabled = !(mod.enabled ?? true);
-                              setSelectedImage(newImage);
-                            }}
-                          />
-                          <label>Enabled</label>
+
+                        {/* pull this up into the header */}
+                        <div className="checkbox-container">
+                          <label className="module-checkbox">
+                            <input
+                              type="checkbox"
+                              checked={mod.enabled}
+                              onChange={e => {
+                                const copy = { ...selectedImage };
+                                copy.constraintModules[idx].enabled = e.target.checked;
+                                setSelectedImage(copy);
+                              }}
+                            />
+                          </label>
                         </div>
                       </div>
-                    ))
-                  )}
-                  {/* --- Constraints Section End --- */}
+
+                      <div className="module-description">{mod.description}</div>
+
+                      
+                    </div>
+                  ))}
                 </div>
+
+
+
               ) : (
                 <div className="modal-section-data preferences-modal">
                   {/* --- Preferences Section Start --- */}
