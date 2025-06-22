@@ -23,6 +23,7 @@ const ConfigureVariablesPage = () => {
     setZplCode,
     constraintsModules,
     preferenceModules,
+    setIsEditMode,
   } = useZPL();
 
   const [selectedSets, setSelectedSets] = useState([]);
@@ -106,6 +107,7 @@ const ConfigureVariablesPage = () => {
     setImageName("");
     setImageDescription("");
     setZplCode("");
+    setIsEditMode(false);
   };
 
   return (
@@ -130,6 +132,11 @@ const ConfigureVariablesPage = () => {
         <div className="top-bar-right">
           <Link to="/upload-zpl" title="Back">
             <img
+              onClick={(e) => {
+                e.preventDefault();
+                setIsEditMode(false);
+                navigate("/upload-zpl");
+              }}
               src="/images/RightArrowButton.png"
               alt="Back"
               className="top-bar-button"

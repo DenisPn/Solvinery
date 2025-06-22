@@ -25,6 +25,7 @@ const ConfigurePreferencesPage = () => {
         setZplCode,
         constraintsModules,
         preferenceModules,
+        setIsEditMode,
     } = useZPL();
 
 
@@ -106,6 +107,7 @@ const ConfigurePreferencesPage = () => {
         setImageName("");
         setImageDescription("");
         setZplCode("");
+        setIsEditMode(false);
     };
 
 

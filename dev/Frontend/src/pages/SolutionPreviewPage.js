@@ -23,6 +23,7 @@ const SolutionPreviewPage = () => {
     setImageName,
     setImageDescription,
     setZplCode,
+    setIsEditMode,
   } = useZPL(); // Access selectedVars, constraintsModules, and preferenceModules from context
   const [editingVariable, setEditingVariable] = useState(null); // To keep track of the variable being edited
   const [editedAlias, setEditedAlias] = useState("");
@@ -159,6 +160,7 @@ const SolutionPreviewPage = () => {
     setImageName("");
     setImageDescription("");
     setZplCode("");
+    setIsEditMode(false);
     navigate("/main-page")
   };
 

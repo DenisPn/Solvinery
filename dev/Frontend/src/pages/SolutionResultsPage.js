@@ -81,7 +81,6 @@ export default function SolutionResultsPage() {
             e.preventDefault();            // stop the built-in navigation…
             setSelectedImage(null);
             setSelectedImageId(null);
-            console.log("Navigating to main page!~!~!~!");
             navigate("/main-page");        // …then do it yourself
           }}
           to="/main-page"

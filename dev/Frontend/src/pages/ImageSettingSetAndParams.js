@@ -25,6 +25,7 @@ export default function ImageSettingSetAndParams() {
     setImageName,
     setImageDescription,
     setZplCode,
+    setIsEditMode,
   } = useZPL();
 
   const navigate = useNavigate();
@@ -116,6 +117,7 @@ export default function ImageSettingSetAndParams() {
     setImageName("");
     setImageDescription("");
     setZplCode("");
+    setIsEditMode(false);
     navigate("/main-page");
   };
 

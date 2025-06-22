@@ -23,6 +23,7 @@ const ConfigureConstraintsPage = () => {
         setZplCode,
         constraintsModules,
         preferenceModules,
+        setIsEditMode,
     } = useZPL();
 
     const [availableConstraints, setAvailableConstraints] = useState([]);
@@ -102,6 +103,7 @@ const ConfigureConstraintsPage = () => {
         setImageName("");
         setImageDescription("");
         setZplCode("");
+        setIsEditMode(false);
     };
 
 
