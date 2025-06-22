@@ -178,7 +178,7 @@ const ConfigureVariablesPage = () => {
 
 
             <div className="MainDiv">
-                <h1 className="page-title">Configure Variables</h1>
+                <h1 className="page-title">Variables</h1>
                 <div className="variables-layout">
 
                     {/* Variables Section */}

@@ -140,8 +140,6 @@ const ConfigurePreferencesPage = () => {
                 </div>
             </div>
 
-            <h1 className="page-title">Configure High-Level Preferences</h1>
-
             <div className="constraints-layout">
                 {/* Preference Modules Section */}
                 <div className="constraint-modules">
