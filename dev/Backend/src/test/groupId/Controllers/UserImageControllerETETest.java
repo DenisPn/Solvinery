@@ -1,5 +1,6 @@
 package groupId.Controllers;
 
+import Utilities.Builders.ImageDTOBuilder;
 import Utilities.Configs.IntegrationTestsConfiguration;
 import config.KafkaConfig;
 import groupId.DTO.Records.Image.ConstraintModuleDTO;
@@ -114,28 +115,28 @@ public class UserImageControllerETETest {
         assertNotNull(loginResponse.getBody());
         return loginResponse.getBody().userId();
     }
-    static Stream<ImageDTO> validExampleImagesStream() {
-        return Stream.of(
-                new ImageDTO(
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        classesExample
+    private static ImageDTOBuilder validClassesExampleTemplate() {
+        return new ImageDTOBuilder()
+                .withName("Class optimizer")
+                .withDescription("does stuff and things")
+                .withCode(classesExample)
+                .withVariables(
+                        new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
+                        new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
                 )
+                .withConstraintModules(
+                        new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
+                )
+                .withPreferenceModules(
+                        new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class",
+                                Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
+                ).withSets(
+                        new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                );
+    }
+    private static Stream<ImageDTO> validExampleImagesStream() {
+        return Stream.of(
+                validClassesExampleTemplate().build()
         );
     }
 
@@ -260,237 +261,51 @@ public class UserImageControllerETETest {
         static Stream<CreateImageCase> validCaseStream() {
             return Stream.of(
                     new CreateImageCase(
-                            new ImageDTO(
-                                    Set.of(
-                                            new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                            new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
-                                    ),
-                                    Set.of(
-                                            new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                                    ),
-                                    Set.of(
-                                            new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                                    ),
-                                    Set.of(
-                                            new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                                    ),
-                                    Set.of(
-                                    ),
-                                    "Class optimizer",
-                                    "does stuff and things",
-                                    classesExample
-                            ),
-                            new ImageDTO(
-                            Set.of(
-                                    new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                    new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
-                            ),
-                            Set.of(
-                                    new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                            ),
-                            Set.of(
-                                    new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                            ),
-                            Set.of(
-                                    new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"),
-                                            List.of(
-                                                    "<\"Math101\",\"SUNDAY\",8,2>",
-                                                    "<\"Math101\",\"MONDAY\",10,2>",
-                                                    "<\"Math101\",\"WEDNESDAY\",14,2>",
-                                                    "<\"Math101\",\"THURSDAY\",16,2>",
-                                                    "<\"Physics102\",\"SUNDAY\",13,3>",
-                                                    "<\"Physics102\",\"TUESDAY\",9,3>",
-                                                    "<\"Physics102\",\"WEDNESDAY\",9,3>",
-                                                    "<\"Physics102\",\"FRIDAY\",14,3>",
-                                                    "<\"Chemistry101\",\"MONDAY\",15,2>",
-                                                    "<\"Chemistry101\",\"TUESDAY\",13,3>",
-                                                    "<\"Chemistry101\",\"THURSDAY\",11,2>",
-                                                    "<\"Chemistry101\",\"FRIDAY\",9,3>",
-                                                    "<\"English201\",\"SUNDAY\",8,1.5>",
-                                                    "<\"English201\",\"MONDAY\",12,1.5>",
-                                                    "<\"English201\",\"WEDNESDAY\",16,1.5>",
-                                                    "<\"English201\",\"FRIDAY\",12,1.5>",
-                                                    "<\"CompSci301\",\"SUNDAY\",11,2>",
-                                                    "<\"CompSci301\",\"MONDAY\",8,2>",
-                                                    "<\"CompSci301\",\"TUESDAY\",15,2>",
-                                                    "<\"CompSci301\",\"THURSDAY\",14,2>",
-                                                    "<\"Biology201\",\"SUNDAY\",15,2>",
-                                                    "<\"Biology201\",\"TUESDAY\",8,3>",
-                                                    "<\"Biology201\",\"WEDNESDAY\",11,2>",
-                                                    "<\"Biology201\",\"THURSDAY\",9,3>",
-                                                    "<\"Statistics102\",\"MONDAY\",13,1.5>",
-                                                    "<\"Statistics102\",\"TUESDAY\",11,1.5>",
-                                                    "<\"Statistics102\",\"THURSDAY\",8,1.5>",
-                                                    "<\"Statistics102\",\"FRIDAY\",15,1.5>"
-                                            ))
-                            ),
-                            Set.of(),
-                            "Class optimizer",
-                            "does stuff and things",
-                            classesExample
-                    )
+                            validClassesExampleTemplate().build(),
+                            validClassesExampleTemplate().withSetValues("CLASS_OPTIONS",List.of(
+                                    "<\"Math101\",\"SUNDAY\",8,2>",
+                                    "<\"Math101\",\"MONDAY\",10,2>",
+                                    "<\"Math101\",\"WEDNESDAY\",14,2>",
+                                    "<\"Math101\",\"THURSDAY\",16,2>",
+                                    "<\"Physics102\",\"SUNDAY\",13,3>",
+                                    "<\"Physics102\",\"TUESDAY\",9,3>",
+                                    "<\"Physics102\",\"WEDNESDAY\",9,3>",
+                                    "<\"Physics102\",\"FRIDAY\",14,3>",
+                                    "<\"Chemistry101\",\"MONDAY\",15,2>",
+                                    "<\"Chemistry101\",\"TUESDAY\",13,3>",
+                                    "<\"Chemistry101\",\"THURSDAY\",11,2>",
+                                    "<\"Chemistry101\",\"FRIDAY\",9,3>",
+                                    "<\"English201\",\"SUNDAY\",8,1.5>",
+                                    "<\"English201\",\"MONDAY\",12,1.5>",
+                                    "<\"English201\",\"WEDNESDAY\",16,1.5>",
+                                    "<\"English201\",\"FRIDAY\",12,1.5>",
+                                    "<\"CompSci301\",\"SUNDAY\",11,2>",
+                                    "<\"CompSci301\",\"MONDAY\",8,2>",
+                                    "<\"CompSci301\",\"TUESDAY\",15,2>",
+                                    "<\"CompSci301\",\"THURSDAY\",14,2>",
+                                    "<\"Biology201\",\"SUNDAY\",15,2>",
+                                    "<\"Biology201\",\"TUESDAY\",8,3>",
+                                    "<\"Biology201\",\"WEDNESDAY\",11,2>",
+                                    "<\"Biology201\",\"THURSDAY\",9,3>",
+                                    "<\"Statistics102\",\"MONDAY\",13,1.5>",
+                                    "<\"Statistics102\",\"TUESDAY\",11,1.5>",
+                                    "<\"Statistics102\",\"THURSDAY\",8,1.5>",
+                                    "<\"Statistics102\",\"FRIDAY\",15,1.5>"
+                            )).build()
             ));
         }
         static Stream<ImageDTO> invalidCaseStream() {
         return Stream.of(
-                new ImageDTO( //No variables
-                        Set.of(
-
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        classesExample
-                ),
-                new ImageDTO( //null code
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        null
-                ),
-                new ImageDTO( //blank code
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        "\t\t\n\t"
-                ),
-                new ImageDTO( //invalid variable name
-                    Set.of(
-                            new VariableDTO("I don't exist", List.of("Weekday"), "days with classes")
-                    ),
-                    Set.of(
-                            new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                    ),
-                    Set.of(
-                            new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                    ),
-                    Set.of(
-                            new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                    ),
-                    Set.of(
-                    ),
-                    "Class optimizer",
-                    "does stuff and things",
-                    classesExample
-            ),
-                new ImageDTO( //empty constraint module
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of(), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        classesExample
-                ),
-                new ImageDTO( //invalid constraint in module
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("I dont exist"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        classesExample
-                ),
-                new ImageDTO( //Empty preference module
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of(), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        classesExample
-                ),
-                new ImageDTO( //invalid preference in module
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("I don't exist"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        classesExample
-                )
+                validClassesExampleTemplate().withoutVariables("day_has_class","selection").build(), // no variables
+                validClassesExampleTemplate().withVariableName("day_has_class","invalid name").build(), //invalid variable name
+                validClassesExampleTemplate().withVariables(new VariableDTO(null,List.of(),"")).build(), //nulls
+                validClassesExampleTemplate().withVariables(new VariableDTO("",List.of(),"")).build(), //empty names
+                validClassesExampleTemplate().withVariableStructure("day_has_class",null).build(), //null structure
+                validClassesExampleTemplate().withConstraintModuleConstraints("Overlap",null).build(), //null constraints
+                validClassesExampleTemplate().withConstraintModuleConstraints("Overlap",Set.of()).build(), //empty constraints
+                validClassesExampleTemplate().withConstraintModuleConstraints("Overlap",Set.of("invalid")).build(), //invalid constraint
+                validClassesExampleTemplate().withConstraintModuleDescription("Overlap",null).build(), //null description
+                validClassesExampleTemplate().withConstraintModuleDescription("Overlap","x".repeat(4001)).build() //long description
         );
         }
         @ParameterizedTest
