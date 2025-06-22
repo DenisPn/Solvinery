@@ -198,6 +198,7 @@ const MyImagesPage = () => {
         { preferenceModulesScalars, enabledConstraintModules, timeout: 20 }
       );
       setSolutionResponse(resp.data);
+      setViewSection(null);
       navigate("/solution-results");
     } catch (err) {
       alert(`Solve error: ${err.message}`);
@@ -211,6 +212,7 @@ const MyImagesPage = () => {
       await axios.delete(`/user/${userId}/image/${selectedImageId}`);
       alert("Deleted");
       setSelectedImage(null);
+      setSelectedImageId(null);
       setViewSection(null);
       navigate("/main-page");
     } catch (err) {
@@ -271,6 +273,7 @@ const MyImagesPage = () => {
     });
     setParamTypes(newParamTypes);
     setIsEditMode(true);
+    setSelectedImageId(null); // Clear selectedImageId so we don't show the modal again when coming back
     navigate("/image-setting-review");
   };
   const handleCopyCode = () => {
@@ -396,6 +399,7 @@ const MyImagesPage = () => {
             className="modal-overlay"
             onClick={() => {
               setSelectedImage(null);
+              setSelectedImageId(null);
               setViewSection(null);
             }}
           >
@@ -412,6 +416,7 @@ const MyImagesPage = () => {
                   onClick={async () => {
                     await updateImageOnServer();
                     setSelectedImage(null);
+                    setSelectedImageId(null);
                     setViewSection(null);
                   }}
                 />
