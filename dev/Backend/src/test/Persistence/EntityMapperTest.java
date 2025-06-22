@@ -90,7 +90,7 @@ public class EntityMapperTest {
         List<String> structure = new ArrayList<>();
         structure.add("structure1");
         structure.add("structure2");
-        VariableModule var = new VariableModule("varName", structure, "v-alias");
+        VariableModule var = new VariableModule("varName", structure, "v-alias","ObjectiveAlias");
         Constraint constraint = new Constraint("constraint");
         Preference preference = new Preference("preference");
 
@@ -139,7 +139,7 @@ public class EntityMapperTest {
         SetEntity set = new SetEntity(imageId, "setName", "INT", setData, "s-alias");
         List<String> structure= new ArrayList<>();
         structure.add("structure1"); structure.add("structure2");
-        VariableEntity var = new VariableEntity(imageId, "varName", "v-alias",structure);
+        VariableEntity var = new VariableEntity(imageId, "varName", "v-alias",structure,"objectiveValueAlias");
         ConstraintEntity constraint = new ConstraintEntity("constraint");
         PreferenceEntity preference = new PreferenceEntity("preference");
         HashSet<SetEntity> sets= new HashSet<>();

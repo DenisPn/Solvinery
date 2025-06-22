@@ -190,11 +190,11 @@ public class EntityMapper {
     @NonNull
     public static VariableModule toDomain(@NonNull VariableEntity entity){
 
-        return new VariableModule(entity.getName(),entity.getTypeStructure(),entity.getAlias());
+        return new VariableModule(entity.getName(),entity.getTypeStructure(),entity.getAlias(),entity.getObjectiveValueAlias());
     }
     @NonNull
     public static VariableEntity toEntity(@NonNull VariableModule variable, UUID imageId){
-        return new VariableEntity(imageId,variable.getName(),variable.getAlias(),variable.getTypeStructure());
+        return new VariableEntity(imageId,variable.getName(),variable.getAlias(),variable.getTypeStructure(), variable.getObjectiveValueAlias());
     }
     @NonNull
     public static Image toDomain(@NonNull ImageEntity imageEntity){
@@ -260,7 +260,8 @@ public class EntityMapper {
                                 imageId,
                                 var.getName(),
                                 var.getAlias(),
-                                var.getTypeStructure()
+                                var.getTypeStructure(),
+                                var.getObjectiveValueAlias()
                                 ))
                         .collect(Collectors.toSet()),
                 imageEntity.getActiveParams().stream()
@@ -311,7 +312,8 @@ public class EntityMapper {
                                     imageId,
                                     var.getName(),
                                     var.getAlias(),
-                                    var.getTypeStructure()
+                                    var.getTypeStructure(),
+                                    var.getObjectiveValueAlias()
                             ))
                             .collect(Collectors.toSet()),
                     toCopy.getActiveParams().stream()
@@ -362,7 +364,8 @@ public class EntityMapper {
                                 imageId,
                                 var.getName(),
                                 var.getAlias(),
-                                var.getTypeStructure()
+                                var.getTypeStructure(),
+                                var.getObjectiveValueAlias()
                         ))
                         .collect(Collectors.toSet()),
                 toCopy.getActiveParams().stream()

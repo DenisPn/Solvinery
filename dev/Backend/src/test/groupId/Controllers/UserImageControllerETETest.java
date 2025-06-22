@@ -118,8 +118,8 @@ public class UserImageControllerETETest {
         return Stream.of(
                 new ImageDTO(
                         Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes", "objective value alias"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons", "objective value alias")
                         ),
                         Set.of(
                                 new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
@@ -170,8 +170,8 @@ public class UserImageControllerETETest {
                                             new PreferenceDTO("(sum <c1,d1,h1,dur1> in CLASS_OPTIONS:\\r\\n sum <c2,d2,h2,dur2> in CLASS_OPTIONS with d1 == d2 and h1 < h2:\\r\\n selection[c1,d1,h1,dur1] * selection[c2,d2,h2,dur2] * (h2 - (h1 + dur1)))")
                                     ),
                                     Set.of(
-                                            new VariableDTO("day_has_class", List.of("UNKNOWN"), null),
-                                            new VariableDTO("selection", List.of("TEXT","TEXT","INT","FLOAT"), null)
+                                            new VariableDTO("day_has_class", List.of("UNKNOWN"), "day_has_class","Objective Value"),
+                                            new VariableDTO("selection", List.of("TEXT","TEXT","INT","FLOAT"), "selection","Objective Value")
                                     ),
                                     Map.of("CLASS_OPTIONS",List.of("TEXT", "TEXT", "INT", "FLOAT")),
                                     Map.of()
@@ -195,11 +195,11 @@ public class UserImageControllerETETest {
                                             new PreferenceDTO("(max_shifts_per_soldier-min_shifts_per_soldier)")
                                     ),
                                     Set.of(
-                                            new VariableDTO("max_shifts_per_soldier", List.of(), null),
-                                            new VariableDTO("assignment", List.of("TEXT", "TEXT", "INT"), null),
-                                            new VariableDTO("min_hours_between_shifts", List.of(), null),
-                                            new VariableDTO("transition", List.of("TEXT", "TEXT", "INT", "TEXT", "INT") ,null),
-                                            new VariableDTO("min_shifts_per_soldier", List.of(), null)
+                                            new VariableDTO("max_shifts_per_soldier", List.of(), "max_shifts_per_soldier", "Objective Value"),
+                                            new VariableDTO("assignment", List.of("TEXT", "TEXT", "INT"), "assignment","Objective Value"),
+                                            new VariableDTO("min_hours_between_shifts", List.of(), "min_hours_between_shifts","Objective Value"),
+                                            new VariableDTO("transition", List.of("TEXT", "TEXT", "INT", "TEXT", "INT") ,"transition","Objective Value"),
+                                            new VariableDTO("min_shifts_per_soldier", List.of(), "min_shifts_per_soldier","Objective Value")
                                     ),
                                     Map.of("TIME_SLOTS", List.of("INT")
                                             ,"STATIONS",List.of("TEXT"),
@@ -262,8 +262,8 @@ public class UserImageControllerETETest {
                     new CreateImageCase(
                             new ImageDTO(
                                     Set.of(
-                                            new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                            new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                                            new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
+                                            new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
                                     ),
                                     Set.of(
                                             new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
@@ -282,8 +282,8 @@ public class UserImageControllerETETest {
                             ),
                             new ImageDTO(
                             Set.of(
-                                    new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                    new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                                    new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
+                                    new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
                             ),
                             Set.of(
                                     new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
@@ -354,8 +354,8 @@ public class UserImageControllerETETest {
                 ),
                 new ImageDTO( //null code
                         Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
                         ),
                         Set.of(
                                 new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
@@ -374,8 +374,8 @@ public class UserImageControllerETETest {
                 ),
                 new ImageDTO( //blank code
                         Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
                         ),
                         Set.of(
                                 new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
@@ -394,7 +394,7 @@ public class UserImageControllerETETest {
                 ),
                 new ImageDTO( //invalid variable name
                     Set.of(
-                            new VariableDTO("I don't exist", List.of("Weekday"), "days with classes")
+                            new VariableDTO("I don't exist", List.of("Weekday"), "days with classes","Objective Value Alias")
                     ),
                     Set.of(
                             new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
@@ -413,8 +413,8 @@ public class UserImageControllerETETest {
             ),
                 new ImageDTO( //empty constraint module
                         Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
                         ),
                         Set.of(
                                 new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of(), false)
@@ -433,8 +433,8 @@ public class UserImageControllerETETest {
                 ),
                 new ImageDTO( //invalid constraint in module
                         Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
                         ),
                         Set.of(
                                 new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("I dont exist"), false)
@@ -453,8 +453,8 @@ public class UserImageControllerETETest {
                 ),
                 new ImageDTO( //Empty preference module
                         Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
                         ),
                         Set.of(
                                 new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
@@ -473,8 +473,8 @@ public class UserImageControllerETETest {
                 ),
                 new ImageDTO( //invalid preference in module
                         Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons")
+                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
+                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
                         ),
                         Set.of(
                                 new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
