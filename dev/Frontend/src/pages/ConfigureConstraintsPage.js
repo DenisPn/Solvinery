@@ -136,7 +136,6 @@ const ConfigureConstraintsPage = () => {
                 </div>
             </div>
 
-            <h1 className="page-title">Configure High-Level Constraints</h1>
 
             <div className="constraints-layout">
                 <div className="constraint-modules">

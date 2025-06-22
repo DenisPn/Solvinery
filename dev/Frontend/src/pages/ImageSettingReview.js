@@ -233,19 +233,18 @@ const ImageSettingReview = () => {
           title="Save Image"
         />
         <button
-  onClick={handleShowZplCode}
-  className="show-zpl-button"
-  title="Show ZPL Code"
->
-  <img
-    src="/images/CopyZPLButton.png"
-    alt="Show ZPL Code"
-    className="show-zpl-icon"
-  />
-</button>
+          onClick={handleShowZplCode}
+          className="show-zpl-button"
+          title="Show ZPL Code"
+        >
+          <img
+            src="/images/CopyZPLButton.png"
+            alt="Show ZPL Code"
+            className="show-zpl-icon"
+          />
+        </button>
       </div>
 
-      <h1 className="page-title">Image Setting: Sets and Parameters</h1>
       <div className="image-details">
         <label>Image Name</label>
         <input
@@ -254,15 +253,23 @@ const ImageSettingReview = () => {
           onChange={e => setImageName(e.target.value)}
           placeholder="Enter image name"
         />
-        <label>Image Description</label>
-        <textarea
-          value={imageDescription}
-          onChange={e => setImageDescription(e.target.value)}
-          placeholder="Enter image description"
-        />
+        <div className="description-group">
+          <label htmlFor="image-description">Image Description</label>
+
+          <textarea
+            id="image-description"
+            value={imageDescription}
+            onChange={e => setImageDescription(e.target.value)}
+            placeholder="Enter image description"
+            maxLength={4000}           
+          />
+
+          <span className="char-limit">Maximum&nbsp;4000&nbsp;chars</span>
+        </div>
+
       </div>
 
-     
+
       {isZplCodeVisible && (
         <div className="zpl-code-modal">
           <div className="modal-content">

@@ -173,7 +173,6 @@ const SolutionPreviewPage = () => {
         title="Go to Home"
       />
 
-      <h1 className="page-title">Solution Preview</h1>
 
       {/* Button to Toggle Sections */}
       <div className="toggle-section">

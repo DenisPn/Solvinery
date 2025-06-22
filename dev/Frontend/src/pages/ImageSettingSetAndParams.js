@@ -139,7 +139,6 @@ export default function ImageSettingSetAndParams() {
         />
       </div>
 
-      <h1 className="page-title">Image Settings – Sets &amp; Parameters</h1>
       <div className="toggle-section">
         <button
           onClick={() => setActiveSection("sets")}
