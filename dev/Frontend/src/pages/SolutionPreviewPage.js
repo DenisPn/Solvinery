@@ -74,32 +74,18 @@ const SolutionPreviewPage = () => {
   };
 
   const handleSaveConstraintEdit = () => {
-    const updatedConstraints = constraintsModules.map((module) => {
-      if (
-        module.constraints.some(
-          (c) => c.identifier === editingConstraint.identifier
-        )
-      ) {
-        return {
-          ...module,
-          constraints: module.constraints.map((c) =>
-            c.identifier === editingConstraint.identifier
-              ? { ...c, description: editedConstraintDescription }
-              : c
-          ),
-        };
-      }
-      return module;
-    });
-    setConstraintsModules(updatedConstraints); // Save the edited constraint
-    setEditingConstraint(null); // Close the modal
+    const updated = constraintsModules.map((mod) =>
+      mod === editingConstraint
+        ? { ...mod, description: editedConstraintDescription }
+        : mod
+    );
+    setConstraintsModules(updated);
+    setEditingConstraint(null);
   };
 
-  const handleDeleteConstraint = (constraint) => {
-    const updatedConstraints = constraintsModules.filter(
-      (c) => c.identifier !== constraint.identifier
-    );
-    setConstraintsModules(updatedConstraints); // Remove the deleted constraint from context
+  const handleDeleteConstraint = (moduleToDelete) => {
+    const updated = constraintsModules.filter((mod) => mod !== moduleToDelete);
+    setConstraintsModules(updated);
   };
 
   // Handle editing preference data
@@ -109,32 +95,18 @@ const SolutionPreviewPage = () => {
   };
 
   const handleSavePreferenceEdit = () => {
-    const updatedPreferences = preferenceModules.map((module) => {
-      if (
-        module.preferences.some(
-          (p) => p.identifier === editingPreference.identifier
-        )
-      ) {
-        return {
-          ...module,
-          preferences: module.preferences.map((p) =>
-            p.identifier === editingPreference.identifier
-              ? { ...p, description: editedPreferenceDescription }
-              : p
-          ),
-        };
-      }
-      return module;
-    });
-    setPreferenceModules(updatedPreferences); // Save the edited preference
-    setEditingPreference(null); // Close the modal
-  };
+  const updated = preferenceModules.map((mod) =>
+    mod === editingPreference
+      ? { ...mod, description: editedPreferenceDescription }
+      : mod
+  );
+  setPreferenceModules(updated);
+  setEditingPreference(null);
+};
 
-  const handleDeletePreference = (preference) => {
-    const updatedPreferences = preferenceModules.filter(
-      (p) => p.identifier !== preference.identifier
-    );
-    setPreferenceModules(updatedPreferences); // Remove the deleted preference from context
+  const handleDeletePreference = (moduleToDelete) => {
+    const updated = preferenceModules.filter((mod) => mod !== moduleToDelete);
+    setPreferenceModules(updated);
   };
 
   const handleToggleSection = (section) => {
