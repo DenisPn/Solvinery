@@ -32,7 +32,7 @@ const ImageSettingReview = () => {
     setZplCode,
     isEditMode,
     setIsEditMode,
-    imageId
+    imageId,
   } = useZPL();
 
   useEffect(() => {
@@ -61,6 +61,7 @@ const ImageSettingReview = () => {
     setImageName("");
     setImageDescription("");
     setZplCode("");
+    setIsEditMode(false);
   };
 
 
@@ -193,6 +194,7 @@ const ImageSettingReview = () => {
       setImageName("");
       setImageDescription("");
       setZplCode("");
+      
 
       // Turn off edit mode if it was on
       if (isEditMode) {

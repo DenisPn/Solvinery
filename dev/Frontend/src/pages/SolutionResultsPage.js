@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import { useZPL } from '../context/ZPLContext';
 import './SolutionResultsPage.css';
 
 export default function SolutionResultsPage() {
-  const { solutionResponse } = useZPL();
+  const { solutionResponse, setSelectedImage, setSelectedImageId } = useZPL();
   const solutionMap = solutionResponse?.solution || {};
 
   // Log the full solutionResponse as soon as it arrives
@@ -19,6 +20,7 @@ export default function SolutionResultsPage() {
   const [view, setView] = useState('Table'); // 'Table' | 'Pivot' | 'Graph' | 'Calendar'
   const [graphType, setGraphType] = useState('line'); // 'bar' | 'point' | 'line'
   const [showConfig, setShowConfig] = useState(false);
+  const navigate = useNavigate();
 
   // Auto‐select first variable
   useEffect(() => {
@@ -75,7 +77,13 @@ export default function SolutionResultsPage() {
     <div className="solution-container">
       <div className="top-controls">
         <Link
-          to="/"
+          onClick={e => {
+            e.preventDefault();            // stop the built-in navigation…
+            setSelectedImage(null);
+            setSelectedImageId(null);
+            navigate("/main-page");        // …then do it yourself
+          }}
+          to="/main-page"
           className="nav-btn home-btn"
           style={{ backgroundImage: `url(${publicUrl}/Images/HomeButton.png)` }}
           title="Home"
