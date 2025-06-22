@@ -1,5 +1,6 @@
 /* Solution Preview Page Layout */
 .solution-preview-page {
+    position: relative;
     display: flex;
     flex-direction: column;
     /* Stack the sections vertically */
@@ -36,6 +37,16 @@
     /* Enables smooth scrolling */
 }
 
+.toggle-section {
+  position: absolute;
+  top: 7%;            /* שחקו עם הערך כדי להתאים בדיוק לגובה הרצוי */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 5;            /* כדי שהכפתורים יהיו מעל התוכן */
+}
+
 /* Slider container for the variable boxes */
 .slider-container {
     max-width: 100%;
@@ -60,7 +71,14 @@
 .slide {
     width: 250px;
     height: 300px;
-    background-color: #fff;
+    background-color: #fff; /* base color */
+  background-image: repeating-linear-gradient(
+    45deg,
+    #fff,
+    #fff 10px,
+    #f0f0f0 10px,
+    #f0f0f0 20px
+  );
     border-radius: 2px;
     margin-bottom: 20px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);

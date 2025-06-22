@@ -95,14 +95,14 @@ const SolutionPreviewPage = () => {
   };
 
   const handleSavePreferenceEdit = () => {
-  const updated = preferenceModules.map((mod) =>
-    mod === editingPreference
-      ? { ...mod, description: editedPreferenceDescription }
-      : mod
-  );
-  setPreferenceModules(updated);
-  setEditingPreference(null);
-};
+    const updated = preferenceModules.map((mod) =>
+      mod === editingPreference
+        ? { ...mod, description: editedPreferenceDescription }
+        : mod
+    );
+    setPreferenceModules(updated);
+    setEditingPreference(null);
+  };
 
   const handleDeletePreference = (moduleToDelete) => {
     const updated = preferenceModules.filter((mod) => mod !== moduleToDelete);
@@ -152,19 +152,19 @@ const SolutionPreviewPage = () => {
       <div className="toggle-section">
         <button
           onClick={() => handleToggleSection("variables")}
-          className="toggle-button"
+          className="fancy-button"
         >
           Show Variables
         </button>
         <button
           onClick={() => handleToggleSection("constraints")}
-          className="toggle-button"
+          className="fancy-button"
         >
           Show Constraints
         </button>
         <button
           onClick={() => handleToggleSection("preferences")}
-          className="toggle-button"
+          className="fancy-button"
         >
           Show Preferences
         </button>

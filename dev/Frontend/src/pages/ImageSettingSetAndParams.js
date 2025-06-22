@@ -144,13 +144,13 @@ export default function ImageSettingSetAndParams() {
       <div className="toggle-section">
         <button
           onClick={() => setActiveSection("sets")}
-          className="toggle-button"
+          className="fancy-button"
         >
           Show Sets
         </button>
         <button
           onClick={() => setActiveSection("params")}
-          className="toggle-button"
+          className="fancy-button"
         >
           Show Parameters
         </button>
