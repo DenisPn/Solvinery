@@ -274,7 +274,8 @@ const MyImagesPage = () => {
     setParamTypes(newParamTypes);
     setIsEditMode(true);
     setSelectedImageId(null); // Clear selectedImageId so we don't show the modal again when coming back
-    navigate("/image-setting-review");
+    setSelectedImage(null); // Clear selectedImage to reset the state
+    navigate("/configure-variables");
   };
   const handleCopyCode = () => {
     if (selectedImage?.code) {
