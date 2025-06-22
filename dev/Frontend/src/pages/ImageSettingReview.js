@@ -32,7 +32,7 @@ const ImageSettingReview = () => {
     setZplCode,
     isEditMode,
     setIsEditMode,
-    imageId
+    imageId,
   } = useZPL();
 
   useEffect(() => {
@@ -61,6 +61,7 @@ const ImageSettingReview = () => {
     setImageName("");
     setImageDescription("");
     setZplCode("");
+    setIsEditMode(false);
   };
 
 
@@ -193,13 +194,14 @@ const ImageSettingReview = () => {
       setImageName("");
       setImageDescription("");
       setZplCode("");
+      
 
       // Turn off edit mode if it was on
       if (isEditMode) {
         setIsEditMode(false);
       }
 
-      navigate("/");
+      navigate("/main-page");
     } catch (e) {
       console.error(e);
       alert(`Error: ${e.message}`);
@@ -218,7 +220,7 @@ const ImageSettingReview = () => {
   return (
     <div className="image-setting-page background">
       <div className="image-setting-top-left-buttons">
-        <Link to="/" title="Home" onClick={handleHomeClick}>
+        <Link to="/main-page" title="Home" onClick={handleHomeClick}>
           <img
             src="/images/HomeButton.png"
             alt="Home"
@@ -232,9 +234,19 @@ const ImageSettingReview = () => {
           onClick={handleSaveImage}
           title="Save Image"
         />
+        <button
+          onClick={handleShowZplCode}
+          className="show-zpl-button"
+          title="Show ZPL Code"
+        >
+          <img
+            src="/images/CopyZPLButton.png"
+            alt="Show ZPL Code"
+            className="show-zpl-icon"
+          />
+        </button>
       </div>
 
-      <h1 className="page-title">Image Setting: Sets and Parameters</h1>
       <div className="image-details">
         <label>Image Name</label>
         <input
@@ -243,17 +255,23 @@ const ImageSettingReview = () => {
           onChange={e => setImageName(e.target.value)}
           placeholder="Enter image name"
         />
-        <label>Image Description</label>
-        <textarea
-          value={imageDescription}
-          onChange={e => setImageDescription(e.target.value)}
-          placeholder="Enter image description"
-        />
+        <div className="description-group">
+          <label htmlFor="image-description">Image Description</label>
+
+          <textarea
+            id="image-description"
+            value={imageDescription}
+            onChange={e => setImageDescription(e.target.value)}
+            placeholder="Enter image description"
+            maxLength={4000}           
+          />
+
+          <span className="char-limit">Maximum&nbsp;4000&nbsp;chars</span>
+        </div>
+
       </div>
 
-      <button onClick={handleShowZplCode} className="show-zpl-button">
-        Show ZPL Code for this Image
-      </button>
+
       {isZplCodeVisible && (
         <div className="zpl-code-modal">
           <div className="modal-content">

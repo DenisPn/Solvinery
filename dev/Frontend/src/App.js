@@ -18,6 +18,7 @@ import MyImagesPage from "./pages/MyImagesPage";
 import ImageSettingSetAndParams from "./pages/ImageSettingSetAndParams";
 import ImageSettingReview from "./pages/ImageSettingReview";
 import RequireAuth from "./components/RequireAuth";
+import EntrancePage from "./pages/EntrancePage";
 
 
 function App() {
@@ -29,9 +30,10 @@ function App() {
   
   <Route path="/log-in" element={<LogInPage />} />
   <Route path="/register" element={<RegisterPage />} />
+  <Route path="/" element={<EntrancePage />} />
 
   {/* Protected routes */}
-  <Route path="/" element={<RequireAuth><MainPage /></RequireAuth>} />
+  <Route path="/main-page" element={<RequireAuth><MainPage /></RequireAuth>} />
   <Route path="/work-assignment" element={<RequireAuth><WorkAssignmentPage /></RequireAuth>} />
   <Route path="/upload-zpl" element={<RequireAuth><UploadZPLPage /></RequireAuth>} />
   <Route path="/view-images" element={<RequireAuth><ViewImagesPage /></RequireAuth>} />

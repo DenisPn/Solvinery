@@ -23,6 +23,7 @@ const SolutionPreviewPage = () => {
     setImageName,
     setImageDescription,
     setZplCode,
+    setIsEditMode,
   } = useZPL(); // Access selectedVars, constraintsModules, and preferenceModules from context
   const [editingVariable, setEditingVariable] = useState(null); // To keep track of the variable being edited
   const [editedAlias, setEditedAlias] = useState("");
@@ -159,7 +160,8 @@ const SolutionPreviewPage = () => {
     setImageName("");
     setImageDescription("");
     setZplCode("");
-    navigate("/")
+    setIsEditMode(false);
+    navigate("/main-page")
   };
 
 
@@ -173,7 +175,6 @@ const SolutionPreviewPage = () => {
         title="Go to Home"
       />
 
-      <h1 className="page-title">Solution Preview</h1>
 
       {/* Button to Toggle Sections */}
       <div className="toggle-section">

@@ -1,5 +1,6 @@
 package Persistence.Entities.Image.Operational;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import org.jetbrains.annotations.Nullable;
 
@@ -7,7 +8,7 @@ import java.util.Objects;
 
 @Embeddable
 public class PreferenceEntity {
-
+    @Column(length = 4000)
     private String preferenceName;
 
     public PreferenceEntity () {}

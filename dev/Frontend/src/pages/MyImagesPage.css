@@ -55,8 +55,8 @@
   right: 50%;
 }
 
-.input-box-my-images:focus ~ .bar-my-images:before,
-.input-box-my-images:focus ~ .bar-my-images:after {
+.input-box-my-images:focus~.bar-my-images:before,
+.input-box-my-images:focus~.bar-my-images:after {
   width: 50%;
 }
 
@@ -70,7 +70,7 @@
   opacity: 0.5;
 }
 
-.input-box-my-images:focus ~ .highlight-my-images {
+.input-box-my-images:focus~.highlight-my-images {
   -webkit-animation: inputHighlighter 0.3s ease;
   -moz-animation: inputHighlighter 0.3s ease;
   animation: inputHighlighter 0.3s ease;
@@ -80,24 +80,29 @@
   from {
     background: #5264AE;
   }
+
   to {
     width: 0;
     background: transparent;
   }
 }
+
 @-moz-keyframes inputHighlighter {
   from {
     background: #5264AE;
   }
+
   to {
     width: 0;
     background: transparent;
   }
 }
+
 @keyframes inputHighlighter {
   from {
     background: #5264AE;
   }
+
   to {
     width: 0;
     background: transparent;
@@ -118,6 +123,7 @@
   cursor: pointer;
   transition: 0.3s ease;
 }
+
 .clickable:hover {
   transform: scale(1.05);
   background-color: #f9f9f9;
@@ -131,7 +137,7 @@
   padding: 20px;
   border: 2px solid #ccc;
   border-radius: 15px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 
@@ -192,12 +198,27 @@
   cursor: pointer;
   z-index: 100;
 }
+
 /* Then individually offset them from the right */
-.modal-copy-button   { right:  20px; }
-.modal-edit-button   { right:  60px; }
-.modal-solve-button  { right: 100px; }
-.modal-publish-button{ right: 140px; }
-.modal-delete-button { right: 180px; }
+.modal-copy-button {
+  right: 20px;
+}
+
+.modal-edit-button {
+  right: 60px;
+}
+
+.modal-solve-button {
+  right: 100px;
+}
+
+.modal-publish-button {
+  right: 140px;
+}
+
+.modal-delete-button {
+  right: 180px;
+}
 
 
 
@@ -207,7 +228,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden; /* Optional, not the problem now */
+  overflow: hidden;
+  /* Optional, not the problem now */
 }
 
 .my-images-form-container {
@@ -217,7 +239,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between; /* Key: distribute title, grid, footer evenly */
+  justify-content: space-between;
+  /* Key: distribute title, grid, footer evenly */
   padding: 30px 0;
   box-sizing: border-box;
 }
@@ -227,12 +250,14 @@
   grid-template-columns: repeat(5, 1fr);
   gap: 20px;
   width: 1050px;
-  height: 500px;            /* was 460px, now taller */
+  height: 500px;
+  /* was 460px, now taller */
   justify-items: center;
   align-content: start;
   overflow: visible;
-   padding-top: 10px;  
-  padding-bottom: 30px;     /* add this line to make room for hover growth */
+  padding-top: 10px;
+  padding-bottom: 30px;
+  /* add this line to make room for hover growth */
 }
 
 
@@ -319,8 +344,10 @@
   background: white;
   padding: 30px;
   border-radius: 12px;
-  width: 1200px;              /* doubled width */
-  height: 1000px;             /* doubled height */
+  width: 1200px;
+  /* doubled width */
+  height: 1000px;
+  /* doubled height */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -335,8 +362,10 @@
   background: white;
   padding: 20px;
   border-radius: 12px;
-  width: 1000px;              /* doubled width */
-  height: 800px;              /* doubled height */
+  width: 1000px;
+  /* doubled width */
+  height: 800px;
+  /* doubled height */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -368,22 +397,117 @@
 }
 
 .grid-button-section {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 50px;             
-  width: 100%;
-  max-width: 500px;
-  margin-top: 40px;
-  justify-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.modal-button-group {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 80px;
+  margin-bottom: 16px;
+  flex-wrap: nowrap;
+  z-index: 1;
+}
+
+.modal-nav-group {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-button-group .button {
+  flex: 1;
+  /* each button takes equal share */
+  max-width: 200px;
+  /* optional cap if you don’t want them too wide */
+  min-width: 120px;
+  /* optional floor so they’re never too narrow */
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.modal-title {
+  position: relative;
+  margin: 1.5rem auto 0.5rem;
+  text-align: center;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #333;
+  text-transform: capitalize;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+
+}
+
+/* the little accent bar underneath */
+.modal-title::after {
+  content: "";
+  display: block;
+  width: 4rem;
+  /* adjust length */
+  height: 3px;
+  /* stripe thickness */
+  margin: 0.5rem auto;
+  /* space above & center */
+  background: #50e3c2;
+  /* your green */
+  border-radius: 2px;
+}
+
+.modal-desc {
+  /* keep your existing frame & grid background */
+  position: relative;
+  width: 90%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  background: #fff;
+  background-image:
+    linear-gradient(135deg,
+      rgba(200, 200, 200, 0.1) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(200, 200, 200, 0.1) 50%,
+      rgba(200, 200, 200, 0.1) 75%,
+      transparent 75%,
+      transparent);
+  background-size: 40px 40px;
+}
+
+.modal-desc p {
+  margin: 0 auto;
+  max-width: 85%;
+  font-family: "Merriweather", Georgia, serif;
+  font-size: 1.2rem;
+  line-height: 1.75;
+  color: #444;
+  text-align: center;
+  font-style: italic;
+  letter-spacing: 0.5px;
+  position: relative;
 }
 
 
-.modal-grid-buttons {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
-  margin-top: 40px;
+
+/* highlight the first sentence */
+.modal-desc p span.first-sentence {
+  font-weight: 600;
+  color: #333;
+  font-style: normal;
 }
+
+
 
 .modal-square-button {
   width: 200px;
@@ -406,6 +530,80 @@
   text-align: center;
 }
 
+/* force the preferences panel to clear the top buttons */
+.modal-section-data.preferences-modal {
+  /* make it a block‐level, column‐stacked container */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* push it down so it’s clearly below the buttons row */
+  margin-top: 4rem;
+  /* make sure it spans the full inner width of the modal */
+  width: 100%;
+  clear: both;
+}
+
+.preferences-modal .module-box::before,
+.preferences-modal .module-box::after,
+.preferences-modal .module-box .module-title::before,
+.preferences-modal .module-box .module-title::after {
+  display: none !important;
+  content: none !important;
+}
+
+.slider-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.info-icon:hover {
+  background: #50e3c2;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.info-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #50e3c2;
+  border-radius: 50%;
+  background: #fff;
+  color: #50e3c2;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: help;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.info-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 110%;
+  transform: translateY(-50%);
+  padding: 0.5rem;
+  background: #333;
+  color: #fff;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.info-icon:hover .info-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+
 .modal-back-button {
   display: block;
   margin: 20px auto 0 auto;
@@ -423,8 +621,10 @@
   position: relative;
   background: white;
   border-radius: 12px;
-  width: 900px;
-  height: 600px;
+  width: 95vw;
+  /* take 95% of viewport width */
+  height: 95vh;
+  /* take 95% of viewport height */
   padding: 30px 40px;
   display: flex;
   flex-direction: column;
@@ -509,8 +709,10 @@
 /* Fix position and margin for top-left buttons (Close & Back) */
 .modal-corner-button {
   position: absolute;
-  top: 20px;  /* margin from top */
-  left: 20px; /* margin from left */
+  top: 20px;
+  /* margin from top */
+  left: 20px;
+  /* margin from left */
   width: 40px;
   height: 40px;
   cursor: pointer;
@@ -549,7 +751,8 @@
 
 .set-value-item {
   position: relative;
-  padding: 4px 48px 4px 8px; /* Leave space for buttons on the right */
+  padding: 4px 48px 4px 8px;
+  /* Leave space for buttons on the right */
   background-color: #f5f5f5;
   border-radius: 4px;
   margin-bottom: 6px;
@@ -582,8 +785,20 @@
   padding: 7px 12px;
 }
 
-.sets-modal{
-   margin-top: 55px;
+.sets-modal {
+  margin-top: 55px;
+}
+
+.parameters-modal {
+  /* if you already have padding, just increase the top */
+  padding-top: 2rem;
+  /* adjust this value as desired */
+}
+
+/* Optional: if you prefer to target the table itself */
+.parameters-modal .parameters-table {
+  margin-top: 1rem;
+  /* adds space above the table */
 }
 
 .parameters-table-container {
@@ -594,26 +809,46 @@
 
 .parameters-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
-  font-size: 16px;
-  margin-top: 60px;
-   table-layout: fixed; 
+  margin-top: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.parameters-table thead {
+  background: #f4f6f8;
+}
+
+.parameters-table tbody tr:nth-child(even) {
+  background: #fafafa;
 }
 
 .parameters-table th,
 .parameters-table td {
   padding: 12px 16px;
   border: 1px solid #ddd;
-  width: 33.33%; /* Equal width */
-  text-align: center; /* Horizontal centering */
-  vertical-align: middle; /* Vertical centering */
+  width: 33.33%;
+  /* Equal width */
+  text-align: center;
+  /* Horizontal centering */
+  vertical-align: middle;
+  /* Vertical centering */
   box-sizing: border-box;
-    overflow: hidden;
-      text-overflow: ellipsis;
-        white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-
-
+.parameters-table td {
+  padding: 10px 12px;
+  vertical-align: middle;
+  font-size: 0.9rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
 }
 
 
@@ -625,7 +860,8 @@
 .parameter-table input {
   width: 90%;
   box-sizing: border-box;
-  text-align: center; /* ✅ Center the text */
+  text-align: center;
+  /* ✅ Center the text */
 }
 
 .parameter-table td input[type="text"] {
@@ -638,35 +874,107 @@ td input[type="text"] {
   text-align: center !important;
 }
 
-
-
-
-.module-box {
-  background-color: #f9f9f9;
-  border: 2px solid #00afb9;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  transition: transform 0.2s ease;
+.param-cell-edit {
+  text-align: center;
+  white-space: nowrap;
 }
 
-.module-box:hover {
-  transform: translateY(-3px);
-  background-color: #f0fefe;
+.param-cell-value {
+  text-align: center;
+}
+
+.param-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  margin: 0 4px;
+  transition: color 0.2s;
+}
+
+.param-btn:hover {
+  color: #007acc;
+}
+
+.param-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.module-box::before,
+.module-box::after {
+  content: none !important;
+  display: none !important;
+}
+
+.preferences-modal .module-box {
+  display: flex;
+  flex-direction: column;
+  /* stack rows vertically */
+  padding: 1.5rem;
+  gap: 1rem;
+  background-image: repeating-linear-gradient(45deg,
+      #fff,
+      #fff 10px,
+      #f0f0f0 10px,
+      #f0f0f0 20px);
+  border-radius: 1rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  width: 75%;
+  margin: 2rem auto;
 }
 
 
-.module-title {
-  font-weight: bold;
-  font-size: 18px;
-  margin-bottom: 6px;
-  color: #2a7b9b;
+
+/* Slider sits to the right of the title */
+.preferences-modal .module-box .slider-container {
+  flex: 0 0 30%;
+  margin-left: auto;
 }
 
-.module-description {
-  font-size: 14px;
-  margin-bottom: 10px;
+/* Description forced to next “row” */
+.preferences-modal .module-box .module-description {
+  font-style: italic;
+  color: #666;
+  line-height: 1.5;
+  padding-left: .5rem;
+}
+
+.preferences-modal .module-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.preferences-modal .module-box .module-title {
+  flex: 1;
+  text-transform: uppercase;
+  font-size: 1.25rem;
+  letter-spacing: .1em;
+  border-bottom: 2px solid #50e3c2;
+  /* underline */
+  padding-bottom: .25rem;
+}
+
+.preferences-modal .module-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: #50e3c2;
+  border-radius: 2px;
+}
+
+.preferences-modal .module-description {
+  font-style: italic;
+  color: #666;
+  margin: 0;
 }
 
 .module-checkbox {
@@ -677,11 +985,10 @@ td input[type="text"] {
   margin-top: 8px;
 }
 
-.slider-container {
+.preferences-modal .slider-container {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 10px;
+  gap: 0.5rem;
 }
 
 .preference-slider {
@@ -700,7 +1007,7 @@ td input[type="text"] {
 .preference-slider::-webkit-slider-runnable-track {
   height: 6px;
   background-color: #ddd;
-  border-radius: 10px; 
+  border-radius: 10px;
 }
 
 .modules-container {
@@ -712,13 +1019,96 @@ td input[type="text"] {
   padding-right: 6px;
 }
 
+.preferences-modal .slider-container input[type="range"] {
+  width: 150px;
+  height: 8px;
+  cursor: pointer;
+}
+
+/* Base reset */
+.preferences-modal input[type="range"] {
+  -webkit-appearance: none;
+  width: 75%;
+  /* or whatever width you need */
+  height: 8px;
+  /* track thickness */
+  margin: 0 1rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* WebKit browsers */
+.preferences-modal input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, #4a90e2, #50e3c2);
+  height: 8px;
+  border-radius: 4px;
+}
+
+.preferences-modal input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: 3px solid #4a90e2;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  margin-top: -6px;
+  /* half of thumb height minus half of track height */
+  transition: transform 0.2s ease;
+}
+
+.preferences-modal input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Firefox */
+.preferences-modal input[type="range"]::-moz-range-track {
+  background: linear-gradient(90deg, #4a90e2, #50e3c2);
+  height: 8px;
+  border-radius: 4px;
+}
+
+.preferences-modal input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: 3px solid #4a90e2;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.preferences-modal input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Optional: hide outline when dragging */
+.preferences-modal input[type="range"]:focus {
+  outline: none;
+}
+
+
+.preferences-modal .slider-container span {
+  min-width: 2rem;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+}
+
+.preferences-modal .module-box .header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 /* ===== Tuple Values Table Styling ===== */
 .tuple-values-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 12px;
   font-size: 0.95rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   border-radius: 6px;
   overflow: hidden;
 }
@@ -745,4 +1135,432 @@ td input[type="text"] {
 
 .tuple-values-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.pagination-row {
+  display: flex;
+  align-items: center;
+  /* vertical centering */
+  justify-content: center;
+  /* horizontal centering */
+  gap: 10px;
+  /* space between arrow ↔ text ↔ arrow */
+  margin-top: 20px;
+}
+
+.pagination-row span {
+  align-self: center;
+}
+
+.add-row-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background-color: #2a7b9b;
+  /* main brand color */
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.add-row-button:hover {
+  background-color: #1f5d75;
+  /* darker on hover */
+  transform: translateY(-1px);
+}
+
+.add-row-button:active {
+  background-color: #244f64;
+  /* even darker when pressed */
+  transform: translateY(0);
+}
+
+/* Container for header row */
+.sets-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Restyled “Choose a set” label */
+.sets-header__label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2a7b9b;
+}
+
+/* Pill‐shaped dropdown */
+.sets-header__select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-size: 15px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.sets-header__select:focus {
+  outline: none;
+  border-color: #2a7b9b;
+}
+
+/* Reuse your existing add-row-button styling from before */
+.add-row-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background-color: #2a7b9b;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.add-row-button:hover {
+  background-color: #1f5d75;
+  transform: translateY(-1px);
+}
+
+.add-row-button:active {
+  background-color: #244f64;
+  transform: translateY(0);
+}
+
+.fancy-button {
+  flex: 0 0 300px;
+  position: relative;
+  padding: 12px 0;
+  border: 3px solid #666;
+  border-radius: 30px;
+  background: transparent;
+  color: #666;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: .21em;
+  line-height: 54px;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: color .3s, background 0s;
+  cursor: pointer;
+}
+
+.fancy-button:before,
+.fancy-button:after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #e3e2db;
+  z-index: -1;
+  opacity: .5;
+  transform: translateY(200%);
+  transition: transform .3s;
+}
+
+
+.fancy-button:hover {
+  background: #e3e2db;
+  color: #000;
+  transition: background .3s .2s, color .3s;
+}
+
+
+.fancy-button:hover:before,
+.fancy-button:hover:after {
+  transform: translateY(100%);
+}
+
+.fancy-button:hover:before {
+  transition-delay: .175s;
+}
+
+/* —— CONSTRAINTS cards reuse the Preferences look —— */
+/* exactly the same card styling as preferences */
+.constraints-modal .module-box {
+  width: 75%;
+  /* 75% of the full modal width */
+  margin: 2rem auto;
+  /* centered with vertical spacing */
+  padding: 1.5rem;
+  background-image: repeating-linear-gradient(45deg,
+      #fff,
+      #fff 10px,
+      #f0f0f0 10px,
+      #f0f0f0 20px);
+  border-radius: 1rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+
+}
+
+/* mirror the prefs parent‐wrapper */
+.modal-section-data.constraints-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* center the 75%-wide cards */
+  width: 100%;
+  /* span the full modal */
+  clear: both;
+  /* ensure it sits below the tabs */
+  margin-top: 4rem;
+  /* push it down under the buttons */
+}
+
+
+
+.constraints-modal .module-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.constraints-modal .module-underline {
+  width: 4rem;
+  height: 3px;
+  background: #50e3c2;
+  border-radius: 2px;
+  margin-top: 0.25rem;
+}
+
+/* keep header-row flex layout */
+.constraints-modal .module-box .header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* thin green bar under title */
+.constraints-modal .module-underline {
+  height: 3px;
+  width: 40px;
+  background: #50e3c2;
+  border-radius: 2px;
+  margin-left: 0;
+  /* align with title's left edge */
+}
+
+/* title styling, uppercase like preferences */
+.constraints-modal .module-title {
+  position: relative;
+  font-size: 1.25rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #333;
+}
+
+.constraints-modal .module-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  /* sits exactly at the baseline of the title */
+  left: 0;
+  /* flush with the left edge */
+  width: 8rem;
+  /* make this as long as you like */
+  height: 3px;
+  background: #50e3c2;
+  border-radius: 2px;
+  transform: translateY(0.25em);
+  /* drop it just below the text */
+}
+
+/* description italics */
+.constraints-modal .module-description {
+  font-style: italic;
+  color: #666;
+  line-height: 1.5;
+  padding-left: .5rem;
+}
+
+/* make sure the constraints-panel wrapper stretches its children */
+.constraints-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch !important;
+  /* if you’d previously set align-items:center, this will override it */
+}
+
+/* checkbox stays at bottom-right */
+.constraints-modal .module-checkbox {
+  position: absolute;
+  top: 50%;
+  right: 60px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+/* hide native box */
+.fancy-checkbox input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* the visible box */
+.fancy-checkbox .checkbox-box {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #50e3c2;
+  border-radius: 4px;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  position: relative;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+/* check mark */
+.fancy-checkbox .checkbox-box::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.2s ease-out;
+}
+
+/* when checked */
+.fancy-checkbox input:checked+.checkbox-box {
+  background: #50e3c2;
+  border-color: #50e3c2;
+}
+
+.fancy-checkbox input:checked+.checkbox-box::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.info-icon {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  color: #50e3c2;
+  border: 2px solid #50e3c2;
+  border-radius: 50%;
+  font-weight: bold;
+  cursor: help;
+  margin-left: 0.5rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.info-icon:hover {
+  background: #50e3c2;
+  color: #fff;
+}
+
+.info-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.info-icon:hover .info-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.constraints-modal input[type="checkbox"] {
+  /* reset native checkbox */
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  outline: none;
+
+  /* outer shell */
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #ececec;
+  box-shadow:
+    /* top-left highlight */
+    -6px -6px 12px rgba(255, 255, 255, 0.7),
+    /* bottom-right shadow */
+    6px 6px 12px rgba(70, 70, 70, 0.15);
+
+  position: relative;
+  cursor: pointer;
+}
+
+/* inner “pressed-in” disc */
+.constraints-modal input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ececec;
+  box-shadow:
+    inset -4px -4px 8px rgba(255, 255, 255, 0.7),
+    inset 4px 4px 8px rgba(70, 70, 70, 0.1);
+}
+
+/* power icon */
+.constraints-modal input[type="checkbox"]::after {
+  font-family: FontAwesome;
+  content: "\f011";
+  font-weight: 900;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  color: #7a7a7a;
+  transition: color 0.2s;
+}
+
+/* when checked, deepen the inset & turn icon green */
+.constraints-modal input[type="checkbox"]:checked {
+  box-shadow:
+    inset -6px -6px 12px rgba(255, 255, 255, 0.7),
+    inset 6px 6px 12px rgba(70, 70, 70, 0.15);
+}
+
+
+
+.constraints-modal input[type="checkbox"]:checked::after {
+  color: #15e38a;
 }

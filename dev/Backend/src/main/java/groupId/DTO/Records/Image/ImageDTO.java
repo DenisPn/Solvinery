@@ -29,13 +29,14 @@ public record ImageDTO(
                        @NotNull @Valid Set<PreferenceModuleDTO> preferenceModules,
                        @NotNull Set<@NotNull @Valid SetDTO> sets,
                        @NotNull Set<@NotNull @Valid ParameterDTO> parameters,
-                       @NotBlank @Size(max = 255, message = "Image name can't be longer then 255") String name,
-                       @NotNull @Size(max = 4000, message = "Image description can't be longer then 4000") String description,
+                       @NotBlank @Size(max = 255, message = "Image name has be shorter then 255 characters") String name,
+                       @NotNull @Size(max = 4000, message = "Image description has be shorter then 4000 characters") String description,
                        @NotNull String code
                        )
 {
     @NonNull
     @Override
+    //for readable logs
     public String toString() {
         try {
             return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this);

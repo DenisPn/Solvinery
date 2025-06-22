@@ -126,7 +126,7 @@ const UploadZPLPage = () => {
     <div className="upload-zpl-page background">
       {/* Home Button */}
       <div className="top-left-buttons">
-        <Link to="/" title="Home" onClick={handleHomeClick}>
+        <Link to="/main-page" title="Home" onClick={handleHomeClick}>
           <img
             src="/images/HomeButton.png"
             alt="Home"

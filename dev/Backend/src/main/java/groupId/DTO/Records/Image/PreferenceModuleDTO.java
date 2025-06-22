@@ -15,5 +15,5 @@ import java.util.Set;
 public record PreferenceModuleDTO(@NotBlank String moduleName,
                                   @NotNull  @Size(max = 4000, message = "Preference module description size invalid") String description,
                                   @Size(max = 255, message = "Preference module name size invalid") @Valid Set<@NotBlank String> preferences,
-                                  @NotNull @Min(0) @Max(1) Float scalar
+                                  @Min(0) @Max(1) Float scalar
                                 ) {}

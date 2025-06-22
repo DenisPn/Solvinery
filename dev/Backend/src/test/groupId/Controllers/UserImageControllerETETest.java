@@ -171,8 +171,8 @@ public class UserImageControllerETETest {
                                             new PreferenceDTO("(sum <c1,d1,h1,dur1> in CLASS_OPTIONS:\\r\\n sum <c2,d2,h2,dur2> in CLASS_OPTIONS with d1 == d2 and h1 < h2:\\r\\n selection[c1,d1,h1,dur1] * selection[c2,d2,h2,dur2] * (h2 - (h1 + dur1)))")
                                     ),
                                     Set.of(
-                                            new VariableDTO("day_has_class", List.of("UNKNOWN"), null),
-                                            new VariableDTO("selection", List.of("TEXT","TEXT","INT","FLOAT"), null)
+                                            new VariableDTO("day_has_class", List.of("UNKNOWN"), "day_has_class","Objective Value"),
+                                            new VariableDTO("selection", List.of("TEXT","TEXT","INT","FLOAT"), "selection","Objective Value")
                                     ),
                                     Map.of("CLASS_OPTIONS",List.of("TEXT", "TEXT", "INT", "FLOAT")),
                                     Map.of()
@@ -196,11 +196,11 @@ public class UserImageControllerETETest {
                                             new PreferenceDTO("(max_shifts_per_soldier-min_shifts_per_soldier)")
                                     ),
                                     Set.of(
-                                            new VariableDTO("max_shifts_per_soldier", List.of(), null),
-                                            new VariableDTO("assignment", List.of("TEXT", "TEXT", "INT"), null),
-                                            new VariableDTO("min_hours_between_shifts", List.of(), null),
-                                            new VariableDTO("transition", List.of("TEXT", "TEXT", "INT", "TEXT", "INT") ,null),
-                                            new VariableDTO("min_shifts_per_soldier", List.of(), null)
+                                            new VariableDTO("max_shifts_per_soldier", List.of(), "max_shifts_per_soldier", "Objective Value"),
+                                            new VariableDTO("assignment", List.of("TEXT", "TEXT", "INT"), "assignment","Objective Value"),
+                                            new VariableDTO("min_hours_between_shifts", List.of(), "min_hours_between_shifts","Objective Value"),
+                                            new VariableDTO("transition", List.of("TEXT", "TEXT", "INT", "TEXT", "INT") ,"transition","Objective Value"),
+                                            new VariableDTO("min_shifts_per_soldier", List.of(), "min_shifts_per_soldier","Objective Value")
                                     ),
                                     Map.of("TIME_SLOTS", List.of("INT")
                                             ,"STATIONS",List.of("TEXT"),

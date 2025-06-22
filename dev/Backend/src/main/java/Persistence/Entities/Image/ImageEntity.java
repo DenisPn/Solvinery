@@ -28,7 +28,7 @@ public class ImageEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, length = 4000)
     private String description;
 
     @Column(name = "creation_date", nullable = false)
@@ -57,12 +57,6 @@ public class ImageEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private @Nullable UserEntity user;
-
-   /* @Lob
-    @Column(name = "image_zpl_code", nullable = false,
-    columnDefinition = "TEXT")
-    @Basic(fetch = FetchType.LAZY)
-    private String zimplCode;*/
 
     @Lob
     @Column(name = "original_source_code", nullable = false,

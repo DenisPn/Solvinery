@@ -25,6 +25,7 @@ export default function ImageSettingSetAndParams() {
     setImageName,
     setImageDescription,
     setZplCode,
+    setIsEditMode,
   } = useZPL();
 
   const navigate = useNavigate();
@@ -116,13 +117,14 @@ export default function ImageSettingSetAndParams() {
     setImageName("");
     setImageDescription("");
     setZplCode("");
-    navigate("/");
+    setIsEditMode(false);
+    navigate("/main-page");
   };
 
   return (
     <div className="image-setting-page background">
       <div className="image-setting-top-left-buttons">
-        <Link to="/" onClick={handleHomeClick}>
+        <Link to="/main-page" onClick={handleHomeClick}>
           <img src="/images/HomeButton.png" alt="Home" className="icon-btn" />
         </Link>
         <img
@@ -139,7 +141,6 @@ export default function ImageSettingSetAndParams() {
         />
       </div>
 
-      <h1 className="page-title">Image Settings – Sets &amp; Parameters</h1>
       <div className="toggle-section">
         <button
           onClick={() => setActiveSection("sets")}

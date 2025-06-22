@@ -81,7 +81,7 @@ public class ModifierVisitor extends FormulationBaseVisitor<Void> {
             String preferenceName = subCtx.start.getInputStream()
                     .getText(new Interval(subCtx.start.getStartIndex(),
                             subCtx.stop.getStopIndex()));
-            if (!model.hasPreference(preferenceName)) {
+            if (!model.isModified(preferenceName)) {
                 Preference preference = model.getModifiedPreferences().stream()
                         .filter(pref -> pref.getName().contains(preferenceName))
                         .findFirst()

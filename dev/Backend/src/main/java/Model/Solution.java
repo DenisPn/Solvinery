@@ -6,6 +6,7 @@ import Image.Modules.Single.VariableModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -16,7 +17,7 @@ public class Solution {
     private static final Pattern solvingTimePattern = Pattern.compile("Solving Time \\(sec\\) +: +(\\d+(?:\\.\\d+)?)");
     // private static final Pattern solvingTimePattern = Pattern.compile("Solving Time \\(sec\\) +: +(\\d+\\.\\d+)");
     private static final Pattern objectiveValuePattern = Pattern.compile("objective value:\\s+(-?\\d+(\\.\\d+)?)");
-    private static final Pattern variablePattern = Pattern.compile("^(.*?)[ \\t]+(\\d+)[ \\t]+\\(obj:(\\d+)\\)");
+    private static final Pattern variablePattern = Pattern.compile("^(.*?)[ \\t]+(-?\\d+)[ \\t]+\\(obj:(-?\\d+(?:\\.\\d+)?)\\)");
     boolean solved;
 
     /**
@@ -33,6 +34,8 @@ public class Solution {
     final HashMap<String, List<VariableSolution>> rawVariableSolution;
     @NonNull
     final HashMap<String,List<String>> variableStructure;
+    @NonNull
+    private final HashMap<String,String> objectiveValueMap;
     double solvingTime;
     /**
      *  the actual numeric value of the expression that was optimized
@@ -43,6 +46,7 @@ public class Solution {
     private boolean reachedVariables;
 
     public Solution(){
+        objectiveValueMap = new HashMap<>();
         variableSolution = new HashMap<>();
         variableStructure = new HashMap<>();
         rawVariableSolution = new HashMap<>();
@@ -88,7 +92,7 @@ public class Solution {
                 List<String> splitSolution = new LinkedList<>(Arrays.asList(solution.split("[#$]"))); //need a new array to remove dependence
                 String variableIdentifier = splitSolution.getFirst();
                 splitSolution.removeFirst();
-                if(objectiveValue != 0 && !variableIdentifier.isBlank()) {
+                if(/*objectiveValue != 0 &&*/ !variableIdentifier.isBlank()) {
                     if (!rawVariableSolution.containsKey(variableIdentifier))
                         rawVariableSolution.put(variableIdentifier, new LinkedList<>());
                     rawVariableSolution.get(variableIdentifier).add(new VariableSolution(splitSolution, objectiveValue));
@@ -106,6 +110,7 @@ public class Solution {
             variableStructure.put(variable.getAlias(),variable.getTypeStructure());
             if(rawVariableSolution.containsKey(variable.getName())) {
                 variableSolution.put(variable.getAlias(), rawVariableSolution.get(variable.getName()));
+                objectiveValueMap.put(variable.getAlias(), variable.getObjectiveValueAlias());
                 rawVariableSolution.remove(variable.getName());
             }
         }
@@ -117,7 +122,7 @@ public class Solution {
     public boolean isSolved() {
         return solved;
     }
-
+    @Nullable
     public List<VariableSolution> getVariableSolution(String identifier) {
         return variableSolution.get(identifier);
     }
@@ -135,11 +140,14 @@ public class Solution {
     public Set<String> getActiveVariables() {
         return variableSolution.keySet();
     }
-
+    @Nullable
     public List<String> getVariableStructure(String variableName) {
         return variableStructure.get(variableName);
     }
-
+    @Nullable
+    public String getObjectiveValueAlias(@NonNull String variableName) {
+        return objectiveValueMap.get(variableName);
+    }
     @Override
     public String toString() {
         ObjectMapper mapper = new ObjectMapper();
