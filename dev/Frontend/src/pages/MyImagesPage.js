@@ -213,6 +213,9 @@ const MyImagesPage = () => {
   };
   const handleEditImage = async () => {
     if (!selectedImageId || !selectedImage) return;
+    if (!window.confirm("Editing image requires understanding of the ZPL model, please ensure you have the necessary knowledge before proceeding. Would you like to continue?")) {
+      return;
+    }
     await updateImageOnServer();
     setImageId(selectedImageId);
     setImageName(selectedImage.name);

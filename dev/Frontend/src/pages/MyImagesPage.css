@@ -1559,9 +1559,7 @@ td input[type="text"] {
     inset 6px 6px 12px rgba(70, 70, 70, 0.15);
 }
 
-.constraints-modal input[type="checkbox"]:checked::before {
-  /* keep the inner disc consistent */
-}
+
 
 .constraints-modal input[type="checkbox"]:checked::after {
   color: #15e38a;

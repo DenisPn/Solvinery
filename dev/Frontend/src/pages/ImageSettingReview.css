@@ -60,6 +60,8 @@ input, textarea {
     outline: none;
     transition: border 0.2s ease-in-out;
     margin-bottom: 10px;
+    width: 100%;
+    resize: none;
 }
 
 input:focus, textarea:focus {
@@ -324,4 +326,95 @@ input:focus, textarea:focus {
   pointer-events: none;
    align-self: center;
   transform: translateY(2px); 
+}
+
+/* הקבוצה העוטפת */
+.description-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;            /* רווח קטן בין האלמנטים */
+  position: relative;
+  width: 100%; 
+}
+
+/* התווית – מוסתרת כברירת־מחדל */
+.char-limit {
+  font-size: 0.95rem;
+  color: #666;
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+}
+
+.description-group:focus-within .char-limit {
+  opacity: 1;
+}
+
+/* העוטף של שדות השם וה-Description */
+.image-details {
+  width: 70vw;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px; /* רווח קבוע בין קבוצות */
+}
+
+/* השדות עצמם ימלאו את כל רוחב הקונטיינר */
+.image-details input,
+.image-details textarea {
+  width: 100%;
+  padding: 14px 18px;            /* גודל פנימי */
+  font-size: 1.1rem;             /* טקסט גדול יותר */
+  border: 2px solid #B0BEC5;
+  border-radius: 8px;
+  background-color: #F8F9FA;
+  outline: none;
+  transition: border 0.2s ease-in-out;
+  resize: none;
+  box-sizing: border-box;
+ 
+}
+
+.image-details label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 6px;
+  margin-top: 16px; /* רווח בין שדות */
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.image-details .description-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+   min-height: 160px;
+}
+
+textarea {
+  width: 100% !important;
+}
+
+.image-details label {
+  font-size: 1rem;               /* טיפה יותר גדול */
+  font-weight: 600;              /* חצי־מודגש */
+  color: #333;                   /* צבע טקסט חזק יחסית */
+  margin-bottom: 4px;
+  margin-top: 20px;
+  letter-spacing: 0.5px;         /* ריווח אותיות */
+  text-transform: uppercase;     /* כל האותיות גדולות */
+  font-family: "Segoe UI", sans-serif; /* או כל פונט מודרני שיש לך */
+  transition: color 0.2s ease;
+}
+
+/* תגובה ל-hover או לפוקוס (רשות) */
+.image-details label:hover {
+  color: #007BFF;
+}
+
+.image-details label {
+  padding: 4px 8px;
+  border-left: 4px solid #007BFF;
+  background-color: rgba(0, 123, 255, 0.05);
+  border-radius: 3px;
 }
