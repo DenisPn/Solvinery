@@ -109,6 +109,7 @@ const MyImagesPage = () => {
   // Helper: PATCH full image
   async function updateImageOnServer() {
     if (!selectedImage || !selectedImageId || !userId) return;
+    setLoading(true);
 
     try {
       const payload = {
@@ -162,6 +163,8 @@ const MyImagesPage = () => {
         || err.message
         || "Unknown error";
       alert(`Update failed: ${JSON.stringify(message)}`);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -180,6 +183,7 @@ const MyImagesPage = () => {
   const handleSolveImage = async () => {
     if (!selectedImageId || !selectedImage) return;
     await updateImageOnServer();
+    setLoading(true);
     const preferenceModulesScalars = {};
     selectedImage.preferenceModules.forEach(mod => {
       const raw = Number(mod.value ?? 50);
@@ -197,6 +201,8 @@ const MyImagesPage = () => {
       navigate("/solution-results");
     } catch (err) {
       alert(`Solve error: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
   const handleDeleteImage = async () => {
@@ -279,7 +285,7 @@ const MyImagesPage = () => {
     <div className="my-images-background">
       {/* Loading spinner modal */}
       {loading && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
           <div className="spinner-modal">
             <div className="spinner" />
             <p>Loading…</p>
@@ -810,7 +816,7 @@ const MyImagesPage = () => {
 
                       <div className="module-description">{mod.description}</div>
 
-                      
+
                     </div>
                   ))}
                 </div>
