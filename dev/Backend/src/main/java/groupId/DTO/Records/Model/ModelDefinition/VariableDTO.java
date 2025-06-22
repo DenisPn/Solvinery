@@ -15,8 +15,8 @@ import java.util.List;
  * @param alias the variable's alias. Can be null to signify no alias
  */
 public record VariableDTO(
-    @NotBlank String identifier,
-    @Valid @NotNull @Size(min = 1,message = "Variable size has to be at least one.") List<@NotBlank String> structure,
-    @Nullable String alias,
-    @Nullable String objectiveValueAlias
+    @NotBlank  @Size(max = 255, message = "Variable name length has to be at most 255") String identifier,
+    @Valid @NotNull @Size(min = 1,message = "Variable structure size has to be at least one.") List<@NotBlank String> structure,
+    @Nullable @Size(max = 255, message = "Variable alias length has to be at most 255") String alias,
+    @Nullable @Size(max = 255, message = "Variable objective value alias length has to be at most 255") String objectiveValueAlias
 ) {}

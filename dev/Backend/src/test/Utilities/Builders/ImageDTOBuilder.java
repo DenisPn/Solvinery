@@ -27,7 +27,17 @@ public class ImageDTOBuilder {
     private String description;
     private String code;
 
-
+    public ImageDTOBuilder() {}
+    public ImageDTOBuilder(@NonNull ImageDTO imageDTO) {
+        this.variables = imageDTO.variables().stream().collect(Collectors.toMap(VariableDTO::identifier, variableDTO -> variableDTO));
+        this.constraintModules = imageDTO.constraintModules().stream().collect(Collectors.toMap(ConstraintModuleDTO::moduleName, constraintModuleDTO -> constraintModuleDTO));
+        this.preferenceModules = imageDTO.preferenceModules().stream().collect(Collectors.toMap(PreferenceModuleDTO::moduleName, preferenceModuleDTO -> preferenceModuleDTO));
+        this.sets = imageDTO.sets().stream().collect(Collectors.toMap(setDTO -> setDTO.setDefinition().name(), setDTO -> setDTO));
+        this.parameters = imageDTO.parameters().stream().collect(Collectors.toMap(parameterDTO -> parameterDTO.parameterDefinition().name(), parameterDTO -> parameterDTO));
+        this.name = imageDTO.name();
+        this.description = imageDTO.description();
+        this.code = imageDTO.code();
+    }
     @NonNull
     public ImageDTOBuilder withName(String name) {
         this.name = name;
@@ -58,21 +68,27 @@ public class ImageDTOBuilder {
     public ImageDTOBuilder withVariableName(String currentName, String newName) {
         if(!this.variables.containsKey(currentName))
             throw new IllegalArgumentException("Builder error: variable with name: " + currentName + " doesn't exist");
-        variables.computeIfPresent(currentName, (k, variableDTO) -> new VariableDTO(newName, variableDTO.structure(), variableDTO.alias()));
+        variables.computeIfPresent(currentName, (k, variableDTO) -> new VariableDTO(newName, variableDTO.structure(), variableDTO.alias(),variableDTO.objectiveValueAlias()));
         return this;
     }
     @NonNull
     public ImageDTOBuilder withVariableAlias(String variableName, String alias) {
         if(!this.variables.containsKey(variableName))
             throw new IllegalArgumentException("Builder error: variable with name: " + variableName + " doesn't exist");
-        variables.computeIfPresent(variableName, (k, variableDTO) -> new VariableDTO(variableDTO.identifier(), variableDTO.structure(), alias));
+        variables.computeIfPresent(variableName, (k, variableDTO) -> new VariableDTO(variableDTO.identifier(), variableDTO.structure(), alias,variableDTO.objectiveValueAlias()));
     return this;
+    }
+    public ImageDTOBuilder withVariableObjectiveValueAlias(String variableName, String objectiveValueAlias) {
+        if(!this.variables.containsKey(variableName))
+            throw new IllegalArgumentException("Builder error: variable with name: " + variableName + " doesn't exist");
+        variables.computeIfPresent(variableName, (k, variableDTO) -> new VariableDTO(variableDTO.identifier(), variableDTO.structure(), variableDTO.alias(), objectiveValueAlias));
+        return this;
     }
     @NonNull
     public ImageDTOBuilder withVariableStructure(String variableName, List<String> structure) {
         if(!this.variables.containsKey(variableName))
             throw new IllegalArgumentException("Builder error: variable with name: " + variableName + " doesn't exist");
-        variables.computeIfPresent(variableName, (k, variableDTO) -> new VariableDTO(variableDTO.identifier(), structure, variableDTO.alias()));
+        variables.computeIfPresent(variableName, (k, variableDTO) -> new VariableDTO(variableDTO.identifier(), structure, variableDTO.alias(),variableDTO.objectiveValueAlias()));
         return this;
     }
     @NonNull

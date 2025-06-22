@@ -26,7 +26,7 @@ public class PublishedImageEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, length = 4000)
     private String description;
 
     @Column(name = "creation_date", nullable = false)

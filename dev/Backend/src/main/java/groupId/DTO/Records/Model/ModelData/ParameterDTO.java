@@ -1,6 +1,7 @@
 package groupId.DTO.Records.Model.ModelData;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -9,5 +10,5 @@ import jakarta.validation.constraints.NotNull;
  * @param value The parameter's actual value
  * @see ParameterDefinitionDTO
  */
-public record ParameterDTO(@NotNull @Valid ParameterDefinitionDTO parameterDefinition, String value) {
+public record ParameterDTO(@NotNull @Valid ParameterDefinitionDTO parameterDefinition,@NotBlank String value) {
 }
