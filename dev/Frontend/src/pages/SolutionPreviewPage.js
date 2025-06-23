@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useZPL } from "../context/ZPLContext"; // Import useZPL
+import { useZPL } from "../context/ZPLContext";
 import { useNavigate, Link } from "react-router-dom";
-import "./SolutionPreviewPage.css"; // Assuming you have your CSS
+import "./SolutionPreviewPage.css";
 
 const SolutionPreviewPage = () => {
   const navigate = useNavigate();
@@ -24,118 +24,99 @@ const SolutionPreviewPage = () => {
     setImageDescription,
     setZplCode,
     setIsEditMode,
-  } = useZPL(); // Access selectedVars, constraintsModules, and preferenceModules from context
-  const [editingVariable, setEditingVariable] = useState(null); // To keep track of the variable being edited
+  } = useZPL();
+
+  // variable‐editing state
+  const [editingVariable, setEditingVariable] = useState(null);
   const [editedAlias, setEditedAlias] = useState("");
   const [editedStructure, setEditedStructure] = useState("");
-  const [editingConstraint, setEditingConstraint] = useState(null); // To keep track of the constraint being edited
-  const [editingPreference, setEditingPreference] = useState(null); // To keep track of the preference being edited
-  const [editedConstraintDescription, setEditedConstraintDescription] =
-    useState("");
-  const [editedPreferenceDescription, setEditedPreferenceDescription] =
-    useState("");
-  const [activeSection, setActiveSection] = useState("variables"); // Default to "variables" section
+  const [editedObjectiveValueAlias, setEditedObjectiveValueAlias] = useState("");
 
-  // Handle editing variable data
+  // constraint & preference state (unchanged)
+  const [editingConstraint, setEditingConstraint] = useState(null);
+  const [editedConstraintDescription, setEditedConstraintDescription] = useState("");
+  const [editingPreference, setEditingPreference] = useState(null);
+  const [editedPreferenceDescription, setEditedPreferenceDescription] = useState("");
+
+  const [activeSection, setActiveSection] = useState("variables");
+
+  // Open variable modal
   const handleEditVariableClick = (variable) => {
-    setEditingVariable(variable); // Set the variable being edited
-    setEditedAlias(variable.alias || ""); // Pre-fill alias if available
-    setEditedStructure(variable.structure || ""); // Pre-fill structure if available
+    setEditingVariable(variable);
+    setEditedAlias(variable.alias || "");
+    setEditedStructure(variable.structure || "");
+    setEditedObjectiveValueAlias(variable.objectiveValueAlias || "");
   };
 
+  // Save variable edits
   const handleSaveVariableEdit = () => {
-    const updatedVars = selectedVars.map((variable) => {
-      if (variable === editingVariable) {
-        return {
-          ...variable,
-          alias: editedAlias,
-          structure: editedStructure,
-        };
-      }
-      return variable;
-    });
-    setSelectedVars(updatedVars); // Save the edited data to context
-    setEditingVariable(null); // Close the modal
+    const updated = selectedVars.map((v) =>
+      v === editingVariable
+        ? {
+            ...v,
+            alias: editedAlias,
+            structure: editedStructure,
+            objectiveValueAlias: editedObjectiveValueAlias,
+          }
+        : v
+    );
+    setSelectedVars(updated);
+    setEditingVariable(null);
   };
 
   const handleCancelVariableEdit = () => {
-    setEditingVariable(null); // Close the modal without saving
+    setEditingVariable(null);
   };
 
   const handleDeleteVariable = (variable) => {
-    const updatedVars = selectedVars.filter((v) => v !== variable);
-    setSelectedVars(updatedVars); // Update the context with the new list
+    setSelectedVars(selectedVars.filter((v) => v !== variable));
   };
 
-  // Handle editing constraint data
+  // Constraints editing (unchanged)
   const handleEditConstraintClick = (constraint) => {
     setEditingConstraint(constraint);
-    setEditedConstraintDescription(constraint.description || ""); // Pre-fill description if available
+    setEditedConstraintDescription(constraint.description || "");
   };
-
   const handleSaveConstraintEdit = () => {
-    const updated = constraintsModules.map((mod) =>
+    setConstraintsModules(constraintsModules.map((mod) =>
       mod === editingConstraint
         ? { ...mod, description: editedConstraintDescription }
         : mod
-    );
-    setConstraintsModules(updated);
+    ));
     setEditingConstraint(null);
   };
-
   const handleDeleteConstraint = (moduleToDelete) => {
-    const updated = constraintsModules.filter((mod) => mod !== moduleToDelete);
-    setConstraintsModules(updated);
+    setConstraintsModules(constraintsModules.filter((mod) => mod !== moduleToDelete));
   };
 
-  // Handle editing preference data
+  // Preferences editing (unchanged)
   const handleEditPreferenceClick = (preference) => {
     setEditingPreference(preference);
-    setEditedPreferenceDescription(preference.description || ""); // Pre-fill description if available
+    setEditedPreferenceDescription(preference.description || "");
   };
-
   const handleSavePreferenceEdit = () => {
-    const updated = preferenceModules.map((mod) =>
+    setPreferenceModules(preferenceModules.map((mod) =>
       mod === editingPreference
         ? { ...mod, description: editedPreferenceDescription }
         : mod
-    );
-    setPreferenceModules(updated);
+    ));
     setEditingPreference(null);
   };
-
   const handleDeletePreference = (moduleToDelete) => {
-    const updated = preferenceModules.filter((mod) => mod !== moduleToDelete);
-    setPreferenceModules(updated);
+    setPreferenceModules(preferenceModules.filter((mod) => mod !== moduleToDelete));
   };
 
-  const handleToggleSection = (section) => {
-    setActiveSection(section); // Switch between "variables", "constraints", "preferences"
-  };
+  const handleToggleSection = (section) => setActiveSection(section);
 
   const handleHomeClick = () => {
-    setVariables([]);
-    setSelectedVars([]);
-    setVariablesModule({
-      variablesOfInterest: [],
-      variablesConfigurableSets: [],
-      variablesConfigurableParams: [],
+    setVariables([]); setSelectedVars([]); setVariablesModule({
+      variablesOfInterest: [], variablesConfigurableSets: [], variablesConfigurableParams: [],
     });
-    setConstraints([]);
-    setConstraintsModules([]);
-    setPreferences([]);
-    setPreferenceModules([]);
-    setSetTypes({});
-    setSetAliases({});
-    setParamTypes({});
-    setImageId(null);
-    setImageName("");
-    setImageDescription("");
-    setZplCode("");
-    setIsEditMode(false);
-    navigate("/main-page")
+    setConstraints([]); setConstraintsModules([]); setPreferences([]); setPreferenceModules([]);
+    setSetTypes({}); setSetAliases({}); setParamTypes({});
+    setImageId(null); setImageName(""); setImageDescription(""); setZplCode(""); setIsEditMode(false);
+    navigate("/main-page");
   };
-
 
   return (
     <div className="solution-preview-page background">
@@ -147,79 +128,72 @@ const SolutionPreviewPage = () => {
         title="Go to Home"
       />
 
-
-      {/* Button to Toggle Sections */}
+      {/* Section toggles */}
       <div className="toggle-section">
-        <button
-          onClick={() => handleToggleSection("variables")}
-          className="fancy-button"
-        >
+        <button onClick={() => handleToggleSection("variables")} className="fancy-button">
           Show Variables
         </button>
-        <button
-          onClick={() => handleToggleSection("constraints")}
-          className="fancy-button"
-        >
+        <button onClick={() => handleToggleSection("constraints")} className="fancy-button">
           Show Constraints
         </button>
-        <button
-          onClick={() => handleToggleSection("preferences")}
-          className="fancy-button"
-        >
+        <button onClick={() => handleToggleSection("preferences")} className="fancy-button">
           Show Preferences
         </button>
       </div>
 
-      {/* Conditional Rendering of Sections */}
+      {/* Variables */}
       {activeSection === "variables" && (
         <div className="variables-section">
           <h2 className="section-title">Variables</h2>
-
           <div className="slider-container">
             <div className="slider">
-              {selectedVars.length > 0 ? (
-                selectedVars.map((variable, index) => (
-                  <div key={index} className="slide">
-                    <div className="variable-details">
-                      <h4>Variable's name</h4>
-                      <p>{variable.identifier}</p>
-                      <br />
-                      <h4>Alias</h4>
-                      <input
-                        type="text"
-                        id={`alias-${index}`}
-                        className="variable-input"
-                        value={variable.alias || ""}
-                        readOnly
-                      />
-                      <h4>Structure</h4>
-                      <input
-                        type="text"
-                        id={`structure-${index}`}
-                        className="variable-input"
-                        value={variable.structure || ""}
-                        readOnly
-                      />
-                    </div>
+              {selectedVars.length ? selectedVars.map((variable, idx) => (
+                <div key={idx} className="slide">
+                  <div className="variable-details">
+                    <h4>Variable's name</h4>
+                    <p>{variable.identifier}</p>
 
-                    {/* Edit/Delete buttons */}
-                    <div className="buttons-container">
-                      <img
-                        src="/images/edit-button.png"
-                        alt="Edit"
-                        className="edit-image"
-                        onClick={() => handleEditVariableClick(variable)}
-                      />
-                      <img
-                        src="/images/delete.png"
-                        alt="Delete"
-                        className="delete-image"
-                        onClick={() => handleDeleteVariable(variable)}
-                      />
-                    </div>
+                    <h4>Alias</h4>
+                    <input
+                      type="text"
+                      className="variable-input"
+                      value={variable.alias || ""}
+                      readOnly
+                    />
+
+                    <h4>Structure</h4>
+                    <input
+                      type="text"
+                      className="variable-input"
+                      value={variable.structure || ""}
+                      readOnly
+                    />
+
+                    <h4>Objective Value Alias</h4>
+                    <input
+                      type="text"
+                      className="variable-input"
+                      value={variable.objectiveValueAlias || ""}
+                      readOnly
+                    />
                   </div>
-                ))
-              ) : (
+
+                  <div className="buttons-container">
+                    <img
+                      src="/images/edit-button.png"
+                      alt="Edit"
+                      className="edit-image"
+                      onClick={() => handleEditVariableClick(variable)}
+                    />
+                    <img
+                      src="/images/delete.png"
+                      alt="Delete"
+                      className="delete-image"
+                      onClick={() => handleDeleteVariable(variable)}
+                    />
+                  </div>
+                </div>
+              )) : (
                 <p>No variables selected yet.</p>
               )}
             </div>
@@ -227,45 +201,41 @@ const SolutionPreviewPage = () => {
         </div>
       )}
 
+      {/* Constraints */}
       {activeSection === "constraints" && (
         <div className="constraints-section">
           <h2 className="section-title">Constraints</h2>
-
           <div className="slider-container">
             <div className="slider">
-              {constraintsModules.length > 0 ? (
-                constraintsModules.map((module, index) => (
-                  <div key={index} className="slide">
-                    <div className="variable-details">
-                      <h4>Module Name</h4>
-                      <p>{module.name}</p>
-                      <h4>Description</h4>
-                      <input
-                        type="text"
-                        value={module.description}
-                        readOnly
-                        className="variable-input"
-                      />
-                    </div>
-
-                    {/* Edit/Delete buttons */}
-                    <div className="buttons-container">
-                      <img
-                        src="/images/edit-button.png"
-                        alt="Edit"
-                        className="edit-image"
-                        onClick={() => handleEditConstraintClick(module)}
-                      />
-                      <img
-                        src="/images/delete.png"
-                        alt="Delete"
-                        className="delete-image"
-                        onClick={() => handleDeleteConstraint(module)}
-                      />
-                    </div>
+              {constraintsModules.length ? constraintsModules.map((module, idx) => (
+                <div key={idx} className="slide">
+                  <div className="variable-details">
+                    <h4>Module Name</h4>
+                    <p>{module.name}</p>
+                    <h4>Description</h4>
+                    <input
+                      type="text"
+                      className="variable-input"
+                      value={module.description}
+                      readOnly
+                    />
                   </div>
-                ))
-              ) : (
+                  <div className="buttons-container">
+                    <img
+                      src="/images/edit-button.png"
+                      alt="Edit"
+                      className="edit-image"
+                      onClick={() => handleEditConstraintClick(module)}
+                    />
+                    <img
+                      src="/images/delete.png"
+                      alt="Delete"
+                      className="delete-image"
+                      onClick={() => handleDeleteConstraint(module)}
+                    />
+                  </div>
+                </div>
+              )) : (
                 <p>No constraints modules selected yet.</p>
               )}
             </div>
@@ -273,45 +243,41 @@ const SolutionPreviewPage = () => {
         </div>
       )}
 
+      {/* Preferences */}
       {activeSection === "preferences" && (
         <div className="preferences-section">
           <h2 className="section-title">Preferences</h2>
-
           <div className="slider-container">
             <div className="slider">
-              {preferenceModules.length > 0 ? (
-                preferenceModules.map((module, index) => (
-                  <div key={index} className="slide">
-                    <div className="variable-details">
-                      <h4>Module Name</h4>
-                      <p>{module.name}</p>
-                      <h4>Description</h4>
-                      <input
-                        type="text"
-                        value={module.description}
-                        readOnly
-                        className="variable-input"
-                      />
-                    </div>
-
-                    {/* Edit/Delete buttons */}
-                    <div className="buttons-container">
-                      <img
-                        src="/images/edit-button.png"
-                        alt="Edit"
-                        className="edit-image"
-                        onClick={() => handleEditPreferenceClick(module)}
-                      />
-                      <img
-                        src="/images/delete.png"
-                        alt="Delete"
-                        className="delete-image"
-                        onClick={() => handleDeletePreference(module)}
-                      />
-                    </div>
+              {preferenceModules.length ? preferenceModules.map((module, idx) => (
+                <div key={idx} className="slide">
+                  <div className="variable-details">
+                    <h4>Module Name</h4>
+                    <p>{module.name}</p>
+                    <h4>Description</h4>
+                    <input
+                      type="text"
+                      className="variable-input"
+                      value={module.description}
+                      readOnly
+                    />
                   </div>
-                ))
-              ) : (
+                  <div className="buttons-container">
+                    <img
+                      src="/images/edit-button.png"
+                      alt="Edit"
+                      className="edit-image"
+                      onClick={() => handleEditPreferenceClick(module)}
+                    />
+                    <img
+                      src="/images/delete.png"
+                      alt="Delete"
+                      className="delete-image"
+                      onClick={() => handleDeletePreference(module)}
+                    />
+                  </div>
+                </div>
+              )) : (
                 <p>No preference modules selected yet.</p>
               )}
             </div>
@@ -319,37 +285,47 @@ const SolutionPreviewPage = () => {
         </div>
       )}
 
-      {/* Modal for Editing Variable */}
+      {/* Edit Variable Modal */}
       {editingVariable && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="modal-overlay" onClick={handleCancelVariableEdit}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Edit Variable</h2>
+
             <div className="modal-input-group">
               <label>Alias</label>
               <input
                 type="text"
+                className="variable-input"
                 value={editedAlias}
                 onChange={(e) => setEditedAlias(e.target.value)}
-                className="variable-input"
               />
             </div>
+
             <div className="modal-input-group">
               <label>Structure</label>
               <input
                 type="text"
+                className="variable-input"
                 value={editedStructure}
                 onChange={(e) => setEditedStructure(e.target.value)}
-                className="variable-input"
               />
             </div>
+
+            <div className="modal-input-group">
+              <label>Objective Value Alias</label>
+              <input
+                type="text"
+                className="variable-input"
+                value={editedObjectiveValueAlias}
+                onChange={(e) => setEditedObjectiveValueAlias(e.target.value)}
+              />
+            </div>
+
             <div className="modal-buttons">
               <button className="save-button" onClick={handleSaveVariableEdit}>
                 Save
               </button>
-              <button
-                className="cancel-button"
-                onClick={handleCancelVariableEdit}
-              >
+              <button className="cancel-button" onClick={handleCancelVariableEdit}>
                 Cancel
               </button>
             </div>
@@ -357,31 +333,25 @@ const SolutionPreviewPage = () => {
         </div>
       )}
 
-      {/* Modal for Editing Constraint */}
+      {/* Edit Constraint Modal */}
       {editingConstraint && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="modal-overlay" onClick={() => setEditingConstraint(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Edit Constraint</h2>
             <div className="modal-input-group">
               <label>Description</label>
               <input
                 type="text"
+                className="variable-input"
                 value={editedConstraintDescription}
                 onChange={(e) => setEditedConstraintDescription(e.target.value)}
-                className="variable-input"
               />
             </div>
             <div className="modal-buttons">
-              <button
-                className="save-button"
-                onClick={handleSaveConstraintEdit}
-              >
+              <button className="save-button" onClick={handleSaveConstraintEdit}>
                 Save
               </button>
-              <button
-                className="cancel-button"
-                onClick={() => setEditingConstraint(null)}
-              >
+              <button className="cancel-button" onClick={() => setEditingConstraint(null)}>
                 Cancel
               </button>
             </div>
@@ -389,31 +359,25 @@ const SolutionPreviewPage = () => {
         </div>
       )}
 
-      {/* Modal for Editing Preference */}
+      {/* Edit Preference Modal */}
       {editingPreference && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="modal-overlay" onClick={() => setEditingPreference(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Edit Preference</h2>
             <div className="modal-input-group">
               <label>Description</label>
               <input
                 type="text"
+                className="variable-input"
                 value={editedPreferenceDescription}
                 onChange={(e) => setEditedPreferenceDescription(e.target.value)}
-                className="variable-input"
               />
             </div>
             <div className="modal-buttons">
-              <button
-                className="save-button"
-                onClick={handleSavePreferenceEdit}
-              >
+              <button className="save-button" onClick={handleSavePreferenceEdit}>
                 Save
               </button>
-              <button
-                className="cancel-button"
-                onClick={() => setEditingPreference(null)}
-              >
+              <button className="cancel-button" onClick={() => setEditingPreference(null)}>
                 Cancel
               </button>
             </div>
@@ -429,7 +393,6 @@ const SolutionPreviewPage = () => {
         />
       </Link>
 
-      {/* Back Button */}
       <Link to="/configure-preferences" title="Back">
         <img
           src="/images/RightArrowButton.png"

@@ -7,7 +7,11 @@ import './SolutionResultsPage.css';
 export default function SolutionResultsPage() {
   const { solutionResponse, setSelectedImage, setSelectedImageId } = useZPL();
   const solutionMap = solutionResponse?.solution || {};
-
+  const objectiveValueAlias =
+    solutionResponse?.objectiveValueAlias ||
+      solutionResponse?.objectiveValueAlias === "" ?
+      solutionResponse.objectiveValueAlias
+      : "Objective Value";
   // Log the full solutionResponse as soon as it arrives
   useEffect(() => {
     if (solutionResponse) {
@@ -176,7 +180,7 @@ export default function SolutionResultsPage() {
             <thead>
               <tr>
                 {columnTypes.map((t, i) => <th key={i}>{t}</th>)}
-                {showObjective && <th>Objective Value</th>}
+                {showObjective && <th>{objectiveValueAlias}</th>}
               </tr>
             </thead>
             <tbody>
