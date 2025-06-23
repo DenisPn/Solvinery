@@ -116,7 +116,8 @@ const MyImagesPage = () => {
         variables: (selectedImage.variables || []).map(v => ({
           identifier: v.identifier,
           structure: Array.isArray(v.structure) ? v.structure : [],
-          alias: v.alias || v.identifier
+          alias: v.alias || v.identifier,
+          objectiveValueAlias: v.objectiveValueAlias || ""
         })),
         constraintModules: (selectedImage.constraintModules || []).map(mod => ({
           moduleName: mod.moduleName,
