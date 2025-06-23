@@ -7,11 +7,7 @@ import './SolutionResultsPage.css';
 export default function SolutionResultsPage() {
   const { solutionResponse, setSelectedImage, setSelectedImageId } = useZPL();
   const solutionMap = solutionResponse?.solution || {};
-  const objectiveValueAlias =
-    solutionResponse?.objectiveValueAlias ||
-      solutionResponse?.objectiveValueAlias === "" ?
-      solutionResponse.objectiveValueAlias
-      : "Objective Value";
+
   // Log the full solutionResponse as soon as it arrives
   useEffect(() => {
     if (solutionResponse) {
@@ -37,6 +33,8 @@ export default function SolutionResultsPage() {
   const solutionsArray = Array.from(varData.solutions || []);
   const columnTypes = varData.typeStructure || [];
   const showObjective = solutionsArray.some(sol => sol.objectiveValue !== 1);
+
+  const objectiveValueAlias = varData.objectiveValueAlias || "Objective Value";
 
   // Pivot mapping
   const [mapping, setMapping] = useState({ rowIndex: 0, colIndex: 1, cellIndex: 2 });
