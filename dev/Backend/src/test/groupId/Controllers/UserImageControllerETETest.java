@@ -818,6 +818,73 @@ public class UserImageControllerETETest {
             assertEquals(testCase.originalImage.variables(), unchangedImage.variables());
             assertEquals(testCase.originalImage.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()), unchangedImage.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()));
             assertEquals(testCase.originalImage.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()), unchangedImage.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()));
+
+        }
+
+        @ParameterizedTest
+        @MethodSource("invalidConfigureCases")
+        @DisplayName("Given valid image, when configure image with ignore flag, image updated but data remains the same as original")
+        void givenValidImageUpdate_whenConfigureImageWithIgnoreDataFlag_thenDataDoesntChange(ConfigureImageCase testCase) {
+            //  create a valid image
+            ResponseEntity<CreateImageResponseDTO> createResponse = restTemplate.postForEntity(
+                    baseUri,
+                    testCase.originalImage(),
+                    CreateImageResponseDTO.class
+            );
+            assertTrue(createResponse.getStatusCode().is2xxSuccessful());
+            assertNotNull(createResponse.getBody());
+            String imageId = createResponse.getBody().imageId();
+
+            ResponseEntity<ImagesDTO> originalFetchResponse = restTemplate.getForEntity(
+                    baseUri + "/view",
+                    ImagesDTO.class
+            );
+            assertTrue(originalFetchResponse.getStatusCode().is2xxSuccessful());
+            assertNotNull(originalFetchResponse.getBody());
+            ImageDTO originalImage = originalFetchResponse.getBody().images().get(UUID.fromString(imageId));
+
+            ResponseEntity<Void> configureResponse = restTemplate.exchange(
+                    baseUri + "/{imageId}?ignoreData=true",
+                    HttpMethod.PATCH,
+                    new HttpEntity<>(testCase.updatedImage()),
+                    Void.class,
+                    imageId
+            );
+            assertTrue(configureResponse.getStatusCode().is4xxClientError());
+
+            ResponseEntity<ImagesDTO> fetchResponse = restTemplate.getForEntity(
+                    baseUri + "/view",
+                    ImagesDTO.class
+            );
+            assertTrue(fetchResponse.getStatusCode().is2xxSuccessful());
+            assertNotNull(fetchResponse.getBody());
+
+            ImageDTO newImage = fetchResponse.getBody().images().get(UUID.fromString(imageId));
+            assertNotNull(newImage);
+            assertEquals(originalImage.code(), newImage.code());
+            assertEquals(originalImage.description(), newImage.description());
+            assertEquals(originalImage.name(), newImage.name());
+            assertEquals(originalImage.constraintModules(), newImage.constraintModules());
+            assertEquals(originalImage.preferenceModules(), newImage.preferenceModules());
+            assertEquals(originalImage.variables(), newImage.variables());
+            assertEquals(originalImage.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()), newImage.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()));
+            assertEquals(originalImage.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()), newImage.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()));
+            originalImage.sets().forEach(originalSet -> {
+                assertNotNull(originalSet.values());
+                originalSet.values().forEach(Assertions::assertNotNull);
+                    newImage.sets().stream()
+                            .filter(actualSet -> actualSet.setDefinition().equals(originalSet.setDefinition()))
+                            .findFirst()
+                            .ifPresent(actualSet -> assertEquals(originalSet.values(), actualSet.values()));
+            });
+            originalImage.parameters().forEach(originalParams -> {
+                assertNotNull(originalParams.value());
+                newImage.parameters().stream()
+                            .filter(actualParam -> actualParam.parameterDefinition().equals(originalParams.parameterDefinition()))
+                            .findFirst()
+                            .ifPresent(actualParam -> assertEquals(originalParams.value(), actualParam.value()));
+
+            });
         }
 
     }
