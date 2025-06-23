@@ -68,146 +68,124 @@ const ImageSettingReview = () => {
   const handleShowZplCode = () => setIsZplCodeVisible(v => !v);
 
   const handleSaveImage = async () => {
+  // Validate name & description
+  if (!imageName.trim() || !imageDescription.trim()) {
+    alert("Please enter both an image name and a description.");
+    return;
+  }
 
-    // Validate name & description
-    if (!imageName.trim() || !imageDescription.trim()) {
-      alert("Please enter both an image name and a description.");
+  const requestData = {
+    variables: selectedVars.map(variable => {
+      const struct = Array.isArray(variable.structure)
+        ? variable.structure
+        : (variable.structure || "").split(",").map(s => s.trim()).filter(Boolean);
+
+      return {
+        identifier: variable.identifier,
+        structure: struct,
+        alias: variable.alias || variable.identifier,
+        objectiveValueAlias: variable.objectiveValueAlias || "",
+      };
+    }),
+
+    constraintModules: constraintsModules.map(mod => ({
+      moduleName: mod.name,
+      description: mod.description,
+      constraints: mod.constraints.map(c => c.identifier),
+    })),
+
+    preferenceModules: preferenceModules.map(mod => ({
+      moduleName: mod.name,
+      description: mod.description,
+      preferences: mod.preferences.map(p => p.identifier),
+    })),
+
+    sets: Object.entries(setTypes).map(([setName, rawType]) => {
+      const typeArray = Array.isArray(rawType)
+        ? rawType
+        : rawType.split(",").map(s => s.trim());
+
+      const { alias: userAlias, typeAlias: userTypeAlias = [] } = setAliases[setName] || {};
+
+      return {
+        setDefinition: {
+          name: setName,
+          alias: userAlias || setName,
+          structure: userTypeAlias.length ? userTypeAlias : typeArray,
+        },
+        values: [],
+      };
+    }),
+
+    parameters: Object.entries(paramTypes).map(([paramName, rawType]) => {
+      const structString = Array.isArray(rawType) ? rawType.join(",") : rawType;
+      const { alias: userParamAlias } = paramAliases[paramName] || {};
+
+      return {
+        parameterDefinition: {
+          name: paramName,
+          structure: structString,
+          alias: userParamAlias || "",
+        },
+        value: "",
+      };
+    }),
+
+    name: imageName,
+    description: imageDescription,
+    code: zplCode,
+  };
+
+  console.log("Request Data:", requestData);
+
+  const baseUrl = `/user/${userId}/image${isEditMode ? `/${imageId}` : ""}`;
+  const url = isEditMode ? `${baseUrl}?ignoreData=true` : baseUrl;
+  const method = isEditMode ? "PATCH" : "POST";
+  console.log("Request URL:", url);
+
+  try {
+    const response = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestData),
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      alert(`Failed to ${isEditMode ? "update" : "save"} image. Error: ${err || "Unknown error"}`);
       return;
     }
 
-    const requestData = {
+    alert(`Image ${isEditMode ? "updated" : "saved"} successfully!`);
 
+    // Reset everything
+    setVariables([]);
+    setSelectedVars([]);
+    setVariablesModule({
+      variablesOfInterest: [],
+      variablesConfigurableSets: [],
+      variablesConfigurableParams: [],
+    });
+    setConstraints([]);
+    setConstraintsModules([]);
+    setPreferences([]);
+    setPreferenceModules([]);
+    setSetTypes({});
+    setSetAliases({});
+    setParamTypes({});
+    setImageId(null);
+    setImageName("");
+    setImageDescription("");
+    setZplCode("");
+    setIsEditMode(false);
 
-      variables: selectedVars.map(variable => {
-        // Ensure structure is always an array:
-        const struct = Array.isArray(variable.structure)
-          ? variable.structure
-          : (variable.structure || "").split(",").map(s => s.trim()).filter(Boolean);
+    navigate("/main-page");
+  } catch (e) {
+    console.error(e);
+    alert(`Error: ${e.message}`);
+  }
+};
 
-        return {
-          identifier: variable.identifier,
-          structure: struct,  // a real array
-          alias: variable.alias || variable.identifier,
-          objectiveValueAlias: variable.objectiveValueAlias || "",
-        };
-      }),
-
-
-
-
-
-      constraintModules: constraintsModules.map(mod => ({
-        moduleName: mod.name,
-        description: mod.description,
-        constraints: mod.constraints.map(c => c.identifier),
-      })),
-      preferenceModules: preferenceModules.map(mod => ({
-        moduleName: mod.name,
-        description: mod.description,
-        preferences: mod.preferences.map(p => p.identifier),
-      })),
-
-      sets: Object.entries(setTypes).map(([setName, rawType]) => {
-        const typeArray = Array.isArray(rawType)
-          ? rawType
-          : rawType.split(",").map(s => s.trim());
-
-        // Always default alias to the setName
-        const { alias: userAlias, typeAlias: userTypeAlias = [] } =
-          setAliases[setName] || {};
-
-        return {
-          setDefinition: {
-            name: setName,
-            alias: userAlias || setName,
-            structure: userTypeAlias.length ? userTypeAlias : typeArray,
-          },
-          values: [],
-        };
-      }),
-
-      // …
-      parameters: Object.entries(paramTypes).map(([paramName, rawType]) => {
-        // normalize the structure to a string
-        const structString = Array.isArray(rawType)
-          ? rawType.join(",")
-          : rawType;
-
-        // **grab the user‐entered alias from paramAliases**
-        const { alias: userParamAlias } = paramAliases[paramName] || {};
-
-        return {
-          parameterDefinition: {
-            name: paramName,
-            structure: structString,
-            // if they never set an alias, send empty string (or omit if you prefer)
-            alias: userParamAlias || ""
-          },
-          value: ""
-        };
-      }),
-      // …
-
-
-
-
-      name: imageName,
-      description: imageDescription,
-      code: zplCode,
-    };
-
-    console.log("Request Data:", requestData);
-
-    const url = isEditMode
-      ? `/user/${userId}/image/${imageId}`
-      : `/user/${userId}/image`;
-    const method = isEditMode ? "PATCH" : "POST";
-
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestData),
-      });
-      if (!response.ok) {
-        const err = await response.text();
-        alert(`Failed to ${isEditMode ? "update" : "save"} image. Error: ${err || "Unknown error"}`);
-        return;
-      }
-      alert(`Image ${isEditMode ? "updated" : "saved"} successfully!`);
-
-      // Reset everything
-      setVariables([]);
-      setSelectedVars([]);
-      setVariablesModule({
-        variablesOfInterest: [],
-        variablesConfigurableSets: [],
-        variablesConfigurableParams: [],
-      });
-      setConstraints([]);
-      setConstraintsModules([]);
-      setPreferences([]);
-      setPreferenceModules([]);
-      setSetTypes({});
-      setSetAliases({});
-      setParamTypes({});
-      setImageId(null);
-      setImageName("");
-      setImageDescription("");
-      setZplCode("");
-      
-
-      // Turn off edit mode if it was on
-      if (isEditMode) {
-        setIsEditMode(false);
-      }
-
-      navigate("/main-page");
-    } catch (e) {
-      console.error(e);
-      alert(`Error: ${e.message}`);
-    }
-  };
 
   const handleCopyToClipboard = async () => {
     try {
