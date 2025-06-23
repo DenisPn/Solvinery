@@ -72,8 +72,9 @@ public class UserImageController {
     @PatchMapping("/{imageId}")
     public ResponseEntity<Void> configureImage(@NonNull @PathVariable String userId,
                                                @NonNull @PathVariable String imageId,
-                                               @NonNull @Valid @RequestBody ImageDTO imageDTO){
-        imageService.overrideImage(userId,imageId,imageDTO);
+                                               @NonNull @Valid @RequestBody ImageDTO imageDTO,
+                                               @RequestParam(defaultValue = "false") boolean ignoreData){
+        imageService.overrideImage(userId,imageId,imageDTO,ignoreData);
         return ResponseEntity.ok().build();
     }
     @NonNull

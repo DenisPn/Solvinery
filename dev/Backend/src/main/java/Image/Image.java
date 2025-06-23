@@ -159,7 +159,7 @@ public class Image {
      * In this impl, the Model is always loaded. We want to avoid doing so since loading the model
      * means parsing the zpl code, which, as one can expect, is heavy.
      */
-    public void override(@NonNull ImageDTO imageDTO) {
+    public void override(@NonNull ImageDTO imageDTO, boolean ignoreData) {
         this.constraintsModules.clear();
         this.preferenceModules.clear();
         this.activeSets.clear();
@@ -210,23 +210,34 @@ public class Image {
             ModelSet modelSet= model.getSet(setDTO.setDefinition().name());
             if(modelSet==null)
                 throw new ClientSideError("No set with name: " + setDTO.setDefinition().name());
+            List<String> setValues = setDTO.values();
+            if(setValues!=null && !ignoreData){
             for(String value: setDTO.values()) {
                 if (!modelSet.isCompatible(value))
                     throw new InvalidModelStateException(String.format("Data mismatch in set %s. Expected: %s, Actual: %s", setDTO.setDefinition().name(),
                             modelSet.getDataType().toString(),
                             value));
+                }
             }
-            activeSets.add(new SetModule(modelSet.getName(),setDTO.setDefinition().structure(),setDTO.setDefinition().alias(),setDTO.values()));
+            else {
+                setValues = modelSet.getData();
+            }
+            activeSets.add(new SetModule(modelSet.getName(),setDTO.setDefinition().structure(),setDTO.setDefinition().alias(),setValues));
+
         }
         for (ParameterDTO parameterDTO: imageDTO.parameters()){
             ModelParameter modelParameter= model.getParameter(parameterDTO.parameterDefinition().name());
             if(modelParameter==null)
                 throw new ClientSideError("No parameter with name: " + parameterDTO.parameterDefinition().name());
-            if(!modelParameter.isCompatible(parameterDTO.value()))
-                throw new UserInputException(String.format("Data mismatch in parameter %s. Expected: %s, Actual: %s",parameterDTO.parameterDefinition().name(),
-                        modelParameter.getDataType().toString(),
-                        parameterDTO.value()));
-            activeParams.add(new ParameterModule(modelParameter.getName(),parameterDTO.parameterDefinition().structure(),parameterDTO.parameterDefinition().alias(),parameterDTO.value()));
+            String value = parameterDTO.value();
+            if(value!=null && !value.isBlank() && !ignoreData) {
+                if (!modelParameter.isCompatible(parameterDTO.value()))
+                    throw new UserInputException(String.format("Data mismatch in parameter %s. Expected: %s, Actual: %s", parameterDTO.parameterDefinition().name(),
+                            modelParameter.getDataType().toString(),
+                            parameterDTO.value()));
+            }
+            else value = modelParameter.getData();
+            activeParams.add(new ParameterModule(modelParameter.getName(),parameterDTO.parameterDefinition().structure(),parameterDTO.parameterDefinition().alias(),value));
         }
     }
     public void apply(@NonNull ImageConfigDTO config) {

@@ -10,5 +10,5 @@ import jakarta.validation.constraints.NotNull;
  * @param value The parameter's actual value
  * @see ParameterDefinitionDTO
  */
-public record ParameterDTO(@NotNull @Valid ParameterDefinitionDTO parameterDefinition,@NotNull String value) {
+public record ParameterDTO(@NotNull @Valid ParameterDefinitionDTO parameterDefinition, String value) {
 }

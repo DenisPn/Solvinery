@@ -134,7 +134,7 @@ public class UserImageControllerETETest {
                         new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class",
                                 Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
                 ).withSets(
-                        new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                        new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), null)
                 );
     }
     private static ImageDTOBuilder validSoldiersExampleTemplate() {
@@ -155,10 +155,10 @@ public class UserImageControllerETETest {
                         new PreferenceModuleDTO("Shift Transition Consistency", "Force shift transitions to be consistent",
                                 Set.of("(min_hours_between_shifts)**2"), 0.5F)
                 ).withParameters(
-                        new ParameterDTO(new ParameterDefinitionDTO("MIN_HOURS_BETWEEN_SHIFTS","Length","Minimal hours between shifts"), "")
+                        new ParameterDTO(new ParameterDefinitionDTO("MIN_HOURS_BETWEEN_SHIFTS","Length","Minimal hours between shifts"), null)
                 ).withSets(
-                        new SetDTO(new SetDefinitionDTO("SOLDIERS", List.of("Soldier"), "Soldiers"), List.of()),
-                        new SetDTO(new SetDefinitionDTO("STATIONS", List.of("Station"), "Stations"), List.of())
+                        new SetDTO(new SetDefinitionDTO("SOLDIERS", List.of("Soldier"), "Soldiers"), null),
+                        new SetDTO(new SetDefinitionDTO("STATIONS", List.of("Station"), "Stations"), null)
                 );
     }
     private static Stream<ImageDTO> validExampleImagesStream() {
@@ -480,7 +480,6 @@ public class UserImageControllerETETest {
                     validClassesExampleTemplate().withSetStructureAlias("CLASS_OPTIONS",null).build(), //23 null structure
                     validClassesExampleTemplate().withSetStructureAlias("CLASS_OPTIONS",List.of("x".repeat(256))).build(), //24 long structure alias
                     validClassesExampleTemplate().withSetAlias("CLASS_OPTIONS","x".repeat(256)).build(), //25 long alias
-                    validClassesExampleTemplate().withSetValues("CLASS_OPTIONS",null).build(), //26 null values
                     validClassesExampleTemplate().withName(null).build(), //32 null image name
                     validClassesExampleTemplate().withName("").build(), //33 empty image name
                     validClassesExampleTemplate().withName("x".repeat(256)).build(), //34 long image name
@@ -495,7 +494,6 @@ public class UserImageControllerETETest {
                     validSoldiersExampleTemplate().withParameterName("MIN_HOURS_BETWEEN_SHIFTS",null).build(), //27 null name
                     validSoldiersExampleTemplate().withParameterStructureAlias("MIN_HOURS_BETWEEN_SHIFTS","x".repeat(256)).build(), //28 long structure alias
                     validSoldiersExampleTemplate().withParameterAlias("MIN_HOURS_BETWEEN_SHIFTS","x".repeat(256)).build(), //29 long alias
-                    validSoldiersExampleTemplate().withParameterValue("MIN_HOURS_BETWEEN_SHIFTS",null).build(), //30 null value
                     validSoldiersExampleTemplate().withParameterStructureAlias("MIN_HOURS_BETWEEN_SHIFTS","x".repeat(256)).build() //31 long structure alias)
             );
         }
@@ -752,7 +750,31 @@ public class UserImageControllerETETest {
 
             ImageDTO actualImage = fetchResponse.getBody().images().get(UUID.fromString(imageId));
             assertNotNull(actualImage);
-            assertEquals(testCase.updatedImage(), actualImage);
+            assertEquals(testCase.updatedImage.code(), actualImage.code());
+            assertEquals(testCase.updatedImage.description(), actualImage.description());
+            assertEquals(testCase.updatedImage.name(), actualImage.name());
+            assertEquals(testCase.updatedImage.constraintModules(), actualImage.constraintModules());
+            assertEquals(testCase.updatedImage.preferenceModules(), actualImage.preferenceModules());
+            assertEquals(testCase.updatedImage.variables(), actualImage.variables());
+            assertEquals(testCase.updatedImage.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()), actualImage.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()));
+            assertEquals(testCase.updatedImage.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()), actualImage.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()));
+            testCase.updatedImage.sets().forEach(expectedSet -> {
+                if (expectedSet.values() != null) {
+                    actualImage.sets().stream()
+                            .filter(actualSet -> actualSet.setDefinition().equals(expectedSet.setDefinition()))
+                            .findFirst()
+                            .ifPresent(actualSet -> assertEquals(expectedSet.values(), actualSet.values()));
+                }
+            });
+            testCase.updatedImage.parameters().forEach(expectedParam -> {
+                if (expectedParam.value() != null) {
+                    actualImage.parameters().stream()
+                            .filter(actualParam -> actualParam.parameterDefinition().equals(expectedParam.parameterDefinition()))
+                            .findFirst()
+                            .ifPresent(actualParam -> assertEquals(expectedParam.value(), actualParam.value()));
+                }
+            });
+
         }
         @ParameterizedTest
         @MethodSource("invalidConfigureCases")

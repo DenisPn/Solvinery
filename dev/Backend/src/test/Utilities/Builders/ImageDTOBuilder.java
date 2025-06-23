@@ -26,7 +26,7 @@ public class ImageDTOBuilder {
     private String name;
     private String description;
     private String code;
-
+    private Boolean ignoreData;
     public ImageDTOBuilder() {}
     public ImageDTOBuilder(@NonNull ImageDTO imageDTO) {
         this.variables = imageDTO.variables().stream().collect(Collectors.toMap(VariableDTO::identifier, variableDTO -> variableDTO));
@@ -37,6 +37,16 @@ public class ImageDTOBuilder {
         this.name = imageDTO.name();
         this.description = imageDTO.description();
         this.code = imageDTO.code();
+    }
+    @NonNull
+    public ImageDTOBuilder ignoreData() {
+        this.ignoreData = true;
+        return this;
+    }
+    @NonNull
+    public ImageDTOBuilder dontIgnoreData() {
+        this.ignoreData = false;
+        return this;
     }
     @NonNull
     public ImageDTOBuilder withName(String name) {

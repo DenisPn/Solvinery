@@ -62,7 +62,7 @@ public class ImageService {
      * @param userId the id of the user who owns the image to override
      */
     @Transactional
-    public void overrideImage(@NonNull String userId, @NonNull String imageId, @NonNull ImageDTO imageDTO) {
+    public void overrideImage(@NonNull String userId, @NonNull String imageId, @NonNull ImageDTO imageDTO,boolean ignoreData) {
         UserEntity user=userService.getUser(userId).orElseThrow(()-> new ClientSideError("User ID not found"));
         ImageEntity imageEntity=imageRepository.findById(UUID.fromString(imageId))
                 .orElseThrow(()->new ClientSideError("Invalid image ID during override image"));
@@ -73,7 +73,7 @@ public class ImageService {
         ImageEntity newImageEntity= new ImageEntity();
         newImageEntity.setId(imageEntity.getId());
         Image image= EntityMapper.toDomain(imageEntity);
-        image.override(imageDTO);
+        image.override(imageDTO,ignoreData);
         EntityMapper.setEntity(newImageEntity,user,image);
         imageRepository.save(newImageEntity);
     }
