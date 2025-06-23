@@ -328,22 +328,126 @@ public class UserImageControllerETETest {
 
             return Stream.concat(validClassesStream,validSoldiersStream);
         }
-        static Stream<ImageDTOBuilder> validClassesImageStream(){
+        static Stream<ImageDTOBuilder> validClassesImageStream() {
             return Stream.of(
-                    validClassesExampleTemplate(),
-                    validClassesExampleTemplate().withName("x".repeat(255)),
-                    validClassesExampleTemplate().withDescription("x".repeat(4000)),
-                    validClassesExampleTemplate().withVariableAlias("selection","x".repeat(255)),
-                    validClassesExampleTemplate().withVariableObjectiveValueAlias("selection","x".repeat(255)),
-                    validClassesExampleTemplate().withConstraintModuleName("Overlap","x".repeat(255)),
-                    validClassesExampleTemplate().withConstraintModuleDescription("Overlap","x".repeat(4000)),
-                    validClassesExampleTemplate().withPreferenceModuleName("minimize days with class","x".repeat(255)),
-                    validClassesExampleTemplate().withPreferenceModuleDescription("minimize days with class","x".repeat(4000))
-                    );
+                    validClassesExampleTemplate()
+                            .withName("Updated Name"),
+                    validClassesExampleTemplate()
+                            .withDescription("Updated description"),
+                    validClassesExampleTemplate()
+                            .withVariableAlias("selection", "Updated Alias"),
+                    validClassesExampleTemplate()
+                            .withVariableObjectiveValueAlias("selection", "Updated Objective Value"),
+                    validClassesExampleTemplate()
+                            .withConstraintModuleName("Overlap", "Updated Constraint Name"),
+                    validClassesExampleTemplate()
+                            .withConstraintModuleDescription("Overlap", "Updated constraint description"),
+                    validClassesExampleTemplate()
+                            .withPreferenceModuleName("minimize days with class", "Updated Preference Name"),
+                    validClassesExampleTemplate()
+                            .withPreferenceModuleDescription("minimize days with class", "Updated preference description"),
+                    validClassesExampleTemplate()
+                            .withPreferenceModuleScalar("minimize days with class", 0.5f),
+                    validClassesExampleTemplate()
+                            .withName("Updated Name")
+                            .withDescription("Updated description"),
+                    validClassesExampleTemplate()
+                            .withVariableAlias("selection", "Updated Alias")
+                            .withVariableObjectiveValueAlias("selection", "Updated Objective Value"),
+                    validClassesExampleTemplate()
+                            .withConstraintModuleName("Overlap", "Updated Constraint")
+                            .withConstraintModuleDescription("Overlap", "Updated constraint description"),
+                    validClassesExampleTemplate()
+                            .withPreferenceModuleName("minimize days with class", "Updated Preference")
+                            .withPreferenceModuleDescription("minimize days with class", "Updated preference description"),
+                    validClassesExampleTemplate()
+                            .withName("x".repeat(255)),
+                    validClassesExampleTemplate()
+                            .withDescription("x".repeat(4000)),
+                    validClassesExampleTemplate()
+                            .withVariableAlias("selection", "x".repeat(255)),
+                    validClassesExampleTemplate()
+                            .withVariableObjectiveValueAlias("selection", "x".repeat(255)),
+                    validClassesExampleTemplate()
+                            .withConstraintModuleDescription("Overlap", "x".repeat(4000)),
+                    validClassesExampleTemplate()
+                            .withName("Updated Name")
+                            .withVariableAlias("selection", "Updated Alias")
+                            .withConstraintModuleName("Overlap", "Updated Constraint"),
+                    validClassesExampleTemplate()
+                            .withDescription("Updated description")
+                            .withVariableObjectiveValueAlias("selection", "Updated Objective")
+                            .withPreferenceModuleScalar("minimize days with class", 0.5f),
+                    validClassesExampleTemplate()
+                            .withName("x".repeat(255))
+                            .withDescription("x".repeat(4000)),
+                    validClassesExampleTemplate()
+                            .withVariableAlias("selection", "x".repeat(255))
+                            .withVariableObjectiveValueAlias("selection", "x".repeat(255)),
+                    validClassesExampleTemplate()
+                            .withName("x".repeat(255))
+                            .withVariableAlias("selection", "Updated Alias")
+                            .withConstraintModuleName("Overlap", "Updated Constraint"),
+                    validClassesExampleTemplate()
+                            .withDescription("x".repeat(4000))
+                            .withVariableObjectiveValueAlias("selection", "x".repeat(255))
+                            .withPreferenceModuleScalar("minimize days with class", 0.5f),
+                    validClassesExampleTemplate()
+                            .withName("x".repeat(255))
+                            .withDescription("x".repeat(4000))
+                            .withVariableAlias("selection", "x".repeat(255))
+                            .withVariableObjectiveValueAlias("selection", "x".repeat(255))
+                            .withConstraintModuleDescription("Overlap", "x".repeat(4000))
+                            .withPreferenceModuleScalar("minimize days with class", 0.5f)
+            );
         }
-        static Stream<ImageDTOBuilder> validSoldiersImageStream(){
+
+        static Stream<ImageDTOBuilder> validSoldiersImageStream() {
             return Stream.of(
+                    // 1. Basic atomic changes
                     validSoldiersExampleTemplate()
+                            .withName("Updated Soldier Schedule"),
+                    validSoldiersExampleTemplate()
+                            .withDescription("Updated description"),
+                    validSoldiersExampleTemplate()
+                            .withParameterValue("MIN_HOURS_BETWEEN_SHIFTS", "12"),
+                    validSoldiersExampleTemplate()
+                            .withParameterAlias("MIN_HOURS_BETWEEN_SHIFTS", "Rest Period"),
+                    validSoldiersExampleTemplate()
+                            .withVariableAlias("assignment", "Updated Assignment"),
+                    validSoldiersExampleTemplate()
+                            .withConstraintModuleName("Forward Shift Transition", "Updated Transition"),
+
+                    // 2. Simple combinations
+                    validSoldiersExampleTemplate()
+                            .withName("Updated Schedule")
+                            .withDescription("Updated description"),
+                    validSoldiersExampleTemplate()
+                            .withParameterValue("MIN_HOURS_BETWEEN_SHIFTS", "12")
+                            .withParameterAlias("MIN_HOURS_BETWEEN_SHIFTS", "Rest Period"),
+
+                    // 3. Edge cases
+                    validSoldiersExampleTemplate()
+                            .withName("x".repeat(255)),
+                    validSoldiersExampleTemplate()
+                            .withDescription("x".repeat(4000)),
+                    validSoldiersExampleTemplate()
+                            .withParameterAlias("MIN_HOURS_BETWEEN_SHIFTS", "x".repeat(255)),
+
+                    // 4. Complex combinations
+                    validSoldiersExampleTemplate()
+                            .withName("Updated Schedule")
+                            .withParameterValue("MIN_HOURS_BETWEEN_SHIFTS", "12")
+                            .withVariableAlias("assignment", "New Assignment"),
+
+                    // 5. Maximum complexity
+                    validSoldiersExampleTemplate()
+                            .withName("x".repeat(255))
+                            .withDescription("x".repeat(4000))
+                            .withParameterValue("MIN_HOURS_BETWEEN_SHIFTS", "16")
+                            .withParameterAlias("MIN_HOURS_BETWEEN_SHIFTS", "x".repeat(255))
+                            .withVariableAlias("assignment", "x".repeat(255))
+                            .withConstraintModuleName("Forward Shift Transition", "x".repeat(255))
             );
         }
         static Stream<ImageDTO> invalidCaseStream() {
@@ -417,7 +521,16 @@ public class UserImageControllerETETest {
             ImagesDTO actualImages = fetchImageResponse.getBody();
             assertEquals(1, actualImages.images().size());
             ImageDTO actualImage = actualImages.images().get(imageId);
-            assertEquals(createImageCase.expected, actualImage);
+            //assertEquals(createImageCase.expected, actualImage);
+            assertEquals(createImageCase.expected.code(), actualImage.code());
+            assertEquals(createImageCase.expected.description(), actualImage.description());
+            assertEquals(createImageCase.expected.name(), actualImage.name());
+            assertEquals(createImageCase.expected.constraintModules(), actualImage.constraintModules());
+            assertEquals(createImageCase.expected.preferenceModules(), actualImage.preferenceModules());
+            assertEquals(createImageCase.expected.variables(), actualImage.variables());
+            assertEquals(createImageCase.expected.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()), actualImage.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()));
+            assertEquals(createImageCase.expected.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()), actualImage.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()));
+
         }
         @ParameterizedTest
         @MethodSource("invalidCaseStream")
