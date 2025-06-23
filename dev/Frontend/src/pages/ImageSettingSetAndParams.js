@@ -43,20 +43,46 @@ export default function ImageSettingSetAndParams() {
   // --- Set editing state ---
   const [editingSet, setEditingSet] = useState(null);
   const [editedSetAlias, setEditedSetAlias] = useState("");
+  const [editedSetStructure, setEditedSetStructure] = useState("");
+
 
   const handleEditSetClick = (setName) => {
     setEditingSet(setName);
+
+    // Alias as before
     const { alias = setName } = setAliases[setName] || {};
     setEditedSetAlias(alias);
+
+    // New: grab the current structure from setTypes
+    const current = setTypes[setName];
+    // If it’s an array, join it; otherwise stringify
+    setEditedSetStructure(
+      Array.isArray(current) ? current.join(", ") : String(current)
+    );
   };
 
   const handleSaveSetEdit = () => {
-    setSetAliases((prev) => ({
+    // 1) update alias
+    setSetAliases(prev => ({
       ...prev,
-      [editingSet]: { alias: editedSetAlias.trim() },
+      [editingSet]: { alias: editedSetAlias.trim() }
     }));
+
+    // 2) parse the comma-separated string into an array
+    const newStruct = editedSetStructure
+      .split(",")
+      .map(s => s.trim())
+      .filter(s => s !== "");
+
+    setSetTypes(prev => ({
+      ...prev,
+      [editingSet]: newStruct
+    }));
+
+    // close modal
     setEditingSet(null);
   };
+
 
   const handleDeleteSet = (setName) => {
     const newTypes = { ...setTypes };
@@ -166,16 +192,29 @@ export default function ImageSettingSetAndParams() {
                 return (
                   <div key={idx} className="slide">
                     <h4>{setName}</h4>
+
                     <div className="field">
                       <span className="field-label">Type:</span>
                       <span className="field-value">
                         {Array.isArray(data) ? data.join(", ") : data}
                       </span>
                     </div>
+
+                    {/* ← New Structure field: */}
+                    <div className="field">
+                      <span className="field-label">Structure:</span>
+                      <span className="field-value">
+                        {Array.isArray(data)
+                          ? `[ ${data.join(", ")} ]`
+                          : String(data)}
+                      </span>
+                    </div>
+
                     <div className="field">
                       <span className="field-label">Alias:</span>
                       <span className="field-value">{alias}</span>
                     </div>
+
                     <div className="buttons-container">
                       <img
                         src="/images/edit-button.png"
@@ -191,6 +230,7 @@ export default function ImageSettingSetAndParams() {
                       />
                     </div>
                   </div>
+
                 );
               })}
             </div>
@@ -243,14 +283,27 @@ export default function ImageSettingSetAndParams() {
       {/* Edit Set Modal */}
       {editingSet && (
         <div className="modal-overlay" onClick={() => setEditingSet(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
             <h2>Edit {editingSet}</h2>
-            <label>Alias:</label>
-            <input
-              type="text"
-              value={editedSetAlias}
-              onChange={(e) => setEditedSetAlias(e.target.value)}
-            />
+
+            <div className="modal-input-group">
+              <label>Alias:</label>
+              <input
+                type="text"
+                value={editedSetAlias}
+                onChange={e => setEditedSetAlias(e.target.value)}
+              />
+            </div>
+
+            <div className="modal-input-group">
+              <label>Structure (comma-sep):</label>
+              <input
+                type="text"
+                value={editedSetStructure}
+                onChange={e => setEditedSetStructure(e.target.value)}
+              />
+            </div>
+
             <div className="modal-buttons">
               <button onClick={handleSaveSetEdit}>Save</button>
               <button onClick={() => setEditingSet(null)}>Cancel</button>

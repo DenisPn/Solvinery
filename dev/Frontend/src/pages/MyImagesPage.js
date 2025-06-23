@@ -492,7 +492,7 @@ const MyImagesPage = () => {
 
               ) : viewSection === "sets" ? (
                 <div className="modal-section-data sets-modal">
-                  {/* Header with dropdown on left and button on right */}
+                  {/* Header with dropdown on left and Add New on right */}
                   <div
                     className="sets-header"
                     style={{
@@ -518,6 +518,7 @@ const MyImagesPage = () => {
                     <button
                       className="add-row-button"
                       onClick={() => {
+                        // open “new row” at top
                         setEditingRow(-1);
                         setEditTupleValues(
                           selectedImage.sets[selectedSetIndex].setDefinition.structure.map(
@@ -530,7 +531,7 @@ const MyImagesPage = () => {
                     </button>
                   </div>
 
-                  {/* Tuple table */}
+                  {/* Tuple values table */}
                   <table className="tuple-values-table">
                     <thead>
                       <tr>
@@ -573,14 +574,16 @@ const MyImagesPage = () => {
                     </thead>
                     <tbody>
                       {(() => {
-                        const vals =
-                          selectedImage.sets[selectedSetIndex].values || [];
+                        const vals = selectedImage.sets[selectedSetIndex].values || [];
+                        // split "<a,b>" → ["a","b"], strip any surrounding quotes
                         let rows = vals.map(v =>
                           v
                             .slice(1, -1)
                             .split(",")
-                            .map(c => c.trim())
+                            .map(c => c.trim().replace(/^"|"$/g, ""))
                         );
+
+                        // optional sorting
                         const { colIndex, direction } = sortConfig;
                         if (colIndex !== null) {
                           rows = [...rows].sort((a, b) => {
@@ -593,6 +596,8 @@ const MyImagesPage = () => {
                         }
 
                         const toRender = [];
+
+                        // “new row” at top when editingRow === -1
                         if (editingRow === -1) {
                           toRender.push(
                             <tr key="new">
@@ -627,6 +632,7 @@ const MyImagesPage = () => {
                           );
                         }
 
+                        // render existing rows
                         rows.forEach((row, ri) => {
                           const isEditing = editingRow === ri;
                           toRender.push(
@@ -644,7 +650,7 @@ const MyImagesPage = () => {
                                       }}
                                     />
                                   ) : (
-                                    cell
+                                    cell  /* already stripped of " characters */
                                   )}
                                 </td>
                               ))}
@@ -653,9 +659,7 @@ const MyImagesPage = () => {
                                   <>
                                     <button
                                       onClick={() => {
-                                        const newString = `<${editTupleValues.join(
-                                          ","
-                                        )}>`;
+                                        const newString = `<${editTupleValues.join(",")}>`;
                                         const img = { ...selectedImage };
                                         img.sets[selectedSetIndex].values[ri] = newString;
                                         setSelectedImage(img);
