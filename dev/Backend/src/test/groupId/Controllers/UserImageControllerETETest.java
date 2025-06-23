@@ -155,7 +155,7 @@ public class UserImageControllerETETest {
                         new PreferenceModuleDTO("Shift Transition Consistency", "Force shift transitions to be consistent",
                                 Set.of("(min_hours_between_shifts)**2"), 0.5F)
                 ).withParameters(
-                        new ParameterDTO(new ParameterDefinitionDTO("MIN_HOURS_BETWEEN_SHIFTS","Length","Minimal hours between shifts"), "8")
+                        new ParameterDTO(new ParameterDefinitionDTO("MIN_HOURS_BETWEEN_SHIFTS","Length","Minimal hours between shifts"), "")
                 ).withSets(
                         new SetDTO(new SetDefinitionDTO("SOLDIERS", List.of("Soldier"), "Soldiers"), List.of()),
                         new SetDTO(new SetDefinitionDTO("STATIONS", List.of("Station"), "Stations"), List.of())
