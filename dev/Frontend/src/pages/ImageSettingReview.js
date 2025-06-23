@@ -88,6 +88,7 @@ const ImageSettingReview = () => {
           identifier: variable.identifier,
           structure: struct,  // a real array
           alias: variable.alias || variable.identifier,
+          objectiveValueAlias: variable.objectiveValueAlias || "",
         };
       }),
 
