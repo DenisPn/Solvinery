@@ -34,6 +34,8 @@ export default function SolutionResultsPage() {
   const columnTypes = varData.typeStructure || [];
   const showObjective = solutionsArray.some(sol => sol.objectiveValue !== 1);
 
+  const objectiveValueAlias = varData.objectiveValueAlias || "Objective Value";
+
   // Pivot mapping
   const [mapping, setMapping] = useState({ rowIndex: 0, colIndex: 1, cellIndex: 2 });
   const order = ['rowIndex', 'colIndex', 'cellIndex'];
@@ -176,7 +178,7 @@ export default function SolutionResultsPage() {
             <thead>
               <tr>
                 {columnTypes.map((t, i) => <th key={i}>{t}</th>)}
-                {showObjective && <th>Objective Value</th>}
+                {showObjective && <th>{objectiveValueAlias}</th>}
               </tr>
             </thead>
             <tbody>
