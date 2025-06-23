@@ -64,11 +64,12 @@ public class ImageService {
     @Transactional
     public void overrideImage(@NonNull String userId, @NonNull String imageId, @NonNull ImageDTO imageDTO) {
         UserEntity user=userService.getUser(userId).orElseThrow(()-> new ClientSideError("User ID not found"));
-        //ImageDTO imageDTO= imgConfig.image();
         ImageEntity imageEntity=imageRepository.findById(UUID.fromString(imageId))
                 .orElseThrow(()->new ClientSideError("Invalid image ID during override image"));
         if(!imageEntity.getUser().equals(user))
-            throw new ClientSideError("User does not own the image to override.");
+            throw new ClientSideError("Error: user does not own the image to override.");
+        if(!imageEntity.getOriginalCode().equals(imageDTO.code()))
+            throw new ClientSideError("Error: new Code has to be the same as the original image's code.");
         ImageEntity newImageEntity= new ImageEntity();
         newImageEntity.setId(imageEntity.getId());
         Image image= EntityMapper.toDomain(imageEntity);

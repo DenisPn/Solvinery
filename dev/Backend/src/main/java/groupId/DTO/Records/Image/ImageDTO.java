@@ -24,9 +24,9 @@ import java.util.Set;
  * @see PreferenceModuleDTO
  */
 public record ImageDTO(
-                       @NotNull @Valid @Size(min = 1, message = "An image has to have at least one active variable.") Set<VariableDTO> variables,
-                       @NotNull @Valid Set<ConstraintModuleDTO> constraintModules,
-                       @NotNull @Valid Set<PreferenceModuleDTO> preferenceModules,
+                       @NotNull @Valid @Size(min = 1, message = "An image has to have at least one active variable.") Set<@Valid VariableDTO> variables,
+                       @NotNull @Valid Set<@NotNull@Valid ConstraintModuleDTO> constraintModules,
+                       @NotNull @Valid Set<@NotNull@Valid PreferenceModuleDTO> preferenceModules,
                        @NotNull Set<@NotNull @Valid SetDTO> sets,
                        @NotNull Set<@NotNull @Valid ParameterDTO> parameters,
                        @NotBlank @Size(max = 255, message = "Image name has be shorter then 255 characters") String name,

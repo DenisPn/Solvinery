@@ -1,11 +1,13 @@
 package groupId.Controllers;
 
+import Utilities.Builders.ImageDTOBuilder;
 import Utilities.Configs.IntegrationTestsConfiguration;
 import config.KafkaConfig;
 import groupId.DTO.Records.Image.ConstraintModuleDTO;
 import groupId.DTO.Records.Image.ImageDTO;
 import groupId.DTO.Records.Image.PreferenceModuleDTO;
 import groupId.DTO.Records.Model.ModelData.ParameterDTO;
+import groupId.DTO.Records.Model.ModelData.ParameterDefinitionDTO;
 import groupId.DTO.Records.Model.ModelData.SetDTO;
 import groupId.DTO.Records.Model.ModelData.SetDefinitionDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ConstraintDTO;
@@ -15,10 +17,7 @@ import groupId.DTO.Records.Model.ModelDefinition.VariableDTO;
 import groupId.DTO.Records.Requests.Commands.CreateImageFromFileDTO;
 import groupId.DTO.Records.Requests.Commands.LoginDTO;
 import groupId.DTO.Records.Requests.Commands.RegisterDTO;
-import groupId.DTO.Records.Requests.Responses.ConfirmationDTO;
-import groupId.DTO.Records.Requests.Responses.CreateImageResponseDTO;
-import groupId.DTO.Records.Requests.Responses.ImagesDTO;
-import groupId.DTO.Records.Requests.Responses.LoginResponseDTO;
+import groupId.DTO.Records.Requests.Responses.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -27,6 +26,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -36,10 +36,12 @@ import org.springframework.test.context.ContextConfiguration;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static groupId.Controllers.UserImageControllerETETest.TestCreateImage.invalidClassesStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -67,6 +69,7 @@ public class UserImageControllerETETest {
     JdbcTemplate jdbcTemplate;
     private static final String baseUriTemplate = "http://localhost:4000/user/{userId}/image";
     private String baseUri;
+    private String baseImageControllerURI;
     @Autowired
     private TestRestTemplate restTemplate;
     @LocalServerPort
@@ -78,6 +81,7 @@ public class UserImageControllerETETest {
     void setUp() {
         String userId = setUpUser();
         baseUri = "http://localhost:" + port + "/user/" + userId + "/image";
+        baseImageControllerURI = "http://localhost:" + port + "/image";
     }
     @AfterEach
     void cleanUp() {
@@ -94,7 +98,7 @@ public class UserImageControllerETETest {
 
     private String setUpUser(){
         baseUri = "http://localhost:" + port;
-        RegisterDTO registerDTO = new RegisterDTO("testUser", "testUser", "test12345", "test@mail.com");
+        RegisterDTO registerDTO = new RegisterDTO("testUser", "testUserNickname", "test12345", "test@mail.com");
         ResponseEntity<ConfirmationDTO> regResponse = restTemplate.postForEntity(
                 baseUri + "/users",
                 registerDTO,
@@ -114,28 +118,53 @@ public class UserImageControllerETETest {
         assertNotNull(loginResponse.getBody());
         return loginResponse.getBody().userId();
     }
-    static Stream<ImageDTO> validExampleImagesStream() {
-        return Stream.of(
-                new ImageDTO(
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes", "objective value alias"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons", "objective value alias")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        classesExample
+    private static ImageDTOBuilder validClassesExampleTemplate() {
+        return new ImageDTOBuilder()
+                .withName("Class optimizer")
+                .withDescription("does stuff and things")
+                .withCode(classesExample)
+                .withVariables(
+                        new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
+                        new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
                 )
+                .withConstraintModules(
+                        new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
+                )
+                .withPreferenceModules(
+                        new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class",
+                                Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
+                ).withSets(
+                        new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
+                );
+    }
+    private static ImageDTOBuilder validSoldiersExampleTemplate() {
+        return new ImageDTOBuilder()
+                .withName("Soldier optimizer")
+                .withDescription("does stuff and things")
+                .withCode(soldiersExample)
+                .withVariables(
+                        new VariableDTO("max_shifts_per_soldier", List.of("Count"), "max shifts per soldier","Objective Value Alias"),
+                        new VariableDTO("assignment", List.of("Soldier","Station", "Shift"), "assignments","Objective Value Alias"),
+                        new VariableDTO("min_hours_between_shifts", List.of("Count"), "min hours between shifts","Objective Value Alias")
+                ).withConstraintModules(
+                        new ConstraintModuleDTO("Forward Shift Transition", "Force shifts to be forward", Set.of("forward_shift_transition"), false),
+                        new ConstraintModuleDTO("No Simultaneous Duties", "Force no simultaneous duties", Set.of("no_simultaneous_duties"), false),
+                        new ConstraintModuleDTO("Minimum Shifts", "Force a minimum number of shifts", Set.of("minimum_shifts"), false),
+                        new ConstraintModuleDTO("Backward Shift Transition", "Force shifts to be backward", Set.of("backward_shift_transition"), false)
+                ).withPreferenceModules(
+                        new PreferenceModuleDTO("Shift Transition Consistency", "Force shift transitions to be consistent",
+                                Set.of("(min_hours_between_shifts)**2"), 0.5F)
+                ).withParameters(
+                        new ParameterDTO(new ParameterDefinitionDTO("MIN_HOURS_BETWEEN_SHIFTS","Length","Minimal hours between shifts"), "8")
+                ).withSets(
+                        new SetDTO(new SetDefinitionDTO("SOLDIERS", List.of("Soldier"), "Soldiers"), List.of()),
+                        new SetDTO(new SetDefinitionDTO("STATIONS", List.of("Station"), "Stations"), List.of())
+                );
+    }
+    private static Stream<ImageDTO> validExampleImagesStream() {
+        return Stream.of(
+                validClassesExampleTemplate().build(),
+                validSoldiersExampleTemplate().build()
         );
     }
 
@@ -258,240 +287,113 @@ public class UserImageControllerETETest {
         record CreateImageCase(ImageDTO given, ImageDTO expected){}
 
         static Stream<CreateImageCase> validCaseStream() {
+            List<String> classesValues= List.of(
+                    "<\"Math101\",\"SUNDAY\",8,2>",
+                    "<\"Math101\",\"MONDAY\",10,2>",
+                    "<\"Math101\",\"WEDNESDAY\",14,2>",
+                    "<\"Math101\",\"THURSDAY\",16,2>",
+                    "<\"Physics102\",\"SUNDAY\",13,3>",
+                    "<\"Physics102\",\"TUESDAY\",9,3>",
+                    "<\"Physics102\",\"WEDNESDAY\",9,3>",
+                    "<\"Physics102\",\"FRIDAY\",14,3>",
+                    "<\"Chemistry101\",\"MONDAY\",15,2>",
+                    "<\"Chemistry101\",\"TUESDAY\",13,3>",
+                    "<\"Chemistry101\",\"THURSDAY\",11,2>",
+                    "<\"Chemistry101\",\"FRIDAY\",9,3>",
+                    "<\"English201\",\"SUNDAY\",8,1.5>",
+                    "<\"English201\",\"MONDAY\",12,1.5>",
+                    "<\"English201\",\"WEDNESDAY\",16,1.5>",
+                    "<\"English201\",\"FRIDAY\",12,1.5>",
+                    "<\"CompSci301\",\"SUNDAY\",11,2>",
+                    "<\"CompSci301\",\"MONDAY\",8,2>",
+                    "<\"CompSci301\",\"TUESDAY\",15,2>",
+                    "<\"CompSci301\",\"THURSDAY\",14,2>",
+                    "<\"Biology201\",\"SUNDAY\",15,2>",
+                    "<\"Biology201\",\"TUESDAY\",8,3>",
+                    "<\"Biology201\",\"WEDNESDAY\",11,2>",
+                    "<\"Biology201\",\"THURSDAY\",9,3>",
+                    "<\"Statistics102\",\"MONDAY\",13,1.5>",
+                    "<\"Statistics102\",\"TUESDAY\",11,1.5>",
+                    "<\"Statistics102\",\"THURSDAY\",8,1.5>",
+                    "<\"Statistics102\",\"FRIDAY\",15,1.5>"
+            );
+            List<String> soldiersValues= List.of("\"Ben\"", "\"Dan\"", "\"Ron\"", "\"Nir\"", "\"Niv\"", "\"Avi\"", "\"Shlomo\"");
+            List<String> stationValues= List.of("\"Shin Gimel\"", "\"Fillbox\"");
+
+            Stream<CreateImageCase> validClassesStream = validClassesImageStream().map(imageBuilder -> new CreateImageCase(imageBuilder.build(),
+                    imageBuilder.withSetValues("CLASS_OPTIONS",classesValues).build()));
+            Stream<CreateImageCase> validSoldiersStream = validSoldiersImageStream().map(imageBuilder -> new CreateImageCase(imageBuilder.build(),
+                    imageBuilder.withSetValues("SOLDIERS",soldiersValues)
+                            .withSetValues("STATIONS",stationValues).build()));
+
+            return Stream.concat(validClassesStream,validSoldiersStream);
+        }
+        static Stream<ImageDTOBuilder> validClassesImageStream(){
             return Stream.of(
-                    new CreateImageCase(
-                            new ImageDTO(
-                                    Set.of(
-                                            new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
-                                            new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
-                                    ),
-                                    Set.of(
-                                            new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                                    ),
-                                    Set.of(
-                                            new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                                    ),
-                                    Set.of(
-                                            new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                                    ),
-                                    Set.of(
-                                    ),
-                                    "Class optimizer",
-                                    "does stuff and things",
-                                    classesExample
-                            ),
-                            new ImageDTO(
-                            Set.of(
-                                    new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
-                                    new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
-                            ),
-                            Set.of(
-                                    new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                            ),
-                            Set.of(
-                                    new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                            ),
-                            Set.of(
-                                    new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"),
-                                            List.of(
-                                                    "<\"Math101\",\"SUNDAY\",8,2>",
-                                                    "<\"Math101\",\"MONDAY\",10,2>",
-                                                    "<\"Math101\",\"WEDNESDAY\",14,2>",
-                                                    "<\"Math101\",\"THURSDAY\",16,2>",
-                                                    "<\"Physics102\",\"SUNDAY\",13,3>",
-                                                    "<\"Physics102\",\"TUESDAY\",9,3>",
-                                                    "<\"Physics102\",\"WEDNESDAY\",9,3>",
-                                                    "<\"Physics102\",\"FRIDAY\",14,3>",
-                                                    "<\"Chemistry101\",\"MONDAY\",15,2>",
-                                                    "<\"Chemistry101\",\"TUESDAY\",13,3>",
-                                                    "<\"Chemistry101\",\"THURSDAY\",11,2>",
-                                                    "<\"Chemistry101\",\"FRIDAY\",9,3>",
-                                                    "<\"English201\",\"SUNDAY\",8,1.5>",
-                                                    "<\"English201\",\"MONDAY\",12,1.5>",
-                                                    "<\"English201\",\"WEDNESDAY\",16,1.5>",
-                                                    "<\"English201\",\"FRIDAY\",12,1.5>",
-                                                    "<\"CompSci301\",\"SUNDAY\",11,2>",
-                                                    "<\"CompSci301\",\"MONDAY\",8,2>",
-                                                    "<\"CompSci301\",\"TUESDAY\",15,2>",
-                                                    "<\"CompSci301\",\"THURSDAY\",14,2>",
-                                                    "<\"Biology201\",\"SUNDAY\",15,2>",
-                                                    "<\"Biology201\",\"TUESDAY\",8,3>",
-                                                    "<\"Biology201\",\"WEDNESDAY\",11,2>",
-                                                    "<\"Biology201\",\"THURSDAY\",9,3>",
-                                                    "<\"Statistics102\",\"MONDAY\",13,1.5>",
-                                                    "<\"Statistics102\",\"TUESDAY\",11,1.5>",
-                                                    "<\"Statistics102\",\"THURSDAY\",8,1.5>",
-                                                    "<\"Statistics102\",\"FRIDAY\",15,1.5>"
-                                            ))
-                            ),
-                            Set.of(),
-                            "Class optimizer",
-                            "does stuff and things",
-                            classesExample
-                    )
-            ));
+                    validClassesExampleTemplate(),
+                    validClassesExampleTemplate().withName("x".repeat(255)),
+                    validClassesExampleTemplate().withDescription("x".repeat(4000)),
+                    validClassesExampleTemplate().withVariableAlias("selection","x".repeat(255)),
+                    validClassesExampleTemplate().withVariableObjectiveValueAlias("selection","x".repeat(255)),
+                    validClassesExampleTemplate().withConstraintModuleName("Overlap","x".repeat(255)),
+                    validClassesExampleTemplate().withConstraintModuleDescription("Overlap","x".repeat(4000)),
+                    validClassesExampleTemplate().withPreferenceModuleName("minimize days with class","x".repeat(255)),
+                    validClassesExampleTemplate().withPreferenceModuleDescription("minimize days with class","x".repeat(4000))
+                    );
+        }
+        static Stream<ImageDTOBuilder> validSoldiersImageStream(){
+            return Stream.of(
+                    validSoldiersExampleTemplate()
+            );
         }
         static Stream<ImageDTO> invalidCaseStream() {
-        return Stream.of(
-                new ImageDTO( //No variables
-                        Set.of(
-
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        classesExample
-                ),
-                new ImageDTO( //null code
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        null
-                ),
-                new ImageDTO( //blank code
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        "\t\t\n\t"
-                ),
-                new ImageDTO( //invalid variable name
-                    Set.of(
-                            new VariableDTO("I don't exist", List.of("Weekday"), "days with classes","Objective Value Alias")
-                    ),
-                    Set.of(
-                            new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                    ),
-                    Set.of(
-                            new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                    ),
-                    Set.of(
-                            new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                    ),
-                    Set.of(
-                    ),
-                    "Class optimizer",
-                    "does stuff and things",
-                    classesExample
-            ),
-                new ImageDTO( //empty constraint module
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of(), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        classesExample
-                ),
-                new ImageDTO( //invalid constraint in module
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("I dont exist"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("(20 * sum <d> in DAYS: day_has_class[d])"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        classesExample
-                ),
-                new ImageDTO( //Empty preference module
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of(), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        classesExample
-                ),
-                new ImageDTO( //invalid preference in module
-                        Set.of(
-                                new VariableDTO("day_has_class", List.of("Weekday"), "days with classes","Objective Value Alias"),
-                                new VariableDTO("selection", List.of("Class", "Weekday", "Time", "Duration"), "Lessons","Objective Value Alias")
-                        ),
-                        Set.of(
-                                new ConstraintModuleDTO("Overlap", "Force classes to not overlap", Set.of("no_overlap"), false)
-                        ),
-                        Set.of(
-                                new PreferenceModuleDTO("minimize days with class", "strive for a minimum days with at least one class", Set.of("I don't exist"), 0.5F)
-                        ),
-                        Set.of(
-                                new SetDTO(new SetDefinitionDTO("CLASS_OPTIONS", List.of("Class", "Weekday", "Time", "Duration"), "Lessons"), List.of())
-                        ),
-                        Set.of(
-                        ),
-                        "Class optimizer",
-                        "does stuff and things",
-                        classesExample
-                )
-        );
+        return Stream.concat(invalidClassesStream(),invalidSoldiersExampleImages());
+        }
+        static Stream<ImageDTO> invalidClassesStream(){
+            return Stream.of(
+            validClassesExampleTemplate().withoutVariables("day_has_class","selection").build(), //1 no variables
+                    validClassesExampleTemplate().withVariableName("day_has_class","invalid name").build(), //2 invalid variable name
+                    validClassesExampleTemplate().withVariables(new VariableDTO(null,List.of(),"","")).build(), //3 nulls
+                    validClassesExampleTemplate().withVariables(new VariableDTO("",List.of(),"","")).build(), //4 empty names
+                    validClassesExampleTemplate().withVariableStructure("day_has_class",null).build(), //5 null structure
+                    validClassesExampleTemplate().withVariableObjectiveValueAlias("day_has_class","x".repeat(300)).build(), //6 stub, last case was valid
+                    validClassesExampleTemplate().withVariableObjectiveValueAlias("day_has_class","x".repeat(256)).build(), // 7 long obj alias
+                    validClassesExampleTemplate().withConstraintModuleConstraints("Overlap",null).build(), //8 null constraints
+                    validClassesExampleTemplate().withConstraintModuleConstraints("Overlap",Set.of()).build(), //9 empty constraints
+                    validClassesExampleTemplate().withConstraintModuleConstraints("Overlap",Set.of("invalid")).build(), //10 invalid constraint
+                    validClassesExampleTemplate().withConstraintModuleName("Overlap",null).build(), //11 null name
+                    validClassesExampleTemplate().withConstraintModuleName("Overlap","x".repeat(256)).build(), //12 long name
+                    validClassesExampleTemplate().withConstraintModuleDescription("Overlap",null).build(), //13 null description
+                    validClassesExampleTemplate().withConstraintModuleDescription("Overlap","x".repeat(4001)).build(), //14 long description
+                    validClassesExampleTemplate().withPreferenceModuleName("minimize days with class",null).build(), //15 null name
+                    validClassesExampleTemplate().withPreferenceModuleName("minimize days with class","x".repeat(256)).build(), //16 long name
+                    validClassesExampleTemplate().withPreferenceModuleDescription("minimize days with class",null).build(), //17 null description
+                    validClassesExampleTemplate().withPreferenceModuleDescription("minimize days with class","x".repeat(4001)).build(), //18 long description
+                    validClassesExampleTemplate().withPreferenceModulePreferences("minimize days with class",null).build(), //19 null preferences
+                    validClassesExampleTemplate().withPreferenceModulePreferences("minimize days with class",Set.of()).build(), //20 empty preferences
+                    validClassesExampleTemplate().withPreferenceModulePreferences("minimize days with class",Set.of("invalid pref")).build(), //21 invalid preference
+                    validClassesExampleTemplate().withSetName("CLASS_OPTIONS",null).build(), //22 null name
+                    validClassesExampleTemplate().withSetStructureAlias("CLASS_OPTIONS",null).build(), //23 null structure
+                    validClassesExampleTemplate().withSetStructureAlias("CLASS_OPTIONS",List.of("x".repeat(256))).build(), //24 long structure alias
+                    validClassesExampleTemplate().withSetAlias("CLASS_OPTIONS","x".repeat(256)).build(), //25 long alias
+                    validClassesExampleTemplate().withSetValues("CLASS_OPTIONS",null).build(), //26 null values
+                    validClassesExampleTemplate().withName(null).build(), //32 null image name
+                    validClassesExampleTemplate().withName("").build(), //33 empty image name
+                    validClassesExampleTemplate().withName("x".repeat(256)).build(), //34 long image name
+                    validClassesExampleTemplate().withDescription(null).build(), //35 null image description
+                    validClassesExampleTemplate().withDescription("x".repeat(4001)).build(), // 36 long image description
+                    validClassesExampleTemplate().withCode(null).build(), //37 null image code
+                    validClassesExampleTemplate().withCode("this shouldn't compile!").build() //38 invalid image code
+            );
+        }
+        static Stream<ImageDTO> invalidSoldiersExampleImages(){
+            return Stream.of(
+                    validSoldiersExampleTemplate().withParameterName("MIN_HOURS_BETWEEN_SHIFTS",null).build(), //27 null name
+                    validSoldiersExampleTemplate().withParameterStructureAlias("MIN_HOURS_BETWEEN_SHIFTS","x".repeat(256)).build(), //28 long structure alias
+                    validSoldiersExampleTemplate().withParameterAlias("MIN_HOURS_BETWEEN_SHIFTS","x".repeat(256)).build(), //29 long alias
+                    validSoldiersExampleTemplate().withParameterValue("MIN_HOURS_BETWEEN_SHIFTS",null).build(), //30 null value
+                    validSoldiersExampleTemplate().withParameterStructureAlias("MIN_HOURS_BETWEEN_SHIFTS","x".repeat(256)).build() //31 long structure alias)
+            );
         }
         @ParameterizedTest
         @MethodSource("validCaseStream")
@@ -669,6 +571,161 @@ public class UserImageControllerETETest {
     @Nested
     @DisplayName("Test Configure Images: PATCH "+baseUriTemplate+"/{imageId}")
     class ConfigureImage{
+        record ConfigureImageCase(ImageDTO originalImage, ImageDTO updatedImage) {}
+        static Stream<ConfigureImageCase> invalidConfigureCases() {
+            Stream<ConfigureImageCase> invalidClassesCases = invalidClassesStream()
+                    .map(invalidImage -> new ConfigureImageCase(
+                            validClassesExampleTemplate().build(),
+                            invalidImage
+                    ));
 
+            Stream<ConfigureImageCase> invalidSoldiersCases = TestCreateImage.invalidSoldiersExampleImages()
+                    .map(invalidImage -> new ConfigureImageCase(
+                            validSoldiersExampleTemplate().build(),
+                            invalidImage
+                    ));
+
+            return Stream.concat(invalidClassesCases, invalidSoldiersCases);
+        }
+
+        static Stream<ConfigureImageCase> validConfigureCases() {
+            Stream<ConfigureImageCase> validClassesCases = TestCreateImage.validClassesImageStream()
+                    .map(imageBuilder -> new ConfigureImageCase(
+                            validClassesExampleTemplate().build(),
+                            imageBuilder.build()
+                    ));
+
+            Stream<ConfigureImageCase> validSoldiersCases = TestCreateImage.validSoldiersImageStream()
+                    .map(imageBuilder -> new ConfigureImageCase(
+                            validSoldiersExampleTemplate().build(),
+                            imageBuilder.build()
+                    ));
+
+            return Stream.concat(validClassesCases, validSoldiersCases);
+
+        }
+
+        @ParameterizedTest
+        @MethodSource("validConfigureCases")
+        @DisplayName("Given valid image update, when configure image, then should succeed")
+        void givenValidImageUpdate_whenConfigureImage_thenSuccess(ConfigureImageCase testCase) {
+            // create an image
+            ResponseEntity<CreateImageResponseDTO> createImageResponse = restTemplate.postForEntity(
+                    baseUri,
+                    testCase.originalImage(),
+                    CreateImageResponseDTO.class
+            );
+            assertTrue(createImageResponse.getStatusCode().is2xxSuccessful());
+            assertNotNull(createImageResponse.getBody());
+            String imageId = createImageResponse.getBody().imageId();
+
+            // Configure the image with new data
+            ResponseEntity<Void> configureResponse = restTemplate.exchange(
+                    baseUri + "/{imageId}",
+                    HttpMethod.PATCH,
+                    new HttpEntity<>(testCase.updatedImage()),
+                    Void.class,
+                    imageId
+            );
+            assertTrue(configureResponse.getStatusCode().is2xxSuccessful());
+
+            // Verify the changes
+            ResponseEntity<ImagesDTO> fetchResponse = restTemplate.getForEntity(
+                    baseUri + "/view",
+                    ImagesDTO.class
+            );
+            assertTrue(fetchResponse.getStatusCode().is2xxSuccessful());
+            assertNotNull(fetchResponse.getBody());
+
+            ImageDTO actualImage = fetchResponse.getBody().images().get(UUID.fromString(imageId));
+            assertNotNull(actualImage);
+            assertEquals(testCase.updatedImage(), actualImage);
+        }
+        @ParameterizedTest
+        @MethodSource("invalidConfigureCases")
+        @DisplayName("Given invalid image update, when configure image, then should fail")
+        void givenInvalidImageUpdate_whenConfigureImage_thenFail(ConfigureImageCase testCase) {
+            //  create a valid image
+            ResponseEntity<CreateImageResponseDTO> createResponse = restTemplate.postForEntity(
+                    baseUri,
+                    testCase.originalImage(),
+                    CreateImageResponseDTO.class
+            );
+            assertTrue(createResponse.getStatusCode().is2xxSuccessful());
+            assertNotNull(createResponse.getBody());
+            String imageId = createResponse.getBody().imageId();
+
+            // Try to update with invalid data
+            ResponseEntity<Void> configureResponse = restTemplate.exchange(
+                    baseUri + "/{imageId}",
+                    HttpMethod.PATCH,
+                    new HttpEntity<>(testCase.updatedImage()),
+                    Void.class,
+                    imageId
+            );
+            assertTrue(configureResponse.getStatusCode().is4xxClientError());
+
+            // Verify the image wasn't changed
+            ResponseEntity<ImagesDTO> fetchResponse = restTemplate.getForEntity(
+                    baseUri + "/view",
+                    ImagesDTO.class
+            );
+            assertTrue(fetchResponse.getStatusCode().is2xxSuccessful());
+            assertNotNull(fetchResponse.getBody());
+
+            ImageDTO unchangedImage = fetchResponse.getBody().images().get(UUID.fromString(imageId));
+            assertNotNull(unchangedImage);
+            assertEquals(testCase.originalImage.code(), unchangedImage.code());
+            assertEquals(testCase.originalImage.description(), unchangedImage.description());
+            assertEquals(testCase.originalImage.name(), unchangedImage.name());
+            assertEquals(testCase.originalImage.constraintModules(), unchangedImage.constraintModules());
+            assertEquals(testCase.originalImage.preferenceModules(), unchangedImage.preferenceModules());
+            assertEquals(testCase.originalImage.variables(), unchangedImage.variables());
+            assertEquals(testCase.originalImage.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()), unchangedImage.sets().stream().map(SetDTO::setDefinition).collect(Collectors.toSet()));
+            assertEquals(testCase.originalImage.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()), unchangedImage.parameters().stream().map(ParameterDTO::parameterDefinition).collect(Collectors.toSet()));
+        }
+
+    }
+    @Nested
+    @DisplayName("Test Model: PATCH "+baseUriTemplate+"/{imageId}/publish")
+    class ImagePublishingTest{
+        static Stream<ImageDTO> validPublishImageStream(){
+            return validExampleImagesStream();
+        }
+        @ParameterizedTest
+        @MethodSource("validPublishImageStream")
+        @DisplayName("Given valid image, when publish image, then should not fail")
+        void givenValidImage_WhenPublishImage_thenSuccess(ImageDTO imageDTO) {
+            ResponseEntity<CreateImageResponseDTO> createImageResponse = restTemplate.postForEntity(
+                    baseUri,
+                    imageDTO,
+                    CreateImageResponseDTO.class
+            );
+            assertTrue(createImageResponse.getStatusCode().is2xxSuccessful());
+            assertNotNull(createImageResponse.getBody());
+            ResponseEntity<ImagesDTO> imagesResponseEntityFullPage = restTemplate.getForEntity(
+                    baseUri +"/view",
+                    ImagesDTO.class
+            );
+            assertTrue(imagesResponseEntityFullPage.getStatusCode().is2xxSuccessful());
+            assertNotNull(imagesResponseEntityFullPage.getBody());
+            assertEquals(1, imagesResponseEntityFullPage.getBody().images().size());
+            Collection<ImageDTO> image = imagesResponseEntityFullPage.getBody().images().values();
+            ResponseEntity<PublishedImagesDTO> fetchImageResponse = restTemplate.getForEntity(
+                    baseImageControllerURI+"/view",
+                    PublishedImagesDTO.class
+            );
+            assertTrue(fetchImageResponse.getStatusCode().is2xxSuccessful());
+            assertNotNull(fetchImageResponse.getBody());
+            PublishedImagesDTO PublishedImages = fetchImageResponse.getBody();
+            for (ImageDTO originalImage : image) {
+                for(ImageDataDTO publishedImage : PublishedImages.images().values()){
+                    assertEquals(originalImage.name(), publishedImage.name());
+                    assertEquals(originalImage.description(), publishedImage.description());
+                    assertEquals("testUserNickname", publishedImage.authorName());
+                    assertEquals(LocalDate.now(), publishedImage.creationDate());
+                }
+            }
+        }
     }
 }

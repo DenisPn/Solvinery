@@ -8,5 +8,4 @@ import jakarta.validation.constraints.NotBlank;
  */
 public record ConstraintDTO(
         @NotBlank String identifier
-    //    @NotNull @Valid DependenciesDTO structure
 ) {}

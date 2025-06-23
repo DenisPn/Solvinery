@@ -18,7 +18,7 @@ public class ConstraintModuleEntity {
     @EmbeddedId
     private ImageComponentKey imageComponentKey;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, length = 4000)
     @NotNull(message = "Description cannot be null, if no description exists it should be blank")
     private String description;
 
