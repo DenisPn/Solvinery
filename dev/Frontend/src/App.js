@@ -19,6 +19,9 @@ import ImageSettingSetAndParams from "./pages/ImageSettingSetAndParams";
 import ImageSettingReview from "./pages/ImageSettingReview";
 import RequireAuth from "./components/RequireAuth";
 import EntrancePage from "./pages/EntrancePage";
+import axios from 'axios';
+
+
 
 
 function App() {
