@@ -1,5 +1,6 @@
 {
-    "API_HOST": "http://localhost",
-    "API_PORT": "4000"
+    "API_HOST": "https://solvinery-production.up.railway.app",
+    "API_PORT": ""
+
 }
   

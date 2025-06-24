@@ -23,7 +23,7 @@ import EntrancePage from "./pages/EntrancePage";
 
 function App() {
     return (
-        <Router>
+        <Router basename="/Solvinery">
             <DndProvider backend={HTML5Backend}>
                <Routes>
   {/* Public routes */}
@@ -46,7 +46,6 @@ function App() {
   <Route path="/image-setting-set-and-params" element={<RequireAuth><ImageSettingSetAndParams /></RequireAuth>} />
   <Route path="/image-setting-review" element={<RequireAuth><ImageSettingReview /></RequireAuth>} />
 </Routes>
-
             </DndProvider>
         </Router>
     );
