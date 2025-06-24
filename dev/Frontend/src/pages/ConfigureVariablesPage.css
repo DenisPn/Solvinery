@@ -71,9 +71,7 @@
   width: 32px;
   height: 32px;
   border: 2px solid #d1d7dc;
-  background: #fff
-    url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.414 11L4 12.414l5.414 5.414L20.828 6.414 19.414 5l-10 10z' fill='%23fff' /%3E%3C/svg%3E")
-    no-repeat 2px 3px;
+  background: #fff url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.414 11L4 12.414l5.414 5.414L20.828 6.414 19.414 5l-10 10z' fill='%23fff' /%3E%3C/svg%3E") no-repeat 2px 3px;
   border-radius: 50%;
   position: absolute;
   right: 30px;
@@ -120,7 +118,7 @@
   z-index: 10;
 }
 
-/* top bar */
+/* ---------- top bar ---------- */
 .top-bar {
   position: fixed;
   top: 50px;
@@ -148,31 +146,46 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(2px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10000;   /* ⬅️ higher than top-bar */
+  z-index: 10000;
   animation: fadeInOverlay 0.25s ease-out;
 }
 
 /* ---------- modal ---------- */
 .modal-content {
-  width: 100vw;
-  height: auto;
-  max-width: 100vw;
+  position: fixed;
+  top: 25px; /* previously inset: 0 */
+  left: 0px;
+  right: 0px;
+  bottom: 0;
+  width: 100%;
+  height: calc(100vh - 50px); /* adjust height so it doesn't overflow bottom */
+  max-width: none !important;
   background: linear-gradient(180deg, #ffffff 0%, #f8f8f8 100%);
+  padding: 50px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: auto;
   border: none;
   border-radius: 0;
-  padding: 50px 24px 48px;
-  box-shadow: 0 22px 45px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
   animation: fadeInScale 0.3s ease-out;
   text-align: center;
-  transition: all 0.2s ease;
-
+  z-index: 10001;
 }
 
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
 
 /* title */
 .modal-title {
@@ -208,6 +221,10 @@
   padding-bottom: 4px;
   width: fit-content;
   margin-inline: auto;
+}
+
+.label-icon {
+  margin-right: 6px;
 }
 
 .modal-input {
@@ -281,5 +298,16 @@
   font-weight: 700;
   color: #20c4a4;
   font-family: monospace;
+}
+
+.hide-edit-buttons .edit-button {
+  display: none;
+}
+
+.modal-inner {
+  margin-top: 80px; /* ✅ המרווח שאתה רוצה */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 

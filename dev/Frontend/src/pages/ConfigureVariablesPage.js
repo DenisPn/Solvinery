@@ -29,7 +29,6 @@ const ConfigureVariablesPage = () => {
   const [displaySets, setDisplaySets] = useState([]);
   const [displayParams, setDisplayParams] = useState([]);
   const [setAliases, setSetAliases] = useState({});
-
   const [editVar, setEditVar] = useState(null);
   const [editedAlias, setEditedAlias] = useState("");
   const [editedStructure, setEditedStructure] = useState("");
@@ -37,7 +36,6 @@ const ConfigureVariablesPage = () => {
 
   const navigate = useNavigate();
 
-  /* show dependencies */
   useEffect(() => {
     const newDisplaySets = selectedVars
       .flatMap(v => v.dep?.setDependencies ?? [])
@@ -104,39 +102,54 @@ const ConfigureVariablesPage = () => {
 
   const closeModal = () => setEditVar(null);
 
-  const handleSaveEdit = () => {
-    setSelectedVars(prev =>
-      prev.map(v =>
-        v === editVar
-          ? {
+const handleSaveEdit = () => {
+  // Update variables list
+  setVariables(prev =>
+    prev.map(v =>
+      v.identifier === editVar.identifier
+        ? {
             ...v,
             alias: editedAlias,
             structure: editedStructure,
             objectiveValueAlias: editedObjectiveValueAlias,
           }
-          : v
-      )
-    );
-    setEditVar(null);
-  };
+        : v
+    )
+  );
+
+  // Update selectedVars list (if applicable)
+  setSelectedVars(prev =>
+    prev.map(v =>
+      v.identifier === editVar.identifier
+        ? {
+            ...v,
+            alias: editedAlias,
+            structure: editedStructure,
+            objectiveValueAlias: editedObjectiveValueAlias,
+          }
+        : v
+    )
+  );
+
+  // Close modal
+  setEditVar(null);
+};
+
 
   return (
     <>
-      {/* -------- Modal -------- */}
+      {/* Modal */}
       {editVar && (
         <div className="modal-overlay" onClick={closeModal}>
-          <div
-            className="modal-content"
-            onClick={e => e.stopPropagation()}
-          >
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h2 className="modal-title">
               <span className="modal-title-icon">✏️</span>
-              Edit Variable: <span className="variable-name-highlight">{editVar.identifier}</span>
+              Edit Variable:{" "}
+              <span className="variable-name-highlight">{editVar.identifier}</span>
             </h2>
 
-
             <div className="modal-input-group">
-              <label><span className="label-icon">🏷️</span> Alias</label>
+              <label><span className="label-icon">🏷️</span>Alias</label>
               <input
                 className="modal-input"
                 value={editedAlias}
@@ -145,7 +158,7 @@ const ConfigureVariablesPage = () => {
             </div>
 
             <div className="modal-input-group">
-              <label><span className="label-icon">🧱</span> Structure</label>
+              <label><span className="label-icon">🧱</span>Structure</label>
               <input
                 className="modal-input"
                 value={editedStructure}
@@ -154,7 +167,7 @@ const ConfigureVariablesPage = () => {
             </div>
 
             <div className="modal-input-group">
-              <label><span className="label-icon">🎯</span> Objective Value Alias</label>
+              <label><span className="label-icon">🎯</span>Objective Value Alias</label>
               <input
                 className="modal-input"
                 value={editedObjectiveValueAlias}
@@ -163,22 +176,17 @@ const ConfigureVariablesPage = () => {
             </div>
 
             <div className="modal-buttons">
-              <button className="save-button" onClick={handleSaveEdit}>
-                Save
-              </button>
-              <button className="cancel-button" onClick={closeModal}>
-                Cancel
-              </button>
+              <button className="save-button" onClick={handleSaveEdit}>Save</button>
+              <button className="cancel-button" onClick={closeModal}>Cancel</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* -------- Main Page -------- */}
+      {/* Main Page */}
       <div className="configure-variables-page background">
         <div
           className="top-bar"
-          /* disable interaction when modal open */
           style={{ pointerEvents: editVar ? "none" : "auto" }}
         >
           <div className="top-bar-left">
@@ -214,7 +222,7 @@ const ConfigureVariablesPage = () => {
           </div>
         </div>
 
-        <div className="MainDiv">
+        <div className={`MainDiv ${editVar ? "hide-edit-buttons" : ""}`}>
           <h1 className="page-title">Variables</h1>
           <div className="variables-layout">
             <div className="available-variables">
