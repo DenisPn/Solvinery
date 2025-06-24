@@ -22,4 +22,8 @@ public class MainController {
             .contentType(MediaType.TEXT_HTML)
             .body(resource);
     }
+    @GetMapping("/ping")
+    public ResponseEntity<String> ping() {
+        return ResponseEntity.ok("pong");
+    }
 }

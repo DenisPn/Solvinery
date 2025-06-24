@@ -124,7 +124,6 @@
     }
     
   },
-  "proxy": "http://localhost:4000",
   "devDependencies": {
     "create-react-app": "^5.0.0",
     "electron": "^33.2.0",
