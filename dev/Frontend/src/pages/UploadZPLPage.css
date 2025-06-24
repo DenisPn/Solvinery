@@ -1,9 +1,11 @@
 /* Ensure body and html are full screen and clipped */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden; /* prevents scroll */
+  overflow: hidden;
+  /* prevents scroll */
 }
 
 /* Main page layout */
@@ -14,7 +16,8 @@ html, body {
   align-items: center;
   height: 100vh;
   padding: 0;
-  background: linear-gradient(90deg, #f1c40f, #2ecc71); /* or your gradient */
+  background: linear-gradient(90deg, #f1c40f, #2ecc71);
+  /* or your gradient */
   overflow: hidden;
 }
 
@@ -36,6 +39,9 @@ html, body {
   max-width: 600px;
   width: 90%;
   box-sizing: border-box;
+
+  height: 90vh;
+  overflow-y: auto;
 }
 
 /* Home Button */
