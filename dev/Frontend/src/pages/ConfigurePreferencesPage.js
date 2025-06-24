@@ -160,7 +160,7 @@ const ConfigurePreferencesPage = () => {
             src="/images/LeftArrowButton.png"
             alt="Continue"
             className="top-bar-button"
-            onClick={() => navigate('/solution-preview')}
+            onClick={() => navigate('/image-setting-set-and-params')}
             title="Continue"
           />
         </div>

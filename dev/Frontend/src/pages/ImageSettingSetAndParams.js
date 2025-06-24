@@ -163,7 +163,7 @@ export default function ImageSettingSetAndParams() {
           src="/images/RightArrowButton.png"
           alt="Back"
           className="icon-btn"
-          onClick={() => navigate("/solution-preview")}
+          onClick={() => navigate("/configure-preferences")}
         />
       </div>
 
