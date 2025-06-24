@@ -118,7 +118,6 @@ public class Model implements ModelInterface {
                 throw new InvalidModelInputException(String.format("Scalar parameters don't match preferences in previously parsed code, " +
                         "Preference %s does not have corresponding scalar param",preferenceBody));
             }
-
         }
     }
     @NonNull

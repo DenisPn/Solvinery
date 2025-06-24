@@ -74,7 +74,7 @@ public class UserImageController {
                                                @NonNull @PathVariable String imageId,
                                                @NonNull @Valid @RequestBody ImageDTO imageDTO,
                                                @RequestParam(defaultValue = "false") boolean ignoreData){
-        imageService.overrideImage(userId,imageId,imageDTO,ignoreData);
+        imageService.overrideImage(userId,imageId,imageDTO,ignoreData,solveService);
         return ResponseEntity.ok().build();
     }
     @NonNull

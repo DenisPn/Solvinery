@@ -28,9 +28,11 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
         String paramName = extractName(ctx.sqRef().getText());
         TypeVisitor typer = new TypeVisitor(model);
         typer.visit(ctx.expr());
-        ModelParameter param = new ModelParameter(paramName,
-                typer.getType(),ctx.expr().getText());
-        model.getParamsMap().put(paramName, param);
+        if(typer.getType() != ModelPrimitives.UNKNOWN) {
+            ModelParameter param = new ModelParameter(paramName,
+                    typer.getType(),ctx.expr().getText());
+            model.getParamsMap().put(paramName, param);
+        }
         return super.visitParamDecl(ctx);
     }
 
@@ -47,7 +49,6 @@ public class CollectorVisitor extends FormulationBaseVisitor<Void> {
 
         TypeVisitor typer = new TypeVisitor(model);
         typer.visit(ctx.setExpr());
-        String expr= ctx.setExpr().getText();
         List<String> elements = parseSetElements(ctx.setExpr());
         if(elements != null) {
             //compute if absent is same as putIfAbsent, but creates a new set if key is absent

@@ -21,7 +21,7 @@ set EXTRA_EXPENSES := {
 # Category definition with priority weights
 set Bills := {
     # <category, min, max, priority_weight>
-    <"Rent", 1400, 1400, 10>,        # Fixed cost - weight doesn't matter
+    <"Rent", 1400, 1400, 10>,
     <"Utilities", 120, 250, 8>,       # High priority variable cost
     <"Groceries", 300, 450, 9>,       # Essential variable cost
     <"Transport", 150, 150, 10>,      # Fixed cost - weight doesn't matter
@@ -67,9 +67,7 @@ subto zero_weight_categories:
 # Minimum savings with extra expenses
 subto minimum_savings:
     forall <m> in MONTHS:
-        savings[m] >= MINIMUM_SAVINGS +
-        sum<month, amount, reason> in EXTRA_EXPENSES with month == m:
-            amount;
+        savings[m] >= MINIMUM_SAVINGS;
 
 # Calculate savings deficit relative to desired amount
 subto savings_deficit_calc:

@@ -16,7 +16,7 @@ import java.util.List;
  */
 public record VariableDTO(
     @NotBlank  @Size(max = 255, message = "Variable name length has to be at most 255") String identifier,
-    @Valid @NotNull @Size(min = 1,message = "Variable structure size has to be at least one.") List<@NotBlank String> structure,
+    @Valid @NotNull List<@NotBlank String> structure,
     @Nullable @Size(max = 255, message = "Variable alias length has to be at most 255") String alias,
     @Nullable @Size(max = 255, message = "Variable objective value alias length has to be at most 255") String objectiveValueAlias
 ) {}
