@@ -314,6 +314,15 @@
   to { transform: rotate(360deg); }
 }
 
+.loading-label {
+  background: rgba(0, 0, 0, 0.1);  /* light gray behind the text */
+  padding: 0.25em 0.6em;           /* some breathing room */
+  border-radius: 4px;             /* rounded corners */
+  font-weight: bold;
+  margin: 0;                      /* remove default <p> margins */
+  color: #333;                    /* dark text for contrast */
+}
+
 .filter-item-date {
   display: flex;
   flex-direction: column;

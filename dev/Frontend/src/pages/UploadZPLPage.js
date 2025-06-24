@@ -4,6 +4,8 @@ import { useZPL } from "../context/ZPLContext";
 import { useNavigate, Link } from "react-router-dom";
 import "./UploadZPLPage.css";
 import "../Themes/MainTheme.css";
+import "./MyImagesPage.css";
+
 
 const UploadZPLPage = () => {
   const {
@@ -49,9 +51,11 @@ const UploadZPLPage = () => {
     reader.readAsText(file);
   };
 
+  const [loading, setLoading] = useState(false);
+
   const handleUpload = async () => {
     const requestData = { code: fileContent };
-
+    setLoading(true);
     try {
       const response = await axios.post(`/user/${userId}/image/model`, requestData, {
         headers: { "Content-Type": "application/json" },
@@ -77,6 +81,8 @@ const UploadZPLPage = () => {
       } else {
         setMessage(`Error: ${error.message}`);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -124,6 +130,14 @@ const UploadZPLPage = () => {
 
   return (
     <div className="upload-zpl-page background">
+     {loading && (
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
+          <div className="spinner-modal">
+            <div className="spinner" />
+            <p className="loading-label">Loading…</p>
+          </div>
+        </div>
+      )}
       {/* Home Button */}
       <div className="top-left-buttons">
         <Link to="/main-page" title="Home" onClick={handleHomeClick}>
