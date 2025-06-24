@@ -53,6 +53,7 @@ const MyImagesPage = () => {
     setParamTypes,
     setImageId,
     setImageName,
+    setParamAliases,
     setImageDescription,
     setZplCode,
     selectedVars,
@@ -110,6 +111,8 @@ const MyImagesPage = () => {
   async function updateImageOnServer() {
     if (!selectedImage || !selectedImageId || !userId) return;
     setLoading(true);
+
+
 
     try {
       const payload = {
@@ -222,40 +225,65 @@ const MyImagesPage = () => {
   };
   const handleEditImage = async () => {
     if (!selectedImageId || !selectedImage) return;
-    if (!window.confirm("Editing image requires understanding of the ZPL model, please ensure you have the necessary knowledge before proceeding. Would you like to continue?")) {
+
+    // Confirm with the user before proceeding
+    if (
+      !window.confirm(
+        "Editing image requires understanding of the ZPL model. Would you like to continue?"
+      )
+    ) {
       return;
     }
+
+    // First, persist any changes on the server
     await updateImageOnServer();
+
+    // 1) Copy basic image fields into context
     setImageId(selectedImageId);
     setImageName(selectedImage.name);
     setImageDescription(selectedImage.description);
     setZplCode(selectedImage.code);
+
+    // 2) Restore the image’s own selectedVars
     setSelectedVars(selectedImage.variables || []);
+
+    // 3) Fetch the full model variables from server
     try {
       const modelResp = await axios.post(
         `/user/${userId}/image/model`,
-        { code: selectedImage.code }
+        { code: selectedImage.code },
+        { headers: { "Content-Type": "application/json" } }
       );
       setVariables(modelResp.data.variables || []);
       setConstraints(modelResp.data.constraints || []);
       setPreferences(modelResp.data.preferences || []);
-    } catch { }
+    } catch (err) {
+      console.error("Model fetch failed:", err);
+      alert(`Failed to load image model: ${err.response?.data?.msg || err.message}`);
+    }
+
+    // 4) Restore constraintModules
     setConstraintsModules(
-      selectedImage.constraintModules.map(mod => ({
+      (selectedImage.constraintModules || []).map(mod => ({
         name: mod.moduleName,
-        description: mod.description,
+        description: mod.description || "",
         constraints: mod.constraints.map(c => ({ identifier: c }))
       }))
     );
+
+    // 5) Restore preferenceModules
     setPreferenceModules(
-      selectedImage.preferenceModules.map(mod => ({
+      (selectedImage.preferenceModules || []).map(mod => ({
         name: mod.moduleName,
-        description: mod.description,
+        description: mod.description || "",
         preferences: mod.preferences.map(p => ({ identifier: p }))
       }))
     );
-    const newSetTypes = {}, newSetAliases = {};
-    selectedImage.sets.forEach(s => {
+
+    // 6) Rebuild sets & aliases
+    const newSetTypes = {};
+    const newSetAliases = {};
+    (selectedImage.sets || []).forEach(s => {
       newSetTypes[s.setDefinition.name] = s.setDefinition.structure;
       newSetAliases[s.setDefinition.name] = {
         alias: s.setDefinition.alias,
@@ -264,20 +292,28 @@ const MyImagesPage = () => {
     });
     setSetTypes(newSetTypes);
     setSetAliases(newSetAliases);
-    const newParamTypes = {}, newParamAliases = {};
-    selectedImage.parameters.forEach(p => {
-      newParamTypes[p.parameterDefinition.name] = p.parameterDefinition.type;
-      newParamAliases[p.parameterDefinition.name] = {
-        alias: p.parameterDefinition.alias,
-        typeAlias: p.parameterDefinition.typeAlias
-      };
+
+    // 7) **Rebuild params as maps** (name → structure) and (name → {alias, typeAlias})
+    const typesMap = {};
+    const aliasesMap = {};
+    (selectedImage.parameters || []).forEach(p => {
+      const name = p.parameterDefinition.name;
+      const structure = p.parameterDefinition.structure;
+      const alias = p.parameterDefinition.alias;
+      const typeAlias = p.parameterDefinition.typeAlias;
+
+      typesMap[name] = structure;
+      aliasesMap[name] = { alias, typeAlias };
     });
-    setParamTypes(newParamTypes);
+    setParamTypes(typesMap);
+    setParamAliases(aliasesMap);
+
+    // 8) Enter edit mode and navigate
     setIsEditMode(true);
-    setSelectedImageId(null); // Clear selectedImageId so we don't show the modal again when coming back
-    setSelectedImage(null); // Clear selectedImage to reset the state
     navigate("/configure-variables");
   };
+
+
   const handleCopyCode = () => {
     if (selectedImage?.code) {
       navigator.clipboard.writeText(selectedImage.code)
@@ -355,6 +391,7 @@ const MyImagesPage = () => {
                 className="image-item clickable"
                 onClick={() => {
                   setSelectedImage(img);
+                  console.log("Image selected :", img);
                   setSelectedImageId(id);
                 }}
               >
