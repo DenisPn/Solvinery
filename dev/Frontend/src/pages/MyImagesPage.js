@@ -329,7 +329,7 @@ const MyImagesPage = () => {
         <div className="modal-overlay" style={{ zIndex: 9999 }}>
           <div className="spinner-modal">
             <div className="spinner" />
-            <p>Loading…</p>
+            <p className="loading-label">Loading…</p>
           </div>
         </div>
       )}
