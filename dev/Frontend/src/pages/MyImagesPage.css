@@ -1116,3 +1116,26 @@
   justify-content: center;
   align-items: center;
 }
+
+/* ↓  put AFTER the existing tooltip rules  */
+/* ----------------------------------------------------------- */
+/*  Bubble that opens **below** the trigger (for top-row icons) */
+.tooltip-down .tooltip-bubble {
+  top: 120%;              /*  place under the icon  */
+  bottom: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* arrow that points UP (because bubble is below icon) */
+.tooltip-down::before,
+.tooltip-down:hover::before {
+  top: 100%;
+  bottom: auto;
+  border: 6px solid transparent;
+  border-bottom-color: #111;  /* arrow colour */
+  transform: translateX(-50%);
+}
+
+/* hide arrow until hover */
+.tooltip-down::before         { opacity: 0; visibility: hidden; transition: opacity .2s }
+.tooltip-down:hover::before    { opacity: 1; visibility: visible }

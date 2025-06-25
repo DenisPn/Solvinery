@@ -428,31 +428,55 @@ const MyImagesPage = () => {
 
               {/* top-right actions */}
               <div className="mi-action-bar">
-                <ActionBtn
-                  src={`${process.env.PUBLIC_URL}/images/PublishButton.png`}
-                  alt="Publish"
-                  onClick={handlePublishImage}
-                />
-                <ActionBtn
-                  src={`${process.env.PUBLIC_URL}/images/Solve.png`}
-                  alt="Solve"
-                  onClick={handleSolveImage}
-                />
-                <ActionBtn
-                  src={`${process.env.PUBLIC_URL}/images/EditButton.png`}
-                  alt="Edit"
-                  onClick={handleEditImage}
-                />
-                <ActionBtn
-                  src={`${process.env.PUBLIC_URL}/images/CopyZPLButton.png`}
-                  alt="Copy code"
-                  onClick={handleCopyCode}
-                />
-                <ActionBtn
-                  src={`${process.env.PUBLIC_URL}/images/delete.png`}
-                  alt="Delete"
-                  onClick={handleDeleteImage}
-                />
+                <span className="tooltip tooltip-down mi-action-wrapper">
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/PublishButton.png`}
+                    alt="Publish"
+                    className="mi-icon-button"
+                    onClick={handlePublishImage}
+                  />
+                  <div className="tooltip-bubble">Publish</div>
+                </span>
+
+                <span className="tooltip tooltip-down mi-action-wrapper">
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/Solve.png`}
+                    alt="Solve"
+                    className="mi-icon-button"
+                    onClick={handleSolveImage}
+                  />
+                  <div className="tooltip-bubble">Solve</div>
+                </span>
+
+                <span className="tooltip tooltip-down mi-action-wrapper">
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/EditButton.png`}
+                    alt="Edit"
+                    className="mi-icon-button"
+                    onClick={handleEditImage}
+                  />
+                  <div className="tooltip-bubble">Edit</div>
+                </span>
+
+                <span className="tooltip tooltip-down mi-action-wrapper">
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/CopyZPLButton.png`}
+                    alt="Copy code"
+                    className="mi-icon-button"
+                    onClick={handleCopyCode}
+                  />
+                  <div className="tooltip-bubble">Copy code</div>
+                </span>
+
+                <span className="tooltip tooltip-down mi-action-wrapper">
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/delete.png`}
+                    alt="Delete"
+                    className="mi-icon-button"
+                    onClick={handleDeleteImage}
+                  />
+                  <div className="tooltip-bubble">Delete</div>
+                </span>
               </div>
 
               {/* ====== Tabs ====== */}
