@@ -139,7 +139,7 @@ const ImageSettingReview = () => {
 
     console.log("Request Data:", requestData);
 
-    const API_URL = process.env.REACT_APP_API_URL;
+    const API_URL = process.env.REACT_APP_API_URL || "";;
     const baseUrl = `${API_URL}/user/${userId}/image${isEditMode ? `/${imageId}` : ""}`;
     const url = isEditMode ? `${baseUrl}?ignoreData=true` : baseUrl;
     const method = isEditMode ? "PATCH" : "POST";
