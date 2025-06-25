@@ -139,6 +139,7 @@ const ImageSettingReview = () => {
 
     console.log("Request Data:", requestData);
 
+    const API_URL = process.env.REACT_APP_API_URL;
     const baseUrl = `/user/${userId}/image${isEditMode ? `/${imageId}` : ""}`;
     const url = isEditMode ? `${baseUrl}?ignoreData=true` : baseUrl;
     const method = isEditMode ? "PATCH" : "POST";
@@ -149,6 +150,7 @@ const ImageSettingReview = () => {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
+        credentials: "include"
       });
 
       if (!response.ok) {
@@ -180,7 +182,12 @@ const ImageSettingReview = () => {
       setZplCode("");
       setIsEditMode(false);
 
-      navigate("/main-page");
+      if (!isEditMode) {
+        navigate("/main-page");
+      }
+      else {
+        navigate("/my-images");
+      }
     } catch (e) {
       console.error(e);
       alert(`Error: ${e.message}`);
