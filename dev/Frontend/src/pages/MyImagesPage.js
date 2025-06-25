@@ -298,7 +298,7 @@ const MyImagesPage = () => {
       {/* ───────── Home button ───────── */}
       {!selectedImage && (
         <img
-          src="/images/HomeButton.png"
+          src="`${process.env.PUBLIC_URL}/images/HomeButton.png'"
           alt="Home"
           className="mi-home-btn"
           onClick={() => navigate("/main-page")}
