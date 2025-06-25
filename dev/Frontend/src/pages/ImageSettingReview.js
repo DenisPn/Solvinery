@@ -149,6 +149,7 @@ const ImageSettingReview = () => {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
+        credentials: "include"
       });
 
       if (!response.ok) {
@@ -180,7 +181,12 @@ const ImageSettingReview = () => {
       setZplCode("");
       setIsEditMode(false);
 
-      navigate("/main-page");
+      if (!isEditMode) {
+        navigate("/main-page");
+      }
+      else{
+        navigate("/my-images");
+      }
     } catch (e) {
       console.error(e);
       alert(`Error: ${e.message}`);

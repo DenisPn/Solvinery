@@ -174,46 +174,13 @@
   z-index: 10;
 }
 
-.modal-content {
-  position: relative;
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  width: 80%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
-}
 
-.modal-close-button {
-  position: absolute;
-  top: 25px;
-  left: 25px;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  z-index: 100;
-}
 
-.modal-save-button {
-  position: absolute;
-  top: 25px;
-  right: 215px;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  z-index: 100;
-}
 
-.modal-copy-button {
-  position: absolute;
-  top: 25px;
-  right: 80px;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  z-index: 100;
-}
+
+
+
+
 
 /* Container for all filters in grid */
 .filter-grid {
@@ -271,12 +238,7 @@
   justify-content: center;
 }
 
-/* Modal action buttons container */
-.modal-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
+
 
 .loading-indicator {
   text-align: center;
@@ -332,3 +294,269 @@
   font-size: 0.9rem;
   margin-bottom: 0.25rem;
 }
+
+/* ─────────  A. Page title  ───────── */
+.main-view-images-title {
+  font-size: 48px;
+  font-weight: 700;
+  -webkit-text-stroke: 0.5px #fff;
+  font-family: cursive;
+  text-align: center;
+  margin: 0 0 24px;              /* extra space under title */
+}
+
+/* ─────────  B. Filters card  ───────── */
+.filters-card {
+  background: rgba(255,255,255,0.85);
+  border-radius: 18px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.15);
+  backdrop-filter: blur(4px);
+  margin-bottom: 24px;
+}
+
+.filters-card input {
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color .2s;
+}
+
+.filters-card input:focus {
+  outline: none;
+  border-color: #2a7b9b;
+}
+
+/* grid:  3 columns on wide screens, wrap on small */
+.filter-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+}
+
+/* ─────────  C. Fancy “Search” button  ───────── */
+.search-button {
+  flex: 0 0 200px;
+  position: relative;
+  padding: 14px 0;
+  border: 3px solid #666;
+  border-radius: 30px;
+  background: transparent;
+  color: #666;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .21em;
+  text-transform: uppercase;
+  cursor: pointer;
+  overflow: hidden;
+  transition: color .3s, background 0s;
+}
+
+.search-button::before,
+.search-button::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #e3e2db;
+  opacity: .5;
+  transform: translateY(200%);
+  transition: transform .3s;
+}
+
+.search-button::after {
+  background: #dedede;
+  transition-delay: .13s;
+}
+
+.search-button:hover {
+  background: #e3e2db;
+  color: #000;
+  transition: background .3s .2s, color .3s;
+}
+
+.search-button:hover::before,
+.search-button:hover::after {
+  transform: translateY(100%);
+}
+
+/* Center whole button row */
+.search-button-container {
+  margin: 1.5rem 0 2rem;
+  text-align: center;
+}
+
+/* ─────────  D. Image cards grid  ───────── */
+.images-section {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+  justify-items: center;
+  width: 100%;
+  max-width: 1000px;
+}
+
+/* card */
+.image-item {
+  width: 160px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  text-align: center;
+  transition: transform .25s;
+  cursor: pointer;
+}
+
+.image-item:hover {
+  transform: translateY(-6px);
+}
+
+.image-thumbnail-text h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: .25rem;
+  white-space: normal;
+}
+
+.image-thumbnail-text p {
+  font-size: .85rem;
+  color: #444;
+  white-space: normal;
+}
+
+/* ─────────  E. Pagination arrows  ───────── */
+.prev-page-button,
+.next-page-button {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.25));
+  transition: transform .2s;
+}
+.prev-page-button:hover,
+.next-page-button:hover {
+  transform: scale(1.15);
+}
+
+/* ─────────  F. Center modal buttons neatly  ───────── */
+.modal-content {
+  position: relative;
+  background: linear-gradient(135deg, #ffffff 0%, #f2f2f2 100%);
+  padding: 40px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
+  font-family: "Segoe UI", sans-serif;
+}
+
+.modal-content h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: #2a7b9b;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.modal-content p {
+  margin: 12px 0;
+  font-size: 16px;
+  color: #444;
+}
+
+.modal-content strong {
+  color: #000;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.modal-close-button,
+.modal-save-button,
+.modal-copy-button {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.modal-close-button:hover,
+.modal-save-button:hover,
+.modal-copy-button:hover {
+  transform: scale(1.2);
+}
+
+
+/* ─────────  G. Background matches My-Images palette  ───────── */
+.view-images-background {
+  background: linear-gradient(135deg,#2a7b9b 0%,#57c785 50%,#f2cb4c 100%);
+}
+
+.modal-top-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.modal-top-buttons img {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.modal-top-buttons img:hover {
+  transform: scale(1.15);
+}
+
+.image-box {
+  background: repeating-linear-gradient(
+    45deg,
+    #fdfdfd,
+    #fdfdfd 10px,
+    #f2f2f2 10px,
+    #f2f2f2 20px
+  );
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.image-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 6px;
+  position: relative;
+  display: inline-block;
+}
+
+.image-title::after {
+  content: '';
+  display: block;
+  width: 60%;
+  margin: 4px auto 0;
+  border-bottom: 3px solid #00AFB9;
+}
+
+.image-subtext {
+  font-size: 16px;
+  color: #333;
+  margin: 6px 0;
+  font-style: italic;
+}
+

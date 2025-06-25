@@ -105,53 +105,55 @@ const ViewImagesPage = () => {
         <h1 className="main-view-images-title">Public Images</h1>
 
         {/* Filters */}
-        <div className="filter-grid two-columns">
-          <input
-            type="text"
-            placeholder="Name"
-            value={filterName}
-            onChange={(e) => setFilterName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Description"
-            value={filterDescription}
-            onChange={(e) => setFilterDescription(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Author"
-            value={filterAuthor}
-            onChange={(e) => setFilterAuthor(e.target.value)}
-          />
+        <div className="filters-card">
+          <div className="filter-grid two-columns">
+            <input
+              type="text"
+              placeholder="Name"
+              value={filterName}
+              onChange={(e) => setFilterName(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Description"
+              value={filterDescription}
+              onChange={(e) => setFilterDescription(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Author"
+              value={filterAuthor}
+              onChange={(e) => setFilterAuthor(e.target.value)}
+            />
 
-          {/* After */}
-          <input
-            type="text"
-            placeholder="After"
-            value={filterAfter}
-            onFocus={(e) => (e.target.type = "date")}
-            onBlur={(e) => !e.target.value && (e.target.type = "text")}
-            onChange={(e) => setFilterAfter(e.target.value)}
-          />
+            {/* After */}
+            <input
+              type="text"
+              placeholder="After"
+              value={filterAfter}
+              onFocus={(e) => (e.target.type = "date")}
+              onBlur={(e) => !e.target.value && (e.target.type = "text")}
+              onChange={(e) => setFilterAfter(e.target.value)}
+            />
 
-          {/* Before */}
-          <input
-            type="text"
-            placeholder="Before"
-            value={filterBefore}
-            onFocus={(e) => (e.target.type = "date")}
-            onBlur={(e) => !e.target.value && (e.target.type = "text")}
-            onChange={(e) => setFilterBefore(e.target.value)}
-          />
+            {/* Before */}
+            <input
+              type="text"
+              placeholder="Before"
+              value={filterBefore}
+              onFocus={(e) => (e.target.type = "date")}
+              onBlur={(e) => !e.target.value && (e.target.type = "text")}
+              onChange={(e) => setFilterBefore(e.target.value)}
+            />
+          </div>
+          <div className="search-button-container">
+            <button className="search-button" onClick={handleSearchClick}>
+              Search
+            </button>
+          </div>
         </div>
-
         {/* Search button */}
-        <div className="search-button-container">
-          <button className="search-button" onClick={handleSearchClick}>
-            Search
-          </button>
-        </div>
+
 
         {/* Loading modal */}
         {loading && (
@@ -218,39 +220,13 @@ const ViewImagesPage = () => {
             className="modal-overlay"
             onClick={() => setSelectedImage(null)}
           >
-            <div
-              className="modal-content"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2>{selectedImage.name}</h2>
-              <p>
-                <strong>Description:</strong> {selectedImage.description}
-              </p>
-              <p>
-                <strong>Author:</strong> {selectedImage.authorName}
-              </p>
-              <p>
-                <strong>Creation Date:</strong>{" "}
-                {new Date(selectedImage.creationDate).toLocaleDateString()}
-              </p>
-
-              <div className="modal-buttons">
-                <img
-                  src="/images/ExitButton2.png"
-                  alt="Close"
-                  className="modal-close-button"
-                  onClick={() => setSelectedImage(null)}
-                />
-                <img
-                  src="/images/downloadButton.png"
-                  alt="Save"
-                  className="modal-save-button"
-                  onClick={handleSaveImage}
-                />
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-top-buttons">
+                <img src="/images/ExitButton2.png" alt="Close" onClick={() => setSelectedImage(null)} />
+                <img src="/images/downloadButton.png" alt="Save" onClick={handleSaveImage} />
                 <img
                   src="/images/CopyZPLButton.png"
                   alt="Copy"
-                  className="modal-copy-button"
                   onClick={() => {
                     navigator.clipboard
                       .writeText(selectedImage.description || "")
@@ -259,7 +235,14 @@ const ViewImagesPage = () => {
                   }}
                 />
               </div>
+              <div className="image-box">
+                <h2 className="image-title">{selectedImage.name}</h2>
+                <p className="image-subtext">{selectedImage.description}</p>
+                <p className="image-subtext"><strong>Author:</strong> {selectedImage.authorName}</p>
+                <p className="image-subtext"><strong>Creation Date:</strong> {new Date(selectedImage.creationDate).toLocaleDateString()}</p>
+              </div>
             </div>
+
           </div>
         )}
       </div>
