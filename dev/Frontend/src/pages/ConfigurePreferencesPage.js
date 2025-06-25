@@ -4,10 +4,10 @@ import { useZPL } from '../context/ZPLContext';
 import './ConfigureConstraintsPage.css';
 import '../Themes/MainTheme.css';
 
+const MAX_NAME_LENGTH = 25;
+
 const ConfigurePreferencesPage = () => {
   const navigate = useNavigate();
-
-  // ZPL context
   const {
     preferences,
     preferenceModules,
@@ -28,96 +28,139 @@ const ConfigurePreferencesPage = () => {
     setIsEditMode,
   } = useZPL();
 
-  // Local state
   const [availablePreferences, setAvailablePreferences] = useState([]);
-  const [moduleName, setModuleName] = useState('');
   const [selectedModuleIndex, setSelectedModuleIndex] = useState(null);
 
-  // Whenever `preferences` or `preferenceModules` change,
-  // filter out any preference already assigned to a module
   useEffect(() => {
-    const usedIds = preferenceModules
-      .flatMap(m => m.preferences.map(p => p.identifier));
-    const filtered = preferences.filter(p => !usedIds.includes(p.identifier));
-    setAvailablePreferences(filtered);
+    const usedIds = preferenceModules.flatMap(m =>
+      m.preferences.map(p => p.identifier)
+    );
+    setAvailablePreferences(
+      preferences.filter(p => !usedIds.includes(p.identifier))
+    );
   }, [preferences, preferenceModules]);
 
-  // Add a new empty module
   const addPreferenceModule = () => {
-    if (!moduleName.trim()) return;
+    const raw = window.prompt(
+      `Enter new module name (1–${MAX_NAME_LENGTH} chars):`
+    );
+    if (!raw) return;
+    const name = raw.trim();
+    if (!name) {
+      alert('Module name cannot be empty.');
+      return;
+    }
+    if (name.length > MAX_NAME_LENGTH) {
+      alert(`Must be under ${MAX_NAME_LENGTH} characters.`);
+      return;
+    }
     setPreferenceModules(prev => [
       ...prev,
-      { name: moduleName, description: '', preferences: [], involvedSets: [], involvedParams: [] }
+      { name, description: '', preferences: [] },
     ]);
-    setModuleName('');
+    setSelectedModuleIndex(preferenceModules.length);
   };
 
-  // Update description of the selected module
-  const updateModuleDescription = newDescription => {
+  const updateModuleName = () => {
+    if (selectedModuleIndex === null) return;
+    const current = preferenceModules[selectedModuleIndex].name;
+    const raw = window.prompt(
+      `Rename module (1–${MAX_NAME_LENGTH} chars):`,
+      current
+    );
+    if (!raw) return;
+    const newName = raw.trim();
+    if (!newName) {
+      alert('Module name cannot be empty.');
+      return;
+    }
+    if (newName.length > MAX_NAME_LENGTH) {
+      alert(`Must be under ${MAX_NAME_LENGTH} characters.`);
+      return;
+    }
     setPreferenceModules(prev =>
       prev.map((mod, i) =>
-        i === selectedModuleIndex ? { ...mod, description: newDescription } : mod
+        i === selectedModuleIndex ? { ...mod, name: newName } : mod
       )
     );
   };
 
-  // Add one preference into the selected module
-  const addPreferenceToModule = preference => {
+  const updateModuleDescription = newDesc => {
+    if (selectedModuleIndex === null) return;
+    setPreferenceModules(prev =>
+      prev.map((mod, i) =>
+        i === selectedModuleIndex ? { ...mod, description: newDesc } : mod
+      )
+    );
+  };
+
+  const addPreferenceToModule = p => {
     if (selectedModuleIndex === null) {
       alert('Please select a module first!');
       return;
     }
-
     setPreferenceModules(prev =>
-      prev.map((mod, i) => {
-        if (i === selectedModuleIndex &&
-            !mod.preferences.some(p => p.identifier === preference.identifier)) {
-          return {
-            ...mod,
-            preferences: [...mod.preferences, preference]
-          };
-        }
-        return mod;
-      })
+      prev.map((mod, i) =>
+        i === selectedModuleIndex &&
+        !mod.preferences.some(x => x.identifier === p.identifier)
+          ? { ...mod, preferences: [...mod.preferences, p] }
+          : mod
+      )
     );
-    // (No manual removal here — our effect will pick up the change and filter it out.)
+  };
+
+  const removePreferenceFromModule = identifier => {
+    if (selectedModuleIndex === null) return;
+    setPreferenceModules(prev =>
+      prev.map((mod, i) =>
+        i === selectedModuleIndex
+          ? {
+              ...mod,
+              preferences: mod.preferences.filter(p => p.identifier !== identifier),
+            }
+          : mod
+      )
+    );
+  };
+
+  const removeModule = () => {
+    if (selectedModuleIndex === null) return;
+    const name = preferenceModules[selectedModuleIndex].name;
+    if (window.confirm(`Delete module “${name}”?`)) {
+      setPreferenceModules(prev =>
+        prev.filter((_, i) => i !== selectedModuleIndex)
+      );
+      setSelectedModuleIndex(null);
+    }
   };
 
   const handleHomeClick = () => {
-    // Reset everything in context
-    setVariables([]);
-    setSelectedVars([]);
+    setVariables([]); setSelectedVars([]);
     setVariablesModule({
       variablesOfInterest: [],
       variablesConfigurableSets: [],
       variablesConfigurableParams: [],
     });
-    setConstraints([]);
-    setConstraintsModules([]);
-    setPreferences([]);
-    setPreferenceModules([]);
-    setSetTypes({});
-    setSetAliases({});
-    setParamTypes({});
-    setImageId(null);
-    setImageName('');
-    setImageDescription('');
-    setZplCode('');
-    setIsEditMode(false);
+    setConstraints([]); setConstraintsModules([]);
+    setPreferences([]); setPreferenceModules([]);
+    setSetTypes({}); setSetAliases({}); setParamTypes({});
+    setImageId(null); setImageName(''); setImageDescription('');
+    setZplCode(''); setIsEditMode(false);
+    setSelectedModuleIndex(null);
   };
 
   return (
-    <div className="configure-constraints-page background">
+    <div className="configure-constraints-page">
       <div className="top-bar">
         <div className="top-bar-left">
-          <Link to="/main-page" title="Home" onClick={handleHomeClick}>
+          <Link to="/main-page" onClick={handleHomeClick} title="Home">
             <img src="/images/HomeButton.png" alt="Home" className="top-bar-button" />
           </Link>
           <img
             src="/images/LeftArrowButton.png"
             alt="Continue"
             className="top-bar-button"
-            onClick={() => navigate('/solution-preview')}
+            onClick={() => navigate('/image-setting-set-and-params')}
             title="Continue"
           />
         </div>
@@ -128,80 +171,108 @@ const ConfigurePreferencesPage = () => {
         </div>
       </div>
 
-      <div className="constraints-layout">
-        {/* Preference Modules Section */}
-        <div className="constraint-modules">
-          <h2>Preference Modules</h2>
-          <input
-            type="text"
-            placeholder="Module Name"
-            value={moduleName}
-            onChange={e => setModuleName(e.target.value)}
-          />
-          <button onClick={addPreferenceModule}>Add Preference Module</button>
-          <div className="module-list">
-            {preferenceModules.map((mod, idx) => (
-              <div key={idx} className="module-item-container">
-                <button
-                  className={`module-item ${selectedModuleIndex === idx ? 'selected' : ''}`}
-                  onClick={() => setSelectedModuleIndex(idx)}
-                >
+      <div className="grid-container">
+        {/* Preference Module Creator */}
+        <div className="module-creator">
+          <div className="creator-controls">
+            <select
+              className="module-select"
+              value={selectedModuleIndex ?? ''}
+              onChange={e =>
+                setSelectedModuleIndex(
+                  e.target.value === '' ? null : Number(e.target.value)
+                )
+              }
+            >
+              <option value="" disabled>
+                — Select Module —
+              </option>
+              {preferenceModules.map((mod, idx) => (
+                <option key={idx} value={idx}>
                   {mod.name}
-                </button>
-              </div>
-            ))}
+                </option>
+              ))}
+            </select>
+            <button className="btn" onClick={addPreferenceModule}>
+              Create Module
+            </button>
           </div>
         </div>
 
-        {/* Define Preference Module Section */}
-        <div className="define-constraint-module">
-          <h2>Define Preference Module</h2>
-          {selectedModuleIndex === null ? (
-            <p>Select a module</p>
-          ) : (
-            <>
-              <h3>{preferenceModules[selectedModuleIndex]?.name || 'Unnamed Module'}</h3>
-              <label>Description:</label>
-              <hr />
-              <textarea
-                value={preferenceModules[selectedModuleIndex]?.description || ''}
-                onChange={e => updateModuleDescription(e.target.value)}
-                placeholder="Enter module description..."
-                style={{ resize: 'none', width: '100%', height: '80px' }}
-              />
-              <p>This module's preferences:</p>
-              <hr />
-              <div className="module-drop-area">
-                {preferenceModules[selectedModuleIndex]?.preferences.length > 0 ? (
-                  preferenceModules[selectedModuleIndex].preferences.map((p, i) => (
-                    <div key={i} className="dropped-constraint">
-                      {p.identifier}
-                    </div>
-                  ))
-                ) : (
-                  <p>No preferences added</p>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Available Preferences Section */}
-        <div className="available-constraints">
+        {/* Available Preferences Sidebar */}
+        <div className="available-constraints-sidebar">
           <h2>Available Preferences</h2>
           {availablePreferences.length > 0 ? (
-            availablePreferences.map((p, idx) => (
-              <div key={idx} className="constraint-item-container">
-                <button
-                  className="constraint-item"
-                  onClick={() => addPreferenceToModule(p)}
-                >
-                  {p.identifier}
-                </button>
-              </div>
+            availablePreferences.map((p, i) => (
+              <button
+                key={i}
+                className="constraint-item"
+                onClick={() => addPreferenceToModule(p)}
+              >
+                {p.identifier}
+              </button>
             ))
           ) : (
             <p>No preferences available</p>
+          )}
+        </div>
+
+        {/* Define Preference Module */}
+        <div className="module-details">
+          {selectedModuleIndex === null ? (
+            <p>Please select a module</p>
+          ) : (
+            <>
+              <div className="module-header-with-edit">
+                <button
+                  className="delete-module-btn"
+                  onClick={removeModule}
+                  title="Delete module"
+                >
+                  🗑️
+                </button>
+                <h2>{preferenceModules[selectedModuleIndex].name}</h2>
+                <button
+                  className="edit-btn"
+                  onClick={updateModuleName}
+                  title="Rename module"
+                >
+                  ✏️
+                </button>
+              </div>
+
+              <div className="module-details-grid">
+                <div className="module-description">
+                  <textarea
+                    value={
+                      preferenceModules[selectedModuleIndex].description || ''
+                    }
+                    onChange={e => updateModuleDescription(e.target.value)}
+                    placeholder="Enter module description…"
+                  />
+                </div>
+                <div className="module-constraints">
+                  <div className="module-drop-area">
+                    {preferenceModules[selectedModuleIndex].preferences.length > 0 ? (
+                      preferenceModules[selectedModuleIndex].preferences.map((p, i) => (
+                        <div key={i} className="dropped-constraint">
+                          <span>{p.identifier}</span>
+                          <button
+                            className="delete-btn"
+                            onClick={() => removePreferenceFromModule(p.identifier)}
+                            title="Remove preference"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No preferences added</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </div>
