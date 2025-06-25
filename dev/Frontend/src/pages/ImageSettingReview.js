@@ -149,6 +149,7 @@ const ImageSettingReview = () => {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
+        credentials: "include"
       });
 
       if (!response.ok) {
