@@ -139,6 +139,7 @@ const ImageSettingReview = () => {
 
     console.log("Request Data:", requestData);
 
+    const API_URL = process.env.REACT_APP_API_URL;
     const baseUrl = `/user/${userId}/image${isEditMode ? `/${imageId}` : ""}`;
     const url = isEditMode ? `${baseUrl}?ignoreData=true` : baseUrl;
     const method = isEditMode ? "PATCH" : "POST";
@@ -184,7 +185,7 @@ const ImageSettingReview = () => {
       if (!isEditMode) {
         navigate("/main-page");
       }
-      else{
+      else {
         navigate("/my-images");
       }
     } catch (e) {
