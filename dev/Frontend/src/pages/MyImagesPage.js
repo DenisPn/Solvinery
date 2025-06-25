@@ -218,7 +218,7 @@ const MyImagesPage = () => {
       setSelectedImage(null);
       setSelectedImageId(null);
       setViewSection(null);
-      navigate("/main-page");
+      fetchImages();
     } catch (err) {
       alert(`Delete failed: ${err.message}`);
     }
