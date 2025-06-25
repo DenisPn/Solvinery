@@ -221,13 +221,13 @@ const ImageSettingReview = () => {
       <div className="image-setting-top-left-buttons">
         <Link to="/main-page" title="Home" onClick={handleHomeClick}>
           <img
-            src="/images/HomeButton.png"
+            src="`${process.env.PUBLIC_URL}/images/HomeButton.png'"
             alt="Home"
             className="image-setting-home-button"
           />
         </Link>
         <img
-          src="/images/SaveButton.png"
+          src="`${process.env.PUBLIC_URL}/images/SaveButton.png'"
           alt="Save"
           className="image-setting-save-button"
           onClick={handleSaveImage}
@@ -239,7 +239,7 @@ const ImageSettingReview = () => {
           title="Show ZPL Code"
         >
           <img
-            src="/images/CopyZPLButton.png"
+            src="`${process.env.PUBLIC_URL}/images/CopyZPLButton.png'"
             alt="Show ZPL Code"
             className="show-zpl-icon"
           />
@@ -291,7 +291,7 @@ const ImageSettingReview = () => {
 
       <Link to="/image-setting-set-and-params" title="Back">
         <img
-          src="/images/RightArrowButton.png"
+          src="`${process.env.PUBLIC_URL}/images/RightArrowButton.png'"
           alt="Back"
           className="image-setting-back-button"
         />

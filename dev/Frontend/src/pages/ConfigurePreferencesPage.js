@@ -154,7 +154,7 @@ const ConfigurePreferencesPage = () => {
       <div className="top-bar">
         <div className="top-bar-left">
           <Link to="/main-page" onClick={handleHomeClick} title="Home">
-            <img src="/images/HomeButton.png" alt="Home" className="top-bar-button" />
+            <img src="`${process.env.PUBLIC_URL}/images/HomeButton.png'" alt="Home" className="top-bar-button" />
           </Link>
           <img
             src="/images/LeftArrowButton.png"
@@ -166,7 +166,7 @@ const ConfigurePreferencesPage = () => {
         </div>
         <div className="top-bar-right">
           <Link to="/configure-constraints" title="Back">
-            <img src="/images/RightArrowButton.png" alt="Back" className="top-bar-button" />
+            <img src="`${process.env.PUBLIC_URL}/images/RightArrowButton.png'" alt="Back" className="top-bar-button" />
           </Link>
         </div>
       </div>
