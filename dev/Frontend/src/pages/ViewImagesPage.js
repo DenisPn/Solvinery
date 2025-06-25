@@ -81,7 +81,7 @@ const ViewImagesPage = () => {
       const res = await axios.patch(
         `/user/${userId}/image/${selectedImage.imageId}/get`
       );
-      alert(`Response: ${JSON.stringify(res.data)}`);
+      alert(`Image added to your images successfully!`);
     } catch (err) {
       alert(`Error: ${err.response?.data?.message || err.message}`);
     }
@@ -174,12 +174,12 @@ const ViewImagesPage = () => {
               images.map((img) => (
                 <div
                   key={img.imageId}
-                  className="image-item"
+                  className="image-item tooltip"
+                  data-tip={img.description || "— No description —"}
                   onClick={() => setSelectedImage(img)}
                 >
                   <div className="image-thumbnail-text">
                     <h4>{img.name}</h4>
-                    <p>{img.description}</p>
                   </div>
                 </div>
               ))
@@ -221,20 +221,36 @@ const ViewImagesPage = () => {
             onClick={() => setSelectedImage(null)}
           >
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-top-buttons">
-                <img src={`${process.env.PUBLIC_URL}/images/ExitButton2.png`} alt="Close" onClick={() => setSelectedImage(null)} />
-                <img src={`${process.env.PUBLIC_URL}/images/downloadButton.png`} alt="Save" onClick={handleSaveImage} />
-                <img
-                  src={`${process.env.PUBLIC_URL}/images/CopyZPLButton.png`}
-                  alt="Copy"
-                  onClick={() => {
-                    navigator.clipboard
-                      .writeText(selectedImage.description || "")
-                      .then(() => alert("Description copied!"))
-                      .catch(() => alert("Copy failed."));
-                  }}
-                />
+
+              <div className="modal-header">
+                {/* Left: Back / Close button */}
+                <div className="modal-header-left">
+                  <div className="icon-wrapper" data-tip="Close">
+                    <img
+                      src={`${process.env.PUBLIC_URL}/images/ExitButton2.png`}
+                      alt="Close"
+                      className="modal-back-btn"
+                      onClick={() => setSelectedImage(null)}
+                    />
+                  </div>
+                </div>
+
+                {/* Right: Save button */}
+                <div className="modal-header-right">
+                  <div className="icon-wrapper" data-tip="Add to your images">
+                    <img
+                      src={`${process.env.PUBLIC_URL}/images/downloadButton.png`}
+                      alt="Save"
+                      className="modal-save-button"
+                      onClick={handleSaveImage}
+                    />
+                  </div>
+                </div>
               </div>
+
+
+
+
               <div className="image-box">
                 <h2 className="image-title">{selectedImage.name}</h2>
                 <p className="image-subtext">{selectedImage.description}</p>

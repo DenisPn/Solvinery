@@ -1,447 +1,173 @@
-.view-images-background {
-  background: linear-gradient(90deg, rgba(42, 123, 155, 1) 0%, rgba(87, 199, 133, 1) 100%, rgba(237, 221, 83, 1) 100%);
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* ───────── General Page Styling ───────── */
+.view-images-background{
+  background:linear-gradient(135deg,#2a7b9b 0%,#57c785 50%,#f2cb4c 100%);
+  height:100vh;display:flex;justify-content:center;align-items:center;position: relative;
+  min-height: 100vh;
+}
+.view-images-form-container{
+  padding:0 60px 70px;
+  display:flex;flex-direction:column;align-items:center;
+  width:80vw;min-height:700px;max-height:90vh;overflow:visible;
 }
 
-.view-images-form-container {
-  padding: 0px 60px 70px 60px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  width: 80vw;
-  min-height: 700px;
-  max-height: 90vh;
-
-  /* no border/background */
-  background: none;
-  border: none;
-   overflow: visible; /* prevent scrollbars */
+/* ───────── Page Title ───────── */
+.main-view-images-title{
+  font:700 48px cursive;-webkit-text-stroke:.5px #fff;text-align:center;margin:0 0 24px;
 }
 
-.main-view-images-title {
-  font-size: 50px;
-  font-weight: bold;
-  -webkit-text-stroke: 0.5px white;
-  font-family: cursive;
+/* ───────── Filters Card ───────── */
+.filters-card{
+  background:rgba(255,255,255,.85);backdrop-filter:blur(4px);
+  border-radius:18px;padding:1.5rem 2rem;margin-bottom:24px;
+  box-shadow:0 8px 24px rgba(0,0,0,.15);max-width:1100px;width:100%;
 }
-
-.group {
-  position: relative;
-  margin-bottom: 45px;
+.filter-grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));}
+.filters-card input{
+  padding:10px 14px;border:1px solid #ccc;border-radius:8px;font-size:.95rem;
+  transition:border-color .2s;
 }
+.filters-card input:focus{outline:none;border-color:#2a7b9b;}
 
-.input-box-view-images {
-  font-size: 18px;
-  padding: 10px 10px 10px 5px;
-  display: block;
-  width: 300px;
-  border: none;
-  border-bottom: 1px solid #757575;
+/* Search button */
+.search-button-container{text-align:center;margin-top:1.5rem;}
+.search-button{
+  width:260px;                       /* ← explicit width */
+  padding:14px 0;border:3px solid #666;border-radius:30px;
+  background:transparent;color:#666;letter-spacing:.21em;
+  font:700 14px/1 sans-serif;text-transform:uppercase;cursor:pointer;
+  position:relative;overflow:hidden;transition:color .3s,background 0s;
 }
-
-.input-box-view-images:focus {
-  outline: none;
+.search-button::before,
+.search-button::after{
+  content:'';position:absolute;bottom:100%;left:0;width:100%;height:100%;
+  transform:translateY(200%);transition:transform .3s;opacity:.5;
 }
+.search-button::before{background:#e3e2db;}
+.search-button::after{background:#dedede;transition-delay:.13s;}
+.search-button:hover{background:#e3e2db;color:#000;transition:background .3s .2s,color .3s;}
+.search-button:hover::before,
+.search-button:hover::after{transform:translateY(100%);}
 
-.bar-view-images {
-  position: relative;
-  display: block;
-  width: 300px;
+/* ───────── Image Grid ───────── */
+.images-section{
+  display:grid;gap:30px;grid-template-columns:repeat(5, 1fr);justify-content: center;
+  justify-items:center;width:100%;max-width:1000px;
 }
-
-.bar-view-images:before,
-.bar-view-images:after {
-  content: '';
-  height: 2px;
-  width: 0;
-  bottom: 1px;
-  position: absolute;
-  background: #5264AE;
-  transition: 0.2s ease all;
-}
-
-.bar-view-images:before {
-  left: 50%;
-}
-
-.bar-view-images:after {
-  right: 50%;
-}
-
-.input-box-view-images:focus ~ .bar-view-images:before,
-.input-box-view-images:focus ~ .bar-view-images:after {
-  width: 50%;
-}
-
-.highlight-view-images {
-  position: absolute;
-  height: 60%;
-  width: 100px;
-  top: 25%;
-  left: 0;
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-.input-box-view-images:focus ~ .highlight-view-images {
-  animation: inputHighlighter 0.3s ease;
-}
-
-@keyframes inputHighlighter {
-  from { background: #5264AE; }
-  to { width: 0; background: transparent; }
-}
-
-.images-section {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 20px;
-  width: 1050px;
-  height: 500px;            /* was 460px, now taller */
-  justify-items: center;
-  align-content: start;
-  overflow: visible;
-   padding-top: 10px;  
-  padding-bottom: 30px;     /* add this line to make room for hover growth */
-}
-
-
-
-
-
 .image-item {
-  width: 125px;
-  height: 150px;
-  background-color: #fff;
-  border-radius: 2px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  width: 240px;
+  height: 240px;
+  padding: 16px;
+  background: repeating-linear-gradient(
+  45deg,
+  #fdfdfd,
+  #fdfdfd 10px,
+  #f0f0f0 10px,
+  #f0f0f0 20px
+);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+   overflow: visible;          /* was hidden – allow tooltip to escape */
   position: relative;
-  transition: 0.3s ease;
-  padding: 15px;
-  cursor: pointer;
   
 }
 
 .image-item:hover {
-  scale: 1.1;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
 }
-
 .image-thumbnail-text {
-  text-align: center;
-}
-
-.image-thumbnail-text h4,
-.image-thumbnail-text p {
-  font-size: 16px;
-  margin: 5px 0;
-}
-
-.home-button {
-  position: absolute;
-  top: 50px;
-  left: 30px;
-  width: 50px;
-  height: 50px;
-  cursor: pointer;
-  z-index: 5;
-}
-
-.next-page-button,
-.prev-page-button {
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
+  margin: 0;            /* ensure no external spacing */
+  padding: 0;           /* ensure no internal spacing */
 }
-
-
-
-
-
-
-
-
-
-/* Container for all filters in grid */
-.filter-grid {
-  display: grid;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-/* Two columns layout when desired */
-.filter-grid.two-columns {
-  grid-template-columns: repeat(5, 1fr);
-}
-
-/* Individual filter item styling */
-.filter-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.filter-item label {
-  margin-bottom: 0.25rem;
-  font-weight: bold;
-}
-
-.filter-item input {
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-/* Center the Search button */
-.search-button-container {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.search-button {
-  padding: 0.6rem 1.2rem;
-  background-color: #2a7b9b;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.search-button:hover {
-  background-color: #1f5d75;
-}
-
-/* Pagination */
-.pagination-container {
-  margin-top: 1.5rem;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-}
-
-
-
-.loading-indicator {
-  text-align: center;
-  font-size: 1.2rem;
-  margin: 2rem 0;
-}
-
-
-
-/* container for the white box */
-.loading-modal {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 120px;
-  height: 120px;
-}
-
-/* the spinner itself */
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 6px solid #ddd;
-  border-top-color: #2a7b9b;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-/* spin animation */
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loading-label {
-  background: rgba(0, 0, 0, 0.1);  /* light gray behind the text */
-  padding: 0.25em 0.6em;           /* some breathing room */
-  border-radius: 4px;             /* rounded corners */
-  font-weight: bold;
-  margin: 0;                      /* remove default <p> margins */
-  color: #333;                    /* dark text for contrast */
-}
-
-.filter-item-date {
-  display: flex;
-  flex-direction: column;
-}
-
-.filter-item-date span {
-  font-size: 0.9rem;
-  margin-bottom: 0.25rem;
-}
-
-/* ─────────  A. Page title  ───────── */
-.main-view-images-title {
-  font-size: 48px;
+.image-thumbnail-text h4 {
+  font-size: 30px;
   font-weight: 700;
-  -webkit-text-stroke: 0.5px #fff;
-  font-family: cursive;
-  text-align: center;
-  margin: 0 0 24px;              /* extra space under title */
-}
-
-/* ─────────  B. Filters card  ───────── */
-.filters-card {
-  background: rgba(255,255,255,0.85);
-  border-radius: 18px;
-  padding: 1.5rem 2rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,.15);
-  backdrop-filter: blur(4px);
-  margin-bottom: 24px;
-}
-
-.filters-card input {
-  padding: 10px 14px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: border-color .2s;
-}
-
-.filters-card input:focus {
-  outline: none;
-  border-color: #2a7b9b;
-}
-
-/* grid:  3 columns on wide screens, wrap on small */
-.filter-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
-}
-
-/* ─────────  C. Fancy “Search” button  ───────── */
-.search-button {
-  flex: 0 0 200px;
-  position: relative;
-  padding: 14px 0;
-  border: 3px solid #666;
-  border-radius: 30px;
-  background: transparent;
-  color: #666;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: .21em;
+  color: #2a7b9b;
   text-transform: uppercase;
-  cursor: pointer;
-  overflow: hidden;
-  transition: color .3s, background 0s;
-}
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+  white-space: normal;
+  word-break: break-word;
+  font-family: 'Segoe UI', sans-serif;
+    margin: 0;            /* remove default top/bottom spacing */
+  padding: 0;
+    line-height: 1.2;
 
-.search-button::before,
-.search-button::after {
-  content: '';
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #e3e2db;
-  opacity: .5;
-  transform: translateY(200%);
-  transition: transform .3s;
 }
-
-.search-button::after {
-  background: #dedede;
-  transition-delay: .13s;
+.image-thumbnail-text p {
+  font-size: 30px;
+  color: #444;
+  font-style: italic;
+  margin-top: 4px;
+  opacity: 0.8;
+  font-family: 'Segoe UI', sans-serif;
+    margin: 0;            /* remove default top/bottom spacing */
+  padding: 0;
 }
-
-.search-button:hover {
-  background: #e3e2db;
-  color: #000;
-  transition: background .3s .2s, color .3s;
-}
-
-.search-button:hover::before,
-.search-button:hover::after {
-  transform: translateY(100%);
-}
-
-/* Center whole button row */
-.search-button-container {
-  margin: 1.5rem 0 2rem;
-  text-align: center;
-}
-
-/* ─────────  D. Image cards grid  ───────── */
-.images-section {
-  display: grid;
-  gap: 24px;
-  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
-  justify-items: center;
-  width: 100%;
-  max-width: 1000px;
-}
-
-/* card */
 .image-item {
-  width: 160px;
-  padding: 16px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.25);
-  text-align: center;
-  transition: transform .25s;
-  cursor: pointer;
+  transition: transform 0.25s, box-shadow 0.25s;
 }
 
 .image-item:hover {
   transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
-.image-thumbnail-text h4 {
+/* ───────── Pagination ───────── */
+.pagination-container {
+  position: absolute;
+  bottom: 30px; /* adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pagination-container span {
   font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: .25rem;
-  white-space: normal;
+  font-weight: 600;
+  font-family: 'Segoe UI', sans-serif;
+  color: #2a7b9b;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 6px 14px;
+  border-radius: 20px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  letter-spacing: 0.5px;
+  transition: background 0.3s ease;
 }
 
-.image-thumbnail-text p {
-  font-size: .85rem;
-  color: #444;
-  white-space: normal;
+.pagination-container span:hover {
+  background: rgba(255, 255, 255, 0.8);
 }
 
-/* ─────────  E. Pagination arrows  ───────── */
-.prev-page-button,
-.next-page-button {
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,.25));
-  transition: transform .2s;
-}
-.prev-page-button:hover,
-.next-page-button:hover {
-  transform: scale(1.15);
-}
 
-/* ─────────  F. Center modal buttons neatly  ───────── */
+.prev-page-button,.next-page-button{
+  width:40px;height:40px;cursor:pointer;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));
+  transition:transform .2s;
+}
+.prev-page-button:hover,.next-page-button:hover{transform:scale(1.15);}
+
+/* ───────── Modal Overlay ───────── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;justify-content:center;align-items:center;z-index:10;
+}
 .modal-content {
-  position: relative;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: linear-gradient(135deg, #ffffff 0%, #f2f2f2 100%);
   padding: 40px;
   border-radius: 16px;
@@ -453,110 +179,237 @@
   font-family: "Segoe UI", sans-serif;
 }
 
-.modal-content h2 {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 16px;
-  color: #2a7b9b;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 10px;
+
+/* ─ Modal header with buttons ─ */
+.modal-header {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  margin-bottom: 24px;
+  animation: slideFadeIn 0.7s ease-out;
 }
 
-.modal-content p {
-  margin: 12px 0;
-  font-size: 16px;
-  color: #444;
-}
+.modal-back-btn{width:36px;height:36px;cursor:pointer;transition:transform .2s;}
+.modal-action-btns{display:flex;gap:16px;}
+.modal-action-btns img{width:36px;height:36px;cursor:pointer;transition:transform .2s;}
+.modal-back-btn:hover,.modal-action-btns img:hover{transform:scale(1.15);}
 
-.modal-content strong {
-  color: #000;
+/* ─ Information Box ─ */
+.image-box{
+  background:repeating-linear-gradient(45deg,#fdfdfd 0 10px,#f2f2f2 10px 20px);
+  padding:30px;border-radius:18px;box-shadow:0 10px 20px rgba(0,0,0,.1);
+  text-align:center;max-width:600px;margin:40px auto 0;
 }
+.image-title{
+  font-size:24px;font-weight:bold;margin-bottom:6px;display:inline-block;position:relative;
+}
+.image-title::after{
+  content:'';display:block;width:60%;margin:4px auto 0;border-bottom:3px solid #00afb9;
+}
+.image-subtext{font-size:16px;color:#333;margin:6px 0;font-style:italic;}
 
-.modal-buttons {
+/* Fix the modal header layout */
+.modal-header {
   display: flex;
-  justify-content: flex-end;
-  gap: 16px;
-  margin-top: 30px;
-}
-
-.modal-close-button,
-.modal-save-button,
-.modal-copy-button {
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.modal-close-button:hover,
-.modal-save-button:hover,
-.modal-copy-button:hover {
-  transform: scale(1.2);
-}
-
-
-/* ─────────  G. Background matches My-Images palette  ───────── */
-.view-images-background {
-  background: linear-gradient(135deg,#2a7b9b 0%,#57c785 50%,#f2cb4c 100%);
-}
-
-.modal-top-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 24px;
 }
 
-.modal-top-buttons img {
+/* Restore correct Home button size */
+.home-button {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  top: 50px;
+  left: 30px;
+  z-index: 5;
+  cursor: pointer;
+}
+
+/* Modal button layout (back left, others right) */
+.modal-back-btn {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.modal-action-btns {
+  display: flex;
+  gap: 16px;
+}
+.modal-action-btns img {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.modal-back-btn:hover,
+.modal-action-btns img:hover {
+  transform: scale(1.15);
+}
+
+/* Fix modal-header layout */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+/* Top-left back button */
+.modal-back-btn {
   width: 36px;
   height: 36px;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
 
-.modal-top-buttons img:hover {
+/* Top-right button group */
+.modal-action-btns {
+  display: flex;
+  gap: 16px;
+}
+
+.modal-action-btns img {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+/* Hover effects */
+.modal-back-btn:hover,
+.modal-action-btns img:hover {
   transform: scale(1.15);
 }
 
-.image-box {
-  background: repeating-linear-gradient(
-    45deg,
-    #fdfdfd,
-    #fdfdfd 10px,
-    #f2f2f2 10px,
-    #f2f2f2 20px
-  );
-  padding: 30px;
-  border-radius: 18px;
-  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  margin-top: 20px;
-  width: 100%;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.image-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 6px;
+.modal-header {
   position: relative;
-  display: inline-block;
+  width: 100%;
+  height: 40px;
+  margin-bottom: 24px;
 }
 
-.image-title::after {
-  content: '';
-  display: block;
-  width: 60%;
-  margin: 4px auto 0;
-  border-bottom: 3px solid #00AFB9;
+.modal-header-left,
+.modal-header-right {
+  position: absolute;
+  top: 0;
+  display: flex;
+  align-items: center;
 }
 
-.image-subtext {
-  font-size: 16px;
-  color: #333;
-  margin: 6px 0;
-  font-style: italic;
+.modal-header-left {
+  left: 0;
+  padding-left: 12px;
 }
 
+.modal-header-right {
+  right: 0;
+  gap: 16px;
+  padding-right: 12px;
+}
+
+.modal-header-left img,
+.modal-header-right img {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.modal-header-left img:hover,
+.modal-header-right img:hover {
+  transform: scale(1.15);
+}
+
+
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.modal-header-left,
+.modal-header-right {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+/* Tooltip container */
+.icon-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.icon-wrapper::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  background: #333;
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.icon-wrapper:hover::after {
+  transform: translateX(-50%) scale(1);
+  opacity: 1;
+}
+
+/* ─────────  Tooltip on image thumbnails  ───────── */
+.tooltip {
+  position: relative;                /* anchor pseudo-element */
+}
+
+/* the bubble itself */
+.tooltip::after {
+  content: attr(data-tip);           /* text comes from JSX */
+  position: absolute;
+  bottom: 110%;                      /* above the card */
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(0,0,0,.85);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s, transform .25s;
+  z-index: 5;
+  max-width: 240px;           /* wrap rather than over-flow */
+  
+}
+
+/* small arrow */
+.tooltip::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;                      /* sits right under ::after */
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: rgba(0,0,0,.85);
+  opacity: 0;
+  transition: opacity .25s;
+  z-index: 5;
+}
+
+.tooltip:hover::after,
+.tooltip:hover::before {
+  opacity: 1;                        /* fade-in */
+  transform: translateX(-50%) translateY(0);
+}
