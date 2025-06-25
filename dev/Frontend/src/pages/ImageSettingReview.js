@@ -144,6 +144,8 @@ const ImageSettingReview = () => {
     const url = isEditMode ? `${baseUrl}?ignoreData=true` : baseUrl;
     const method = isEditMode ? "PATCH" : "POST";
     console.log("Request URL:", url);
+    console.log("Test1");
+    console.log(process.env.REACT_APP_API_URL);
 
     try {
       const response = await fetch(url, {
