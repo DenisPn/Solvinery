@@ -298,7 +298,7 @@ const MyImagesPage = () => {
       {/* ───────── Home button ───────── */}
       {!selectedImage && (
         <img
-          src="/images/HomeButton.png"
+          src="`${process.env.PUBLIC_URL}/images/HomeButton.png'"
           alt="Home"
           className="mi-home-btn"
           onClick={() => navigate("/main-page")}
@@ -356,7 +356,7 @@ const MyImagesPage = () => {
         {/* ===== Pagination ===== */}
         <div className="mi-pagination">
           <img
-            src="/images/LeftArrowButton.png"
+            src="`${process.env.PUBLIC_URL}/images/LeftArrowButton.png'"
             alt="Prev"
             className="mi-prev-btn"
             style={{ opacity: hasPrev ? 1 : 0.3 }}
@@ -364,7 +364,7 @@ const MyImagesPage = () => {
           />
           <span>Page {criteria.page + 1} / {totalPages}</span>
           <img
-            src="/images/RightArrowButton.png"
+            src="`${process.env.PUBLIC_URL}/images/RightArrowButton.png'"
             alt="Next"
             className="mi-next-btn"
             style={{ opacity: hasNext ? 1 : 0.3 }}
@@ -389,7 +389,7 @@ const MyImagesPage = () => {
               {/* top-left close / back */}
               {viewSection === null ? (
                 <img
-                  src="/images/ExitButton2.png"
+                  src="`${process.env.PUBLIC_URL}/images/ExitButton2.png'"
                   alt="Close"
                   className="mi-modal-close-btn"
                   onClick={async () => {
@@ -401,7 +401,7 @@ const MyImagesPage = () => {
                 />
               ) : (
                 <img
-                  src="/images/ExitButton2.png"
+                  src="`${process.env.PUBLIC_URL}/images/ExitButton2.png'"
                   alt="Back"
                   className="mi-modal-close-btn"
                   onClick={() => setViewSection(null)}
@@ -410,31 +410,31 @@ const MyImagesPage = () => {
 
               {/* top-right actions */}
               <img
-                src="/images/PublishButton.png"
+                src="`${process.env.PUBLIC_URL}/images/PublishButton.png'"
                 alt="Publish"
                 className="mi-modal-publish-btn"
                 onClick={handlePublishImage}
               />
               <img
-                src="/images/Solve.png"
+                src="`${process.env.PUBLIC_URL}/images/Solve.png'"
                 alt="Solve"
                 className="mi-modal-solve-btn"
                 onClick={handleSolveImage}
               />
               <img
-                src="/images/EditButton.png"
+                src="`${process.env.PUBLIC_URL}/images/EditButton.png'"
                 alt="Edit"
                 className="mi-modal-edit-btn"
                 onClick={handleEditImage}
               />
               <img
-                src="/images/CopyZPLButton.png"
+                src="`${process.env.PUBLIC_URL}/images/CopyZPLButton.png'"
                 alt="Copy ZPL"
                 className="mi-modal-copy-btn"
                 onClick={handleCopyCode}
               />
               <img
-                src="/images/delete.png"
+                src="`${process.env.PUBLIC_URL}/images/delete.png'"
                 alt="Delete"
                 className="mi-modal-delete-btn"
                 onClick={handleDeleteImage}
