@@ -9,7 +9,7 @@ import { useZPL } from "../context/ZPLContext";
 import "../Themes/MainTheme.css";
 import "./MyImagesPage.css";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 const MyImagesPage = () => {
   /* ─────────────────────────────  Local filters & paging  ───────────────────────────── */
@@ -283,6 +283,12 @@ const MyImagesPage = () => {
     );
   };
 
+  const ActionBtn = ({ src, alt, onClick }) => (
+    <span className="mi-action-wrapper" data-tip={alt}>
+      <img src={src} alt={alt} className="mi-icon-button" onClick={onClick} />
+    </span>
+  );
+
   /* ─────────────────────────────  JSX  ───────────────────────────── */
   return (
     <div className="mi-bg">
@@ -338,17 +344,21 @@ const MyImagesPage = () => {
             <p>No images available.</p>
           ) : (
             Object.entries(imagesMap).map(([id, img]) => (
-              <div
-                key={id}
-                className="mi-image-item"
-                onClick={() => {
-                  setSelectedImage(img);
-                  setSelectedImageId(id);
-                }}
-              >
-                <div className="mi-image-caption">
-                  <strong>{img.name}</strong>
+              <div key={id} className="tooltip">
+                <div
+                  className="mi-image-item"
+                  onClick={() => {
+                    setSelectedImage(img);
+                    setSelectedImageId(id);
+                  }}
+                >
+                  <div className="mi-thumbnail-text">
+                    <h4>{img.name}</h4>
+                  </div>
                 </div>
+                {img.description && (
+                  <div className="tooltip-bubble">{img.description}</div>
+                )}
               </div>
             ))
           )}
@@ -389,17 +399,24 @@ const MyImagesPage = () => {
             >
               {/* top-left close / back */}
               {viewSection === null ? (
-                <img
-                  src={`${process.env.PUBLIC_URL}/images/ExitButton2.png`}
-                  alt="Close"
-                  className="mi-modal-close-btn"
-                  onClick={async () => {
-                    await updateImageOnServer();
-                    setSelectedImage(null);
-                    setSelectedImageId(null);
-                    setViewSection(null);
-                  }}
-                />
+                <span
+                  className="mi-action-wrapper"
+                  data-tip={viewSection === null ? 'Close' : 'Back'}
+                >
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/ExitButton2.png`}
+                    alt={viewSection === null ? 'Close' : 'Back'}
+                    className="mi-modal-close-btn"
+                    onClick={async () => {
+                      if (viewSection === null) {
+                        await updateImageOnServer();
+                        setSelectedImage(null);
+                        setSelectedImageId(null);
+                      }
+                      setViewSection(null);
+                    }}
+                  />
+                </span>
               ) : (
                 <img
                   src={`${process.env.PUBLIC_URL}/images/ExitButton2.png`}
@@ -410,36 +427,33 @@ const MyImagesPage = () => {
               )}
 
               {/* top-right actions */}
-              <img
-                src={`${process.env.PUBLIC_URL}/images/PublishButton.png`}
-                alt="Publish"
-                className="mi-modal-publish-btn"
-                onClick={handlePublishImage}
-              />
-              <img
-                src={`${process.env.PUBLIC_URL}/images/Solve.png`}
-                alt="Solve"
-                className="mi-modal-solve-btn"
-                onClick={handleSolveImage}
-              />
-              <img
-                src={`${process.env.PUBLIC_URL}/images/EditButton.png`}
-                alt="Edit"
-                className="mi-modal-edit-btn"
-                onClick={handleEditImage}
-              />
-              <img
-                src={`${process.env.PUBLIC_URL}/images/CopyZPLButton.png`}
-                alt="Copy ZPL"
-                className="mi-modal-copy-btn"
-                onClick={handleCopyCode}
-              />
-              <img
-                src={`${process.env.PUBLIC_URL}/images/delete.png`}
-                alt="Delete"
-                className="mi-modal-delete-btn"
-                onClick={handleDeleteImage}
-              />
+              <div className="mi-action-bar">
+                <ActionBtn
+                  src={`${process.env.PUBLIC_URL}/images/PublishButton.png`}
+                  alt="Publish"
+                  onClick={handlePublishImage}
+                />
+                <ActionBtn
+                  src={`${process.env.PUBLIC_URL}/images/Solve.png`}
+                  alt="Solve"
+                  onClick={handleSolveImage}
+                />
+                <ActionBtn
+                  src={`${process.env.PUBLIC_URL}/images/EditButton.png`}
+                  alt="Edit"
+                  onClick={handleEditImage}
+                />
+                <ActionBtn
+                  src={`${process.env.PUBLIC_URL}/images/CopyZPLButton.png`}
+                  alt="Copy code"
+                  onClick={handleCopyCode}
+                />
+                <ActionBtn
+                  src={`${process.env.PUBLIC_URL}/images/delete.png`}
+                  alt="Delete"
+                  onClick={handleDeleteImage}
+                />
+              </div>
 
               {/* ====== Tabs ====== */}
               {viewSection === null ? (
@@ -519,7 +533,7 @@ const MyImagesPage = () => {
                                   : "▼"
                                 : "⇅"}
                             </button>
-                            
+
                           </th>
                         ))}
                         <th>Actions</th>

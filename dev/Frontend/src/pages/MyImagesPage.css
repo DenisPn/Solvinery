@@ -26,7 +26,8 @@
   -webkit-text-stroke: 1px white;
   font-family: cursive;
   text-align: center;
-  margin-bottom: 20px; /* ← this adds spacing under the title */
+  margin-bottom: 20px;
+  /* ← this adds spacing under the title */
 }
 
 /* -------------- FILTER -------------- */
@@ -60,29 +61,46 @@
 /* -------------- GRID -------------- */
 .mi-images-section {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 20px;
-  width: 1050px;
-  height: 500px;
-  align-content: start;
-  padding: 10px 0 30px
+
+  /* Responsive 5 boxes per row, max 240px each */
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+
+  gap: 32px;
+  justify-items: center;
+
+  width: 100%;
+  max-width: 1300px;
+  padding: 20px 0 30px;
+  margin: 0 auto;
+  overflow: visible; /* ⛔ prevents scrollbars */
 }
 
 .mi-image-item {
-  width: 120px;
-  height: 150px;
-  background: #fff;
-  border-radius: 8px;
+  background: repeating-linear-gradient(
+    45deg,
+    #fdfdfd,
+    #fdfdfd 10px,
+    #f0f0f0 10px,
+    #f0f0f0 20px
+  );
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+
+  width: 100%;
+  height: 100%;
+
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
-  cursor: pointer;
-  transition: transform .3s
+  padding: 0;
+  overflow: hidden;
 }
 
 .mi-image-item:hover {
-  transform: scale(1.1)
+  transform: scale(1.05);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
 }
 
 .mi-image-caption {
@@ -112,6 +130,29 @@
   width: 40px;
   height: 40px;
   cursor: pointer
+}
+
+/* ===== action bar ===== */
+.mi-action-bar {
+  position: absolute;
+  top: 25px;
+  right: 20px;
+  display: flex;
+  gap: 12px;
+  z-index: 100;
+}
+
+/* each icon inside */
+.mi-icon-button {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+/* generic tooltip container you already have */
+.mi-action-wrapper {
+  position: relative;
+  display: inline-block;
 }
 
 /* -------------- MODAL (overlay + shell) -------------- */
@@ -209,6 +250,49 @@
   font-weight: 700;
   margin: 0
 }
+
+.mi-thumbnail-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  /* full width / height of the card */
+  width: 100%;
+  height: 100%;
+
+  /* text positioning */
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+.mi-thumbnail-text h4 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2a7b9b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+  padding: 0;
+  line-height: 1.3;
+  white-space: normal;
+  word-break: break-word;
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+}
+
+
+.mi-thumbnail-text p {
+  font-size: 30px;
+  color: #444;
+  font-style: italic;
+  opacity: 0.8;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
 
 /* -------------- TAB BUTTONS (sets / params / …) -------------- */
 .mi-tab-group {
@@ -478,16 +562,19 @@
 .mi-tuple-table {
   width: 100%;
   border-collapse: collapse;
-  font-family: "Segoe UI", Tahoma, sans-serif; /* ↩️ גופן מודרני */
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  /* ↩️ גופן מודרני */
   font-size: 15px;
   color: #222;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border-radius: 6px;
-  overflow: hidden;           /* מעגל פינות */
+  overflow: hidden;
+  /* מעגל פינות */
 }
 
 .mi-tuple-table thead {
-  background: #2a7b9b;        /* כותרת בגוון כחול־ירוק */
+  background: #2a7b9b;
+  /* כותרת בגוון כחול־ירוק */
   color: #fff;
 }
 
@@ -505,7 +592,8 @@
 }
 
 .mi-tuple-table tbody tr:nth-child(even) td {
-  background: #f9f9f9;        /* פספוס שורות */
+  background: #f9f9f9;
+  /* פספוס שורות */
 }
 
 /* כפתורי ▲ ▼ ו-עריכה/מחיקה – להחליק קצת */
@@ -517,8 +605,10 @@
   padding: 0 4px;
   transition: color 0.15s;
 }
+
 .mi-tuple-table button:hover {
-  color: #5a55b5;             /* סגול-אינדיגו שבחרת */
+  color: #5a55b5;
+  /* סגול-אינדיגו שבחרת */
 }
 
 /* אינפוט בעריכת ערך */
@@ -540,6 +630,7 @@
   display: flex;
   justify-content: center;
 }
+
 /* Parameters table */
 .mi-params-table {
   width: 90%;
@@ -596,6 +687,7 @@
   margin: 0 4px;
   transition: color 0.2s;
 }
+
 .mi-param-btn:hover {
   color: #2a7b9b;
 }
@@ -674,13 +766,11 @@
 .mi-constraints-panel .mi-module-box {
   position: relative;
   padding: 1.5rem;
-  background: repeating-linear-gradient(
-    45deg,
-    #ffffff,
-    #ffffff 10px,
-    #f8f8f8 10px,
-    #f8f8f8 20px
-  );
+  background: repeating-linear-gradient(45deg,
+      #ffffff,
+      #ffffff 10px,
+      #f8f8f8 10px,
+      #f8f8f8 20px);
   border-radius: 16px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
   margin-bottom: 24px;
@@ -712,7 +802,8 @@
 
 /* אייקון power בפנים */
 .mi-constraints-panel .mi-module-checkbox input::after {
-  content: "\f011"; /* Power icon */
+  content: "\f011";
+  /* Power icon */
   font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif;
   font-weight: 900;
   font-size: 20px;
@@ -729,6 +820,7 @@
     inset -6px -6px 10px rgba(255, 255, 255, 0.7),
     inset 6px 6px 10px rgba(0, 0, 0, 0.08);
 }
+
 .mi-constraints-panel .mi-module-checkbox input:checked::after {
   color: #15e38a;
 }
@@ -741,7 +833,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  overflow: visible; /* ensure no clipping happens */
+  overflow: visible;
+  /* ensure no clipping happens */
 }
 
 .mi-slider-info input[type=range] {
@@ -826,13 +919,11 @@
 }
 
 .mi-module-box {
-  background: repeating-linear-gradient(
-    45deg,
-    #ffffff,
-    #ffffff 10px,
-    #f8f8f8 10px,
-    #f8f8f8 20px
-  );
+  background: repeating-linear-gradient(45deg,
+      #ffffff,
+      #ffffff 10px,
+      #f8f8f8 10px,
+      #f8f8f8 20px);
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
@@ -871,6 +962,7 @@
   font-weight: bold;
   color: #444;
 }
+
 .mi-slider-info input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -904,7 +996,8 @@
   background: white;
   border: 3px solid #007bff;
   border-radius: 50%;
-  margin-top: -6px; /* Pulls thumb to center of 8px track */
+  margin-top: -6px;
+  /* Pulls thumb to center of 8px track */
 }
 
 .mi-slider-info input[type="range"]::-moz-range-thumb {
@@ -949,4 +1042,77 @@
 .mi-info-icon:hover .mi-info-tooltip {
   visibility: visible;
   opacity: 1;
+}
+
+.tooltip-bubble {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background-color: #222;
+  color: white;
+  font-size: 15px;
+  padding: 16px 18px;
+  border-radius: 6px;
+  max-width: 400px;
+  max-height: calc(1.6em * 10);
+  line-height: 1.5;
+  z-index: 1000;
+  pointer-events: none;
+
+
+  /* Multiline clamping */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 10;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+
+  /* Hide by default */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+}
+
+/* Show on hover */
+.tooltip:hover .tooltip-bubble {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Arrow */
+.tooltip:hover::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% - 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #111;
+  opacity: 1;
+  visibility: visible;
+}
+
+.tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% - 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #111;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+}
+
+.tooltip {
+  width: 100%;
+  max-width: 260px;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
