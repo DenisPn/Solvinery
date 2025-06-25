@@ -140,12 +140,12 @@ const ImageSettingReview = () => {
     console.log("Request Data:", requestData);
 
     const API_URL = process.env.REACT_APP_API_URL;
-    const baseUrl = `/user/${userId}/image${isEditMode ? `/${imageId}` : ""}`;
+    const baseUrl = `${API_URL}/user/${userId}/image${isEditMode ? `/${imageId}` : ""}`;
     const url = isEditMode ? `${baseUrl}?ignoreData=true` : baseUrl;
     const method = isEditMode ? "PATCH" : "POST";
     console.log("Request URL:", url);
     console.log("Test1");
-    console.log(process.env.REACT_APP_API_URL);
+    console.log("API URL : ",process.env.REACT_APP_API_URL);
 
     try {
       const response = await fetch(url, {
