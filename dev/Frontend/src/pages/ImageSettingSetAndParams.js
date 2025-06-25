@@ -151,16 +151,16 @@ export default function ImageSettingSetAndParams() {
     <div className="image-setting-page background">
       <div className="image-setting-top-left-buttons">
         <Link to="/main-page" onClick={handleHomeClick}>
-          <img src="`${process.env.PUBLIC_URL}/images/HomeButton.png'" alt="Home" className="icon-btn" />
+          <img src={`${process.env.PUBLIC_URL}/images/HomeButton.png`} alt="Home" className="icon-btn" />
         </Link>
         <img
-          src="`${process.env.PUBLIC_URL}/images/LeftArrowButton.png'"
+          src={`${process.env.PUBLIC_URL}/images/LeftArrowButton.png`}
           alt="Continue"
           className="icon-btn"
           onClick={() => navigate("/image-setting-review")}
         />
         <img
-          src="`${process.env.PUBLIC_URL}/images/RightArrowButton.png'"
+          src={`${process.env.PUBLIC_URL}/images/RightArrowButton.png`}
           alt="Back"
           className="icon-btn"
           onClick={() => navigate("/configure-preferences")}
@@ -212,13 +212,13 @@ export default function ImageSettingSetAndParams() {
 
                     <div className="buttons-container">
                       <img
-                        src="`${process.env.PUBLIC_URL}/images/edit-button.png'"
+                        src={`${process.env.PUBLIC_URL}/images/edit-button.png`}
                         alt="Edit"
                         className="edit-image"
                         onClick={() => handleEditSetClick(setName)}
                       />
                       <img
-                        src="`${process.env.PUBLIC_URL}/images/delete.png'"
+                        src={`${process.env.PUBLIC_URL}/images/delete.png`}
                         alt="Delete"
                         className="delete-image"
                         onClick={() => handleDeleteSet(setName)}
@@ -255,13 +255,13 @@ export default function ImageSettingSetAndParams() {
                     </div>
                     <div className="buttons-container">
                       <img
-                        src="`${process.env.PUBLIC_URL}/images/edit-button.png'"
+                        src={`${process.env.PUBLIC_URL}/images/edit-button.png`}
                         alt="Edit"
                         className="edit-image"
                         onClick={() => handleEditParamClick(paramName)}
                       />
                       <img
-                        src="`${process.env.PUBLIC_URL}/images/delete.png'"
+                        src={`${process.env.PUBLIC_URL}/images/delete.png`}
                         alt="Delete"
                         className="delete-image"
                         onClick={() => handleDeleteParam(paramName)}

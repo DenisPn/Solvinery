@@ -193,13 +193,13 @@ const handleSaveEdit = () => {
             <Link to="/main-page" onClick={handleHomeClick} title="Home">
               <img
                 alt="Home"
-                src="`${process.env.PUBLIC_URL}/images/HomeButton.png'"
+                src={`${process.env.PUBLIC_URL}/images/HomeButton.png`}
                 className="top-bar-button"
               />
             </Link>
             <img
               alt="Continue"
-              src="`${process.env.PUBLIC_URL}/images/LeftArrowButton.png'"
+              src={`${process.env.PUBLIC_URL}/images/LeftArrowButton.png`}
               className="top-bar-button"
               onClick={handleContinue}
               title="Continue"
@@ -210,7 +210,7 @@ const handleSaveEdit = () => {
             <Link to="/upload-zpl" title="Back">
               <img
                 alt="Back"
-                src="`${process.env.PUBLIC_URL}/images/RightArrowButton.png'"
+                src={`${process.env.PUBLIC_URL}/images/RightArrowButton.png`}
                 className="top-bar-button"
                 onClick={e => {
                   e.preventDefault();
