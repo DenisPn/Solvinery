@@ -65,7 +65,7 @@ const MyImagesPage = () => {
       setHasNext(Boolean(data.hasNext));
       setHasPrev(Boolean(data.hasPrevious));
       setTotalPages(data.totalPages || 1);
-      console.log("Update2");
+      console.log("Update3");
     } catch (err) {
       alert(err.response?.data?.message || err.message);
     } finally {
