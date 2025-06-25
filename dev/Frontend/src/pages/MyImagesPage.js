@@ -65,7 +65,7 @@ const MyImagesPage = () => {
       setHasNext(Boolean(data.hasNext));
       setHasPrev(Boolean(data.hasPrevious));
       setTotalPages(data.totalPages || 1);
-      console.log("Update");
+      console.log("Update2");
     } catch (err) {
       alert(err.response?.data?.message || err.message);
     } finally {
@@ -299,7 +299,7 @@ const MyImagesPage = () => {
       {/* ───────── Home button ───────── */}
       {!selectedImage && (
         <img
-          src="`${process.env.PUBLIC_URL}/images/HomeButton.png'"
+          src={`${process.env.PUBLIC_URL}/images/HomeButton.png`}
           alt="Home"
           className="mi-home-btn"
           onClick={() => navigate("/main-page")}
