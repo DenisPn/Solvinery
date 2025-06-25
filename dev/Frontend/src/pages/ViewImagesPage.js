@@ -95,7 +95,7 @@ const ViewImagesPage = () => {
   return (
     <div className="view-images-background">
       <img
-        src="`${process.env.PUBLIC_URL}/images/HomeButton.png'"
+        src={`${process.env.PUBLIC_URL}/images/HomeButton.png`}
         alt="Home"
         className="home-button"
         onClick={handleBack}
@@ -190,7 +190,7 @@ const ViewImagesPage = () => {
         {/* Pagination */}
         <div className="pagination-container">
           <img
-            src="`${process.env.PUBLIC_URL}/images/LeftArrowButton.png'"
+            src={`${process.env.PUBLIC_URL}/images/LeftArrowButton.png`}
             alt="Prev"
             className="prev-page-button"
             onClick={handlePrevPage}
@@ -203,7 +203,7 @@ const ViewImagesPage = () => {
             Page {page + 1} out of {totalPages}
           </span>
           <img
-            src="`${process.env.PUBLIC_URL}/images/RightArrowButton.png'"
+            src={`${process.env.PUBLIC_URL}/images/RightArrowButton.png`}
             alt="Next"
             className="next-page-button"
             onClick={handleNextPage}
@@ -222,10 +222,10 @@ const ViewImagesPage = () => {
           >
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div className="modal-top-buttons">
-                <img src="`${process.env.PUBLIC_URL}/images/ExitButton2.png'" alt="Close" onClick={() => setSelectedImage(null)} />
-                <img src="`${process.env.PUBLIC_URL}/images/downloadButton.png'" alt="Save" onClick={handleSaveImage} />
+                <img src={`${process.env.PUBLIC_URL}/images/ExitButton2.png`} alt="Close" onClick={() => setSelectedImage(null)} />
+                <img src={`${process.env.PUBLIC_URL}/images/downloadButton.png`} alt="Save" onClick={handleSaveImage} />
                 <img
-                  src="`${process.env.PUBLIC_URL}/images/CopyZPLButton.png'"
+                  src={`${process.env.PUBLIC_URL}/images/CopyZPLButton.png`}
                   alt="Copy"
                   onClick={() => {
                     navigator.clipboard
