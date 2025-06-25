@@ -21,9 +21,12 @@
 }
 
 .mi-title {
-  font: 700 50px/1 cursive;
-  -webkit-text-stroke: .5px #fff;
-  margin: 0
+  font-size: 48px;
+  font-weight: bold;
+  -webkit-text-stroke: 1px white;
+  font-family: cursive;
+  text-align: center;
+  margin-bottom: 20px; /* ← this adds spacing under the title */
 }
 
 /* -------------- FILTER -------------- */
@@ -35,11 +38,10 @@
   margin-bottom: 20px
 }
 
-.mi-filter-input {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  width: 160px
+.mi-filter-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
 }
 
 .mi-search-btn {
