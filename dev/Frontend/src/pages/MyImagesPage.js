@@ -317,26 +317,34 @@ const MyImagesPage = () => {
         <h1 className="mi-title">My Images</h1>
 
         {/* ===== Filter row ===== */}
-        <div className="mi-filter-row">
-          <input
-            className="mi-filter-input"
-            placeholder="Name"
-            value={filterName}
-            onChange={(e) => setFilterName(e.target.value)}
-          />
-          <input
-            className="mi-filter-input"
-            placeholder="Description"
-            value={filterDescription}
-            onChange={(e) => setFilterDescription(e.target.value)}
-          />
-          <button
-            className="mi-search-btn"
-            onClick={() => setCriteria({ name: filterName, description: filterDescription, page: 0 })}
-          >
-            Search
-          </button>
-        </div>
+<div className="filters-card">
+  <div className="filter-grid">
+    <input
+      className="mi-filter-input"
+      placeholder="Name"
+      value={filterName}
+      onChange={(e) => setFilterName(e.target.value)}
+    />
+    <input
+      className="mi-filter-input"
+      placeholder="Description"
+      value={filterDescription}
+      onChange={(e) => setFilterDescription(e.target.value)}
+    />
+   
+  </div>
+
+  <div className="search-button-container">
+    <button
+      className="search-button"
+      onClick={() =>
+        setCriteria({ name: filterName, description: filterDescription, page: 0 })
+      }
+    >
+      Search
+    </button>
+  </div>
+</div>
 
         {/* ===== Thumbnails grid ===== */}
         <div className="mi-images-section">
