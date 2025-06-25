@@ -129,7 +129,7 @@ const ViewImagesPage = () => {
             {/* After */}
             <input
               type="text"
-              placeholder="After"
+              placeholder="After creation date"
               value={filterAfter}
               onFocus={(e) => (e.target.type = "date")}
               onBlur={(e) => !e.target.value && (e.target.type = "text")}
@@ -139,7 +139,7 @@ const ViewImagesPage = () => {
             {/* Before */}
             <input
               type="text"
-              placeholder="Before"
+              placeholder="Before creation date"
               value={filterBefore}
               onFocus={(e) => (e.target.type = "date")}
               onBlur={(e) => !e.target.value && (e.target.type = "text")}
