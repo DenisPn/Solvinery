@@ -58,11 +58,11 @@
 
 /* These load from public/Images */
 .home-btn {
-  background-image: url('../../public/Images/HomeButton.png');
+  background-image: url('../../public/images/HomeButton.png');
 }
 
 .images-btn {
-  background-image: url('../../public/Images/ExitButton2.png');
+  background-image: url('../../public/images/ExitButton2.png');
 }
 
 /* toggle buttons */
