@@ -49,8 +49,7 @@ const ViewImagesPage = () => {
     } catch (err) {
       console.error("Error fetching view images:", err);
       alert(
-        `Error fetching images: ${
-          err.response?.data?.message || err.message
+        `Error fetching images: ${err.response?.data?.message || err.message
         }`
       );
     } finally {
@@ -159,6 +158,7 @@ const ViewImagesPage = () => {
           <div className="modal-overlay">
             <div className="loading-modal">
               <div className="spinner" />
+              <p className="loading-label">Loading…</p>
             </div>
           </div>
         )}

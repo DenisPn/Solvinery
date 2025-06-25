@@ -21,8 +21,6 @@ const ConfigureVariablesPage = () => {
     setImageName,
     setImageDescription,
     setZplCode,
-    constraintsModules,
-    preferenceModules,
     setIsEditMode,
   } = useZPL();
 
@@ -31,17 +29,20 @@ const ConfigureVariablesPage = () => {
   const [displaySets, setDisplaySets] = useState([]);
   const [displayParams, setDisplayParams] = useState([]);
   const [setAliases, setSetAliases] = useState({});
+  const [editVar, setEditVar] = useState(null);
+  const [editedAlias, setEditedAlias] = useState("");
+  const [editedStructure, setEditedStructure] = useState("");
+  const [editedObjectiveValueAlias, setEditedObjectiveValueAlias] = useState("");
 
   const navigate = useNavigate();
 
-  // Whenever selectedVars change, update which sets/params to show
   useEffect(() => {
     const newDisplaySets = selectedVars
       .flatMap(v => v.dep?.setDependencies ?? [])
-      .reduce((u, s) => (u.includes(s) ? u : [...u, s]), []);
+      .filter((s, i, a) => a.indexOf(s) === i);
     const newDisplayParams = selectedVars
       .flatMap(v => v.dep?.paramDependencies ?? [])
-      .reduce((u, p) => (u.includes(p) ? u : [...u, p]), []);
+      .filter((p, i, a) => a.indexOf(p) === i);
     setDisplaySets(newDisplaySets);
     setDisplayParams(newDisplayParams);
   }, [selectedVars]);
@@ -54,22 +55,6 @@ const ConfigureVariablesPage = () => {
     );
   };
 
-  const handleSetCheckboxChange = s => {
-    setSelectedSets(prev =>
-      prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]
-    );
-  };
-
-  const handleParamCheckboxChange = p => {
-    setSelectedParams(prev =>
-      prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]
-    );
-  };
-
-  const handleAliasChange = (s, value) => {
-    setSetAliases(prev => ({ ...prev, [s]: value }));
-  };
-
   const handleContinue = () => {
     const variablesOfInterest = selectedVars.map(v => v.identifier);
     const variableAliases = Object.fromEntries(
@@ -78,14 +63,12 @@ const ConfigureVariablesPage = () => {
         (v.dep?.setDependencies ?? []).map(s => setAliases[s] || s),
       ])
     );
-
     setVariablesModule({
       variablesOfInterest,
       variablesConfigurableSets: selectedSets,
       variablesConfigurableParams: selectedParams,
       variableAliases,
     });
-
     navigate("/configure-constraints");
   };
 
@@ -110,73 +93,172 @@ const ConfigureVariablesPage = () => {
     setIsEditMode(false);
   };
 
-  return (
-    <div className="configure-variables-page background">
-      <div className="top-bar">
-        <div className="top-bar-left">
-          <Link to="/main-page" title="Home" onClick={handleHomeClick}>
-            <img
-              src="/images/HomeButton.png"
-              alt="Home"
-              className="top-bar-button"
-            />
-          </Link>
-          <img
-            src="/images/LeftArrowButton.png"
-            alt="Continue"
-            className="top-bar-button"
-            onClick={handleContinue}
-            title="Continue"
-          />
-        </div>
-        <div className="top-bar-right">
-          <Link to="/upload-zpl" title="Back">
-            <img
-              onClick={(e) => {
-                e.preventDefault();
-                setIsEditMode(false);
-                navigate("/upload-zpl");
-              }}
-              src="/images/RightArrowButton.png"
-              alt="Back"
-              className="top-bar-button"
-            />
-          </Link>
-        </div>
-      </div>
+  const openModal = v => {
+    setEditVar(v);
+    setEditedAlias(v.alias || "");
+    setEditedStructure(v.structure || "");
+    setEditedObjectiveValueAlias(v.objectiveValueAlias || "");
+  };
 
-      <div className="MainDiv">
-        <h1 className="page-title">Variables</h1>
-        <div className="variables-layout">
-          <div className="available-variables">
-            <form className="form">
-              {variables.length > 0 ? (
-                variables.map((variable, i) => {
-                  const isPreselected = selectedVars.some(
-                    v => v.identifier === variable.identifier
-                  );
-                  return (
-                    <div className="inputGroup" key={variable.identifier}>
+  const closeModal = () => setEditVar(null);
+
+const handleSaveEdit = () => {
+  // Update variables list
+  setVariables(prev =>
+    prev.map(v =>
+      v.identifier === editVar.identifier
+        ? {
+            ...v,
+            alias: editedAlias,
+            structure: editedStructure,
+            objectiveValueAlias: editedObjectiveValueAlias,
+          }
+        : v
+    )
+  );
+
+  // Update selectedVars list (if applicable)
+  setSelectedVars(prev =>
+    prev.map(v =>
+      v.identifier === editVar.identifier
+        ? {
+            ...v,
+            alias: editedAlias,
+            structure: editedStructure,
+            objectiveValueAlias: editedObjectiveValueAlias,
+          }
+        : v
+    )
+  );
+
+  // Close modal
+  setEditVar(null);
+};
+
+
+  return (
+    <>
+      {/* Modal */}
+      {editVar && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h2 className="modal-title">
+              <span className="modal-title-icon">✏️</span>
+              Edit Variable:{" "}
+              <span className="variable-name-highlight">{editVar.identifier}</span>
+            </h2>
+
+            <div className="modal-input-group">
+              <label><span className="label-icon">🏷️</span>Alias</label>
+              <input
+                className="modal-input"
+                value={editedAlias}
+                onChange={e => setEditedAlias(e.target.value)}
+              />
+            </div>
+
+            <div className="modal-input-group">
+              <label><span className="label-icon">🧱</span>Structure</label>
+              <input
+                className="modal-input"
+                value={editedStructure}
+                onChange={e => setEditedStructure(e.target.value)}
+              />
+            </div>
+
+            <div className="modal-input-group">
+              <label><span className="label-icon">🎯</span>Objective Value Alias</label>
+              <input
+                className="modal-input"
+                value={editedObjectiveValueAlias}
+                onChange={e => setEditedObjectiveValueAlias(e.target.value)}
+              />
+            </div>
+
+            <div className="modal-buttons">
+              <button className="save-button" onClick={handleSaveEdit}>Save</button>
+              <button className="cancel-button" onClick={closeModal}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Page */}
+      <div className="configure-variables-page background">
+        <div
+          className="top-bar"
+          style={{ pointerEvents: editVar ? "none" : "auto" }}
+        >
+          <div className="top-bar-left">
+            <Link to="/main-page" onClick={handleHomeClick} title="Home">
+              <img
+                alt="Home"
+                src="/images/HomeButton.png"
+                className="top-bar-button"
+              />
+            </Link>
+            <img
+              alt="Continue"
+              src="/images/LeftArrowButton.png"
+              className="top-bar-button"
+              onClick={handleContinue}
+              title="Continue"
+            />
+          </div>
+
+          <div className="top-bar-right">
+            <Link to="/upload-zpl" title="Back">
+              <img
+                alt="Back"
+                src="/images/RightArrowButton.png"
+                className="top-bar-button"
+                onClick={e => {
+                  e.preventDefault();
+                  setIsEditMode(false);
+                  navigate("/upload-zpl");
+                }}
+              />
+            </Link>
+          </div>
+        </div>
+
+        <div className={`MainDiv ${editVar ? "hide-edit-buttons" : ""}`}>
+          <h1 className="page-title">Variables</h1>
+          <div className="variables-layout">
+            <div className="available-variables">
+              <form className="form">
+                {variables.length ? (
+                  variables.map((v, i) => (
+                    <div className="inputGroup" key={v.identifier}>
                       <input
                         id={`var-${i}`}
                         type="checkbox"
-                        defaultChecked={isPreselected}
-                        onChange={() => handleVarCheckboxChange(variable)}
+                        defaultChecked={selectedVars.some(
+                          x => x.identifier === v.identifier
+                        )}
+                        onChange={() => handleVarCheckboxChange(v)}
                       />
-                      <label htmlFor={`var-${i}`}>
-                        {variable.identifier}
-                      </label>
+                      <label htmlFor={`var-${i}`}>{v.identifier}</label>
+
+                      <button
+                        type="button"
+                        className="edit-button"
+                        onClick={() => openModal(v)}
+                        title="Edit"
+                      >
+                        ✏️
+                      </button>
                     </div>
-                  );
-                })
-              ) : (
-                <p>No variables available.</p>
-              )}
-            </form>
+                  ))
+                ) : (
+                  <p>No variables available.</p>
+                )}
+              </form>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

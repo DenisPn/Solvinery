@@ -1,142 +1,164 @@
-/* ConfigureConstraintsPage.css */
-
+/* Wrapper */
 .configure-constraints-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    font-family: Arial, sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fbb040, #20c4a4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  padding-top: 80px;
+  padding-bottom: 5vh;
 }
 
-.page-title {
-    font-size: 36px;
-    font-weight: bold;
-    margin-bottom: 30px;
-}
-
-.constraints-layout {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 1200px;
-    min-height: 500px; /* Ensures the sections have a fixed height */
-    align-items: stretch;
-}
-
-.constraint-modules,
-.define-constraint-module,
-.available-constraints {
-    flex: 1;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background-color: #f9f9f9;
-    margin: 10px;
-    text-align: center;
-    min-height: 450px; /* Ensuring each section stays at a fixed height */
-    max-height: 500px;
-    overflow-y: auto; /* Allows scrolling if content exceeds max height */
-}
-
-.constraint-modules {
-    background-color: #e3f2fd;
-}
-
-.define-constraint-module {
-    background-color: #e8f5e9;
-    min-height: 200px;
-}
-
-.available-constraints {
-    background-color: #ffebee;
-}
-
-.module-drop-area {
-    min-height: 100px;
-    padding: 10px;
-    border: 2px dashed #ccc;
-    background-color: #ffffff;
-    margin-top: 10px;
-}
-
-.constraint-item {
-    padding: 10px;
-    margin: 5px;
-    border: 1px solid #aaa;
-    background-color: #fff;
-    cursor: grab;
-    border-radius: 5px;
-}
-
-.constraint-item:hover {
-    background-color: #f1f1f1;
-}
-
-.continue-button, .add-button, .back-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background-color: #ffffff;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.continue-button:hover, .add-button:hover, .back-button:hover {
-    background-color: #e0e0e0;
-}
-
-.module-item-container {
-    margin: 5px 0;
-    display: flex;
-    justify-content: center;
-}
-
-.module-item {
-    background-color: white;
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #20C4A4;
-    color: #20C4A4;
-    font-weight: bold;
-    font-size: 16px;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-}
-
-.module-item:hover {
-    background-color: rgba(32, 196, 164, 0.2);
-}
-
-.module-item.selected {
-    background-color: #20C4A4;
-    color: white;
-}
-
-/* Top horizontal button bar */
+/* Top-bar */
 .top-bar {
   position: fixed;
-  top: 50px;
-  left: 30px;
-  right: 30px;
+  top: 20px; left: 30px; right: 30px;
+  display: flex; justify-content: space-between; align-items: center;
+  z-index: 10;
+}
+.top-bar-button { width: 35px; height: 35px; cursor: pointer; }
+
+/* Grid: shrink top row from 30% to 20%, grow bottom from 70% to 80% */
+.grid-container {
+  display: grid;
+  height: calc(100vh - 100px - 5vh);
+  width: 100%; max-width: 1200px;
+  grid-template-columns: 65% 35%;
+  grid-template-rows: 20% 80%;
+  gap: 24px;
+  padding-bottom: 5vh;
+  box-sizing: border-box;
+}
+
+/* Module Creator: no more label, just controls */
+.module-creator {
+  grid-column: 1 / 2; grid-row: 1 / 2;
+  background: rgba(255,255,255,0.85);
+  border-radius: 12px;
+  padding: 24px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  z-index: 999;
+  justify-content: center;
 }
-
-/* Grouped button sections */
-.top-bar-left,
-.top-bar-right {
+.creator-controls {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  width: 100%;
+}
+.module-select {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
 }
 
-/* Button image styling */
-.top-bar-button {
-  width: 35px;
-  height: 35px;
+/* Button */
+.btn {
+  padding: 8px 16px;
+  background: #20c4a4;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.1s, box-shadow 0.2s;
 }
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(32,196,164,0.3);
+}
+
+/* Available constraints */
+.available-constraints-sidebar {
+  grid-column: 2 / 3; grid-row: 1 / 3;
+  background: rgba(255,255,255,0.85);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex; flex-direction: column;
+  gap: 12px; overflow-y: auto;
+}
+.available-constraints-sidebar h2 { margin: 0; }
+.constraint-item {
+  background: #fff; padding: 8px 12px;
+  border-radius: 16px; border: 1px solid #aaa;
+  cursor: pointer; text-align: left;
+  transition: background 0.2s;
+}
+.constraint-item:hover { background: #f1f1f1; }
+
+/* Module details */
+.module-details {
+  grid-column: 1 / 2; grid-row: 2 / 3;
+  position: relative;
+  background: rgba(255,255,255,0.85);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 16px;
+  overflow: hidden;
+}
+
+/* Header with delete/title/edit */
+.module-header-with-edit {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.module-header-with-edit h2 {
+  margin: 0; font-size: 1.8rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: #1e3a8a; position: relative; padding-bottom: 8px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+.module-header-with-edit h2::after {
+  content: ''; position: absolute; bottom: 0; left: 50%;
+  width: 40%; height: 3px; background: #20c4a4;
+  transform: translateX(-50%); border-radius: 2px;
+}
+.delete-module-btn,
+.edit-btn {
+  background: transparent; border: none; cursor: pointer;
+  font-size: 1.2rem; padding: 4px; transition: opacity 0.2s;
+}
+.delete-module-btn:hover,
+.edit-btn:hover { opacity: 0.7; }
+
+/* Inner grid */
+.module-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  width: 100%; height: calc(100% - 3rem);
+  box-sizing: border-box;
+}
+
+/* Description */
+.module-description {
+  display: flex; flex-direction: column; height: 100%;
+}
+.module-description textarea {
+  flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc;
+  resize: none; min-height: 0;
+}
+
+/* Constraints list */
+.module-constraints {
+  display: flex; flex-direction: column; height: 100%;
+}
+.module-constraints .module-drop-area {
+  flex: 1;
+  background: #fafafa; border: 2px dashed #ccc;
+  border-radius: 8px; padding: 16px; overflow-y: auto;
+}
+
+/* Dropped constraint */
+.dropped-constraint {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #e0f7fa; padding: 6px 10px; border-radius: 12px;
+  margin-bottom: 6px;
+}
+.delete-btn {
+  background: transparent; border: none; cursor: pointer;
+  font-size: 1rem; padding: 4px; transition: opacity 0.2s;
+}
+.delete-btn:hover { opacity: 0.7; }
