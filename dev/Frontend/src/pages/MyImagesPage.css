@@ -1,475 +1,324 @@
-/* MyImagesPage.css */
-
-
-
-
-
-
-.main-my-images-title {
-  font-size: 50px;
-  font-weight: bold;
-  -webkit-text-stroke: 0.5px white;
-  font-family: cursive;
-}
-
-.group {
-  position: relative;
-  margin-bottom: 45px;
-}
-
-.input-box-my-images {
-  font-size: 18px;
-  padding: 10px 10px 10px 5px;
-  display: block;
-  width: 300px;
-  border: none;
-  border-bottom: 1px solid #757575;
-}
-
-.input-box-my-images:focus {
-  outline: none;
-}
-
-.bar-my-images {
-  position: relative;
-  display: block;
-  width: 300px;
-}
-
-.bar-my-images:before,
-.bar-my-images:after {
-  content: '';
-  height: 2px;
-  width: 0;
-  bottom: 1px;
-  position: absolute;
-  background: #5264AE;
-  transition: 0.3s ease;
-}
-
-.bar-my-images:before {
-  left: 50%;
-}
-
-.bar-my-images:after {
-  right: 50%;
-}
-
-.input-box-my-images:focus~.bar-my-images:before,
-.input-box-my-images:focus~.bar-my-images:after {
-  width: 50%;
-}
-
-.highlight-my-images {
-  position: absolute;
-  height: 60%;
-  width: 100px;
-  top: 25%;
-  left: 0;
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-.input-box-my-images:focus~.highlight-my-images {
-  -webkit-animation: inputHighlighter 0.3s ease;
-  -moz-animation: inputHighlighter 0.3s ease;
-  animation: inputHighlighter 0.3s ease;
-}
-
-@-webkit-keyframes inputHighlighter {
-  from {
-    background: #5264AE;
-  }
-
-  to {
-    width: 0;
-    background: transparent;
-  }
-}
-
-@-moz-keyframes inputHighlighter {
-  from {
-    background: #5264AE;
-  }
-
-  to {
-    width: 0;
-    background: transparent;
-  }
-}
-
-@keyframes inputHighlighter {
-  from {
-    background: #5264AE;
-  }
-
-  to {
-    width: 0;
-    background: transparent;
-  }
-}
-
-
-
-
-
-.image-thumbnail {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-}
-
-.clickable {
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-.clickable:hover {
-  transform: scale(1.05);
-  background-color: #f9f9f9;
-}
-
-.image-detail-panel {
-  margin-top: 30px;
-  width: 100%;
-  max-width: 800px;
-  background-color: #ffffff;
-  padding: 20px;
-  border: 2px solid #ccc;
-  border-radius: 15px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-}
-
-
-.loading-label {
-  background: rgba(0, 0, 0, 0.1);  /* light gray behind the text */
-  padding: 0.25em 0.6em;           /* some breathing room */
-  border-radius: 4px;             /* rounded corners */
-  font-weight: bold;
-  margin: 0;                      /* remove default <p> margins */
-  color: #333;                    /* dark text for contrast */
-}
-
-
-
-
-
-.home-button {
-  position: absolute;
-  top: 50px;
-  left: 30px;
-  width: 50px;
-  height: 50px;
-  cursor: pointer;
-  z-index: 5;
-}
-
-.next-page-button {
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-}
-
-.prev-page-button {
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-}
-
-
-
-
-.modal-delete-button,
-.modal-publish-button,
-.modal-solve-button,
-.modal-edit-button,
-.modal-copy-button {
-  position: absolute;
-  top: 25px;
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
-  z-index: 100;
-}
-
-/* Then individually offset them from the right */
-.modal-copy-button {
-  right: 20px;
-}
-
-.modal-edit-button {
-  right: 60px;
-}
-
-.modal-solve-button {
-  right: 100px;
-}
-
-.modal-publish-button {
-  right: 140px;
-}
-
-.modal-delete-button {
-  right: 180px;
-}
-
-
-
-.my-images-background {
-  background: linear-gradient(90deg, rgba(42, 123, 155, 1) 0%, rgba(87, 199, 133, 1) 100%);
+/* -------------- ROOT -------------- */
+.mi-bg {
+  background: linear-gradient(90deg, #2a7b9b 0%, #57c785 100%);
   height: 100vh;
+  overflow: hidden;
   display: flex;
   justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  /* Optional, not the problem now */
+  align-items: center
 }
 
-.my-images-form-container {
-  height: 100%;
+.mi-container {
   width: 100%;
   max-width: 1200px;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  /* Key: distribute title, grid, footer evenly */
   padding: 30px 0;
-  box-sizing: border-box;
+  box-sizing: border-box
 }
 
-.images-section {
+.mi-title {
+  font-size: 48px;
+  font-weight: bold;
+  -webkit-text-stroke: 1px white;
+  font-family: cursive;
+  text-align: center;
+  margin-bottom: 20px; /* ← this adds spacing under the title */
+}
+
+/* -------------- FILTER -------------- */
+.mi-filter-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px
+}
+
+.mi-filter-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.mi-search-btn {
+  padding: 8px 16px;
+  background: #2a7b9b;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer
+}
+
+.mi-search-btn:hover {
+  background: #1f5d75
+}
+
+/* -------------- GRID -------------- */
+.mi-images-section {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 20px;
   width: 1050px;
   height: 500px;
-  /* was 460px, now taller */
-  justify-items: center;
   align-content: start;
-  overflow: visible;
-  padding-top: 10px;
-  padding-bottom: 30px;
-  /* add this line to make room for hover growth */
+  padding: 10px 0 30px
 }
 
-
-
-/* Redesigned image thumbnail */
-.image-item {
+.mi-image-item {
   width: 120px;
   height: 150px;
-  background-color: white;
+  background: #fff;
   border-radius: 8px;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-
-
-.image-item:hover {
-  scale: 1.1;
-}
-
-.image-thumbnail-text {
-  font-size: 16px;
-  margin: 5px 0;
-  text-align: center;
-}
-
-
-.image-title {
-  text-align: center;
-  font-size: 24px;
-  margin-top: 60px;
-}
-
-.image-description {
-  text-align: center;
-  font-size: 18px;
-  margin-bottom: 30px;
-}
-
-.data-buttons-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 100px);
-  gap: 20px;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.data-buttons-grid button {
-  padding: 10px;
-  background-color: #f2f2f2;
-  border: 1px solid #ccc;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
   cursor: pointer;
-  font-weight: bold;
+  transition: transform .3s
 }
 
-.data-buttons-grid button:hover {
-  background-color: #ddd;
+.mi-image-item:hover {
+  transform: scale(1.1)
 }
 
-.nested-modal {
-  background-color: #ffffff;
-  padding: 20px;
-  margin-top: 10px;
-  border-radius: 10px;
-  width: 80%;
-  max-height: 300px;
-  overflow-y: auto;
-  text-align: left;
+.mi-image-caption {
+  text-align: center;
+  font-size: 16px
 }
 
-.modal-action-buttons {
-  position: absolute;
-  top: 25px;
-  right: 25px;
+/* -------------- PAGINATION -------------- */
+.mi-pagination {
   display: flex;
+  align-items: center;
   gap: 10px;
+  margin-top: 20px
 }
 
-.modal-content {
-  position: relative;
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  width: 1200px;
-  /* doubled width */
-  height: 1000px;
-  /* doubled height */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
-  text-align: center;
+.mi-prev-btn,
+.mi-next-btn {
+  width: 40px;
+  height: 40px;
+  cursor: pointer
 }
 
-.nested-modal-content {
+/* -------------- MODAL (overlay + shell) -------------- */
+.mi-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10
+}
+
+.mi-modal {
   position: relative;
-  background: white;
-  padding: 20px;
+  background: #fff;
+  width: 95vw;
+  height: 95vh;
+  padding: 30px 40px;
   border-radius: 12px;
-  width: 1000px;
-  /* doubled width */
-  height: 800px;
-  /* doubled height */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   overflow-y: auto;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
-  text-align: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, .25)
 }
 
-
-.modal-button-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-top: 30px;
-  justify-items: center;
-  align-items: center;
-  width: 100%;
-}
-
-.modal-close-button {
+.mi-modal-close-btn {
   position: absolute;
   top: 20px;
   left: 20px;
   width: 40px;
   height: 40px;
-  cursor: pointer;
-  z-index: 10;
+  cursor: pointer
 }
 
-.grid-button-section {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin-bottom: 20px;
+.mi-modal-publish-btn,
+.mi-modal-solve-btn,
+.mi-modal-edit-btn,
+.mi-modal-copy-btn,
+.mi-modal-delete-btn {
+  position: absolute;
+  top: 25px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer
 }
 
-.modal-button-group {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 80px;
-  margin-bottom: 16px;
-  flex-wrap: nowrap;
-  z-index: 1;
+.mi-modal-copy-btn {
+  right: 20px
 }
 
-.modal-nav-group {
+.mi-modal-edit-btn {
+  right: 60px
+}
+
+.mi-modal-solve-btn {
+  right: 100px
+}
+
+.mi-modal-publish-btn {
+  right: 140px
+}
+
+.mi-modal-delete-btn {
+  right: 180px
+}
+
+/* -------------- SPINNER -------------- */
+.mi-spinner-modal {
   display: flex;
-  gap: 16px;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 16px;
+  gap: 12px
 }
 
-.modal-button-group .button {
-  flex: 1;
-  /* each button takes equal share */
-  max-width: 200px;
-  /* optional cap if you don’t want them too wide */
-  min-width: 120px;
-  /* optional floor so they’re never too narrow */
+.mi-spinner {
+  width: 48px;
+  height: 48px;
+  border: 6px solid #ccc;
+  border-top-color: #2a7b9b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg)
+  }
+}
+
+.mi-loading {
+  background: rgba(0, 0, 0, .1);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 700;
+  margin: 0
+}
+
+/* -------------- TAB BUTTONS (sets / params / …) -------------- */
+.mi-tab-group {
+  display: flex;
+  justify-content: center;
+  /* center horizontally */
+  gap: 1.5rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+..mi-tab-btn,
+.mi-tab-btn *,
+.mi-tab-btn:after,
+.mi-tab-btn:before {
+  border: 0 solid;
   box-sizing: border-box;
-  text-align: center;
 }
 
-.modal-title {
+.mi-tab-btn {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: button;
+  background-color: #000;
+  background-image: none;
+  color: #fff;
+  cursor: pointer;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif,
+    Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+  font-size: 100%;
+  font-weight: 900;
+  line-height: 1.5;
+  margin: 0;
+  padding: 1.2rem 3rem;
   position: relative;
-  margin: 1.5rem auto 0.5rem;
-  text-align: center;
-  font-family: "Segoe UI", Tahoma, sans-serif;
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: #333;
-  text-transform: capitalize;
-  letter-spacing: 0.05em;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 1px solid;
   text-transform: uppercase;
-
+  transition: transform 0.2s;
+  will-change: transform;
+  width: 220px;
+  text-align: center;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-/* the little accent bar underneath */
-.modal-title::after {
+.mi-tab-btn:disabled {
+  cursor: default;
+}
+
+.mi-tab-btn:-moz-focusring {
+  outline: auto;
+}
+
+.mi-tab-btn svg {
+  display: block;
+  vertical-align: middle;
+}
+
+.mi-tab-btn[hidden] {
+  display: none;
+}
+
+.mi-tab-btn:after,
+.mi-tab-btn:before {
+  background: #fff;
+  content: "";
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: -100%;
+  transition: transform 0.2s cubic-bezier(0.76, 0, 0.24, 1);
+  width: 100%;
+  z-index: -1;
+}
+
+.mi-tab-btn:after {
+  background: #5a55b5;
+  transition-delay: 0.13s;
+}
+
+.mi-tab-btn:hover:after,
+.mi-tab-btn:hover:before {
+  transform: translateY(100%);
+}
+
+.mi-home-btn {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  z-index: 20;
+}
+
+.mi-modal-title {
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+  position: relative;
+}
+
+.mi-modal-title::after {
   content: "";
   display: block;
   width: 4rem;
-  /* adjust length */
   height: 3px;
-  /* stripe thickness */
-  margin: 0.5rem auto;
-  /* space above & center */
+  margin: 0.5rem auto 0 auto;
   background: #50e3c2;
-  /* your green */
   border-radius: 2px;
 }
 
-.modal-desc {
-  /* keep your existing frame & grid background */
+.mi-modal-desc {
   position: relative;
   width: 90%;
   max-width: 1200px;
@@ -479,7 +328,6 @@
   border-radius: 1rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  background: #fff;
   background-image:
     linear-gradient(135deg,
       rgba(200, 200, 200, 0.1) 25%,
@@ -490,9 +338,10 @@
       transparent 75%,
       transparent);
   background-size: 40px 40px;
+  text-align: center;
 }
 
-.modal-desc p {
+.mi-modal-desc p {
   margin: 0 auto;
   max-width: 85%;
   font-family: "Merriweather", Georgia, serif;
@@ -502,1072 +351,593 @@
   text-align: center;
   font-style: italic;
   letter-spacing: 0.5px;
-  position: relative;
 }
 
 
 
-/* highlight the first sentence */
-.modal-desc p span.first-sentence {
-  font-weight: 600;
-  color: #333;
-  font-style: normal;
-}
+/* -------------- (שאר החלקים – sets-panel, params-panel, constraints-panel, preferences-panel,
+                   add-row-btn, tables, sliders וכו') --------------
+   איחדתי / שמרתי רק כללים קריטיים:
+   – כפתור “+ Add New Value”
+   – טבלת tuple-values
+   – טבלת parameters
+   – כרטיסי module-box (constraints + preferences)
+   – סגנון slider + tooltip
+   כל שאר העיצוב (גופנים, מרחקים, צבעים) נשאר בדיוק כפי שהיה. */
 
-
-
-.modal-square-button {
-  width: 200px;
-  height: 200px;
-  font-size: 18px;
-  border-radius: 10px;
-  background-color: #2A7B9B;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.modal-square-button:hover {
-  transform: scale(1.05);
-}
-
-.modal-section-content {
-  margin-top: 40px;
-  text-align: center;
-}
-
-/* force the preferences panel to clear the top buttons */
-.modal-section-data.preferences-modal {
-  /* make it a block‐level, column‐stacked container */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* push it down so it’s clearly below the buttons row */
-  margin-top: 4rem;
-  /* make sure it spans the full inner width of the modal */
-  width: 100%;
-  clear: both;
-}
-
-.preferences-modal .module-box::before,
-.preferences-modal .module-box::after,
-.preferences-modal .module-box .module-title::before,
-.preferences-modal .module-box .module-title::after {
-  display: none !important;
-  content: none !important;
-}
-
-.slider-info-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.info-icon:hover {
-  background: #50e3c2;
-  color: #fff;
-  transform: scale(1.1);
-}
-
-.info-icon {
-  position: relative;
+/* Add-Row */
+.mi-add-row-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #50e3c2;
-  border-radius: 50%;
-  background: #fff;
-  color: #50e3c2;
-  font-size: 0.75rem;
-  font-weight: bold;
-  cursor: help;
-  transition: background 0.2s, color 0.2s, transform 0.2s;
-}
-
-.info-tooltip {
-  visibility: hidden;
-  opacity: 0;
-  position: absolute;
-  top: 50%;
-  left: 110%;
-  transform: translateY(-50%);
-  padding: 0.5rem;
-  background: #333;
-  color: #fff;
-  font-size: 0.75rem;
-  border-radius: 4px;
-  white-space: nowrap;
-  transition: opacity 0.2s;
-  z-index: 10;
-  pointer-events: none;
-}
-
-.info-icon:hover .info-tooltip {
-  visibility: visible;
-  opacity: 1;
-}
-
-
-.modal-back-button {
-  display: block;
-  margin: 20px auto 0 auto;
+  gap: 6px;
   padding: 8px 16px;
-  font-size: 16px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-
-.modal-content-fixed {
-  position: relative;
-  background: white;
-  border-radius: 12px;
-  width: 95vw;
-  /* take 95% of viewport width */
-  height: 95vh;
-  /* take 95% of viewport height */
-  padding: 30px 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  overflow-y: auto;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
-}
-
-.modal-action-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.modal-close-button {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-}
-
-.modal-icon-button {
-  width: 35px;
-  height: 35px;
-  cursor: pointer;
-}
-
-.modal-image-description {
-  text-align: center;
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-.section-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  width: 80%;
-  justify-items: center;
-}
-
-.section-button {
-  background-color: #2a7b9b;
-  color: white;
+  background: #2a7b9b;
+  color: #fff;
+  font: 500 14px/1 sans-serif;
   border: none;
   border-radius: 8px;
-  padding: 20px;
-  font-size: 18px;
   cursor: pointer;
+  transition: background-color .2s, transform .1s
+}
+
+.mi-add-row-btn:hover {
+  background: #1f5d75;
+  transform: translateY(-1px)
+}
+
+.mi-add-row-btn:active {
+  background: #244f64;
+  transform: none
+}
+
+/* Tuple table */
+.mi-tuple-table {
   width: 100%;
-  height: 100px;
-  transition: 0.3s ease;
-}
-
-.section-button:hover {
-  transform: scale(1.05);
-  background-color: #1f5d75;
-}
-
-.section-content {
-  width: 100%;
-  text-align: left;
-  max-height: 400px;
-  overflow-y: auto;
-  margin-top: 10px;
-}
-
-.back-button {
-  background-color: #ccc;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 6px;
-  margin-bottom: 15px;
-  cursor: pointer;
-}
-
-/* Fix position and margin for top-left buttons (Close & Back) */
-.modal-corner-button {
-  position: absolute;
-  top: 20px;
-  /* margin from top */
-  left: 20px;
-  /* margin from left */
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  z-index: 100;
-}
-
-
-.sets-label {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.set-dropdown {
-  padding: 8px 12px;
-  font-size: 16px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  margin-bottom: 20px;
-  width: 250px;
-}
-
-
-
-.set-values-list li {
-  padding: 4px 0;
-}
-
-.set-values-list {
-  list-style: none;
-  padding: 0;
-  margin-top: 10px;
-  max-height: 250px;
-  overflow-y: auto;
-  position: relative;
-}
-
-.set-value-item {
-  position: relative;
-  padding: 4px 48px 4px 8px;
-  /* Leave space for buttons on the right */
-  background-color: #f5f5f5;
-  border-radius: 4px;
-  margin-bottom: 6px;
-  overflow-wrap: anywhere;
-}
-
-.value-buttons {
-  position: absolute;
-  top: 50%;
-  right: 8px;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: row;
-  gap: 3px;
-}
-
-.add-value-section {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.add-value-input {
-  flex-grow: 1;
-  padding: 5px;
-}
-
-.add-value-button {
-  padding: 7px 12px;
-}
-
-.sets-modal {
-  margin-top: 55px;
-}
-
-.parameters-modal {
-  /* if you already have padding, just increase the top */
-  padding-top: 2rem;
-  /* adjust this value as desired */
-}
-
-/* Optional: if you prefer to target the table itself */
-.parameters-modal .parameters-table {
-  margin-top: 1rem;
-  /* adds space above the table */
-}
-
-.parameters-table-container {
-  width: 100%;
-  overflow-x: auto;
-  margin-top: 40px;
-}
-
-.parameters-table {
-  width: 100%;
-  table-layout: fixed;
   border-collapse: collapse;
-  margin-top: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  background: #fff;
+  margin-top: 12px;
+  font-size: .95rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
+  border-radius: 6px;
+  overflow: hidden
+}
+
+.mi-tuple-table thead {
+  background: #2a7b9b;
+  color: #fff
+}
+
+.mi-tuple-table th,
+.mi-tuple-table td {
+  padding: 8px 12px;
+  text-align: center;
+  border-bottom: 1px solid #ddd
+}
+
+.mi-tuple-table tr:nth-child(even) {
+  background: #f5f5f5
+}
+
+.mi-tuple-table tr:last-child td {
+  border-bottom: none
+}
+
+.mi-sets-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.mi-sets-dropdown {
+  padding: 10px 14px;
+  font-size: 16px;
   border-radius: 8px;
-  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #fdfdfd;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-family: "Segoe UI", sans-serif;
+  min-width: 220px;
+  transition: border-color 0.2s ease;
 }
 
-.parameters-table thead {
-  background: #f4f6f8;
+.mi-sets-dropdown:focus {
+  outline: none;
+  border-color: #5a55b5;
 }
 
-.parameters-table tbody tr:nth-child(even) {
-  background: #fafafa;
+.mi-sets-add-btn {
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  background-color: #5a55b5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.parameters-table th,
-.parameters-table td {
-  padding: 12px 16px;
-  border: 1px solid #ddd;
-  width: 33.33%;
-  /* Equal width */
-  text-align: center;
-  /* Horizontal centering */
-  vertical-align: middle;
-  /* Vertical centering */
-  box-sizing: border-box;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.parameters-table td {
-  padding: 10px 12px;
-  vertical-align: middle;
-  font-size: 0.9rem;
-  color: #333;
-  border-bottom: 1px solid #eee;
+.mi-sets-add-btn:hover {
+  background-color: #4c47a3;
 }
 
 
-.parameters-table th {
-  background-color: #f2f2f2;
-  font-weight: bold;
-}
 
-.parameter-table input {
-  width: 90%;
-  box-sizing: border-box;
-  text-align: center;
-  /* ✅ Center the text */
-}
-
-.parameter-table td input[type="text"] {
-  text-align: center;
+/* ───── Sets modal – table styling ───── */
+.mi-tuple-table {
   width: 100%;
-  box-sizing: border-box;
+  border-collapse: collapse;
+  font-family: "Segoe UI", Tahoma, sans-serif; /* ↩️ גופן מודרני */
+  font-size: 15px;
+  color: #222;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  overflow: hidden;           /* מעגל פינות */
 }
 
-td input[type="text"] {
-  text-align: center !important;
+.mi-tuple-table thead {
+  background: #2a7b9b;        /* כותרת בגוון כחול־ירוק */
+  color: #fff;
 }
 
-.param-cell-edit {
+.mi-tuple-table th {
+  padding: 12px 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.mi-tuple-table td {
+  padding: 12px 16px;
   text-align: center;
-  white-space: nowrap;
+  color: #333;
 }
 
-.param-cell-value {
-  text-align: center;
+.mi-tuple-table tbody tr:nth-child(even) td {
+  background: #f9f9f9;        /* פספוס שורות */
 }
 
-.param-btn {
+/* כפתורי ▲ ▼ ו-עריכה/מחיקה – להחליק קצת */
+.mi-tuple-table button {
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 1rem;
-  margin: 0 4px;
-  transition: color 0.2s;
+  font-size: 14px;
+  padding: 0 4px;
+  transition: color 0.15s;
+}
+.mi-tuple-table button:hover {
+  color: #5a55b5;             /* סגול-אינדיגו שבחרת */
 }
 
-.param-btn:hover {
-  color: #007acc;
-}
-
-.param-input {
+/* אינפוט בעריכת ערך */
+.mi-tuple-input {
   width: 100%;
   padding: 6px 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.module-box::before,
-.module-box::after {
-  content: none !important;
-  display: none !important;
-}
-
-.preferences-modal .module-box {
-  display: flex;
-  flex-direction: column;
-  /* stack rows vertically */
-  padding: 1.5rem;
-  gap: 1rem;
-  background-image: repeating-linear-gradient(45deg,
-      #fff,
-      #fff 10px,
-      #f0f0f0 10px,
-      #f0f0f0 20px);
-  border-radius: 1rem;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-  width: 75%;
-  margin: 2rem auto;
-}
-
-
-
-/* Slider sits to the right of the title */
-.preferences-modal .module-box .slider-container {
-  flex: 0 0 30%;
-  margin-left: auto;
-}
-
-/* Description forced to next “row” */
-.preferences-modal .module-box .module-description {
-  font-style: italic;
-  color: #666;
-  line-height: 1.5;
-  padding-left: .5rem;
-}
-
-.preferences-modal .module-box:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-}
-
-
-
-.preferences-modal .module-box .module-title {
-  flex: 1;
-  text-transform: uppercase;
-  font-size: 1.25rem;
-  letter-spacing: .1em;
-  border-bottom: 2px solid #50e3c2;
-  /* underline */
-  padding-bottom: .25rem;
-}
-
-.preferences-modal .module-title::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 40px;
-  height: 3px;
-  background: #50e3c2;
-  border-radius: 2px;
-}
-
-.preferences-modal .module-description {
-  font-style: italic;
-  color: #666;
-  margin: 0;
-}
-
-.module-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-family: inherit;
   font-size: 14px;
-  margin-top: 8px;
-}
-
-.preferences-modal .slider-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.preference-slider {
-  width: 100%;
-  margin-top: 10px;
-}
-
-.preference-slider::-webkit-slider-thumb {
-  background-color: #00afb9;
-  border-radius: 50%;
-  height: 18px;
-  width: 18px;
-  cursor: pointer;
-}
-
-.preference-slider::-webkit-slider-runnable-track {
-  height: 6px;
-  background-color: #ddd;
-  border-radius: 10px;
-}
-
-.modules-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-height: 65vh;
-  overflow-y: auto;
-  padding-right: 6px;
-}
-
-.preferences-modal .slider-container input[type="range"] {
-  width: 150px;
-  height: 8px;
-  cursor: pointer;
-}
-
-/* Base reset */
-.preferences-modal input[type="range"] {
-  -webkit-appearance: none;
-  width: 75%;
-  /* or whatever width you need */
-  height: 8px;
-  /* track thickness */
-  margin: 0 1rem;
-  background: transparent;
-  cursor: pointer;
-}
-
-/* WebKit browsers */
-.preferences-modal input[type="range"]::-webkit-slider-runnable-track {
-  background: linear-gradient(90deg, #4a90e2, #50e3c2);
-  height: 8px;
-  border-radius: 4px;
-}
-
-.preferences-modal input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  background: #fff;
-  border: 3px solid #4a90e2;
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  margin-top: -6px;
-  /* half of thumb height minus half of track height */
-  transition: transform 0.2s ease;
-}
-
-.preferences-modal input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-}
-
-/* Firefox */
-.preferences-modal input[type="range"]::-moz-range-track {
-  background: linear-gradient(90deg, #4a90e2, #50e3c2);
-  height: 8px;
-  border-radius: 4px;
-}
-
-.preferences-modal input[type="range"]::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  background: #fff;
-  border: 3px solid #4a90e2;
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease;
-}
-
-.preferences-modal input[type="range"]::-moz-range-thumb:hover {
-  transform: scale(1.2);
-}
-
-/* Optional: hide outline when dragging */
-.preferences-modal input[type="range"]:focus {
-  outline: none;
-}
-
-
-.preferences-modal .slider-container span {
-  min-width: 2rem;
   text-align: center;
-  font-weight: 600;
+}
+
+
+/*PARAMS*/
+.mi-params-panel {
+  margin-top: 3rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+/* Parameters table */
+.mi-params-table {
+  width: 90%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  font-family: "Segoe UI", sans-serif;
+  font-size: 0.95rem;
+  overflow: hidden;
+  table-layout: fixed;
+}
+
+.mi-params-table thead {
+  background-color: #2a7b9b;
+  color: white;
+}
+
+.mi-params-table th,
+.mi-params-table td {
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.mi-params-table tbody tr:nth-child(even) {
+  background-color: #f8f8f8;
+}
+
+.mi-param-cell-edit {
+  white-space: nowrap;
+}
+
+.mi-param-cell-value {
+  font-weight: 500;
   color: #333;
 }
 
-.preferences-modal .module-box .header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-/* ===== Tuple Values Table Styling ===== */
-.tuple-values-table {
+.mi-param-input {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 12px;
-  font-size: 0.95rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
   border-radius: 6px;
-  overflow: hidden;
-}
-
-.tuple-values-table thead {
-  background-color: #2A7B9B;
-}
-
-.tuple-values-table th {
-  color: white;
-  font-weight: 600;
-  padding: 8px 12px;
-}
-
-.tuple-values-table tbody tr:nth-child(even) {
-  background-color: #f5f5f5;
-}
-
-.tuple-values-table td {
-  padding: 8px 12px;
+  box-sizing: border-box;
   text-align: center;
-  border-bottom: 1px solid #ddd;
 }
 
-.tuple-values-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.pagination-row {
-  display: flex;
-  align-items: center;
-  /* vertical centering */
-  justify-content: center;
-  /* horizontal centering */
-  gap: 10px;
-  /* space between arrow ↔ text ↔ arrow */
-  margin-top: 20px;
-}
-
-.pagination-row span {
-  align-self: center;
-}
-
-.add-row-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background-color: #2a7b9b;
-  /* main brand color */
-  color: white;
-  font-size: 14px;
-  font-weight: 500;
+.mi-param-btn {
+  background: transparent;
   border: none;
-  border-radius: 8px;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  margin: 0 4px;
+  transition: color 0.2s;
 }
-
-.add-row-button:hover {
-  background-color: #1f5d75;
-  /* darker on hover */
-  transform: translateY(-1px);
-}
-
-.add-row-button:active {
-  background-color: #244f64;
-  /* even darker when pressed */
-  transform: translateY(0);
-}
-
-/* Container for header row */
-.sets-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-/* Restyled “Choose a set” label */
-.sets-header__label {
-  font-size: 16px;
-  font-weight: 600;
+.mi-param-btn:hover {
   color: #2a7b9b;
 }
 
-/* Pill‐shaped dropdown */
-.sets-header__select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #fafafa;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  font-size: 15px;
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-}
-
-.sets-header__select:focus {
-  outline: none;
-  border-color: #2a7b9b;
-}
-
-/* Reuse your existing add-row-button styling from before */
-.add-row-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background-color: #2a7b9b;
-  color: white;
-  font-size: 14px;
-  font-weight: 500;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
-
-.add-row-button:hover {
-  background-color: #1f5d75;
-  transform: translateY(-1px);
-}
-
-.add-row-button:active {
-  background-color: #244f64;
-  transform: translateY(0);
-}
-
-.fancy-button {
-  flex: 0 0 300px;
-  position: relative;
-  padding: 12px 0;
-  border: 3px solid #666;
-  border-radius: 30px;
-  background: transparent;
-  color: #666;
-  font-size: 14px;
-  font-weight: bold;
-  letter-spacing: .21em;
-  line-height: 54px;
-  text-align: center;
-  text-decoration: none;
-  text-transform: uppercase;
-  overflow: hidden;
-  box-sizing: border-box;
-  transition: color .3s, background 0s;
-  cursor: pointer;
-}
-
-.fancy-button:before,
-.fancy-button:after {
-  content: '';
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #e3e2db;
-  z-index: -1;
-  opacity: .5;
-  transform: translateY(200%);
-  transition: transform .3s;
-}
-
-
-.fancy-button:hover {
-  background: #e3e2db;
-  color: #000;
-  transition: background .3s .2s, color .3s;
-}
-
-
-.fancy-button:hover:before,
-.fancy-button:hover:after {
-  transform: translateY(100%);
-}
-
-.fancy-button:hover:before {
-  transition-delay: .175s;
-}
-
-/* —— CONSTRAINTS cards reuse the Preferences look —— */
-/* exactly the same card styling as preferences */
-.constraints-modal .module-box {
+/* Module cards (constraints / preferences) */
+.mi-module-box {
   width: 75%;
-  /* 75% of the full modal width */
   margin: 2rem auto;
-  /* centered with vertical spacing */
   padding: 1.5rem;
-  background-image: repeating-linear-gradient(45deg,
-      #fff,
-      #fff 10px,
-      #f0f0f0 10px,
-      #f0f0f0 20px);
+  background-image: repeating-linear-gradient(45deg, #fff, #fff 10px, #f0f0f0 10px, #f0f0f0 20px);
   border-radius: 1rem;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, .05);
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  transition: transform 0.2s, box-shadow 0.2s;
   position: relative;
-
+  transition: transform .2s, box-shadow .2s
 }
 
-/* mirror the prefs parent‐wrapper */
-.modal-section-data.constraints-modal {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* center the 75%-wide cards */
-  width: 100%;
-  /* span the full modal */
-  clear: both;
-  /* ensure it sits below the tabs */
-  margin-top: 4rem;
-  /* push it down under the buttons */
-}
-
-
-
-.constraints-modal .module-box:hover {
+.mi-module-box:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, .1)
 }
 
-.constraints-modal .module-underline {
-  width: 4rem;
+.mi-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between
+}
+
+.mi-module-title {
+  text-transform: uppercase;
+  font-size: 1.25rem;
+  letter-spacing: .1em;
+  position: relative
+}
+
+.mi-module-title::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 40px;
   height: 3px;
   background: #50e3c2;
-  border-radius: 2px;
+  border-radius: 2px
+}
+
+.mi-module-desc {
+  font-style: italic;
+  color: #666
+}
+
+/* Constraints Modal – Typography + Toggle Style */
+
+/* 1. כותרת המודול */
+.mi-constraints-panel .mi-module-title {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #222;
+}
+
+/* 2. תיאור המודול */
+.mi-constraints-panel .mi-module-desc {
+  font-family: "Segoe UI", serif;
+  font-size: 1rem;
+  font-style: italic;
+  color: #555;
   margin-top: 0.25rem;
 }
 
-/* keep header-row flex layout */
-.constraints-modal .module-box .header-row {
+/* 3. קופסה עם כפתור on/off */
+.mi-constraints-panel .mi-module-box {
+  position: relative;
+  padding: 1.5rem;
+  background: repeating-linear-gradient(
+    45deg,
+    #ffffff,
+    #ffffff 10px,
+    #f8f8f8 10px,
+    #f8f8f8 20px
+  );
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+}
+
+/* 4. שורת הכותרת של כל מודול */
+.mi-constraints-panel .mi-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-/* thin green bar under title */
-.constraints-modal .module-underline {
-  height: 3px;
-  width: 40px;
-  background: #50e3c2;
-  border-radius: 2px;
-  margin-left: 0;
-  /* align with title's left edge */
-}
-
-/* title styling, uppercase like preferences */
-.constraints-modal .module-title {
+/* 5. עיצוב checkbox לכפתור עגול */
+.mi-constraints-panel .mi-module-checkbox input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #ececec;
+  border: none;
+  cursor: pointer;
   position: relative;
-  font-size: 1.25rem;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: #333;
+  box-shadow:
+    -6px -6px 10px rgba(255, 255, 255, 0.7),
+    6px 6px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease-in-out;
 }
 
-.constraints-modal .module-title::after {
-  content: "";
+/* אייקון power בפנים */
+.mi-constraints-panel .mi-module-checkbox input::after {
+  content: "\f011"; /* Power icon */
+  font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif;
+  font-weight: 900;
+  font-size: 20px;
+  color: #777;
   position: absolute;
-  bottom: 0;
-  /* sits exactly at the baseline of the title */
-  left: 0;
-  /* flush with the left edge */
-  width: 8rem;
-  /* make this as long as you like */
-  height: 3px;
-  background: #50e3c2;
-  border-radius: 2px;
-  transform: translateY(0.25em);
-  /* drop it just below the text */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-/* description italics */
-.constraints-modal .module-description {
-  font-style: italic;
-  color: #666;
-  line-height: 1.5;
-  padding-left: .5rem;
+/* כשהכפתור מסומן – ירוק */
+.mi-constraints-panel .mi-module-checkbox input:checked {
+  box-shadow:
+    inset -6px -6px 10px rgba(255, 255, 255, 0.7),
+    inset 6px 6px 10px rgba(0, 0, 0, 0.08);
+}
+.mi-constraints-panel .mi-module-checkbox input:checked::after {
+  color: #15e38a;
 }
 
-/* make sure the constraints-panel wrapper stretches its children */
-.constraints-modal {
+
+
+/* Slider */
+.mi-slider-info {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  align-items: stretch !important;
-  /* if you’d previously set align-items:center, this will override it */
+  align-items: center;
+  gap: 10px;
+  overflow: visible; /* ensure no clipping happens */
 }
 
-/* checkbox stays at bottom-right */
-.constraints-modal .module-checkbox {
+.mi-slider-info input[type=range] {
+  width: 150px;
+  height: 8px
+}
+
+.mi-slider-info span {
+  min-width: 2rem;
+  text-align: center;
+  font-weight: 600;
+  color: #333
+}
+
+/* Tooltip */
+.mi-info-icon {
+  position: relative;
+  background-color: #26e6bf;
+  color: white;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 999px;
+  cursor: default;
+}
+
+.mi-info-icon:hover {
+  background: #50e3c2;
+  color: #fff;
+  transform: scale(1.1)
+}
+
+.mi-info-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  max-width: 300px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 8px 12px;
+  position: absolute;
+  z-index: 1000;
+  top: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: normal;
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.2s ease-in-out;
+}
+
+.mi-info-icon:hover .mi-info-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Checkbox on constraint card */
+.mi-module-checkbox {
   position: absolute;
   top: 50%;
   right: 60px;
   transform: translateY(-50%);
   display: flex;
+  align-items: center
+}
+
+.mi-module-checkbox input {
+  cursor: pointer;
+  width: 18px;
+  height: 18px
+}
+
+/* ------- spinner keyframes already למעלה ------- */
+
+.mi-prefs-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 1rem;
+}
+
+.mi-module-box {
+  background: repeating-linear-gradient(
+    45deg,
+    #ffffff,
+    #ffffff 10px,
+    #f8f8f8 10px,
+    #f8f8f8 20px
+  );
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.mi-header-row {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.mi-module-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #333;
+  text-transform: uppercase;
+}
+
+.mi-module-desc {
+  margin-top: 8px;
+  font-style: italic;
+  color: #555;
   font-size: 1rem;
 }
 
-/* hide native box */
-.fancy-checkbox input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* the visible box */
-.fancy-checkbox .checkbox-box {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid #50e3c2;
-  border-radius: 4px;
-  margin-right: 0.5rem;
-  vertical-align: middle;
+/* === Slider Info Area === */
+.mi-slider-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   position: relative;
-  transition: background 0.2s, border-color 0.2s;
 }
 
-/* check mark */
-.fancy-checkbox .checkbox-box::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 6px;
-  width: 4px;
-  height: 8px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg) scale(0);
-  transition: transform 0.2s ease-out;
-}
-
-/* when checked */
-.fancy-checkbox input:checked+.checkbox-box {
-  background: #50e3c2;
-  border-color: #50e3c2;
-}
-
-.fancy-checkbox input:checked+.checkbox-box::after {
-  transform: rotate(45deg) scale(1);
-}
-
-.info-icon {
-  position: relative;
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
-  text-align: center;
-  color: #50e3c2;
-  border: 2px solid #50e3c2;
-  border-radius: 50%;
+.mi-slider-info label {
   font-weight: bold;
-  cursor: help;
-  margin-left: 0.5rem;
-  transition: background 0.2s, color 0.2s;
+  color: #444;
 }
-
-.info-icon:hover {
-  background: #50e3c2;
-  color: #fff;
-}
-
-.info-tooltip {
-  visibility: hidden;
-  opacity: 0;
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0.5rem;
-  margin-top: 0.25rem;
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  font-size: 0.75rem;
-  border-radius: 4px;
-  white-space: nowrap;
-  transition: opacity 0.2s;
-  pointer-events: none;
-}
-
-.info-icon:hover .info-tooltip {
-  visibility: visible;
-  opacity: 1;
-}
-
-.constraints-modal input[type="checkbox"] {
-  /* reset native checkbox */
+.mi-slider-info input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
-  border: none;
+  width: 160px;
+  height: 8px;
+  border-radius: 999px;
+  background: #ddd;
   outline: none;
-
-  /* outer shell */
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: #ececec;
-  box-shadow:
-    /* top-left highlight */
-    -6px -6px 12px rgba(255, 255, 255, 0.7),
-    /* bottom-right shadow */
-    6px 6px 12px rgba(70, 70, 70, 0.15);
-
-  position: relative;
   cursor: pointer;
+  position: relative;
 }
 
-/* inner “pressed-in” disc */
-.constraints-modal input[type="checkbox"]::before {
-  content: "";
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 44px;
-  height: 44px;
+/* Gradient track behind the thumb */
+.mi-slider-info input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  background: linear-gradient(to right, #26e6bf, #007bff);
+  border-radius: 999px;
+}
+
+.mi-slider-info input[type="range"]::-moz-range-track {
+  height: 8px;
+  background: linear-gradient(to right, #26e6bf, #007bff);
+  border-radius: 999px;
+}
+
+/* Fix thumb alignment */
+.mi-slider-info input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 20px;
+  background: white;
+  border: 3px solid #007bff;
   border-radius: 50%;
-  background: #ececec;
-  box-shadow:
-    inset -4px -4px 8px rgba(255, 255, 255, 0.7),
-    inset 4px 4px 8px rgba(70, 70, 70, 0.1);
+  margin-top: -6px; /* Pulls thumb to center of 8px track */
 }
 
-/* power icon */
-.constraints-modal input[type="checkbox"]::after {
-  font-family: FontAwesome;
-  content: "\f011";
-  font-weight: 900;
+.mi-slider-info input[type="range"]::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  background: white;
+  border: 3px solid #007bff;
+  border-radius: 50%;
+}
+
+
+/* === Info Icon and Tooltip === */
+.mi-info-icon {
+  position: relative;
+  display: inline-block;
+  font-size: 18px;
+  font-weight: bold;
+  color: #26e6bf;
+  cursor: help;
+}
+
+.mi-info-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: 240px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 8px;
   position: absolute;
-  top: 50%;
+  z-index: 100;
+  top: 120%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 28px;
-  color: #7a7a7a;
-  transition: color 0.2s;
+  transform: translateX(-50%);
+  font-size: 0.85rem;
+  transition: opacity 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
 }
 
-/* when checked, deepen the inset & turn icon green */
-.constraints-modal input[type="checkbox"]:checked {
-  box-shadow:
-    inset -6px -6px 12px rgba(255, 255, 255, 0.7),
-    inset 6px 6px 12px rgba(70, 70, 70, 0.15);
-}
-
-
-
-.constraints-modal input[type="checkbox"]:checked::after {
-  color: #15e38a;
+.mi-info-icon:hover .mi-info-tooltip {
+  visibility: visible;
+  opacity: 1;
 }

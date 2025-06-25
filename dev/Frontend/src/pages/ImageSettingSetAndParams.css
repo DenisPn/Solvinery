@@ -71,14 +71,18 @@
 
 /* Slider Container */
 .slider-container {
-    overflow-x: auto;
-    padding-bottom: 10px;
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  display: flex;
+  justify-content: center;   /* centers the .slider flexbox */
 }
 .slider {
-    display: flex;
-    gap: 30px;
+  display: flex;
+  gap: 30px;
+  justify-content: center;   /* centers cards when they don’t fill the row */
+  flex-wrap: wrap;           /* allow wrapping on narrow screens */
 }
-
 /* Box Styling */
 .slide {
     width: 260px;
@@ -216,3 +220,54 @@
   margin-bottom: 0px; /* less spacing */
   padding-bottom: 0;
 }
+/* ─── Show Sets / Show Parameters buttons – local copy of “fancy-button” ─── */
+.fancy-button {
+  flex: 0 0 300px;
+  position: relative;
+  padding: 12px 0;
+  border: 3px solid #666;
+  border-radius: 30px;
+  background: transparent;
+  color: #666;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: .21em;
+  line-height: 54px;
+  text-align: center;
+  text-transform: uppercase;
+  overflow: hidden;
+  cursor: pointer;
+  transition: color .3s, background 0s;
+}
+
+.fancy-button:before,
+.fancy-button:after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #e3e2db;
+  z-index: -1;
+  opacity: .5;
+  transform: translateY(200%);
+  transition: transform .3s;
+}
+
+.fancy-button:after {            /* slightly darker 2-nd layer */
+  background: #dedede;
+  transition-delay: .13s;
+}
+
+.fancy-button:hover {
+  background: #e3e2db;
+  color: #000;
+  transition: background .3s .2s, color .3s;
+}
+
+.fancy-button:hover:before,
+.fancy-button:hover:after {
+  transform: translateY(100%);
+}
+
