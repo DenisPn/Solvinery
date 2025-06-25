@@ -153,10 +153,10 @@ const ConfigureConstraintsPage = () => {
       <div className="top-bar">
         <div className="top-bar-left">
           <Link to="/main-page" onClick={handleHomeClick} title="Home">
-            <img src="`${process.env.PUBLIC_URL}/images/HomeButton.png'" alt="Home" className="top-bar-button" />
+            <img src={`${process.env.PUBLIC_URL}/images/HomeButton.png`} alt="Home" className="top-bar-button" />
           </Link>
           <img
-            src="`${process.env.PUBLIC_URL}/images/LeftArrowButton.png'"
+            src={`${process.env.PUBLIC_URL}/images/LeftArrowButton.png`}
             alt="Continue"
             className="top-bar-button"
             onClick={() => navigate('/configure-preferences')}
@@ -165,7 +165,7 @@ const ConfigureConstraintsPage = () => {
         </div>
         <div className="top-bar-right">
           <Link to="/configure-variables" title="Back">
-            <img src="`${process.env.PUBLIC_URL}/images/RightArrowButton.png'" alt="Back" className="top-bar-button" />
+            <img src={`${process.env.PUBLIC_URL}/images/RightArrowButton.png`} alt="Back" className="top-bar-button" />
           </Link>
         </div>
       </div>
