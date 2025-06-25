@@ -193,12 +193,7 @@ export default function ImageSettingSetAndParams() {
                   <div key={idx} className="slide">
                     <h4>{setName}</h4>
 
-                    <div className="field">
-                      <span className="field-label">Type:</span>
-                      <span className="field-value">
-                        {Array.isArray(data) ? data.join(", ") : data}
-                      </span>
-                    </div>
+                  
 
                     {/* ← New Structure field: */}
                     <div className="field">
