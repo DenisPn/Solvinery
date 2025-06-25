@@ -13,11 +13,10 @@ public class WebConfig implements WebMvcConfigurer {
                         "https://denispn.github.io",
                         "http://localhost:3000"
                 )
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedMethods("PATCH","GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .exposedHeaders("*")
                 .maxAge(3600)
                 .allowCredentials(true);
     }
-
 }
