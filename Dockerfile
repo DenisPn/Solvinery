@@ -1,20 +1,15 @@
-FROM ubuntu:24.04
+#build
+FROM maven:3.8-eclipse-temurin-21 AS build
+WORKDIR /Solvinery
+COPY . .
+RUN cd dev/Backend && mvn clean generate-sources package -DskipTests
 
-RUN apt-get update && apt-get upgrade -y
+FROM eclipse-temurin:21-jre
+WORKDIR /app
 
+COPY --from=build /Solvinery/dev/Backend/target/*.jar app.jar
 
-RUN apt-get install -y \
-    default-jre \
-    default-jdk \
-    build-essential \
-    nodejs \
-    npm \
-    curl \
-    maven \
-    dbus \
-    wget
-
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
     libblas3 \
     libboost-program-options1.83.0 \
     libboost-serialization1.83.0 \
@@ -24,19 +19,17 @@ RUN apt-get install -y \
     libmetis5 \
     libopenblas0 \
     libtbb12 \
-    iputils-ping
-    
+    libmpfr6 \
+    libquadmath0 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
+#copy and install SCIP, delete deb file afterwards
+COPY SCIPOptSuite-9.2.0-Linux-ubuntu24.deb /tmp/
+RUN dpkg -i /tmp/SCIPOptSuite-9.2.0-Linux-ubuntu24.deb \
+    && rm /tmp/SCIPOptSuite-9.2.0-Linux-ubuntu24.deb
 
+ENV PORT=4000
+EXPOSE ${PORT}
 
-WORKDIR /Solvinery
-COPY . .
-RUN dpkg -i SCIPOptSuite-9.2.0-Linux-ubuntu24.deb
-RUN cd /Solvinery/dev/Frontend && npm install
-RUN cd /Solvinery/dev/Backend && mvn compile
-RUN cd /Solvinery/dev/Backend && mvn generate-sources
-
-RUN chmod +x ./scripts/containerEntryScript.sh
-ENTRYPOINT ["./scripts/containerEntryScript.sh"]
-
-EXPOSE 3000 4000
+CMD ["java", "-jar", "app.jar"]

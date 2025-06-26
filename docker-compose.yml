@@ -1,11 +1,5 @@
 services:
 
-  mockServer:
-    image: mockserver/mockserver:5.14.0
-    command: -logLevel DEBUG -serverPort 1090 -proxyRemotePort 80 -proxyRemoteHost www.mock-server.com
-    ports:
-      - "1080:1090"
-
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     networks:
@@ -35,7 +29,6 @@ services:
 
   postgres:
     image: postgres:16
-    build: .
     networks:
       - app-network
     ports:
@@ -55,13 +48,12 @@ services:
   app:
     build: .
     environment:
-    - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.util.concurrent=ALL-UNNAMED -XX:+IgnoreUnrecognizedVMOptions --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED
-    - MOCKITO_MOCK_MAKER=mock-maker-inline
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - MOCKITO_MOCK_MAKER=mock-maker-inline
     networks:
       - app-network
     ports:
       - "4000:4000"
-    #  - "3000:3000"
       - "5005:5005"
     depends_on:
       postgres:

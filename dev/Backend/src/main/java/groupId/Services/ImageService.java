@@ -3,6 +3,7 @@ package groupId.Services;
 import Exceptions.InternalErrors.ClientSideError;
 import Image.Image;
 import Model.Model;
+import Persistence.Entities.Image.Data.VariableEntity;
 import Persistence.Entities.Image.ImageEntity;
 import Persistence.Entities.Image.PublishedImageEntity;
 import Persistence.Entities.UserEntity;
@@ -14,6 +15,7 @@ import groupId.DTO.Records.Image.ImageDTO;
 import groupId.DTO.Records.Model.ModelDefinition.ModelDTO;
 import groupId.DTO.Records.Requests.Responses.*;
 import jakarta.validation.constraints.Min;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -179,6 +181,11 @@ public class ImageService {
         UserEntity user=userService.getUser(userId).orElseThrow(()-> new ClientSideError("Invalid User id during publish image."));
         ImageEntity imageEntity=imageRepository.findById(UUID.fromString(imageId))
                 .orElseThrow(()->new ClientSideError("Invalid image ID during publish image."));
+     /*   Hibernate.initialize(imageEntity);
+        for(VariableEntity variableEntity:imageEntity.getVariables()){
+            Hibernate.initialize(variableEntity);
+            Hibernate.unproxy(variableEntity);
+        }*/
         if(!imageEntity.getUser().equals(user))
             throw new ClientSideError("User does not own the image to publish.");
         PublishedImageEntity publishedImageEntity= new PublishedImageEntity();
