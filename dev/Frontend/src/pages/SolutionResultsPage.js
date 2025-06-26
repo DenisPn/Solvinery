@@ -9,6 +9,18 @@ export default function SolutionResultsPage() {
   const { solutionResponse, setSelectedImage, setSelectedImageId } = useZPL();
   const solutionMap = solutionResponse?.solution || {};
 
+  // ──────────────────────────────────────────────────────────────────────────────
+  // NEW: if the solver failed, alert the user and send them back to My Images
+  // ──────────────────────────────────────────────────────────────────────────────
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (solutionResponse && solutionResponse.solved === false) {
+      alert('The solver could not find a feasible solution for this image.\nYou will be redirected to My Images.');
+      navigate('/my-images');
+    }
+  }, [solutionResponse, navigate]);
+  // ──────────────────────────────────────────────────────────────────────────────
+
   const [sortKey, setSortKey] = useState(null);
   const [sortAsc, setSortAsc] = useState(true);
   const [filters, setFilters] = useState({});
@@ -18,7 +30,6 @@ export default function SolutionResultsPage() {
   const [showConfig, setShowConfig] = useState(false);
   const [mapping, setMapping] = useState({ rowIndex: 0, colIndex: 1, cellIndex: 2 });
 
-  const navigate = useNavigate();
   const order = ['rowIndex', 'colIndex', 'cellIndex'];
 
   const snapInt = (x, tol = 1e-5) => {
@@ -50,7 +61,7 @@ export default function SolutionResultsPage() {
       });
       return () => instance.destroy();
     }
-  }, [view, selectedVar,graphType]);
+  }, [view, selectedVar, graphType]);
 
   const varData = solutionMap[selectedVar] || {};
   const solutions = Array.from(varData.solutions || []);
@@ -137,13 +148,15 @@ export default function SolutionResultsPage() {
   return (
     <div className="solution-container">
       <div className="top-controls">
-        <Link to="/main-page"
+        <Link
+          to="/main-page"
           onClick={e => { e.preventDefault(); setSelectedImage(null); setSelectedImageId(null); navigate('/main-page'); }}
           className="nav-btn home-btn"
           style={{ backgroundImage: `url(${publicUrl}/Images/HomeButton.png)` }}
           title="Home"
         />
-        <Link to="/my-images"
+        <Link
+          to="/my-images"
           className="nav-btn images-btn"
           style={{ backgroundImage: `url(${publicUrl}/Images/ExitButton2.png)` }}
           title="My Images"
