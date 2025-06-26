@@ -17,7 +17,8 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.1.1",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -62,12 +63,16 @@
       {
         "from": "resources",
         "to": "resources",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "installers",
         "to": "installers",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "directories": {
@@ -79,7 +84,9 @@
       "resources/**/*"
     ],
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
       "sign": false,
       "verifyUpdateCodeSignature": false,
       "extraFiles": [
@@ -92,17 +99,21 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "include": "installers/windows/installer.nsh", 
+      "include": "installers/windows/installer.nsh",
       "perMachine": true,
       "deleteAppDataOnUninstall": true
     },
     "linux": {
-      "target": ["deb"],
+      "target": [
+        "deb"
+      ],
       "extraFiles": [
         {
           "from": "installers/linux",
           "to": "installers",
-          "filter": ["**/*"]
+          "filter": [
+            "**/*"
+          ]
         }
       ],
       "category": "Utility"
@@ -119,10 +130,8 @@
         "libopenblas-dev",
         "patchelf"
       ],
-      "afterInstall":"installers/linux/postInstall.sh"
-      
+      "afterInstall": "installers/linux/postInstall.sh"
     }
-    
   },
   "proxy": "http://localhost:4000",
   "devDependencies": {
