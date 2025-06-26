@@ -25,12 +25,13 @@ public class VariableEntity {
     @Nullable
     String objectiveValueAlias;
 
-    @ElementCollection
+    /*@ElementCollection
     @CollectionTable(name = "variable_type_structure", joinColumns = {
             @JoinColumn(name = "image_id", referencedColumnName = "image_id"),
             @JoinColumn(name = "element_name", referencedColumnName = "element_name")
-    })
-    private List<String> typeStructure;
+    })*/
+    @Column(name = "type_structure", nullable = false)
+    private String typeStructure;
 
 
 
@@ -39,7 +40,7 @@ public class VariableEntity {
 
     public VariableEntity(UUID id, @NonNull String varName, @Nullable String alias, @NonNull List<String> typeStructure,@Nullable String objectiveValueAlias) {
         this.imageComponentKey= new ImageComponentKey(id,varName);
-        this.typeStructure = typeStructure;
+        this.typeStructure = String.join(",", typeStructure);
         if(alias == null || alias.isBlank())
             this.alias = varName;
         else this.alias = alias;
@@ -61,7 +62,9 @@ public class VariableEntity {
 
     @NonNull
     public List<String> getTypeStructure() {
-        return typeStructure;
+        if (typeStructure==null || typeStructure.isBlank())
+            return List.of();
+        else return List.of(typeStructure.split(","));
     }
 
     public String getAlias() {
