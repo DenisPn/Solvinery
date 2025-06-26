@@ -9,7 +9,7 @@ import { useZPL } from "../context/ZPLContext";
 import "../Themes/MainTheme.css";
 import "./MyImagesPage.css";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 const MyImagesPage = () => {
   /* ─────────────────────────────  Local filters & paging  ───────────────────────────── */
@@ -283,6 +283,12 @@ const MyImagesPage = () => {
     );
   };
 
+  const ActionBtn = ({ src, alt, onClick }) => (
+    <span className="mi-action-wrapper" data-tip={alt}>
+      <img src={src} alt={alt} className="mi-icon-button" onClick={onClick} />
+    </span>
+  );
+
   /* ─────────────────────────────  JSX  ───────────────────────────── */
   return (
     <div className="mi-bg">
@@ -311,26 +317,34 @@ const MyImagesPage = () => {
         <h1 className="mi-title">My Images</h1>
 
         {/* ===== Filter row ===== */}
-        <div className="mi-filter-row">
-          <input
-            className="mi-filter-input"
-            placeholder="Name"
-            value={filterName}
-            onChange={(e) => setFilterName(e.target.value)}
-          />
-          <input
-            className="mi-filter-input"
-            placeholder="Description"
-            value={filterDescription}
-            onChange={(e) => setFilterDescription(e.target.value)}
-          />
-          <button
-            className="mi-search-btn"
-            onClick={() => setCriteria({ name: filterName, description: filterDescription, page: 0 })}
-          >
-            Search
-          </button>
-        </div>
+<div className="filters-card">
+  <div className="filter-grid">
+    <input
+      className="mi-filter-input"
+      placeholder="Name"
+      value={filterName}
+      onChange={(e) => setFilterName(e.target.value)}
+    />
+    <input
+      className="mi-filter-input"
+      placeholder="Description"
+      value={filterDescription}
+      onChange={(e) => setFilterDescription(e.target.value)}
+    />
+   
+  </div>
+
+  <div className="search-button-container">
+    <button
+      className="search-button"
+      onClick={() =>
+        setCriteria({ name: filterName, description: filterDescription, page: 0 })
+      }
+    >
+      Search
+    </button>
+  </div>
+</div>
 
         {/* ===== Thumbnails grid ===== */}
         <div className="mi-images-section">
@@ -338,17 +352,21 @@ const MyImagesPage = () => {
             <p>No images available.</p>
           ) : (
             Object.entries(imagesMap).map(([id, img]) => (
-              <div
-                key={id}
-                className="mi-image-item"
-                onClick={() => {
-                  setSelectedImage(img);
-                  setSelectedImageId(id);
-                }}
-              >
-                <div className="mi-image-caption">
-                  <strong>{img.name}</strong>
+              <div key={id} className="tooltip">
+                <div
+                  className="mi-image-item"
+                  onClick={() => {
+                    setSelectedImage(img);
+                    setSelectedImageId(id);
+                  }}
+                >
+                  <div className="mi-thumbnail-text">
+                    <h4>{img.name}</h4>
+                  </div>
                 </div>
+                {img.description && (
+                  <div className="tooltip-bubble">{img.description}</div>
+                )}
               </div>
             ))
           )}
@@ -389,17 +407,24 @@ const MyImagesPage = () => {
             >
               {/* top-left close / back */}
               {viewSection === null ? (
-                <img
-                  src={`${process.env.PUBLIC_URL}/images/ExitButton2.png`}
-                  alt="Close"
-                  className="mi-modal-close-btn"
-                  onClick={async () => {
-                    await updateImageOnServer();
-                    setSelectedImage(null);
-                    setSelectedImageId(null);
-                    setViewSection(null);
-                  }}
-                />
+                <span
+                  className="mi-action-wrapper"
+                  data-tip={viewSection === null ? 'Close' : 'Back'}
+                >
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/ExitButton2.png`}
+                    alt={viewSection === null ? 'Close' : 'Back'}
+                    className="mi-modal-close-btn"
+                    onClick={async () => {
+                      if (viewSection === null) {
+                        await updateImageOnServer();
+                        setSelectedImage(null);
+                        setSelectedImageId(null);
+                      }
+                      setViewSection(null);
+                    }}
+                  />
+                </span>
               ) : (
                 <img
                   src={`${process.env.PUBLIC_URL}/images/ExitButton2.png`}
@@ -410,36 +435,57 @@ const MyImagesPage = () => {
               )}
 
               {/* top-right actions */}
-              <img
-                src={`${process.env.PUBLIC_URL}/images/PublishButton.png`}
-                alt="Publish"
-                className="mi-modal-publish-btn"
-                onClick={handlePublishImage}
-              />
-              <img
-                src={`${process.env.PUBLIC_URL}/images/Solve.png`}
-                alt="Solve"
-                className="mi-modal-solve-btn"
-                onClick={handleSolveImage}
-              />
-              <img
-                src={`${process.env.PUBLIC_URL}/images/EditButton.png`}
-                alt="Edit"
-                className="mi-modal-edit-btn"
-                onClick={handleEditImage}
-              />
-              <img
-                src={`${process.env.PUBLIC_URL}/images/CopyZPLButton.png`}
-                alt="Copy ZPL"
-                className="mi-modal-copy-btn"
-                onClick={handleCopyCode}
-              />
-              <img
-                src={`${process.env.PUBLIC_URL}/images/delete.png`}
-                alt="Delete"
-                className="mi-modal-delete-btn"
-                onClick={handleDeleteImage}
-              />
+              <div className="mi-action-bar">
+                <span className="tooltip tooltip-down mi-action-wrapper">
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/PublishButton.png`}
+                    alt="Publish"
+                    className="mi-icon-button"
+                    onClick={handlePublishImage}
+                  />
+                  <div className="tooltip-bubble">Publish</div>
+                </span>
+
+                <span className="tooltip tooltip-down mi-action-wrapper">
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/Solve.png`}
+                    alt="Solve"
+                    className="mi-icon-button"
+                    onClick={handleSolveImage}
+                  />
+                  <div className="tooltip-bubble">Solve</div>
+                </span>
+
+                <span className="tooltip tooltip-down mi-action-wrapper">
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/EditButton.png`}
+                    alt="Edit"
+                    className="mi-icon-button"
+                    onClick={handleEditImage}
+                  />
+                  <div className="tooltip-bubble">Edit</div>
+                </span>
+
+                <span className="tooltip tooltip-down mi-action-wrapper">
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/CopyZPLButton.png`}
+                    alt="Copy code"
+                    className="mi-icon-button"
+                    onClick={handleCopyCode}
+                  />
+                  <div className="tooltip-bubble">Copy code</div>
+                </span>
+
+                <span className="tooltip tooltip-down mi-action-wrapper">
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/delete.png`}
+                    alt="Delete"
+                    className="mi-icon-button"
+                    onClick={handleDeleteImage}
+                  />
+                  <div className="tooltip-bubble">Delete</div>
+                </span>
+              </div>
 
               {/* ====== Tabs ====== */}
               {viewSection === null ? (
@@ -519,7 +565,7 @@ const MyImagesPage = () => {
                                   : "▼"
                                 : "⇅"}
                             </button>
-                            
+
                           </th>
                         ))}
                         <th>Actions</th>

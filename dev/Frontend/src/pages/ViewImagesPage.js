@@ -175,12 +175,12 @@ const ViewImagesPage = () => {
                 <div
                   key={img.imageId}
                   className="image-item tooltip"
-                  data-tip={img.description || "— No description —"}
                   onClick={() => setSelectedImage(img)}
                 >
                   <div className="image-thumbnail-text">
                     <h4>{img.name}</h4>
                   </div>
+                  <div className="tooltip-bubble">{img.description || "— No description —"}</div>
                 </div>
               ))
             )}
