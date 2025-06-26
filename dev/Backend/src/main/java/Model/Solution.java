@@ -103,7 +103,7 @@ public class Solution {
         }
     }
     public void postProcessSolution(@NonNull Image image){
-        if(objectiveValue == -1F || solvingTime == -1F || !solved)
+        if(solvingTime == -1F || !solved)
             throw new IllegalStateException(String.format(
                     "Solution state not valid for post process, objective value: %s, solving time: %s, Solve status: %s",objectiveValue,solvingTime,solved));
         for (VariableModule variable : image.getActiveVariables()) {
