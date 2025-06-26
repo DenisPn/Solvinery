@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/Solvinery/static/css/main.0945347c.css",
-    "main.js": "/Solvinery/static/js/main.f16f9864.js",
+    "main.css": "/Solvinery/static/css/main.1ad23873.css",
+    "main.js": "/Solvinery/static/js/main.c8d027c7.js",
     "static/media/fa-solid-900.ttf": "/Solvinery/static/media/fa-solid-900.2582b0e4bcf85eceead0.ttf",
     "static/media/fa-brands-400.ttf": "/Solvinery/static/media/fa-brands-400.1815e00441357e01619e.ttf",
     "static/media/fa-solid-900.woff2": "/Solvinery/static/media/fa-solid-900.2463b90d9a316e4e5294.woff2",
@@ -12,11 +12,11 @@
     "static/media/fa-v4compatibility.ttf": "/Solvinery/static/media/fa-v4compatibility.da94ef451f4969af06e6.ttf",
     "static/media/fa-v4compatibility.woff2": "/Solvinery/static/media/fa-v4compatibility.ea8f94e1d22e0d35ccd4.woff2",
     "index.html": "/Solvinery/index.html",
-    "main.0945347c.css.map": "/Solvinery/static/css/main.0945347c.css.map",
-    "main.f16f9864.js.map": "/Solvinery/static/js/main.f16f9864.js.map"
+    "main.1ad23873.css.map": "/Solvinery/static/css/main.1ad23873.css.map",
+    "main.c8d027c7.js.map": "/Solvinery/static/js/main.c8d027c7.js.map"
   },
   "entrypoints": [
-    "static/css/main.0945347c.css",
-    "static/js/main.f16f9864.js"
+    "static/css/main.1ad23873.css",
+    "static/js/main.c8d027c7.js"
   ]
 }
