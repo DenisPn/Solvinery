@@ -81,7 +81,7 @@ const ViewImagesPage = () => {
       const res = await axios.patch(
         `/user/${userId}/image/${selectedImage.imageId}/get`
       );
-      alert(`Response: ${JSON.stringify(res.data)}`);
+      alert(`Image added to your images successfully!`);
     } catch (err) {
       alert(`Error: ${err.response?.data?.message || err.message}`);
     }
@@ -95,7 +95,7 @@ const ViewImagesPage = () => {
   return (
     <div className="view-images-background">
       <img
-        src="/images/HomeButton.png"
+        src={`${process.env.PUBLIC_URL}/images/HomeButton.png`}
         alt="Home"
         className="home-button"
         onClick={handleBack}
@@ -105,53 +105,55 @@ const ViewImagesPage = () => {
         <h1 className="main-view-images-title">Public Images</h1>
 
         {/* Filters */}
-        <div className="filter-grid two-columns">
-          <input
-            type="text"
-            placeholder="Name"
-            value={filterName}
-            onChange={(e) => setFilterName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Description"
-            value={filterDescription}
-            onChange={(e) => setFilterDescription(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Author"
-            value={filterAuthor}
-            onChange={(e) => setFilterAuthor(e.target.value)}
-          />
+        <div className="filters-card">
+          <div className="filter-grid two-columns">
+            <input
+              type="text"
+              placeholder="Name"
+              value={filterName}
+              onChange={(e) => setFilterName(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Description"
+              value={filterDescription}
+              onChange={(e) => setFilterDescription(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Author"
+              value={filterAuthor}
+              onChange={(e) => setFilterAuthor(e.target.value)}
+            />
 
-          {/* After */}
-          <input
-            type="text"
-            placeholder="After"
-            value={filterAfter}
-            onFocus={(e) => (e.target.type = "date")}
-            onBlur={(e) => !e.target.value && (e.target.type = "text")}
-            onChange={(e) => setFilterAfter(e.target.value)}
-          />
+            {/* After */}
+            <input
+              type="text"
+              placeholder="After creation date"
+              value={filterAfter}
+              onFocus={(e) => (e.target.type = "date")}
+              onBlur={(e) => !e.target.value && (e.target.type = "text")}
+              onChange={(e) => setFilterAfter(e.target.value)}
+            />
 
-          {/* Before */}
-          <input
-            type="text"
-            placeholder="Before"
-            value={filterBefore}
-            onFocus={(e) => (e.target.type = "date")}
-            onBlur={(e) => !e.target.value && (e.target.type = "text")}
-            onChange={(e) => setFilterBefore(e.target.value)}
-          />
+            {/* Before */}
+            <input
+              type="text"
+              placeholder="Before creation date"
+              value={filterBefore}
+              onFocus={(e) => (e.target.type = "date")}
+              onBlur={(e) => !e.target.value && (e.target.type = "text")}
+              onChange={(e) => setFilterBefore(e.target.value)}
+            />
+          </div>
+          <div className="search-button-container">
+            <button className="search-button" onClick={handleSearchClick}>
+              Search
+            </button>
+          </div>
         </div>
-
         {/* Search button */}
-        <div className="search-button-container">
-          <button className="search-button" onClick={handleSearchClick}>
-            Search
-          </button>
-        </div>
+
 
         {/* Loading modal */}
         {loading && (
@@ -172,13 +174,13 @@ const ViewImagesPage = () => {
               images.map((img) => (
                 <div
                   key={img.imageId}
-                  className="image-item"
+                  className="image-item tooltip"
                   onClick={() => setSelectedImage(img)}
                 >
                   <div className="image-thumbnail-text">
                     <h4>{img.name}</h4>
-                    <p>{img.description}</p>
                   </div>
+                  <div className="tooltip-bubble">{img.description || "— No description —"}</div>
                 </div>
               ))
             )}
@@ -188,7 +190,7 @@ const ViewImagesPage = () => {
         {/* Pagination */}
         <div className="pagination-container">
           <img
-            src="/images/LeftArrowButton.png"
+            src={`${process.env.PUBLIC_URL}/images/LeftArrowButton.png`}
             alt="Prev"
             className="prev-page-button"
             onClick={handlePrevPage}
@@ -201,7 +203,7 @@ const ViewImagesPage = () => {
             Page {page + 1} out of {totalPages}
           </span>
           <img
-            src="/images/RightArrowButton.png"
+            src={`${process.env.PUBLIC_URL}/images/RightArrowButton.png`}
             alt="Next"
             className="next-page-button"
             onClick={handleNextPage}
@@ -218,48 +220,45 @@ const ViewImagesPage = () => {
             className="modal-overlay"
             onClick={() => setSelectedImage(null)}
           >
-            <div
-              className="modal-content"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2>{selectedImage.name}</h2>
-              <p>
-                <strong>Description:</strong> {selectedImage.description}
-              </p>
-              <p>
-                <strong>Author:</strong> {selectedImage.authorName}
-              </p>
-              <p>
-                <strong>Creation Date:</strong>{" "}
-                {new Date(selectedImage.creationDate).toLocaleDateString()}
-              </p>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
 
-              <div className="modal-buttons">
-                <img
-                  src="/images/ExitButton2.png"
-                  alt="Close"
-                  className="modal-close-button"
-                  onClick={() => setSelectedImage(null)}
-                />
-                <img
-                  src="/images/downloadButton.png"
-                  alt="Save"
-                  className="modal-save-button"
-                  onClick={handleSaveImage}
-                />
-                <img
-                  src="/images/CopyZPLButton.png"
-                  alt="Copy"
-                  className="modal-copy-button"
-                  onClick={() => {
-                    navigator.clipboard
-                      .writeText(selectedImage.description || "")
-                      .then(() => alert("Description copied!"))
-                      .catch(() => alert("Copy failed."));
-                  }}
-                />
+              <div className="modal-header">
+                {/* Left: Back / Close button */}
+                <div className="modal-header-left">
+                  <div className="icon-wrapper" data-tip="Close">
+                    <img
+                      src={`${process.env.PUBLIC_URL}/images/ExitButton2.png`}
+                      alt="Close"
+                      className="modal-back-btn"
+                      onClick={() => setSelectedImage(null)}
+                    />
+                  </div>
+                </div>
+
+                {/* Right: Save button */}
+                <div className="modal-header-right">
+                  <div className="icon-wrapper" data-tip="Add to your images">
+                    <img
+                      src={`${process.env.PUBLIC_URL}/images/downloadButton.png`}
+                      alt="Save"
+                      className="modal-save-button"
+                      onClick={handleSaveImage}
+                    />
+                  </div>
+                </div>
+              </div>
+
+
+
+
+              <div className="image-box">
+                <h2 className="image-title">{selectedImage.name}</h2>
+                <p className="image-subtext">{selectedImage.description}</p>
+                <p className="image-subtext"><strong>Author:</strong> {selectedImage.authorName}</p>
+                <p className="image-subtext"><strong>Creation Date:</strong> {new Date(selectedImage.creationDate).toLocaleDateString()}</p>
               </div>
             </div>
+
           </div>
         )}
       </div>

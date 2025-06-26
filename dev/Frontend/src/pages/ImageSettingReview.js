@@ -139,16 +139,20 @@ const ImageSettingReview = () => {
 
     console.log("Request Data:", requestData);
 
-    const baseUrl = `/user/${userId}/image${isEditMode ? `/${imageId}` : ""}`;
+    const API_URL = process.env.REACT_APP_API_URL || "";;
+    const baseUrl = `${API_URL}/user/${userId}/image${isEditMode ? `/${imageId}` : ""}`;
     const url = isEditMode ? `${baseUrl}?ignoreData=true` : baseUrl;
     const method = isEditMode ? "PATCH" : "POST";
     console.log("Request URL:", url);
+    console.log("Test1");
+    console.log("API URL : ",process.env.REACT_APP_API_URL);
 
     try {
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
+        credentials: "include"
       });
 
       if (!response.ok) {
@@ -180,7 +184,12 @@ const ImageSettingReview = () => {
       setZplCode("");
       setIsEditMode(false);
 
-      navigate("/main-page");
+      if (!isEditMode) {
+        navigate("/main-page");
+      }
+      else {
+        navigate("/my-images");
+      }
     } catch (e) {
       console.error(e);
       alert(`Error: ${e.message}`);
@@ -212,13 +221,13 @@ const ImageSettingReview = () => {
       <div className="image-setting-top-left-buttons">
         <Link to="/main-page" title="Home" onClick={handleHomeClick}>
           <img
-            src="/images/HomeButton.png"
+            src={`${process.env.PUBLIC_URL}/images/HomeButton.png`}
             alt="Home"
             className="image-setting-home-button"
           />
         </Link>
         <img
-          src="/images/SaveButton.png"
+          src={`${process.env.PUBLIC_URL}/images/SaveButton.png`}
           alt="Save"
           className="image-setting-save-button"
           onClick={handleSaveImage}
@@ -230,7 +239,7 @@ const ImageSettingReview = () => {
           title="Show ZPL Code"
         >
           <img
-            src="/images/CopyZPLButton.png"
+            src={`${process.env.PUBLIC_URL}/images/CopyZPLButton.png`}
             alt="Show ZPL Code"
             className="show-zpl-icon"
           />
@@ -282,7 +291,7 @@ const ImageSettingReview = () => {
 
       <Link to="/image-setting-set-and-params" title="Back">
         <img
-          src="/images/RightArrowButton.png"
+          src={`${process.env.PUBLIC_URL}/images/RightArrowButton.png`}
           alt="Back"
           className="image-setting-back-button"
         />

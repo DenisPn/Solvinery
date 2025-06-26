@@ -1,173 +1,258 @@
+/* ───────── General Page Styling ───────── */
 .view-images-background {
-  background: linear-gradient(90deg, rgba(42, 123, 155, 1) 0%, rgba(87, 199, 133, 1) 100%, rgba(237, 221, 83, 1) 100%);
+  background: linear-gradient(135deg, #2a7b9b 0%, #57c785 50%, #f2cb4c 100%);
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  min-height: 100vh;
 }
 
 .view-images-form-container {
-  padding: 0px 60px 70px 60px;
+  padding: 0 60px 70px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
   align-items: center;
   width: 80vw;
   min-height: 700px;
   max-height: 90vh;
-
-  /* no border/background */
-  background: none;
-  border: none;
-   overflow: visible; /* prevent scrollbars */
+  overflow: visible;
 }
 
+/* ───────── Page Title ───────── */
 .main-view-images-title {
-  font-size: 50px;
-  font-weight: bold;
-  -webkit-text-stroke: 0.5px white;
-  font-family: cursive;
+  font: 700 48px cursive;
+  -webkit-text-stroke: .5px #fff;
+  text-align: center;
+  margin: 0 0 24px;
 }
 
-.group {
-  position: relative;
-  margin-bottom: 45px;
+/* ───────── Filters Card ───────── */
+.filters-card {
+  background: rgba(255, 255, 255, .85);
+  backdrop-filter: blur(4px);
+  border-radius: 18px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
+  max-width: 1100px;
+  width: 100%;
 }
 
-.input-box-view-images {
-  font-size: 18px;
-  padding: 10px 10px 10px 5px;
-  display: block;
-  width: 300px;
-  border: none;
-  border-bottom: 1px solid #757575;
+.filter-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
-.input-box-view-images:focus {
+.filters-card input {
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: .95rem;
+  transition: border-color .2s;
+}
+
+.filters-card input:focus {
   outline: none;
+  border-color: #2a7b9b;
 }
 
-.bar-view-images {
+/* Search button */
+.search-button-container {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.search-button {
+  width: 260px;
+  /* ← explicit width */
+  padding: 14px 0;
+  border: 3px solid #666;
+  border-radius: 30px;
+  background: transparent;
+  color: #666;
+  letter-spacing: .21em;
+  font: 700 14px/1 sans-serif;
+  text-transform: uppercase;
+  cursor: pointer;
   position: relative;
-  display: block;
-  width: 300px;
+  overflow: hidden;
+  transition: color .3s, background 0s;
 }
 
-.bar-view-images:before,
-.bar-view-images:after {
+.search-button::before,
+.search-button::after {
   content: '';
-  height: 2px;
-  width: 0;
-  bottom: 1px;
   position: absolute;
-  background: #5264AE;
-  transition: 0.2s ease all;
-}
-
-.bar-view-images:before {
-  left: 50%;
-}
-
-.bar-view-images:after {
-  right: 50%;
-}
-
-.input-box-view-images:focus ~ .bar-view-images:before,
-.input-box-view-images:focus ~ .bar-view-images:after {
-  width: 50%;
-}
-
-.highlight-view-images {
-  position: absolute;
-  height: 60%;
-  width: 100px;
-  top: 25%;
+  bottom: 100%;
   left: 0;
-  pointer-events: none;
-  opacity: 0.5;
+  width: 100%;
+  height: 100%;
+  transform: translateY(200%);
+  transition: transform .3s;
+  opacity: .5;
 }
 
-.input-box-view-images:focus ~ .highlight-view-images {
-  animation: inputHighlighter 0.3s ease;
+.search-button::before {
+  background: #e3e2db;
 }
 
-@keyframes inputHighlighter {
-  from { background: #5264AE; }
-  to { width: 0; background: transparent; }
+.search-button::after {
+  background: #dedede;
+  transition-delay: .13s;
 }
 
+.search-button:hover {
+  background: #e3e2db;
+  color: #000;
+  transition: background .3s .2s, color .3s;
+}
+
+.search-button:hover::before,
+.search-button:hover::after {
+  transform: translateY(100%);
+}
+
+/* ───────── Image Grid ───────── */
 .images-section {
   display: grid;
+  gap: 30px;
   grid-template-columns: repeat(5, 1fr);
-  gap: 20px;
-  width: 1050px;
-  height: 500px;            /* was 460px, now taller */
+  justify-content: center;
   justify-items: center;
-  align-content: start;
-  overflow: visible;
-   padding-top: 10px;  
-  padding-bottom: 30px;     /* add this line to make room for hover growth */
+  width: 100%;
+  max-width: 1000px;
 }
 
-
-
-
-
 .image-item {
-  width: 125px;
-  height: 150px;
-  background-color: #fff;
-  border-radius: 2px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  width: 240px;
+  height: 240px;
+  padding: 16px;
+  background: repeating-linear-gradient(45deg,
+      #fdfdfd,
+      #fdfdfd 10px,
+      #f0f0f0 10px,
+      #f0f0f0 20px);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: visible;
+  /* was hidden – allow tooltip to escape */
+  position: relative;
+
+}
+
+.image-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+.image-thumbnail-text {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  position: relative;
-  transition: 0.3s ease;
-  padding: 15px;
-  cursor: pointer;
-  
+  height: 100%;
+  margin: 0;
+  /* ensure no external spacing */
+  padding: 0;
+  /* ensure no internal spacing */
+}
+
+.image-thumbnail-text h4 {
+  font-size: 30px;
+  font-weight: 700;
+  color: #2a7b9b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+  white-space: normal;
+  word-break: break-word;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  /* remove default top/bottom spacing */
+  padding: 0;
+  line-height: 1.2;
+
+}
+
+.image-thumbnail-text p {
+  font-size: 30px;
+  color: #444;
+  font-style: italic;
+  margin-top: 4px;
+  opacity: 0.8;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  /* remove default top/bottom spacing */
+  padding: 0;
+}
+
+.image-item {
+  transition: transform 0.25s, box-shadow 0.25s;
 }
 
 .image-item:hover {
-  scale: 1.1;
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
-.image-thumbnail-text {
-  text-align: center;
-}
-
-.image-thumbnail-text h4,
-.image-thumbnail-text p {
-  font-size: 16px;
-  margin: 5px 0;
-}
-
-.home-button {
+/* ───────── Pagination ───────── */
+.pagination-container {
   position: absolute;
-  top: 50px;
-  left: 30px;
-  width: 50px;
-  height: 50px;
-  cursor: pointer;
-  z-index: 5;
+  bottom: 30px;
+  /* adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.next-page-button,
-.prev-page-button {
+.pagination-container span {
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Segoe UI', sans-serif;
+  color: #2a7b9b;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 6px 14px;
+  border-radius: 20px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  letter-spacing: 0.5px;
+  transition: background 0.3s ease;
+}
+
+.pagination-container span:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+
+.prev-page-button,
+.next-page-button {
   width: 40px;
   height: 40px;
   cursor: pointer;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .25));
+  transition: transform .2s;
 }
 
+.prev-page-button:hover,
+.next-page-button:hover {
+  transform: scale(1.15);
+}
+
+/* ───────── Modal Overlay ───────── */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  inset: 0;
+  background: rgba(0, 0, 0, .4);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -175,160 +260,318 @@
 }
 
 .modal-content {
-  position: relative;
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  width: 80%;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #ffffff 0%, #f2f2f2 100%);
+  padding: 40px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 720px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
+  font-family: "Segoe UI", sans-serif;
 }
 
-.modal-close-button {
-  position: absolute;
-  top: 25px;
-  left: 25px;
-  width: 40px;
+
+/* ─ Modal header with buttons ─ */
+.modal-header {
+  position: relative;
+  width: 100%;
   height: 40px;
+  margin-bottom: 24px;
+  animation: slideFadeIn 0.7s ease-out;
+}
+
+.modal-back-btn {
+  width: 36px;
+  height: 36px;
   cursor: pointer;
-  z-index: 100;
+  transition: transform .2s;
 }
 
-.modal-save-button {
-  position: absolute;
-  top: 25px;
-  right: 215px;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  z-index: 100;
-}
-
-.modal-copy-button {
-  position: absolute;
-  top: 25px;
-  right: 80px;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  z-index: 100;
-}
-
-/* Container for all filters in grid */
-.filter-grid {
-  display: grid;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-/* Two columns layout when desired */
-.filter-grid.two-columns {
-  grid-template-columns: repeat(5, 1fr);
-}
-
-/* Individual filter item styling */
-.filter-item {
+.modal-action-btns {
   display: flex;
-  flex-direction: column;
+  gap: 16px;
 }
 
-.filter-item label {
-  margin-bottom: 0.25rem;
-  font-weight: bold;
+.modal-action-btns img {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform .2s;
 }
 
-.filter-item input {
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.modal-back-btn:hover,
+.modal-action-btns img:hover {
+  transform: scale(1.15);
 }
 
-/* Center the Search button */
-.search-button-container {
+/* ─ Information Box ─ */
+.image-box {
+  background: repeating-linear-gradient(45deg, #fdfdfd 0 10px, #f2f2f2 10px 20px);
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, .1);
   text-align: center;
-  margin-bottom: 1.5rem;
+  max-width: 600px;
+  margin: 40px auto 0;
 }
 
-.search-button {
-  padding: 0.6rem 1.2rem;
-  background-color: #2a7b9b;
+.image-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 6px;
+  display: inline-block;
+  position: relative;
+}
+
+.image-title::after {
+  content: '';
+  display: block;
+  width: 60%;
+  margin: 4px auto 0;
+  border-bottom: 3px solid #00afb9;
+}
+
+.image-subtext {
+  font-size: 16px;
+  color: #333;
+  margin: 6px 0;
+  font-style: italic;
+}
+
+/* Fix the modal header layout */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+/* Restore correct Home button size */
+.home-button {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  top: 50px;
+  left: 30px;
+  z-index: 5;
+  cursor: pointer;
+}
+
+/* Modal button layout (back left, others right) */
+.modal-back-btn {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.modal-action-btns {
+  display: flex;
+  gap: 16px;
+}
+
+.modal-action-btns img {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.modal-back-btn:hover,
+.modal-action-btns img:hover {
+  transform: scale(1.15);
+}
+
+/* Fix modal-header layout */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+/* Top-left back button */
+.modal-back-btn {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+/* Top-right button group */
+.modal-action-btns {
+  display: flex;
+  gap: 16px;
+}
+
+.modal-action-btns img {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+/* Hover effects */
+.modal-back-btn:hover,
+.modal-action-btns img:hover {
+  transform: scale(1.15);
+}
+
+.modal-header {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  margin-bottom: 24px;
+}
+
+.modal-header-left,
+.modal-header-right {
+  position: absolute;
+  top: 0;
+  display: flex;
+  align-items: center;
+}
+
+.modal-header-left {
+  left: 0;
+  padding-left: 12px;
+}
+
+.modal-header-right {
+  right: 0;
+  gap: 16px;
+  padding-right: 12px;
+}
+
+.modal-header-left img,
+.modal-header-right img {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.modal-header-left img:hover,
+.modal-header-right img:hover {
+  transform: scale(1.15);
+}
+
+
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.modal-header-left,
+.modal-header-right {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+/* Tooltip container */
+.icon-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.icon-wrapper::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  background: #333;
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.icon-wrapper:hover::after {
+  transform: translateX(-50%) scale(1);
+  opacity: 1;
+}
+
+/* ─────────  Tooltip on image thumbnails  ───────── */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip bubble box */
+.tooltip-bubble {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background-color: #222;
   color: white;
-  border: none;
+  font-size: 15px;
+  padding: 16px 18px;
   border-radius: 6px;
-  cursor: pointer;
-}
-.search-button:hover {
-  background-color: #1f5d75;
-}
+  max-width: 400px;
+  max-height: calc(1.6em * 10);
+  line-height: 1.5;
+  z-index: 1000;
+  pointer-events: none;
 
-/* Pagination */
-.pagination-container {
-  margin-top: 1.5rem;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-}
 
-/* Modal action buttons container */
-.modal-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
+  /* Multiline clamping */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 10;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
 
-.loading-indicator {
-  text-align: center;
-  font-size: 1.2rem;
-  margin: 2rem 0;
+  /* Hide by default */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
 }
 
-
-
-/* container for the white box */
-.loading-modal {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 120px;
-  height: 120px;
+/* Show on hover */
+.tooltip:hover .tooltip-bubble {
+  opacity: 1;
+  visibility: visible;
 }
 
-/* the spinner itself */
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 6px solid #ddd;
-  border-top-color: #2a7b9b;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+/* Arrow */
+.tooltip:hover::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% - 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #111;
+  opacity: 1;
+  visibility: visible;
 }
 
-/* spin animation */
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loading-label {
-  background: rgba(0, 0, 0, 0.1);  /* light gray behind the text */
-  padding: 0.25em 0.6em;           /* some breathing room */
-  border-radius: 4px;             /* rounded corners */
-  font-weight: bold;
-  margin: 0;                      /* remove default <p> margins */
-  color: #333;                    /* dark text for contrast */
-}
-
-.filter-item-date {
-  display: flex;
-  flex-direction: column;
-}
-
-.filter-item-date span {
-  font-size: 0.9rem;
-  margin-bottom: 0.25rem;
+.tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% - 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #111;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
 }

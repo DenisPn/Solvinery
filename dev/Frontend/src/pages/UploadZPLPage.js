@@ -142,7 +142,7 @@ const UploadZPLPage = () => {
       <div className="top-left-buttons">
         <Link to="/main-page" title="Home" onClick={handleHomeClick}>
           <img
-            src="/images/HomeButton.png"
+            src={`${process.env.PUBLIC_URL}/images/HomeButton.png`}
             alt="Home"
             className="home-button-image"
           />
