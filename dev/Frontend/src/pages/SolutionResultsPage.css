@@ -2,13 +2,15 @@
 
 .solution-container {
   width: 95%;
-  height: 95vh;        /* span 95% of viewport height */
+  height: 95vh;
+  /* span 95% of viewport height */
   max-width: none;
-  margin: 2.5vh auto;  /* vertical centering via equal top/bottom margins */
+  margin: 2.5vh auto;
+  /* vertical centering via equal top/bottom margins */
   padding: 20px;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -100,7 +102,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -129,14 +131,20 @@
 .pivot-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
-.solutions-table th, .solutions-table td,
-.pivot-table th, .pivot-table td {
+.solutions-table th,
+.solutions-table td,
+.pivot-table th,
+.pivot-table td {
   padding: 12px;
   text-align: center;
   vertical-align: middle;
   border-bottom: 1px solid #eee;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .solutions-table thead th,
@@ -195,21 +203,21 @@
   justify-content: center;
   gap: 8px;
 }
+
 .pivot-type {
   font-weight: 600;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
   background: #2A7B9B;
-  background: linear-gradient(
-    328deg,
-    rgba(42, 123, 155, 1) 0%,
-    rgba(87, 199, 133, 1) 100%,
-    rgba(237, 221, 83, 1) 100%
-  );
+  background: linear-gradient(328deg,
+      rgba(42, 123, 155, 1) 0%,
+      rgba(87, 199, 133, 1) 100%,
+      rgba(237, 221, 83, 1) 100%);
 }
 
 /* wrap your SVG in a container to center & give bg */
@@ -220,7 +228,7 @@ html, body {
   padding: 16px;
   background: #f9fafb;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   margin: 16px 0;
 }
 
@@ -273,4 +281,50 @@ html, body {
 .graph-wrapper svg {
   max-width: 100%;
   height: auto;
+}
+
+.sort-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9em;
+  padding: 0 4px;
+}
+
+.sort-btn:hover {
+  color: #007BFF;
+}
+
+.sort-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9em;
+  padding: 0 4px;
+}
+
+.sort-btn:hover {
+  color: #007BFF;
+}
+
+.export-btn {
+  margin-left: 12px;
+  padding: 6px 10px;
+  background: #fff;
+  cursor: pointer;
+  width: 48px;
+  height: 48px;
+
+  position: absolute;
+  top: 30px;
+  /* adjust as needed */
+  right: 120px;
+  /* adjust as needed */
+  z-index: 10;
+
+}
+
+.export-btn:hover {
+  background: #007BFF;
+  color: #fff;
 }
