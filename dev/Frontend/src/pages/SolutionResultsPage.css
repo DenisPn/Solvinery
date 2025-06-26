@@ -1,21 +1,18 @@
-/* overall card */
+/* --------------  SolutionResultsPage.css -------------- */
 
+/* overall card */
 .solution-container {
   width: 95%;
-  height: 95vh;
-  /* span 95% of viewport height */
-  max-width: none;
-  margin: 2.5vh auto;
-  /* vertical centering via equal top/bottom margins */
+  height: 95vh;                 /* span 95 % of the viewport height   */
+  margin: 2.5vh auto;           /* vertical centring via equal margins */
   padding: 20px;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-
-/* Top controls layout */
+/* ─── Top controls ────────────────────────────────────── */
 .top-controls {
   display: flex;
   align-items: center;
@@ -24,203 +21,88 @@
   margin-bottom: 16px;
 }
 
-/* ...the rest of your CSS remains unchanged... */
-
-
-.var-label {
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-  white-space: nowrap;
+.var-label        { font-weight: 600; color: #333; margin: 0; white-space: nowrap; }
+.var-select       {
+  padding: 8px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px;
+  transition: border-color .2s;
 }
+.var-select:focus { outline: none; border-color: #007BFF; }
 
-.var-select {
-  padding: 8px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  transition: border-color 0.2s;
-}
+/* navigation buttons */
+.nav-btn  { width: 32px; height: 32px; background-size: cover;
+            display: inline-block; border: none; cursor: pointer; margin-right: 8px; }
+.home-btn   { background-image: url('../../public/images/HomeButton.png'); }
+.images-btn { background-image: url('../../public/images/ExitButton2.png'); }
 
-.var-select:focus {
-  outline: none;
-  border-color: #007BFF;
-}
-
-/* Navigation Buttons */
-.nav-btn {
-  width: 32px;
-  height: 32px;
-  background-size: cover;
-  display: inline-block;
-  border: none;
-  cursor: pointer;
-  margin-right: 8px;
-}
-
-/* These load from public/Images */
-.home-btn {
-  background-image: url('../../public/images/HomeButton.png');
-}
-
-.images-btn {
-  background-image: url('../../public/images/ExitButton2.png');
-}
-
-/* toggle buttons */
+/* toggle / misc buttons */
 .view-toggle-btn,
 .config-btn {
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 4px;
-  cursor: pointer;
-  border: 1px solid #007BFF;
-  background: #fff;
-  color: #007BFF;
-  transition: background 0.2s, color 0.2s;
+  padding: 8px 16px; font-size: 14px; border-radius: 4px; cursor: pointer;
+  border: 1px solid #007BFF; background: #fff; color: #007BFF;
+  transition: background .2s, color .2s;
 }
+.config-btn     { border-color: #666; color: #333;      }
+.view-toggle-btn:hover { background: #007BFF; color: #fff; }
+.config-btn:hover      { background: #666;    color: #fff; }
 
-.config-btn {
-  border-color: #666;
-  color: #333;
-}
+/* ─── Modal ───────────────────────────────────────────── */
+.modal-overlay  { position: fixed; inset: 0; background: rgba(0, 0, 0, .5);
+                  display: flex; align-items: center; justify-content: center; }
+.modal-content  { background: #fff; padding: 20px; border-radius: 8px;
+                  max-width: 500px; width: 90%; }
 
-.view-toggle-btn:hover {
-  background: #007BFF;
-  color: #fff;
-}
-
-.config-btn:hover {
-  background: #666;
-  color: #fff;
-}
-
-/* Modal styling */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 500px;
-  width: 90%;
-}
-
-/* Scroll wrapper */
+/* ─── Table / Graph wrapper ───────────────────────────── */
 .table-wrapper {
   width: 100%;
-  max-height: 60vh;
+  max-height: 60vh;            /* default scroll box height           */
   overflow-y: auto;
   overflow-x: hidden;
   border: 1px solid #eee;
   border-radius: 4px;
 }
 
-/* tables */
-.solutions-table,
-.pivot-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
+/* when we are in graph view, use much more vertical space */
+.graph-view .table-wrapper,
+.table-wrapper.graph-view {     /* covers both class-paths             */
+  max-height: 80vh;
+  height: 80vh;                /* fills most of the white card        */
+  overflow: hidden;            /* graph itself handles overflow       */
 }
+
+/* ─── Solutions & pivot tables ────────────────────────── */
+.solutions-table,
+.pivot-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 
 .solutions-table th,
 .solutions-table td,
-.pivot-table th,
-.pivot-table td {
-  padding: 12px;
-  text-align: center;
-  vertical-align: middle;
-  border-bottom: 1px solid #eee;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.pivot-table    th,
+.pivot-table    td {
+  padding: 12px; text-align: center; vertical-align: middle;
+  border-bottom: 1px solid #eee; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 .solutions-table thead th,
-.pivot-table thead th {
-  background: #f5f5f5;
-  font-weight: 600;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
+.pivot-table thead th { background: #f5f5f5; font-weight: 600; position: sticky; top: 0; z-index: 1; }
 
-.solutions-table tbody tr:nth-child(even) {
-  background: #fbfbfb;
-}
-
+.solutions-table tbody tr:nth-child(even) { background: #fbfbfb; }
 .solutions-table tbody tr:hover,
-.pivot-table tbody tr:hover {
-  background: #f1faff;
-}
+.pivot-table    tbody tr:hover            { background: #f1faff; }
 
-/* Pivot specifics */
+/* pivot specifics */
 .pivot-table th:first-child,
-.pivot-table td:first-child {
-  background: #fafafa;
-  font-weight: 600;
-}
+.pivot-table td:first-child { background: #fafafa; font-weight: 600; }
 
-/* Pivot config table */
-.pivot-config-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 12px;
-}
+/* pivot-config table */
+.pivot-config-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+.pivot-config-table td { padding: 8px 12px; border: 1px solid #ddd; text-align: center; }
+.pivot-controls button { margin: 0 4px; }
+.pivot-config-cell { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.pivot-type        { font-weight: 600; }
 
-.pivot-config-table td {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  text-align: center;
-}
+/* generic empty-state */
+.no-data { text-align: center; color: #666; font-size: 18px; margin: 40px 0; }
 
-.pivot-controls button {
-  margin: 0 4px;
-}
-
-/* no data message */
-.no-data {
-  text-align: center;
-  color: #666;
-  font-size: 18px;
-  margin: 40px 0;
-}
-
-.pivot-config-cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.pivot-type {
-  font-weight: 600;
-}
-
-html,
-body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background: #2A7B9B;
-  background: linear-gradient(328deg,
-      rgba(42, 123, 155, 1) 0%,
-      rgba(87, 199, 133, 1) 100%,
-      rgba(237, 221, 83, 1) 100%);
-}
-
-/* wrap your SVG in a container to center & give bg */
+/* ─── Graph styling ───────────────────────────────────── */
 .graph-wrapper {
   display: flex;
   justify-content: center;
@@ -229,102 +111,46 @@ body {
   background: #f9fafb;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin: 16px 0;
+  height: 120vh;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* style axis lines */
-.graph-wrapper svg line {
-  stroke: #BBB;
-  stroke-width: 1;
+.graph-wrapper svg {
+  width: 100%;
+  height: 100%;
 }
+/* axis lines & grid */
+.graph-wrapper svg line          { stroke: #BBB; stroke-width: 1; }
+.graph-wrapper svg line[stroke="#eee"] { stroke: #E0E0E0; }
 
-/* style grid lines a bit lighter */
-.graph-wrapper svg line[stroke="#eee"] {
-  stroke: #E0E0E0;
-}
-
-/* style axis labels */
-.graph-wrapper svg text {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  fill: #444;
-  font-size: 12px;
-}
+/* axis labels */
+.graph-wrapper svg text { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                          fill: #444; font-size: 12px; }
 
 /* bars */
-.graph-wrapper svg rect {
-  fill: #4A90E2;
-  transition: fill 0.2s;
-}
-
-.graph-wrapper svg rect:hover {
-  fill: #357ABD;
-}
+.graph-wrapper svg rect          { fill: #4A90E2; transition: fill .2s; }
+.graph-wrapper svg rect:hover    { fill: #357ABD; }
 
 /* points */
-.graph-wrapper svg circle {
-  fill: #F5A623;
-  transition: r 0.2s;
-}
-
-.graph-wrapper svg circle:hover {
-  r: 6;
-}
+.graph-wrapper svg circle        { fill: #F5A623; transition: r .2s; }
+.graph-wrapper svg circle:hover  { r: 6; }
 
 /* line path */
-.graph-wrapper svg polyline {
-  stroke: #50E3C2;
-  stroke-width: 2;
-  fill: none;
-}
+.graph-wrapper svg polyline      { stroke: #50E3C2; stroke-width: 2; fill: none; }
 
-/* make the chart responsive */
-.graph-wrapper svg {
-  max-width: 100%;
-  height: auto;
-}
-
-.sort-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.9em;
-  padding: 0 4px;
-}
-
-.sort-btn:hover {
-  color: #007BFF;
-}
-
-.sort-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.9em;
-  padding: 0 4px;
-}
-
-.sort-btn:hover {
-  color: #007BFF;
-}
+/* ─── Sort / export buttons ───────────────────────────── */
+.sort-btn  { background: none; border: none; cursor: pointer; font-size: .9em; padding: 0 4px; }
+.sort-btn:hover { color: #007BFF; }
 
 .export-btn {
-  margin-left: 12px;
-  padding: 6px 10px;
-  background: #fff;
-  cursor: pointer;
-  width: 48px;
-  height: 48px;
-
-  position: absolute;
-  top: 30px;
-  /* adjust as needed */
-  right: 120px;
-  /* adjust as needed */
-  z-index: 10;
-
+  margin-left: 12px; padding: 6px 10px; background: #fff; cursor: pointer;
+  width: 48px; height: 48px; position: absolute; top: 30px; right: 120px; z-index: 10;
 }
+.export-btn:hover { background: #007BFF; color: #fff; }
 
-.export-btn:hover {
-  background: #007BFF;
-  color: #fff;
+/* ─── Page background (outside the card) ─────────────── */
+html, body {
+  height: 100%; margin: 0; padding: 0;
+  background: linear-gradient(328deg, #2A7B9B 0%, #57C785 100%, #EDDD53 100%);
 }

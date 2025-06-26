@@ -1,27 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useZPL } from '../context/ZPLContext';
 import * as XLSX from 'xlsx';
+import svgPanZoom from 'svg-pan-zoom';
 import './SolutionResultsPage.css';
 
 export default function SolutionResultsPage() {
   const { solutionResponse, setSelectedImage, setSelectedImageId } = useZPL();
   const solutionMap = solutionResponse?.solution || {};
 
-  // Sorting state
-  const [sortKey, setSortKey] = useState(null);       // numeric index or 'objective'
+  const [sortKey, setSortKey] = useState(null);
   const [sortAsc, setSortAsc] = useState(true);
-
-  // Filters state
   const [filters, setFilters] = useState({});
-
-  // View state
   const [selectedVar, setSelectedVar] = useState('');
-  const [view, setView] = useState('Table');    // 'Table' | 'Pivot' | 'Graph' | 'Calendar'
+  const [view, setView] = useState('Table');
   const [graphType, setGraphType] = useState('line');
   const [showConfig, setShowConfig] = useState(false);
+  const [mapping, setMapping] = useState({ rowIndex: 0, colIndex: 1, cellIndex: 2 });
 
   const navigate = useNavigate();
+  const order = ['rowIndex', 'colIndex', 'cellIndex'];
 
   const snapInt = (x, tol = 1e-5) => {
     const f = Math.floor(x), c = Math.ceil(x);
@@ -30,75 +28,68 @@ export default function SolutionResultsPage() {
     return x;
   };
 
-  // Log when we get a new response
   useEffect(() => {
     if (solutionResponse) console.log('SolutionResponse:', solutionResponse);
   }, [solutionResponse]);
 
   const variableNames = Object.keys(solutionMap);
-
-  // Auto-select first variable
   useEffect(() => {
-    if (variableNames.length > 0 && !selectedVar) {
-      setSelectedVar(variableNames[0]);
-    }
+    if (variableNames.length && !selectedVar) setSelectedVar(variableNames[0]);
   }, [variableNames, selectedVar]);
 
-  // Pull out data for the currently selected variable
+  useLayoutEffect(() => {
+    if (view === 'Graph') {
+      const instance = svgPanZoom('#myGraph', {
+        zoomEnabled: true,
+        controlIconsEnabled: true,
+        fit: true,
+        center: true,
+        minZoom: 0.5,
+        maxZoom: 20,
+        zoomScaleSensitivity: 0.2,
+      });
+      return () => instance.destroy();
+    }
+  }, [view, selectedVar,graphType]);
+
   const varData = solutionMap[selectedVar] || {};
   const solutions = Array.from(varData.solutions || []);
   const columnTypes = varData.typeStructure || [];
   const showObjective = solutions.some(s => s.objectiveValue !== 1);
   const objectiveLabel = varData.objectiveValueAlias || 'Objective Value';
 
-  // Initialize filters whenever columns change
   useEffect(() => {
     const init = {};
-    columnTypes.forEach((_, i) => { init[i] = ''; });
+    columnTypes.forEach((_, i) => (init[i] = ''));
     if (showObjective) init['objective'] = '';
     setFilters(init);
   }, [columnTypes, showObjective]);
 
-  const handleFilterChange = (key, value) => {
-    setFilters(f => ({ ...f, [key]: value }));
-  };
+  const handleFilterChange = (key, value) => setFilters(f => ({ ...f, [key]: value }));
 
-  // Prepare sorted + snapped solutions
-  const withSnapped = solutions.map(s => ({
-    ...s,
-    snappedObjective: snapInt(s.objectiveValue)
-  }));
+  const withSnapped = solutions.map(s => ({ ...s, snappedObjective: snapInt(s.objectiveValue) }));
+
   let sortedSolutions = [...withSnapped];
   if (sortKey !== null) {
     sortedSolutions.sort((a, b) => {
       const va = sortKey === 'objective' ? a.snappedObjective : a.values[sortKey];
       const vb = sortKey === 'objective' ? b.snappedObjective : b.values[sortKey];
       const na = Number(va), nb = Number(vb);
-      if (!isNaN(na) && !isNaN(nb)) {
-        return sortAsc ? na - nb : nb - na;
-      }
+      if (!isNaN(na) && !isNaN(nb)) return sortAsc ? na - nb : nb - na;
       const da = Date.parse(va), db = Date.parse(vb);
-      if (!isNaN(da) && !isNaN(db)) {
-        return sortAsc ? da - db : db - da;
-      }
-      return sortAsc
-        ? String(va).localeCompare(String(vb))
-        : String(vb).localeCompare(String(va));
+      if (!isNaN(da) && !isNaN(db)) return sortAsc ? da - db : db - da;
+      return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
     });
   }
 
-  // Apply filters
   const filteredSolutions = sortedSolutions.filter(sol =>
     Object.entries(filters).every(([key, filter]) => {
       if (!filter) return true;
-      const cell = key === 'objective'
-        ? sol.snappedObjective
-        : sol.values[Number(key)];
+      const cell = key === 'objective' ? sol.snappedObjective : sol.values[Number(key)];
       return String(cell).toLowerCase().includes(filter.toLowerCase());
     })
   );
 
-  // Export to Excel
   const handleExport = () => {
     const wb = XLSX.utils.book_new();
     variableNames.forEach(varName => {
@@ -108,53 +99,31 @@ export default function SolutionResultsPage() {
       const hasObj = sols.some(s => s.objectiveValue !== 1);
       const hdr = [...cols];
       if (hasObj) hdr.push(d.objectiveValueAlias || 'Objective Value');
-      const aoa = [
-        hdr,
-        ...sols.map(s => [
-          ...s.values,
-          ...(hasObj ? [Math.floor(s.objectiveValue)] : [])
-        ])
-      ];
+      const aoa = [hdr, ...sols.map(s => [...s.values, ...(hasObj ? [Math.floor(s.objectiveValue)] : [])])];
       const ws = XLSX.utils.aoa_to_sheet(aoa);
       XLSX.utils.book_append_sheet(wb, ws, varName.substring(0, 31));
     });
     const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([wbout], { type: 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
+    a.href = URL.createObjectURL(blob);
     a.download = 'solutions.xlsx';
     a.click();
-    URL.revokeObjectURL(url);
   };
 
-  // Pivot mapping
-  const [mapping, setMapping] = useState({ rowIndex: 0, colIndex: 1, cellIndex: 2 });
-  const order = ['rowIndex', 'colIndex', 'cellIndex'];
   const moveUp = key => {
     const i = order.indexOf(key);
-    if (i > 0) {
-      const p = order[i - 1];
-      setMapping(m => ({ ...m, [key]: m[p], [p]: m[key] }));
-    }
+    if (i > 0) setMapping(m => ({ ...m, [key]: m[order[i - 1]], [order[i - 1]]: m[key] }));
   };
   const moveDown = key => {
     const i = order.indexOf(key);
-    if (i < order.length - 1) {
-      const n = order[i + 1];
-      setMapping(m => ({ ...m, [key]: m[n], [n]: m[key] }));
-    }
+    if (i < order.length - 1) setMapping(m => ({ ...m, [key]: m[order[i + 1]], [order[i + 1]]: m[key] }));
   };
 
-  // Build pivot data
-  const rows = [];
-  const cols = [];
-  const cellMap = {};
+  const rows = [], cols = [], cellMap = {};
   if (columnTypes.length === 3 && view === 'Pivot') {
     solutions.forEach(sol => {
-      const r = sol.values[mapping.rowIndex];
-      const c = sol.values[mapping.colIndex];
-      const v = sol.values[mapping.cellIndex];
+      const r = sol.values[mapping.rowIndex], c = sol.values[mapping.colIndex], v = sol.values[mapping.cellIndex];
       if (!rows.includes(r)) rows.push(r);
       if (!cols.includes(c)) cols.push(c);
       cellMap[`${r}__${c}`] = v;
@@ -168,20 +137,13 @@ export default function SolutionResultsPage() {
   return (
     <div className="solution-container">
       <div className="top-controls">
-        <Link
-          to="/main-page"
-          onClick={e => {
-            e.preventDefault();
-            setSelectedImage(null);
-            setSelectedImageId(null);
-            navigate('/main-page');
-          }}
+        <Link to="/main-page"
+          onClick={e => { e.preventDefault(); setSelectedImage(null); setSelectedImageId(null); navigate('/main-page'); }}
           className="nav-btn home-btn"
           style={{ backgroundImage: `url(${publicUrl}/Images/HomeButton.png)` }}
           title="Home"
         />
-        <Link
-          to="/my-images"
+        <Link to="/my-images"
           className="nav-btn images-btn"
           style={{ backgroundImage: `url(${publicUrl}/Images/ExitButton2.png)` }}
           title="My Images"
@@ -200,9 +162,7 @@ export default function SolutionResultsPage() {
           value={selectedVar}
           onChange={e => setSelectedVar(e.target.value)}
         >
-          {variableNames.map(n => (
-            <option key={n} value={n}>{n}</option>
-          ))}
+          {variableNames.map(n => <option key={n} value={n}>{n}</option>)}
         </select>
         <label htmlFor="view-select" className="var-label">View:</label>
         <select
@@ -238,39 +198,7 @@ export default function SolutionResultsPage() {
         )}
       </div>
 
-      {/* Pivot Configuration Modal */}
-      {showConfig && view === 'Pivot' && (
-        <div className="modal-overlay" onClick={() => setShowConfig(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h3>Configure Pivot</h3>
-            <table className="pivot-config-table">
-              <tbody>
-                {order.map((key, i) => (
-                  <tr key={key}>
-                    <td>
-                      {key === 'rowIndex'
-                        ? 'Rows'
-                        : key === 'colIndex'
-                          ? 'Columns'
-                          : 'Cells'
-                      }
-                    </td>
-                    <td className="pivot-config-cell">
-                      <button onClick={() => moveUp(key)} disabled={i === 0}>↑</button>
-                      <span className="pivot-type">{columnTypes[mapping[key]]}</span>
-                      <button onClick={() => moveDown(key)} disabled={i === order.length - 1}>↓</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <button onClick={() => setShowConfig(false)}>Close</button>
-          </div>
-        </div>
-      )}
-
-      <div className="table-wrapper">
-        {/* Table View */}
+      <div className={`table-wrapper ${view.toLowerCase()}-view`}>
         {view === 'Table' && (
           <table className="solutions-table">
             <thead>
@@ -278,25 +206,19 @@ export default function SolutionResultsPage() {
                 {columnTypes.map((t, i) => (
                   <th key={i}>
                     {t}{' '}
-                    <button
-                      className="sort-btn"
-                      onClick={() => {
-                        if (sortKey === i) setSortAsc(a => !a);
-                        else { setSortKey(i); setSortAsc(true); }
-                      }}
-                    >⇅</button>
+                    <button className="sort-btn" onClick={() => {
+                      if (sortKey === i) setSortAsc(a => !a);
+                      else { setSortKey(i); setSortAsc(true); }
+                    }}>⇅</button>
                   </th>
                 ))}
                 {showObjective && (
                   <th>
                     {objectiveLabel}{' '}
-                    <button
-                      className="sort-btn"
-                      onClick={() => {
-                        if (sortKey === 'objective') setSortAsc(a => !a);
-                        else { setSortKey('objective'); setSortAsc(true); }
-                      }}
-                    >⇅</button>
+                    <button className="sort-btn" onClick={() => {
+                      if (sortKey === 'objective') setSortAsc(a => !a);
+                      else { setSortKey('objective'); setSortAsc(true); }
+                    }}>⇅</button>
                   </th>
                 )}
               </tr>
@@ -336,7 +258,6 @@ export default function SolutionResultsPage() {
           </table>
         )}
 
-        {/* Pivot View */}
         {view === 'Pivot' && (
           <table className="pivot-table">
             <thead>
@@ -356,78 +277,68 @@ export default function SolutionResultsPage() {
           </table>
         )}
 
-        {/* Graph View */}
-        {view === 'Graph' && columnTypes.length === 1 && (() => {
-          const xs = solutions.map(s => s.values[0]);
-          const ys = solutions.map(s => snapInt(s.objectiveValue));
-          const margin = { top: 20, right: 20, bottom: 40, left: 40 };
-          const width = 600, height = 300;
-          const maxY = Math.max(...ys, 0);
-
-          const xScale = (d, i) =>
-            margin.left + (i / (xs.length - 1 || 1)) * (width - margin.left - margin.right);
-          const yScale = y =>
-            height - margin.bottom - (y / (maxY || 1)) * (height - margin.top - margin.bottom);
-
-          const pts = xs.map((x, i) => ({ x: xScale(x, i), y: yScale(ys[i]) }));
-
-          return (
-            <div className="graph-wrapper">
-              <svg width={width} height={height}>
-                {Array.from({ length: maxY + 1 }, (_, y) => y).map(y => (
-                  <g key={y} transform={`translate(0,${yScale(y)})`}>
-                    <line x1={margin.left} x2={width - margin.right} stroke="#eee" />
-                    <text
-                      x={margin.left - 8}
-                      y={0}
-                      dy="0.32em"
-                      textAnchor="end"
-                      fontSize="12"
-                      fill="#333"
-                    >
-                      {y}
+        {view === 'Graph' && columnTypes.length === 1 && (
+          <div
+            className="graph-wrapper"
+            key={`${selectedVar}-${graphType}`}     // ← include graphType
+          >
+            <svg
+              id="myGraph"
+              width="100%"
+              height="100%"
+              viewBox="0 0 700 500"
+              preserveAspectRatio="xMidYMid meet"
+              style={{ display: 'block' }}
+            >
+              {Array.from({ length: 6 }, (_, i) => {
+                const maxY = Math.max(...solutions.map(s => snapInt(s.objectiveValue)));
+                const yVal = Math.round((i / 5) * maxY);
+                const yPos = 500 - 40 - (yVal / maxY * (500 - 60));
+                return (
+                  <g key={i} transform={`translate(0,${yPos})`}>
+                    <line x1={40} x2={660} stroke="#eee" />
+                    <text x={32} dy="0.32em" textAnchor="end" fontSize="12" fill="#333">
+                      {yVal}
                     </text>
                   </g>
-                ))}
-                {xs.map((x, i) => (
-                  <text
-                    key={i}
-                    x={xScale(x, i)}
-                    y={height - margin.bottom + 18}
-                    textAnchor="middle"
-                    fontSize="12"
-                    fill="#333"
-                  >
-                    {x}
+                );
+              })}
+              {solutions.map((s, i) => {
+                const x = 40 + (i / (solutions.length - 1 || 1)) * (660 - 40);
+                return (
+                  <text key={i} x={x} y={480} textAnchor="middle" fontSize="12" fill="#333">
+                    {s.values[0]}
                   </text>
-                ))}
-                {graphType === 'bar' && pts.map((p, i) => (
-                  <rect
-                    key={i}
-                    x={p.x - 10}
-                    y={p.y}
-                    width={20}
-                    height={height - margin.bottom - p.y}
-                    fill="#007BFF"
-                  />
-                ))}
-                {graphType === 'point' && pts.map((p, i) => (
-                  <circle key={i} cx={p.x} cy={p.y} r={4} fill="#007BFF" />
-                ))}
-                {graphType === 'line' && (
+                );
+              })}
+              {(() => {
+                const pts = solutions.map((s, i) => ({
+                  x: 40 + (i / (solutions.length - 1 || 1)) * (660 - 40),
+                  y: 500 - 40 - (snapInt(s.objectiveValue) / Math.max(...solutions.map(s => snapInt(s.objectiveValue))) * (500 - 60))
+                }));
+                if (graphType === 'bar') {
+                  return pts.map((p, i) => (
+                    <rect key={i} x={p.x - 10} y={p.y} width={20} height={500 - 40 - p.y} fill="#007BFF" />
+                  ));
+                }
+                if (graphType === 'point') {
+                  return pts.map((p, i) => (
+                    <circle key={i} cx={p.x} cy={p.y} r={4} fill="#007BFF" />
+                  ));
+                }
+                return (
                   <polyline
                     fill="none"
                     stroke="#007BFF"
                     strokeWidth={2}
                     points={pts.map(p => `${p.x},${p.y}`).join(' ')}
                   />
-                )}
-              </svg>
-            </div>
-          );
-        })()}
+                );
+              })()}
+            </svg>
+          </div>
+        )}
 
-        {/* Calendar View */}
         {view === 'Calendar' && (
           <div style={{ padding: 20, textAlign: 'center', color: '#666' }}>
             <p>Calendar view not implemented yet.</p>
