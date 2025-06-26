@@ -67,6 +67,13 @@ The user may filter, according to an image name, description, and author, and vi
 An image viewed here may at any point be downloaded, at which point it will be added to the user's image list.
 
 #### Image Creation
+- #### Zimpl code
+In image is initially made from parsed zimpl code. As of now we do not support parsing the full score of zimpl's syntax, thus you must adhere to the following rules:
+Only "primitive" sets and parameters will be parsed and available in the image. Sets that won't be parsed include:
+sets with more the one layer deep recursive tuples, indexed sets, indexed parameters, and any of their derivatives.
+As a general rule of thumb, if you try to break our parser, you'll probably succeed in doing so — so try to keep the syntax simple.
+Most of zimpl's complex data structures may be defined in a simpler way with multiple sets.
+- #### Image definition
 THe most important part of an image is its variables — these are the actual topics displayed in the solution. 
 Each variable may be selected, where unselected variables are not displayed in the solution,
 have an alias, overriding its original name, 
