@@ -140,6 +140,7 @@ const MyImagesPage = () => {
       );
     } catch (err) {
       alert(`Update failed: ${err.response?.data?.message || err.message}`);
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -181,6 +182,7 @@ const MyImagesPage = () => {
       navigate("/solution-results");
     } catch (err) {
       alert(`Solve error: ${err.message}`);
+      console.log(err);
     } finally {
       setLoading(false);
     }
