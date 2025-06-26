@@ -144,7 +144,8 @@ public class SolveService {
 
             Solution solution = future.get(timeout + 20, TimeUnit.SECONDS);
             log.info("Solve request completed successfully at Service level.");
-            solution.postProcessSolution(image);
+            if(solution.isSolved())
+                solution.postProcessSolution(image);
             //solution.parseSolution(EntityMapper.toDomain(imageEntity));
             return RecordFactory.makeDTO(solution);
         } catch (TimeoutException e) {
