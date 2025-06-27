@@ -172,14 +172,22 @@ const MyImagesPage = () => {
       .filter((m) => m.enabled ?? true)
       .map((m) => m.moduleName);
 
+      console.log("Solving with:", {
+        preferenceModulesScalars,
+        enabledConstraintModules
+      });
     try {
       const resp = await axios.post(
         `/user/${userId}/image/${selectedImageId}/solver`,
         { preferenceModulesScalars, enabledConstraintModules, timeout: 20 }
       );
+      
       setSolutionResponse(resp.data);
       setViewSection(null);
-      if(resp.data && resp.data.solved === true) {
+
+
+
+      if(resp.data && resp.data.solved === true && resp.data.solution !== null ) {
         navigate("/solution-results");
       }
       else {
@@ -852,7 +860,7 @@ const MyImagesPage = () => {
                               type="range"
                               min="0"
                               max="100"
-                              value={m.value ?? 50}
+                              value={m.value ?? 100}
                               onChange={(e) => {
                                 const img = { ...selectedImage };
                                 img.preferenceModules[idx].value = Number(e.target.value);
