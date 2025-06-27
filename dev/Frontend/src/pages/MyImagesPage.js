@@ -816,7 +816,7 @@ const MyImagesPage = () => {
                         <label className="mi-module-checkbox">
                           <input
                             type="checkbox"
-                            checked={m.enabled}
+                            checked={m.enabled ?? true}
                             onChange={(e) => {
                               const img = { ...selectedImage };
                               img.constraintModules[idx].enabled = e.target.checked;
