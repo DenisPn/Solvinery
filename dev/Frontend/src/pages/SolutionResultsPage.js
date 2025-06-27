@@ -112,15 +112,6 @@ export default function SolutionResultsPage() {
     a.click();
   };
 
-  const moveUp = key => {
-    const i = order.indexOf(key);
-    if (i > 0) setMapping(m => ({ ...m, [key]: m[order[i - 1]], [order[i - 1]]: m[key] }));
-  };
-  const moveDown = key => {
-    const i = order.indexOf(key);
-    if (i < order.length - 1) setMapping(m => ({ ...m, [key]: m[order[i + 1]], [order[i + 1]]: m[key] }));
-  };
-
   // Logic for 3-column pivot
   const rows = [], cols = [], cellMap = {};
   if (view === 'Pivot' && columnTypes.length === 3) {
@@ -154,10 +145,98 @@ export default function SolutionResultsPage() {
     if (columnTypes[colIndex] === 'INT') cols2D.sort((a, b) => Number(a) - Number(b));
   }
 
+  // ==================== START: NEW CODE ====================
+  /**
+   * Handles the pivot configuration change with intelligent swapping.
+   * @param {'rowIndex' | 'colIndex' | 'cellIndex'} roleToUpdate The role being changed.
+   * @param {number} selectedIndex The new data column index (0, 1, or 2).
+   */
+  const handleMappingChange = (roleToUpdate, selectedIndex) => {
+    const newIndex = Number(selectedIndex);
+    const currentMapping = { ...mapping };
+
+    // Find which role is currently using the index that we want to assign.
+    const roleToSwap = Object.keys(currentMapping).find(
+      (key) => currentMapping[key] === newIndex
+    );
+    
+    // Get the old index from the role we are updating.
+    const oldIndexOfRole = currentMapping[roleToUpdate];
+
+    // Perform the swap
+    if (roleToSwap) {
+      currentMapping[roleToSwap] = oldIndexOfRole;
+    }
+    currentMapping[roleToUpdate] = newIndex;
+
+    setMapping(currentMapping);
+  };
+  // ===================== END: NEW CODE =====================
+
   const publicUrl = process.env.PUBLIC_URL;
 
   return (
     <div className="solution-container">
+      {/* ==================== START: NEW CODE ==================== */}
+      {/* Configuration Modal */}
+      {showConfig && (
+        <div className="modal-overlay" onClick={() => setShowConfig(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ marginTop: 0 }}>Configure Pivot Table</h3>
+            <p>Assign a data column to each role in the pivot table.</p>
+            <table className="pivot-config-table">
+              <tbody>
+                <tr>
+                  <td><strong>Rows</strong></td>
+                  <td>
+                    <select
+                      className="var-select"
+                      value={mapping.rowIndex}
+                      onChange={(e) => handleMappingChange('rowIndex', e.target.value)}
+                    >
+                      {columnTypes.map((type, i) => (
+                        <option key={`row-${i}`} value={i}>{type} (Column {i+1})</option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Columns</strong></td>
+                  <td>
+                    <select
+                      className="var-select"
+                      value={mapping.colIndex}
+                      onChange={(e) => handleMappingChange('colIndex', e.target.value)}
+                    >
+                      {columnTypes.map((type, i) => (
+                        <option key={`col-${i}`} value={i}>{type} (Column {i+1})</option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Cell Value</strong></td>
+                  <td>
+                    <select
+                      className="var-select"
+                      value={mapping.cellIndex}
+                      onChange={(e) => handleMappingChange('cellIndex', e.target.value)}
+                    >
+                      {columnTypes.map((type, i) => (
+                        <option key={`cell-${i}`} value={i}>{type} (Column {i+1})</option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <button className="config-btn" onClick={() => setShowConfig(false)}>Done</button>
+          </div>
+        </div>
+      )}
+      {/* ===================== END: NEW CODE ===================== */}
+
+
       <div className="top-controls">
         <Link to="/main-page"
           onClick={e => { e.preventDefault(); setSelectedImage(null); setSelectedImageId(null); navigate('/main-page'); }}
