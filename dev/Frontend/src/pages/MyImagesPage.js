@@ -36,7 +36,7 @@ const MyImagesPage = () => {
   const {
     userId,
     /* dozens of setters ↓ */
-    setSolutionResponse,
+    SolutionResponse,setSolutionResponse,
     selectedImage, setSelectedImage,
     selectedImageId, setSelectedImageId,
     setVariables, setConstraints, setPreferences,
@@ -140,6 +140,7 @@ const MyImagesPage = () => {
       );
     } catch (err) {
       alert(`Update failed: ${err.response?.data?.message || err.message}`);
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -178,9 +179,17 @@ const MyImagesPage = () => {
       );
       setSolutionResponse(resp.data);
       setViewSection(null);
-      navigate("/solution-results");
+      if(resp.data && resp.data.solved === true) {
+        navigate("/solution-results");
+      }
+      else {
+        alert("No solution found or the problem is infeasible.");
+        setSolutionResponse(null);
+      }
+      
     } catch (err) {
       alert(`Solve error: ${err.message}`);
+      console.log(err);
     } finally {
       setLoading(false);
     }
