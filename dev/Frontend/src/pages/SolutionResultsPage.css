@@ -31,8 +31,7 @@
 /* navigation buttons */
 .nav-btn  { width: 32px; height: 32px; background-size: cover;
             display: inline-block; border: none; cursor: pointer; margin-right: 8px; }
-.home-btn   { background-image: url('../../public/images/HomeButton.png'); }
-.images-btn { background-image: url('../../public/images/ExitButton2.png'); }
+
 
 /* toggle / misc buttons */
 .view-toggle-btn,

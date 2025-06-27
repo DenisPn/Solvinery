@@ -140,12 +140,12 @@ export default function SolutionResultsPage() {
         <Link to="/main-page"
           onClick={e => { e.preventDefault(); setSelectedImage(null); setSelectedImageId(null); navigate('/main-page'); }}
           className="nav-btn home-btn"
-          style={{ backgroundImage: `url(${publicUrl}/Images/HomeButton.png)` }}
+          style={{ backgroundImage: `url(${publicUrl}/images/HomeButton.png)` }}
           title="Home"
         />
         <Link to="/my-images"
           className="nav-btn images-btn"
-          style={{ backgroundImage: `url(${publicUrl}/Images/ExitButton2.png)` }}
+          style={{ backgroundImage: `url(${publicUrl}/images/ExitButton2.png)` }}
           title="My Images"
         />
         <img
