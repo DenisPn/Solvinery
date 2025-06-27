@@ -1,10 +1,10 @@
-/* --------------  SolutionResultsPage.css -------------- */
+/* -------------- SolutionResultsPage.css -------------- */
 
 /* overall card */
 .solution-container {
   width: 95%;
-  height: 95vh;                 /* span 95 % of the viewport height   */
-  margin: 2.5vh auto;           /* vertical centring via equal margins */
+  height: 95vh;
+  margin: 2.5vh auto;
   padding: 20px;
   background: #fff;
   border-radius: 8px;
@@ -12,7 +12,7 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* ─── Top controls ────────────────────────────────────── */
+/* --- Top controls --- */
 .top-controls {
   display: flex;
   align-items: center;
@@ -21,87 +21,189 @@
   margin-bottom: 16px;
 }
 
-.var-label        { font-weight: 600; color: #333; margin: 0; white-space: nowrap; }
-.var-select       {
-  padding: 8px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px;
+.var-label {
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.var-select {
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
   transition: border-color .2s;
 }
-.var-select:focus { outline: none; border-color: #007BFF; }
+
+.var-select:focus {
+  outline: none;
+  border-color: #007BFF;
+}
 
 /* navigation buttons */
-.nav-btn  { width: 32px; height: 32px; background-size: cover;
-            display: inline-block; border: none; cursor: pointer; margin-right: 8px; }
-
+.nav-btn {
+  width: 32px;
+  height: 32px;
+  background-size: cover;
+  display: inline-block;
+  border: none;
+  cursor: pointer;
+  margin-right: 8px;
+}
 
 /* toggle / misc buttons */
 .view-toggle-btn,
 .config-btn {
-  padding: 8px 16px; font-size: 14px; border-radius: 4px; cursor: pointer;
-  border: 1px solid #007BFF; background: #fff; color: #007BFF;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #007BFF;
+  background: #fff;
+  color: #007BFF;
   transition: background .2s, color .2s;
 }
-.config-btn     { border-color: #666; color: #333;      }
-.view-toggle-btn:hover { background: #007BFF; color: #fff; }
-.config-btn:hover      { background: #666;    color: #fff; }
 
-/* ─── Modal ───────────────────────────────────────────── */
-.modal-overlay  { position: fixed; inset: 0; background: rgba(0, 0, 0, .5);
-                  display: flex; align-items: center; justify-content: center; }
-.modal-content  { background: #fff; padding: 20px; border-radius: 8px;
-                  max-width: 500px; width: 90%; }
+.config-btn {
+  border-color: #666;
+  color: #333;
+}
 
-/* ─── Table / Graph wrapper ───────────────────────────── */
+.view-toggle-btn:hover {
+  background: #007BFF;
+  color: #fff;
+}
+
+.config-btn:hover {
+  background: #666;
+  color: #fff;
+}
+
+/* --- Modal --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+}
+
+/* --- Table / Graph wrapper --- */
 .table-wrapper {
   width: 100%;
-  max-height: 60vh;            /* default scroll box height           */
+  max-height: 60vh;
   overflow-y: auto;
   overflow-x: hidden;
   border: 1px solid #eee;
   border-radius: 4px;
 }
 
-/* when we are in graph view, use much more vertical space */
 .graph-view .table-wrapper,
-.table-wrapper.graph-view {     /* covers both class-paths             */
+.table-wrapper.graph-view {
   max-height: 80vh;
-  height: 80vh;                /* fills most of the white card        */
-  overflow: hidden;            /* graph itself handles overflow       */
+  height: 80vh;
+  overflow: hidden;
 }
 
-/* ─── Solutions & pivot tables ────────────────────────── */
+/* --- Solutions & pivot tables --- */
 .solutions-table,
-.pivot-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.pivot-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
 
 .solutions-table th,
 .solutions-table td,
-.pivot-table    th,
-.pivot-table    td {
-  padding: 12px; text-align: center; vertical-align: middle;
-  border-bottom: 1px solid #eee; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.pivot-table th,
+.pivot-table td {
+  padding: 12px;
+  text-align: center;
+  vertical-align: middle;
+  border-bottom: 1px solid #eee;
+  position: relative; /* This is the tooltip's positioning anchor. */
 }
 
-.solutions-table thead th,
-.pivot-table thead th { background: #f5f5f5; font-weight: 600; position: sticky; top: 0; z-index: 1; }
+/* This new class handles the text truncation */
+.cell-content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-.solutions-table tbody tr:nth-child(even) { background: #fbfbfb; }
+
+.solutions-table thead th,
+.pivot-table thead th {
+  background: #f5f5f5;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.solutions-table tbody tr:nth-child(even) {
+  background: #fbfbfb;
+}
+
 .solutions-table tbody tr:hover,
-.pivot-table    tbody tr:hover            { background: #f1faff; }
+.pivot-table tbody tr:hover {
+  background: #f1faff;
+}
 
 /* pivot specifics */
 .pivot-table th:first-child,
-.pivot-table td:first-child { background: #fafafa; font-weight: 600; }
+.pivot-table td:first-child {
+  background: #fafafa;
+  font-weight: 600;
+}
 
 /* pivot-config table */
-.pivot-config-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-.pivot-config-table td { padding: 8px 12px; border: 1px solid #ddd; text-align: center; }
-.pivot-controls button { margin: 0 4px; }
-.pivot-config-cell { display: flex; align-items: center; justify-content: center; gap: 8px; }
-.pivot-type        { font-weight: 600; }
+.pivot-config-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+}
+
+.pivot-config-table td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.pivot-controls button {
+  margin: 0 4px;
+}
+
+.pivot-config-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pivot-type {
+  font-weight: 600;
+}
 
 /* generic empty-state */
-.no-data { text-align: center; color: #666; font-size: 18px; margin: 40px 0; }
+.no-data {
+  text-align: center;
+  color: #666;
+  font-size: 18px;
+  margin: 40px 0;
+}
 
-/* ─── Graph styling ───────────────────────────────────── */
+/* --- Graph styling --- */
 .graph-wrapper {
   display: flex;
   justify-content: center;
@@ -119,37 +221,131 @@
   width: 100%;
   height: 100%;
 }
-/* axis lines & grid */
-.graph-wrapper svg line          { stroke: #BBB; stroke-width: 1; }
-.graph-wrapper svg line[stroke="#eee"] { stroke: #E0E0E0; }
 
-/* axis labels */
-.graph-wrapper svg text { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                          fill: #444; font-size: 12px; }
+.graph-wrapper svg line {
+  stroke: #BBB;
+  stroke-width: 1;
+}
 
-/* bars */
-.graph-wrapper svg rect          { fill: #4A90E2; transition: fill .2s; }
-.graph-wrapper svg rect:hover    { fill: #357ABD; }
+.graph-wrapper svg line[stroke="#eee"] {
+  stroke: #E0E0E0;
+}
 
-/* points */
-.graph-wrapper svg circle        { fill: #F5A623; transition: r .2s; }
-.graph-wrapper svg circle:hover  { r: 6; }
+.graph-wrapper svg text {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  fill: #444;
+  font-size: 12px;
+}
 
-/* line path */
-.graph-wrapper svg polyline      { stroke: #50E3C2; stroke-width: 2; fill: none; }
+.graph-wrapper svg rect {
+  fill: #4A90E2;
+  transition: fill .2s;
+}
 
-/* ─── Sort / export buttons ───────────────────────────── */
-.sort-btn  { background: none; border: none; cursor: pointer; font-size: .9em; padding: 0 4px; }
-.sort-btn:hover { color: #007BFF; }
+.graph-wrapper svg rect:hover {
+  fill: #357ABD;
+}
+
+.graph-wrapper svg circle {
+  fill: #F5A623;
+  transition: r .2s;
+}
+
+.graph-wrapper svg circle:hover {
+  r: 6;
+}
+
+.graph-wrapper svg polyline {
+  stroke: #50E3C2;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* --- Sort / export buttons --- */
+.sort-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: .9em;
+  padding: 0 4px;
+}
+
+.sort-btn:hover {
+  color: #007BFF;
+}
 
 .export-btn {
-  margin-left: 12px; padding: 6px 10px; background: #fff; cursor: pointer;
-  width: 48px; height: 48px; position: absolute; top: 30px; right: 120px; z-index: 10;
+  margin-left: 12px;
+  padding: 6px 10px;
+  background: #fff;
+  cursor: pointer;
+  width: 48px;
+  height: 48px;
+  position: absolute;
+  top: 30px;
+  right: 120px;
+  z-index: 10;
 }
-.export-btn:hover { background: #007BFF; color: #fff; }
 
-/* ─── Page background (outside the card) ─────────────── */
-html, body {
-  height: 100%; margin: 0; padding: 0;
+.export-btn:hover {
+  background: #007BFF;
+  color: #fff;
+}
+
+/* --- Page background (outside the card) --- */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
   background: linear-gradient(328deg, #2A7B9B 0%, #57C785 100%, #EDDD53 100%);
+}
+
+/* --- Tooltip Styles --- */
+.has-tooltip::after {
+  content: attr(data-tooltip);
+  background-color: #2d3436;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  pointer-events: none;
+}
+
+.has-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 3px;
+  border: 5px solid transparent;
+  border-top-color: #2d3436;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  pointer-events: none;
+}
+
+.has-tooltip:hover::after,
+.has-tooltip:hover::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+.has-tooltip[data-tooltip=""]::after,
+.has-tooltip[data-tooltip=""]::before {
+  display: none;
 }

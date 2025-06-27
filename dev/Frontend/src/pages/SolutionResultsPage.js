@@ -17,6 +17,7 @@ export default function SolutionResultsPage() {
   const [graphType, setGraphType] = useState('line');
   const [showConfig, setShowConfig] = useState(false);
   const [mapping, setMapping] = useState({ rowIndex: 0, colIndex: 1, cellIndex: 2 });
+  const [isTransposed, setIsTransposed] = useState(false);
 
   const navigate = useNavigate();
   const order = ['rowIndex', 'colIndex', 'cellIndex'];
@@ -120,8 +121,9 @@ export default function SolutionResultsPage() {
     if (i < order.length - 1) setMapping(m => ({ ...m, [key]: m[order[i + 1]], [order[i + 1]]: m[key] }));
   };
 
+  // Logic for 3-column pivot
   const rows = [], cols = [], cellMap = {};
-  if (columnTypes.length === 3 && view === 'Pivot') {
+  if (view === 'Pivot' && columnTypes.length === 3) {
     solutions.forEach(sol => {
       const r = sol.values[mapping.rowIndex], c = sol.values[mapping.colIndex], v = sol.values[mapping.cellIndex];
       if (!rows.includes(r)) rows.push(r);
@@ -130,6 +132,26 @@ export default function SolutionResultsPage() {
     });
     if (columnTypes[mapping.rowIndex] === 'INT') rows.sort((a, b) => a - b);
     if (columnTypes[mapping.colIndex] === 'INT') cols.sort((a, b) => a - b);
+  }
+
+  // Logic for new 2-column pivot
+  const rows2D = [], cols2D = [], cellMap2D = {};
+  if (view === 'Pivot' && columnTypes.length === 2) {
+    const rowIndex = isTransposed ? 1 : 0;
+    const colIndex = isTransposed ? 0 : 1;
+
+    solutions.forEach(sol => {
+      const r = sol.values[rowIndex];
+      const c = sol.values[colIndex];
+      const v = snapInt(sol.objectiveValue);
+
+      if (!rows2D.includes(r)) rows2D.push(r);
+      if (!cols2D.includes(c)) cols2D.push(c);
+      cellMap2D[`${r}__${c}`] = v;
+    });
+
+    if (columnTypes[rowIndex] === 'INT') rows2D.sort((a, b) => Number(a) - Number(b));
+    if (columnTypes[colIndex] === 'INT') cols2D.sort((a, b) => Number(a) - Number(b));
   }
 
   const publicUrl = process.env.PUBLIC_URL;
@@ -160,7 +182,10 @@ export default function SolutionResultsPage() {
           id="var-select"
           className="var-select"
           value={selectedVar}
-          onChange={e => setSelectedVar(e.target.value)}
+          onChange={e => {
+            setSelectedVar(e.target.value);
+            setIsTransposed(false);
+          }}
         >
           {variableNames.map(n => <option key={n} value={n}>{n}</option>)}
         </select>
@@ -169,14 +194,18 @@ export default function SolutionResultsPage() {
           id="view-select"
           className="var-select"
           value={view}
-          onChange={e => { setView(e.target.value); setShowConfig(false); }}
+          onChange={e => {
+            setView(e.target.value);
+            setShowConfig(false);
+            setIsTransposed(false);
+          }}
         >
           <option value="Table">Table</option>
-          {columnTypes.length === 3 && <option value="Pivot">Pivot</option>}
+          {(columnTypes.length === 2 || columnTypes.length === 3) && <option value="Pivot">Pivot</option>}
           {columnTypes.length === 1 && <option value="Graph">Graph</option>}
           {columnTypes.includes('DATE') && <option value="Calendar">Calendar</option>}
         </select>
-        {view === 'Pivot' && (
+        {view === 'Pivot' && columnTypes.length === 3 && (
           <button className="config-btn" onClick={() => setShowConfig(true)}>
             Configure Pivot
           </button>
@@ -204,21 +233,25 @@ export default function SolutionResultsPage() {
             <thead>
               <tr>
                 {columnTypes.map((t, i) => (
-                  <th key={i}>
-                    {t}{' '}
-                    <button className="sort-btn" onClick={() => {
-                      if (sortKey === i) setSortAsc(a => !a);
-                      else { setSortKey(i); setSortAsc(true); }
-                    }}>⇅</button>
+                  <th key={i} className="has-tooltip" data-tooltip={t}>
+                    <div className="cell-content">
+                      {t}{' '}
+                      <button className="sort-btn" onClick={() => {
+                        if (sortKey === i) setSortAsc(a => !a);
+                        else { setSortKey(i); setSortAsc(true); }
+                      }}>⇅</button>
+                    </div>
                   </th>
                 ))}
                 {showObjective && (
-                  <th>
-                    {objectiveLabel}{' '}
-                    <button className="sort-btn" onClick={() => {
-                      if (sortKey === 'objective') setSortAsc(a => !a);
-                      else { setSortKey('objective'); setSortAsc(true); }
-                    }}>⇅</button>
+                  <th className="has-tooltip" data-tooltip={objectiveLabel}>
+                    <div className="cell-content">
+                      {objectiveLabel}{' '}
+                      <button className="sort-btn" onClick={() => {
+                        if (sortKey === 'objective') setSortAsc(a => !a);
+                        else { setSortKey('objective'); setSortAsc(true); }
+                      }}>⇅</button>
+                    </div>
                   </th>
                 )}
               </tr>
@@ -250,37 +283,101 @@ export default function SolutionResultsPage() {
             <tbody>
               {filteredSolutions.map(sol => (
                 <tr key={sol.values.join('-')}>
-                  {sol.values.map((v, idx) => <td key={idx}>{v}</td>)}
-                  {showObjective && <td>{sol.snappedObjective}</td>}
+                  {sol.values.map((v, idx) => (
+                    <td key={idx} className="has-tooltip" data-tooltip={v}>
+                      <div className="cell-content">{v}</div>
+                    </td>
+                  ))}
+                  {showObjective && (
+                    <td className="has-tooltip" data-tooltip={sol.snappedObjective}>
+                      <div className="cell-content">{sol.snappedObjective}</div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
         )}
 
-        {view === 'Pivot' && (
+        {view === 'Pivot' && columnTypes.length === 3 && (
           <table className="pivot-table">
             <thead>
               <tr>
-                <th>{columnTypes[mapping.rowIndex]}</th>
-                {cols.map(c => <th key={c}>{c}</th>)}
+                <th className="has-tooltip" data-tooltip={columnTypes[mapping.rowIndex]}>
+                  <div className="cell-content">{columnTypes[mapping.rowIndex]}</div>
+                </th>
+                {cols.map(c => (
+                  <th key={c} className="has-tooltip" data-tooltip={c}>
+                    <div className="cell-content">{c}</div>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {rows.map(r => (
                 <tr key={r}>
-                  <td><strong>{r}</strong></td>
-                  {cols.map(c => <td key={c}>{cellMap[`${r}__${c}`] || ''}</td>)}
+                  <td className="has-tooltip" data-tooltip={r}>
+                    <div className="cell-content"><strong>{r}</strong></div>
+                  </td>
+                  {cols.map(c => {
+                    const cellValue = cellMap[`${r}__${c}`] || '';
+                    return (
+                      <td key={c} className="has-tooltip" data-tooltip={cellValue}>
+                        <div className="cell-content">{cellValue}</div>
+                      </td>
+                    )
+                  })}
                 </tr>
               ))}
             </tbody>
           </table>
         )}
 
+        {view === 'Pivot' && columnTypes.length === 2 && (
+          <div className="pivot-container">
+            <button onClick={() => setIsTransposed(t => !t)} className="config-btn" style={{marginBottom: '10px'}}>
+              Switch Rows/Columns
+            </button>
+            <table className="pivot-table">
+              <thead>
+                <tr>
+                  <th className="has-tooltip" data-tooltip={`${isTransposed ? columnTypes[1] : columnTypes[0]} / ${isTransposed ? columnTypes[0] : columnTypes[1]}`}>
+                    <div className="cell-content">
+                      {isTransposed ? columnTypes[1] : columnTypes[0]} / {isTransposed ? columnTypes[0] : columnTypes[1]}
+                    </div>
+                  </th>
+                  {cols2D.map(c => (
+                    <th key={c} className="has-tooltip" data-tooltip={c}>
+                      <div className="cell-content">{c}</div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows2D.map(r => (
+                  <tr key={r}>
+                    <td className="has-tooltip" data-tooltip={r}>
+                      <div className="cell-content"><strong>{r}</strong></div>
+                    </td>
+                    {cols2D.map(c => {
+                      const cellValue = cellMap2D[`${r}__${c}`] ?? '';
+                      return (
+                        <td key={c} className="has-tooltip" data-tooltip={cellValue}>
+                          <div className="cell-content">{cellValue}</div>
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
         {view === 'Graph' && columnTypes.length === 1 && (
           <div
             className="graph-wrapper"
-            key={`${selectedVar}-${graphType}`}     // ← include graphType
+            key={`${selectedVar}-${graphType}`}
           >
             <svg
               id="myGraph"
