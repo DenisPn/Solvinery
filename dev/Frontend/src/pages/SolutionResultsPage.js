@@ -17,6 +17,7 @@ export default function SolutionResultsPage() {
   const [graphType, setGraphType] = useState('line');
   const [showConfig, setShowConfig] = useState(false);
   const [mapping, setMapping] = useState({ rowIndex: 0, colIndex: 1, cellIndex: 2 });
+  const [isTransposed, setIsTransposed] = useState(false);
 
   const navigate = useNavigate();
   const order = ['rowIndex', 'colIndex', 'cellIndex'];
@@ -111,17 +112,9 @@ export default function SolutionResultsPage() {
     a.click();
   };
 
-  const moveUp = key => {
-    const i = order.indexOf(key);
-    if (i > 0) setMapping(m => ({ ...m, [key]: m[order[i - 1]], [order[i - 1]]: m[key] }));
-  };
-  const moveDown = key => {
-    const i = order.indexOf(key);
-    if (i < order.length - 1) setMapping(m => ({ ...m, [key]: m[order[i + 1]], [order[i + 1]]: m[key] }));
-  };
-
+  // Logic for 3-column pivot
   const rows = [], cols = [], cellMap = {};
-  if (columnTypes.length === 3 && view === 'Pivot') {
+  if (view === 'Pivot' && columnTypes.length === 3) {
     solutions.forEach(sol => {
       const r = sol.values[mapping.rowIndex], c = sol.values[mapping.colIndex], v = sol.values[mapping.cellIndex];
       if (!rows.includes(r)) rows.push(r);
@@ -132,20 +125,128 @@ export default function SolutionResultsPage() {
     if (columnTypes[mapping.colIndex] === 'INT') cols.sort((a, b) => a - b);
   }
 
+  // Logic for new 2-column pivot
+  const rows2D = [], cols2D = [], cellMap2D = {};
+  if (view === 'Pivot' && columnTypes.length === 2) {
+    const rowIndex = isTransposed ? 1 : 0;
+    const colIndex = isTransposed ? 0 : 1;
+
+    solutions.forEach(sol => {
+      const r = sol.values[rowIndex];
+      const c = sol.values[colIndex];
+      const v = snapInt(sol.objectiveValue);
+
+      if (!rows2D.includes(r)) rows2D.push(r);
+      if (!cols2D.includes(c)) cols2D.push(c);
+      cellMap2D[`${r}__${c}`] = v;
+    });
+
+    if (columnTypes[rowIndex] === 'INT') rows2D.sort((a, b) => Number(a) - Number(b));
+    if (columnTypes[colIndex] === 'INT') cols2D.sort((a, b) => Number(a) - Number(b));
+  }
+
+  // ==================== START: NEW CODE ====================
+  /**
+   * Handles the pivot configuration change with intelligent swapping.
+   * @param {'rowIndex' | 'colIndex' | 'cellIndex'} roleToUpdate The role being changed.
+   * @param {number} selectedIndex The new data column index (0, 1, or 2).
+   */
+  const handleMappingChange = (roleToUpdate, selectedIndex) => {
+    const newIndex = Number(selectedIndex);
+    const currentMapping = { ...mapping };
+
+    // Find which role is currently using the index that we want to assign.
+    const roleToSwap = Object.keys(currentMapping).find(
+      (key) => currentMapping[key] === newIndex
+    );
+    
+    // Get the old index from the role we are updating.
+    const oldIndexOfRole = currentMapping[roleToUpdate];
+
+    // Perform the swap
+    if (roleToSwap) {
+      currentMapping[roleToSwap] = oldIndexOfRole;
+    }
+    currentMapping[roleToUpdate] = newIndex;
+
+    setMapping(currentMapping);
+  };
+  // ===================== END: NEW CODE =====================
+
   const publicUrl = process.env.PUBLIC_URL;
 
   return (
     <div className="solution-container">
+      {/* ==================== START: NEW CODE ==================== */}
+      {/* Configuration Modal */}
+      {showConfig && (
+        <div className="modal-overlay" onClick={() => setShowConfig(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ marginTop: 0 }}>Configure Pivot Table</h3>
+            <p>Assign a data column to each role in the pivot table.</p>
+            <table className="pivot-config-table">
+              <tbody>
+                <tr>
+                  <td><strong>Rows</strong></td>
+                  <td>
+                    <select
+                      className="var-select"
+                      value={mapping.rowIndex}
+                      onChange={(e) => handleMappingChange('rowIndex', e.target.value)}
+                    >
+                      {columnTypes.map((type, i) => (
+                        <option key={`row-${i}`} value={i}>{type} (Column {i+1})</option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Columns</strong></td>
+                  <td>
+                    <select
+                      className="var-select"
+                      value={mapping.colIndex}
+                      onChange={(e) => handleMappingChange('colIndex', e.target.value)}
+                    >
+                      {columnTypes.map((type, i) => (
+                        <option key={`col-${i}`} value={i}>{type} (Column {i+1})</option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Cell Value</strong></td>
+                  <td>
+                    <select
+                      className="var-select"
+                      value={mapping.cellIndex}
+                      onChange={(e) => handleMappingChange('cellIndex', e.target.value)}
+                    >
+                      {columnTypes.map((type, i) => (
+                        <option key={`cell-${i}`} value={i}>{type} (Column {i+1})</option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <button className="config-btn" onClick={() => setShowConfig(false)}>Done</button>
+          </div>
+        </div>
+      )}
+      {/* ===================== END: NEW CODE ===================== */}
+
+
       <div className="top-controls">
         <Link to="/main-page"
           onClick={e => { e.preventDefault(); setSelectedImage(null); setSelectedImageId(null); navigate('/main-page'); }}
           className="nav-btn home-btn"
-          style={{ backgroundImage: `url(${publicUrl}/Images/HomeButton.png)` }}
+          style={{ backgroundImage: `url(${publicUrl}/images/HomeButton.png)` }}
           title="Home"
         />
         <Link to="/my-images"
           className="nav-btn images-btn"
-          style={{ backgroundImage: `url(${publicUrl}/Images/ExitButton2.png)` }}
+          style={{ backgroundImage: `url(${publicUrl}/images/ExitButton2.png)` }}
           title="My Images"
         />
         <img
@@ -160,7 +261,10 @@ export default function SolutionResultsPage() {
           id="var-select"
           className="var-select"
           value={selectedVar}
-          onChange={e => setSelectedVar(e.target.value)}
+          onChange={e => {
+            setSelectedVar(e.target.value);
+            setIsTransposed(false);
+          }}
         >
           {variableNames.map(n => <option key={n} value={n}>{n}</option>)}
         </select>
@@ -169,14 +273,18 @@ export default function SolutionResultsPage() {
           id="view-select"
           className="var-select"
           value={view}
-          onChange={e => { setView(e.target.value); setShowConfig(false); }}
+          onChange={e => {
+            setView(e.target.value);
+            setShowConfig(false);
+            setIsTransposed(false);
+          }}
         >
           <option value="Table">Table</option>
-          {columnTypes.length === 3 && <option value="Pivot">Pivot</option>}
+          {(columnTypes.length === 2 || columnTypes.length === 3) && <option value="Pivot">Pivot</option>}
           {columnTypes.length === 1 && <option value="Graph">Graph</option>}
           {columnTypes.includes('DATE') && <option value="Calendar">Calendar</option>}
         </select>
-        {view === 'Pivot' && (
+        {view === 'Pivot' && columnTypes.length === 3 && (
           <button className="config-btn" onClick={() => setShowConfig(true)}>
             Configure Pivot
           </button>
@@ -204,21 +312,25 @@ export default function SolutionResultsPage() {
             <thead>
               <tr>
                 {columnTypes.map((t, i) => (
-                  <th key={i}>
-                    {t}{' '}
-                    <button className="sort-btn" onClick={() => {
-                      if (sortKey === i) setSortAsc(a => !a);
-                      else { setSortKey(i); setSortAsc(true); }
-                    }}>⇅</button>
+                  <th key={i} className="has-tooltip" data-tooltip={t}>
+                    <div className="cell-content">
+                      {t}{' '}
+                      <button className="sort-btn" onClick={() => {
+                        if (sortKey === i) setSortAsc(a => !a);
+                        else { setSortKey(i); setSortAsc(true); }
+                      }}>⇅</button>
+                    </div>
                   </th>
                 ))}
                 {showObjective && (
-                  <th>
-                    {objectiveLabel}{' '}
-                    <button className="sort-btn" onClick={() => {
-                      if (sortKey === 'objective') setSortAsc(a => !a);
-                      else { setSortKey('objective'); setSortAsc(true); }
-                    }}>⇅</button>
+                  <th className="has-tooltip" data-tooltip={objectiveLabel}>
+                    <div className="cell-content">
+                      {objectiveLabel}{' '}
+                      <button className="sort-btn" onClick={() => {
+                        if (sortKey === 'objective') setSortAsc(a => !a);
+                        else { setSortKey('objective'); setSortAsc(true); }
+                      }}>⇅</button>
+                    </div>
                   </th>
                 )}
               </tr>
@@ -250,37 +362,101 @@ export default function SolutionResultsPage() {
             <tbody>
               {filteredSolutions.map(sol => (
                 <tr key={sol.values.join('-')}>
-                  {sol.values.map((v, idx) => <td key={idx}>{v}</td>)}
-                  {showObjective && <td>{sol.snappedObjective}</td>}
+                  {sol.values.map((v, idx) => (
+                    <td key={idx} className="has-tooltip" data-tooltip={v}>
+                      <div className="cell-content">{v}</div>
+                    </td>
+                  ))}
+                  {showObjective && (
+                    <td className="has-tooltip" data-tooltip={sol.snappedObjective}>
+                      <div className="cell-content">{sol.snappedObjective}</div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
         )}
 
-        {view === 'Pivot' && (
+        {view === 'Pivot' && columnTypes.length === 3 && (
           <table className="pivot-table">
             <thead>
               <tr>
-                <th>{columnTypes[mapping.rowIndex]}</th>
-                {cols.map(c => <th key={c}>{c}</th>)}
+                <th className="has-tooltip" data-tooltip={columnTypes[mapping.rowIndex]}>
+                  <div className="cell-content">{columnTypes[mapping.rowIndex]}</div>
+                </th>
+                {cols.map(c => (
+                  <th key={c} className="has-tooltip" data-tooltip={c}>
+                    <div className="cell-content">{c}</div>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {rows.map(r => (
                 <tr key={r}>
-                  <td><strong>{r}</strong></td>
-                  {cols.map(c => <td key={c}>{cellMap[`${r}__${c}`] || ''}</td>)}
+                  <td className="has-tooltip" data-tooltip={r}>
+                    <div className="cell-content"><strong>{r}</strong></div>
+                  </td>
+                  {cols.map(c => {
+                    const cellValue = cellMap[`${r}__${c}`] || '';
+                    return (
+                      <td key={c} className="has-tooltip" data-tooltip={cellValue}>
+                        <div className="cell-content">{cellValue}</div>
+                      </td>
+                    )
+                  })}
                 </tr>
               ))}
             </tbody>
           </table>
         )}
 
+        {view === 'Pivot' && columnTypes.length === 2 && (
+          <div className="pivot-container">
+            <button onClick={() => setIsTransposed(t => !t)} className="config-btn" style={{marginBottom: '10px'}}>
+              Switch Rows/Columns
+            </button>
+            <table className="pivot-table">
+              <thead>
+                <tr>
+                  <th className="has-tooltip" data-tooltip={`${isTransposed ? columnTypes[1] : columnTypes[0]} / ${isTransposed ? columnTypes[0] : columnTypes[1]}`}>
+                    <div className="cell-content">
+                      {isTransposed ? columnTypes[1] : columnTypes[0]} / {isTransposed ? columnTypes[0] : columnTypes[1]}
+                    </div>
+                  </th>
+                  {cols2D.map(c => (
+                    <th key={c} className="has-tooltip" data-tooltip={c}>
+                      <div className="cell-content">{c}</div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows2D.map(r => (
+                  <tr key={r}>
+                    <td className="has-tooltip" data-tooltip={r}>
+                      <div className="cell-content"><strong>{r}</strong></div>
+                    </td>
+                    {cols2D.map(c => {
+                      const cellValue = cellMap2D[`${r}__${c}`] ?? '';
+                      return (
+                        <td key={c} className="has-tooltip" data-tooltip={cellValue}>
+                          <div className="cell-content">{cellValue}</div>
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
         {view === 'Graph' && columnTypes.length === 1 && (
           <div
             className="graph-wrapper"
-            key={`${selectedVar}-${graphType}`}     // ← include graphType
+            key={`${selectedVar}-${graphType}`}
           >
             <svg
               id="myGraph"
