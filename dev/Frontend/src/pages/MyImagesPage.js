@@ -36,7 +36,7 @@ const MyImagesPage = () => {
   const {
     userId,
     /* dozens of setters ↓ */
-    setSolutionResponse,
+    SolutionResponse,setSolutionResponse,
     selectedImage, setSelectedImage,
     selectedImageId, setSelectedImageId,
     setVariables, setConstraints, setPreferences,
@@ -140,6 +140,7 @@ const MyImagesPage = () => {
       );
     } catch (err) {
       alert(`Update failed: ${err.response?.data?.message || err.message}`);
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -171,16 +172,32 @@ const MyImagesPage = () => {
       .filter((m) => m.enabled ?? true)
       .map((m) => m.moduleName);
 
+      console.log("Solving with:", {
+        preferenceModulesScalars,
+        enabledConstraintModules
+      });
     try {
       const resp = await axios.post(
         `/user/${userId}/image/${selectedImageId}/solver`,
         { preferenceModulesScalars, enabledConstraintModules, timeout: 20 }
       );
+      
       setSolutionResponse(resp.data);
       setViewSection(null);
-      navigate("/solution-results");
+
+
+
+      if(resp.data && resp.data.solved === true && resp.data.solution !== null ) {
+        navigate("/solution-results");
+      }
+      else {
+        alert("No solution found or the problem is infeasible.");
+        setSolutionResponse(null);
+      }
+      
     } catch (err) {
       alert(`Solve error: ${err.message}`);
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -807,7 +824,7 @@ const MyImagesPage = () => {
                         <label className="mi-module-checkbox">
                           <input
                             type="checkbox"
-                            checked={m.enabled}
+                            checked={m.enabled ?? true}
                             onChange={(e) => {
                               const img = { ...selectedImage };
                               img.constraintModules[idx].enabled = e.target.checked;
@@ -843,7 +860,7 @@ const MyImagesPage = () => {
                               type="range"
                               min="0"
                               max="100"
-                              value={m.value ?? 50}
+                              value={m.value ?? 100}
                               onChange={(e) => {
                                 const img = { ...selectedImage };
                                 img.preferenceModules[idx].value = Number(e.target.value);
