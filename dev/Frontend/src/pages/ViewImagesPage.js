@@ -91,6 +91,13 @@ const ViewImagesPage = () => {
     imageId: id,
     ...data,
   }));
+  
+  // The reliable click handler for the modal background
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      setSelectedImage(null);
+    }
+  };
 
   return (
     <div className="view-images-background">
@@ -125,8 +132,6 @@ const ViewImagesPage = () => {
               value={filterAuthor}
               onChange={(e) => setFilterAuthor(e.target.value)}
             />
-
-            {/* After */}
             <input
               type="text"
               placeholder="After creation date"
@@ -135,8 +140,6 @@ const ViewImagesPage = () => {
               onBlur={(e) => !e.target.value && (e.target.type = "text")}
               onChange={(e) => setFilterAfter(e.target.value)}
             />
-
-            {/* Before */}
             <input
               type="text"
               placeholder="Before creation date"
@@ -152,12 +155,10 @@ const ViewImagesPage = () => {
             </button>
           </div>
         </div>
-        {/* Search button */}
-
-
-        {/* Loading modal */}
+        
         {loading && (
-          <div className="modal-overlay">
+          // We keep the old overlay for the loading modal as it's simple
+          <div className="modal-overlay"> 
             <div className="loading-modal">
               <div className="spinner" />
               <p className="loading-label">Loading…</p>
@@ -165,7 +166,6 @@ const ViewImagesPage = () => {
           </div>
         )}
 
-        {/* Images grid */}
         {!loading && (
           <div className="images-section">
             {images.length === 0 ? (
@@ -187,43 +187,29 @@ const ViewImagesPage = () => {
           </div>
         )}
 
-        {/* Pagination */}
         <div className="pagination-container">
           <img
             src={`${process.env.PUBLIC_URL}/images/LeftArrowButton.png`}
             alt="Prev"
             className="prev-page-button"
             onClick={handlePrevPage}
-            style={{
-              opacity: hasPrevious ? 1 : 0.3,
-              pointerEvents: hasPrevious ? "auto" : "none",
-            }}
+            style={{ opacity: hasPrevious ? 1 : 0.3, pointerEvents: hasPrevious ? "auto" : "none" }}
           />
-          <span>
-            Page {page + 1} out of {totalPages}
-          </span>
+          <span>Page {page + 1} out of {totalPages}</span>
           <img
             src={`${process.env.PUBLIC_URL}/images/RightArrowButton.png`}
             alt="Next"
             className="next-page-button"
             onClick={handleNextPage}
-            style={{
-              opacity: hasNext ? 1 : 0.3,
-              pointerEvents: hasNext ? "auto" : "none",
-            }}
+            style={{ opacity: hasNext ? 1 : 0.3, pointerEvents: hasNext ? "auto" : "none" }}
           />
         </div>
 
-        {/* Detail modal */}
+        {/* --- FINAL, WORKING DETAIL MODAL --- */}
         {selectedImage && (
-          <div
-            className="modal-overlay"
-            onClick={() => setSelectedImage(null)}
-          >
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-
+          <div className="modal-container" onClick={handleOverlayClick}>
+            <div className="modal-content">
               <div className="modal-header">
-                {/* Left: Back / Close button */}
                 <div className="modal-header-left">
                   <div className="icon-wrapper" data-tip="Close">
                     <img
@@ -234,8 +220,6 @@ const ViewImagesPage = () => {
                     />
                   </div>
                 </div>
-
-                {/* Right: Save button */}
                 <div className="modal-header-right">
                   <div className="icon-wrapper" data-tip="Add to your images">
                     <img
@@ -247,10 +231,6 @@ const ViewImagesPage = () => {
                   </div>
                 </div>
               </div>
-
-
-
-
               <div className="image-box">
                 <h2 className="image-title">{selectedImage.name}</h2>
                 <p className="image-subtext">{selectedImage.description}</p>
@@ -258,7 +238,6 @@ const ViewImagesPage = () => {
                 <p className="image-subtext"><strong>Creation Date:</strong> {new Date(selectedImage.creationDate).toLocaleDateString()}</p>
               </div>
             </div>
-
           </div>
         )}
       </div>
