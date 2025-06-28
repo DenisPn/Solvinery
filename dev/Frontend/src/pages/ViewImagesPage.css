@@ -20,6 +20,16 @@
   overflow: visible;
 }
 
+.home-button {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  top: 50px;
+  left: 30px;
+  z-index: 5;
+  cursor: pointer;
+}
+
 /* ───────── Page Title ───────── */
 .main-view-images-title {
   font: 700 48px cursive;
@@ -67,7 +77,6 @@
 
 .search-button {
   width: 260px;
-  /* ← explicit width */
   padding: 14px 0;
   border: 3px solid #666;
   border-radius: 30px;
@@ -138,20 +147,18 @@
   border-radius: 12px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
   text-align: center;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: visible;
-  /* was hidden – allow tooltip to escape */
   position: relative;
-
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .image-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
 .image-thumbnail-text {
@@ -161,9 +168,7 @@
   align-items: center;
   height: 100%;
   margin: 0;
-  /* ensure no external spacing */
   padding: 0;
-  /* ensure no internal spacing */
 }
 
 .image-thumbnail-text h4 {
@@ -177,10 +182,8 @@
   word-break: break-word;
   font-family: 'Segoe UI', sans-serif;
   margin: 0;
-  /* remove default top/bottom spacing */
   padding: 0;
   line-height: 1.2;
-
 }
 
 .image-thumbnail-text p {
@@ -191,24 +194,13 @@
   opacity: 0.8;
   font-family: 'Segoe UI', sans-serif;
   margin: 0;
-  /* remove default top/bottom spacing */
   padding: 0;
-}
-
-.image-item {
-  transition: transform 0.25s, box-shadow 0.25s;
-}
-
-.image-item:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
 /* ───────── Pagination ───────── */
 .pagination-container {
   position: absolute;
   bottom: 30px;
-  /* adjust as needed */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -233,7 +225,6 @@
   background: rgba(255, 255, 255, 0.8);
 }
 
-
 .prev-page-button,
 .next-page-button {
   width: 40px;
@@ -248,7 +239,14 @@
   transform: scale(1.15);
 }
 
-/* ───────── Modal Overlay ───────── */
+/* ───────── Modal Styles ───────── */
+/* ───────── FINAL MODAL STYLES ───────── */
+
+/* This is the new container that acts as the dark background */
+/* It uses flexbox to center the content. */
+
+
+/* The old .modal-overlay rule is used only by the simple loading spinner now */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -256,60 +254,114 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  z-index: 1001; /* Must be higher than the content modal */
 }
 
-.modal-content {
+
+/* ───────── FINAL MODAL STYLES (Centered) ───────── */
+
+/* This is the container that acts as the dark background. */
+.modal-container {
   position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+}
+
+/* The old .modal-overlay rule is used only by the simple loading spinner now */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+
+/* This positions the modal content perfectly in the center of the screen. */
+/* In your ViewImagesPage.css file */
+
+.modal-content {
+  /* Positioning */
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  
+  /* Visual Styles */
   background: linear-gradient(135deg, #ffffff 0%, #f2f2f2 100%);
   padding: 40px;
   border-radius: 16px;
   width: 90%;
   max-width: 720px;
   max-height: 90vh;
-  overflow-y: auto;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
   font-family: "Segoe UI", sans-serif;
+  
+  /* Overflow Control */
+  overflow-y: auto; /* Keeps the vertical scrollbar if content is long */
+  overflow-x: hidden; /* <-- ADD THIS LINE to prevent the horizontal scrollbar */
 }
 
-
-/* ─ Modal header with buttons ─ */
+/* Lifts the header above sibling elements like .image-box */
 .modal-header {
   position: relative;
   width: 100%;
   height: 40px;
   margin-bottom: 24px;
-  animation: slideFadeIn 0.7s ease-out;
+  z-index: 10;
 }
 
-.modal-back-btn {
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  transition: transform .2s;
+/* Lifts the header above sibling elements like .image-box */
+.modal-header {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  margin-bottom: 24px;
+  z-index: 10;
 }
 
-.modal-action-btns {
+/* Lifts the header above sibling elements like .image-box */
+.modal-header {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  margin-bottom: 24px;
+  z-index: 10;
+}
+
+.modal-header-left,
+.modal-header-right {
+  position: absolute;
+  top: 0;
   display: flex;
-  gap: 16px;
+  align-items: center;
 }
 
-.modal-action-btns img {
+.modal-header-left {
+  left: 0;
+}
+
+.modal-header-right {
+  right: 0;
+}
+
+.modal-header-left img,
+.modal-header-right img {
   width: 36px;
   height: 36px;
   cursor: pointer;
-  transition: transform .2s;
+  transition: transform 0.2s ease;
 }
 
-.modal-back-btn:hover,
-.modal-action-btns img:hover {
+.modal-header-left img:hover,
+.modal-header-right img:hover {
   transform: scale(1.15);
 }
 
-/* ─ Information Box ─ */
+/* Modal Information Box */
 .image-box {
   background: repeating-linear-gradient(45deg, #fdfdfd 0 10px, #f2f2f2 10px 20px);
   padding: 30px;
@@ -317,7 +369,7 @@
   box-shadow: 0 10px 20px rgba(0, 0, 0, .1);
   text-align: center;
   max-width: 600px;
-  margin: 40px auto 0;
+  margin: 0 auto;
 }
 
 .image-title {
@@ -343,142 +395,7 @@
   font-style: italic;
 }
 
-/* Fix the modal header layout */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-/* Restore correct Home button size */
-.home-button {
-  width: 50px;
-  height: 50px;
-  position: absolute;
-  top: 50px;
-  left: 30px;
-  z-index: 5;
-  cursor: pointer;
-}
-
-/* Modal button layout (back left, others right) */
-.modal-back-btn {
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.modal-action-btns {
-  display: flex;
-  gap: 16px;
-}
-
-.modal-action-btns img {
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.modal-back-btn:hover,
-.modal-action-btns img:hover {
-  transform: scale(1.15);
-}
-
-/* Fix modal-header layout */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-/* Top-left back button */
-.modal-back-btn {
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-/* Top-right button group */
-.modal-action-btns {
-  display: flex;
-  gap: 16px;
-}
-
-.modal-action-btns img {
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-/* Hover effects */
-.modal-back-btn:hover,
-.modal-action-btns img:hover {
-  transform: scale(1.15);
-}
-
-.modal-header {
-  position: relative;
-  width: 100%;
-  height: 40px;
-  margin-bottom: 24px;
-}
-
-.modal-header-left,
-.modal-header-right {
-  position: absolute;
-  top: 0;
-  display: flex;
-  align-items: center;
-}
-
-.modal-header-left {
-  left: 0;
-  padding-left: 12px;
-}
-
-.modal-header-right {
-  right: 0;
-  gap: 16px;
-  padding-right: 12px;
-}
-
-.modal-header-left img,
-.modal-header-right img {
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.modal-header-left img:hover,
-.modal-header-right img:hover {
-  transform: scale(1.15);
-}
-
-
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  position: relative;
-}
-
-.modal-header-left,
-.modal-header-right {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-/* Tooltip container */
+/* ───────── Tooltip Styles ───────── */
 .icon-wrapper {
   position: relative;
   display: inline-flex;
@@ -506,13 +423,11 @@
   opacity: 1;
 }
 
-/* ─────────  Tooltip on image thumbnails  ───────── */
 .tooltip {
   position: relative;
   display: inline-block;
 }
 
-/* Tooltip bubble box */
 .tooltip-bubble {
   position: absolute;
   bottom: 100%;
@@ -528,37 +443,17 @@
   line-height: 1.5;
   z-index: 1000;
   pointer-events: none;
-
-
-  /* Multiline clamping */
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 10;
   overflow: hidden;
   text-overflow: ellipsis;
-  
-
-  /* Hide by default */
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease;
 }
 
-/* Show on hover */
 .tooltip:hover .tooltip-bubble {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* Arrow */
-.tooltip:hover::before {
-  content: '';
-  position: absolute;
-  bottom: calc(100% - 2px);
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: #111;
   opacity: 1;
   visibility: visible;
 }
@@ -574,4 +469,9 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease;
+}
+
+.tooltip:hover::before {
+  opacity: 1;
+  visibility: visible;
 }
