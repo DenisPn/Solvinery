@@ -22,6 +22,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.*;
 
@@ -178,5 +180,15 @@ public class SolveService {
             future.completeExceptionally(error);
         }
     }
+    private void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException e) {
+                log.warn("Failed to close stream", e);
+            }
+        }
+    }
+
 
 }
