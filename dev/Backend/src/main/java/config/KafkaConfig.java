@@ -47,6 +47,8 @@ public class KafkaConfig {
     public ProducerFactory<String, SolveRequest> producerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServer);
+        config.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+
         return new DefaultKafkaProducerFactory<>(config);
     }
 
@@ -80,6 +82,8 @@ public class KafkaConfig {
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        config.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, 52428800);
+        config.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 52428800);
         return new DefaultKafkaConsumerFactory<>(config);
     }
 /*    @Bean

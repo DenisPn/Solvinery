@@ -239,7 +239,6 @@ public class SolveThread extends Thread {
         } catch (IOException e) {
             log.warn("Failed to cleanup code session file: {} ({})", workDir, e.getMessage(), e);
         }
-
     }
 
     @NonNull
