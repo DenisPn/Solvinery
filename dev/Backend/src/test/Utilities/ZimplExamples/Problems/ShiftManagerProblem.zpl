@@ -1,81 +1,50 @@
-# WORKERS: Set of worker names
-set WORKERS := {
-    "Alice", "Bob", "Charlie", "David", "Eve",
-    "Frank", "Grace", "Henry", "Iris", "Jack",
-    "Karen", "Liam", "Maya", "Noah", "Olivia"
-};
+# Sets defining workers and shift types
+set WORKERS := { "Alice", "Bob", "Charlie", "David", "Eve",
+                "Denis", "Nadav", "Shlomo", "Adam", "Ron",
+                "Dan", "Shelly", "Issac", "Ben", "Batya"};
 
 # SHIFT_TYPES: <ShiftName, FromWeekday, ToWeekday, StartHour, EndHour, WorkersRequired>
-# FromWeekday/ToWeekday: 1-7 (Monday-Sunday)
-# Hours: 0-24 (military time)
 set SHIFT_TYPES := {
-    <"morning", 1, 5, 7, 15, 3>,    # Weekday morning shift
-    <"afternoon", 1, 5, 15, 23, 2>, # Weekday afternoon shift
-    <"night", 1, 5, 23, 7, 1>,      # Weekday night shift
-    <"weekend_day", 6, 7, 8, 20, 3>, # Weekend day shift
-    <"weekend_night", 6, 7, 20, 8, 2> # Weekend night shift
+    <"workday morning", 1, 5, 7, 15, 3>,
+    <"workday afternoon", 1, 5, 15, 23, 2>,
+     <"workday night", 1, 5, 15, 23, 1>,
+     <"Friday morning", 6, 6, 7, 13, 1>,
+     <"Friday noon", 6, 6, 13, 17, 1>,
+     <"Friday evening", 6, 6, 17, 23, 1>,
+     <"Friday night", 6, 6, 0, 7, 1>,
+     <"Saturday morning", 7, 7, 7, 14, 1>,
+     <"Saturday noon", 7, 7, 14, 19, 1>,
+     <"Saturday end", 7, 7, 19, 24, 1>,
+    <"weekend_day", 6, 7, 8, 20, 4>,
+    <"peak_hours", 1, 5, 10, 14, 1>
 };
 
-# WORKER_CONDITIONS: <WorkerName, FromDay, ToDay, StartHour, EndHour>
-# Represents times when workers cannot work (personal commitments, etc.)
-set WORKER_CONDITIONS := {
-    # Alice has medical appointments on Monday mornings
-    <"Alice", 1, 1, 8, 12>,
-    # Bob studies Tuesday and Thursday evenings
-    <"Bob", 2, 2, 18, 22>,
-    <"Bob", 4, 4, 18, 22>,
-    # Charlie has family commitments on weekends
-    <"Charlie", 6, 7, 0, 24>,
-    # David cannot work night shifts for health reasons
-    <"David", 1, 7, 22, 8>,
-    # Eve has Wednesday afternoon classes
-    <"Eve", 3, 3, 14, 18>,
-    # Frank takes care of children on Monday and Wednesday mornings
-    <"Frank", 1, 1, 7, 12>,
-    <"Frank", 3, 3, 7, 12>,
-    # Grace volunteers on Friday afternoons
-    <"Grace", 5, 5, 13, 17>,
-    # Henry has religious observance on Saturdays
-    <"Henry", 6, 6, 0, 24>,
-    # Iris has therapy sessions on Tuesday afternoons
-    <"Iris", 2, 2, 14, 16>,
-    # Jack coaches sports on Thursday evenings
-    <"Jack", 4, 4, 16, 20>
-};
-
-# Basic parameters adjusted for realistic scheduling
-param MIN_SHIFTS_PER_WORKER := 3;
+# Basic parameters
+param MIN_SHIFTS_PER_WORKER := 2;
 param MAX_SHIFTS_PER_WEEK := 5;
 param MAX_CONSECUTIVE_DAYS := 3;
 param MIN_WEEKEND_WORKERS := 2;
 param MAX_HOURS_PER_WEEK := 40;
-param MIN_HOURS_BETWEEN_SHIFTS := 10;
+param MIN_HOURS_BETWEEN_SHIFTS := 8;
 
 # Set definitions
+set WORKER_CONDITIONS := {};
 set DAYS := {1 to 7};
-set WEEKEND_DAYS := {6,7};
 set SHIFT_NAMES := proj(SHIFT_TYPES, <1>);
-
-# VALID_SHIFT_DAYS: Pairs of <ShiftName, Day> that are valid according to shift definitions
 set VALID_SHIFT_DAYS := { <sn, d> in SHIFT_NAMES * DAYS |
     card({<s, df, dt, hf, ht, wr> in SHIFT_TYPES with
         s == sn and d >= df and d <= dt}) >= 1
 };
-
 set VALID_ASSIGNMENTS := WORKERS * VALID_SHIFT_DAYS;
 
 # Parameters for shift properties
-param shift_duration[<n,df,dt,hf,ht,wr> in SHIFT_TYPES] :=
-    if ht >= hf then
-        ht - hf
-    else
-        (24 - hf) + ht
-    end;
+param shift_duration[<n,df,dt,hf,ht,wr> in SHIFT_TYPES] := ht - hf;
 param shift_start[<n,df,dt,hf,ht,wr> in SHIFT_TYPES] := hf;
 param shift_end[<n,df,dt,hf,ht,wr> in SHIFT_TYPES] := ht;
 param workers_required[<n,df,dt,hf,ht,wr> in SHIFT_TYPES] := wr;
 
 # Variables
+# assign[worker, shift, weekday]
 var assign[VALID_ASSIGNMENTS] binary;
 var hours_worked[WORKERS] real >= 0;
 var weekend_shifts[WORKERS] real >= 0;
@@ -110,12 +79,6 @@ subto max_hours_per_week:
             sum <name, df, dt, hf, ht, wr> in SHIFT_TYPES with name == sn:
                 assign[w, sn, d] * shift_duration[name, df, dt, hf, ht, wr] <= MAX_HOURS_PER_WEEK;
 
-subto weekend_coverage:
-    forall <d> in WEEKEND_DAYS:
-        sum <w> in WORKERS:
-            sum <sn> in SHIFT_NAMES with <w, sn, d> in VALID_ASSIGNMENTS:
-                assign[w, sn, d] >= MIN_WEEKEND_WORKERS;
-
 subto max_consecutive_days:
     forall <w> in WORKERS:
         forall <d> in {1 to 5}:
@@ -133,16 +96,13 @@ subto min_hours_between_shifts:
                             assign[w, sn1, d1] + assign[w, sn2, d2] <= 1
                         end;
 
-subto respect_worker_conditions:
-    forall <w, cfd, ctd, chf, cht> in WORKER_CONDITIONS:
-        forall <sn, d> in VALID_SHIFT_DAYS with d >= cfd and d <= ctd:
-            forall <n,df,dt,hf,ht,wr> in SHIFT_TYPES with n == sn:
-                if (
-                    # Condition spans midnight
-                    (chf > cht and (hf >= chf or ht <= cht)) or
-                    # Normal condition
-                    (chf <= cht and hf < cht and ht > chf)
-                ) then
+#Worker can't be assigned during their unavailable times
+subto respect_unavailability:
+    forall <w, sn, d> in VALID_ASSIGNMENTS:
+        forall <name, df, dt, hf, ht, wr> in SHIFT_TYPES with name == sn and d >= df and d <= dt:
+            forall <worker, day_from, day_to, hour_from, hour_to> in WORKER_CONDITIONS with
+                   worker == w and d >= day_from and d <= day_to:
+                if hf < hour_to and ht > hour_from then
                     assign[w, sn, d] == 0
                 end;
 
