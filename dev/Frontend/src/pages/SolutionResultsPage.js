@@ -286,14 +286,12 @@ export default function SolutionResultsPage() {
           id="var-select"
           className="var-select"
           value={selectedVar}
-          // ==================== START: MODIFIED CODE ====================
           onChange={e => {
             setSelectedVar(e.target.value);
             setView('Table'); // Reset the view to the default
             setIsTransposed(false);
             setPivotSort({ key: null, asc: true }); 
           }}
-          // ===================== END: MODIFIED CODE =====================
         >
           {variableNames.map(n => <option key={n} value={n}>{n}</option>)}
         </select>
@@ -492,7 +490,8 @@ export default function SolutionResultsPage() {
             </table>
           </div>
         )}
-
+        
+        {/* ==================== START: MODIFIED GRAPH VIEW ==================== */}
         {view === 'Graph' && columnTypes.length === 1 && (
           <div
             className="graph-wrapper"
@@ -506,54 +505,62 @@ export default function SolutionResultsPage() {
               preserveAspectRatio="xMidYMid meet"
               style={{ display: 'block' }}
             >
-              {Array.from({ length: 6 }, (_, i) => {
-                const maxY = Math.max(...solutions.map(s => snapInt(s.objectiveValue)));
-                const yVal = Math.round((i / 5) * maxY);
-                const yPos = 500 - 40 - (yVal / maxY * (500 - 60));
-                return (
-                  <g key={i} transform={`translate(0,${yPos})`}>
-                    <line x1={40} x2={660} stroke="#eee" />
-                    <text x={32} dy="0.32em" textAnchor="end" fontSize="12" fill="#333">
-                      {yVal}
-                    </text>
-                  </g>
-                );
-              })}
-              {solutions.map((s, i) => {
-                const x = 40 + (i / (solutions.length - 1 || 1)) * (660 - 40);
-                return (
-                  <text key={i} x={x} y={480} textAnchor="middle" fontSize="12" fill="#333">
-                    {s.values[0]}
-                  </text>
-                );
-              })}
-              {(() => {
-                const pts = solutions.map((s, i) => ({
-                  x: 40 + (i / (solutions.length - 1 || 1)) * (660 - 40),
-                  y: 500 - 40 - (snapInt(s.objectiveValue) / Math.max(...solutions.map(s => snapInt(s.objectiveValue))) * (500 - 60))
-                }));
-                if (graphType === 'bar') {
-                  return pts.map((p, i) => (
-                    <rect key={i} x={p.x - 10} y={p.y} width={20} height={500 - 40 - p.y} fill="#007BFF" />
-                  ));
-                }
-                if (graphType === 'point') {
-                  return pts.map((p, i) => (
-                    <circle key={i} cx={p.x} cy={p.y} r={4} fill="#007BFF" />
-                  ));
-                }
-                return (
-                  <polyline
-                    fill="none"
-                    stroke="#007BFF"
-                    strokeWidth={2}
-                    points={pts.map(p => `${p.x},${p.y}`).join(' ')}
-                  />
-                );
-              })()}
+              {/* Guard against empty filtered data */}
+              {filteredSolutions.length > 0 && (
+                <>
+                  {Array.from({ length: 6 }, (_, i) => {
+                    const maxY = Math.max(...filteredSolutions.map(s => snapInt(s.objectiveValue)));
+                    const yVal = Math.round((i / 5) * maxY) || 0;
+                    const yPos = 500 - 40 - (yVal / maxY * (500 - 60));
+                    return (
+                      <g key={i} transform={`translate(0,${yPos})`}>
+                        <line x1={40} x2={660} stroke="#eee" />
+                        <text x={32} dy="0.32em" textAnchor="end" fontSize="12" fill="#333">
+                          {yVal}
+                        </text>
+                      </g>
+                    );
+                  })}
+                  {filteredSolutions.map((s, i) => {
+                    const x = 40 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 40);
+                    return (
+                      <text key={i} x={x} y={480} textAnchor="middle" fontSize="12" fill="#333">
+                        {s.values[0]}
+                      </text>
+                    );
+                  })}
+                  {(() => {
+                    const maxY = Math.max(...filteredSolutions.map(s => snapInt(s.objectiveValue)));
+                    const pts = filteredSolutions.map((s, i) => ({
+                      x: 40 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 40),
+                      y: 500 - 40 - (snapInt(s.objectiveValue) / maxY * (500 - 60))
+                    }));
+
+                    if (graphType === 'bar') {
+                      return pts.map((p, i) => (
+                        <rect key={i} x={p.x - 10} y={p.y} width={20} height={500 - 40 - p.y} fill="#007BFF" />
+                      ));
+                    }
+                    if (graphType === 'point') {
+                      return pts.map((p, i) => (
+                        <circle key={i} cx={p.x} cy={p.y} r={4} fill="#007BFF" />
+                      ));
+                    }
+                    return (
+                      <polyline
+                        fill="none"
+                        stroke="#007BFF"
+                        strokeWidth={2}
+                        points={pts.map(p => `${p.x},${p.y}`).join(' ')}
+                      />
+                    );
+                  })()}
+                </>
+              )}
             </svg>
           </div>
         )}
+        {/* ===================== END: MODIFIED GRAPH VIEW ===================== */}
 
         {view === 'Calendar' && (
           <div style={{ padding: 20, textAlign: 'center', color: '#666' }}>
