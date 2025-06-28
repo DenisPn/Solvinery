@@ -501,28 +501,53 @@ export default function SolutionResultsPage() {
               id="myGraph"
               width="100%"
               height="100%"
-              viewBox="0 0 700 500"
+              viewBox="0 0 700 520" // Increased height for the new label
               preserveAspectRatio="xMidYMid meet"
               style={{ display: 'block' }}
             >
               {/* Guard against empty filtered data */}
               {filteredSolutions.length > 0 && (
                 <>
+                  {/* Y-Axis Label */}
+                  <text
+                    transform="rotate(-90)"
+                    x={-250} // Adjust x and y for vertical centering
+                    y={15}
+                    textAnchor="middle"
+                    fontSize="14"
+                    fill="#333"
+                    fontWeight="bold"
+                  >
+                    {objectiveLabel}
+                  </text>
+                  
+                  {/* X-Axis Label */}
+                  <text
+                    x={350} // Center horizontally
+                    y={510} // Position below the tick labels
+                    textAnchor="middle"
+                    fontSize="14"
+                    fill="#333"
+                    fontWeight="bold"
+                  >
+                    {columnTypes[0]}
+                  </text>
+
                   {Array.from({ length: 6 }, (_, i) => {
                     const maxY = Math.max(...filteredSolutions.map(s => snapInt(s.objectiveValue)));
                     const yVal = Math.round((i / 5) * maxY) || 0;
                     const yPos = 500 - 40 - (yVal / maxY * (500 - 60));
                     return (
                       <g key={i} transform={`translate(0,${yPos})`}>
-                        <line x1={40} x2={660} stroke="#eee" />
-                        <text x={32} dy="0.32em" textAnchor="end" fontSize="12" fill="#333">
+                        <line x1={50} x2={660} stroke="#eee" /> {/* Adjusted x1 to make space for Y-label */}
+                        <text x={42} dy="0.32em" textAnchor="end" fontSize="12" fill="#333"> {/* Adjusted x */}
                           {yVal}
                         </text>
                       </g>
                     );
                   })}
                   {filteredSolutions.map((s, i) => {
-                    const x = 40 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 40);
+                    const x = 50 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 50); // Adjusted starting position
                     return (
                       <text key={i} x={x} y={480} textAnchor="middle" fontSize="12" fill="#333">
                         {s.values[0]}
@@ -532,7 +557,7 @@ export default function SolutionResultsPage() {
                   {(() => {
                     const maxY = Math.max(...filteredSolutions.map(s => snapInt(s.objectiveValue)));
                     const pts = filteredSolutions.map((s, i) => ({
-                      x: 40 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 40),
+                      x: 50 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 50), // Adjusted starting position
                       y: 500 - 40 - (snapInt(s.objectiveValue) / maxY * (500 - 60))
                     }));
 
