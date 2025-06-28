@@ -20,8 +20,8 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import './SolutionResultsPage.css';
 
-// Draggable Header Component (for Table View)
-function DraggableHeader({ id, sortId, label, onSort, sortKey, sortAsc }) {
+// Generic Draggable Header Component
+function DraggableHeader({ id, sortId, label, onSort, sortKey, sortAsc, isPivotHeader = false }) {
   const {
     attributes,
     listeners,
@@ -29,7 +29,7 @@ function DraggableHeader({ id, sortId, label, onSort, sortKey, sortAsc }) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id, data: { type: 'column' } });
+  } = useSortable({ id, data: { type: isPivotHeader ? 'pivot-column' : 'column' } });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -52,7 +52,7 @@ function DraggableHeader({ id, sortId, label, onSort, sortKey, sortAsc }) {
   );
 }
 
-// Draggable Row Component (for Table View)
+// Draggable Row Component
 function DraggableRow({ row, columns }) {
     const {
         attributes,
@@ -103,35 +103,34 @@ export default function SolutionResultsPage() {
   const [mapping, setMapping] = useState({ rowIndex: 0, colIndex: 1, cellIndex: 2 });
   const [isTransposed, setIsTransposed] = useState(false);
   const [pivotSort, setPivotSort] = useState({ key: null, asc: true });
+  const [pivotColumnSortMode, setPivotColumnSortMode] = useState('asc');
   
   const navigate = useNavigate();
 
   const [columns, setColumns] = useState([]);
   const [displayedRows, setDisplayedRows] = useState([]);
-  
+  const [pivotRows, setPivotRows] = useState([]);
+  const [pivotCols, setPivotCols] = useState([]);
+  const [pivotCellMap, setPivotCellMap] = useState({});
+  const [pivotRows2D, setPivotRows2D] = useState([]);
+  const [pivotCols2D, setPivotCols2D] = useState([]);
+  const [pivotCellMap2D, setPivotCellMap2D] = useState({});
+
   const sensors = useSensors(useSensor(PointerSensor));
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-
     const activeType = active.data.current?.type;
-    const overType = over.data.current?.type;
-
-    if (activeType === 'column' && overType === 'column') {
-      setColumns((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
-
-    if (activeType === 'row' && overType === 'row') {
-      setDisplayedRows((items) => {
-          const oldIndex = items.findIndex((item) => item.id === active.id);
-          const newIndex = items.findIndex((item) => item.id === over.id);
-          return arrayMove(items, oldIndex, newIndex);
-      });
+    
+    if (activeType === 'column') {
+      setColumns((items) => arrayMove(items, items.findIndex(i => i.id === active.id), items.findIndex(i => i.id === over.id)));
+    } else if (activeType === 'row') {
+      setDisplayedRows((items) => arrayMove(items, items.findIndex(i => i.id === active.id), items.findIndex(i => i.id === over.id)));
+    } else if (activeType === 'pivot-column') {
+      const colSetter = columnTypes.length === 3 ? setPivotCols : setPivotCols2D;
+      colSetter((items) => arrayMove(items, items.findIndex(i => i === active.id), items.findIndex(i => i === over.id)));
+      setPivotColumnSortMode('custom');
     }
   };
 
@@ -249,44 +248,92 @@ export default function SolutionResultsPage() {
     });
   };
   
-  // Memoized calculation for 3-column pivot data
-  const { rows, cols, cellMap } = useMemo(() => {
-    if (view !== 'Pivot' || columnTypes.length !== 3) {
-      return { rows: [], cols: [], cellMap: {} };
-    }
-    const newRows = [];
-    const tempCols = [];
-    const newCellMap = {};
-    solutions.forEach(sol => {
-      const r = sol.values[mapping.rowIndex];
-      const c = sol.values[mapping.colIndex];
-      const v = sol.values[mapping.cellIndex];
-      if (!newRows.includes(r)) newRows.push(r);
-      if (!tempCols.includes(c)) tempCols.push(c);
-      const key = `${r}__${c}`;
-      if (newCellMap[key]) { newCellMap[key] += `, ${v}`; } else { newCellMap[key] = v; }
+  const handlePivotColumnSortToggle = () => {
+    setPivotColumnSortMode(currentMode => {
+        if(currentMode === 'custom') return 'asc';
+        return currentMode === 'asc' ? 'desc' : 'asc';
     });
-    
-    const cleanCols = tempCols.filter(c => c !== null && c !== undefined && c !== '');
-    if (cleanCols.length > 0) {
-      const areColsNumeric = cleanCols.every(c => !isNaN(Number(c)));
-      if (areColsNumeric) {
-        cleanCols.sort((a, b) => Number(a) - Number(b));
-      } else {
-        cleanCols.sort((a, b) => String(a).localeCompare(String(b)));
+  };
+  
+  useEffect(() => {
+    if (view !== 'Pivot') return;
+  
+    const getSortedCols = (cols) => {
+        const sorted = [...cols];
+        const areColsNumeric = sorted.every(c => !isNaN(Number(c)));
+        if (areColsNumeric) sorted.sort((a,b) => Number(a) - Number(b));
+        else sorted.sort((a,b) => String(a).localeCompare(String(b)));
+        return sorted;
+    };
+  
+    if (columnTypes.length === 3) {
+      const newRows = [], tempCols = [], newCellMap = {};
+      solutions.forEach(sol => {
+        const r = sol.values[mapping.rowIndex], c = sol.values[mapping.colIndex], v = sol.values[mapping.cellIndex];
+        if (!newRows.includes(r)) newRows.push(r);
+        if (c !== null && c !== undefined && !tempCols.includes(c)) tempCols.push(c);
+        const key = `${r}__${c}`;
+        if (newCellMap[key]) { newCellMap[key] += `, ${v}`; } else { newCellMap[key] = v; }
+      });
+      setPivotRows(newRows);
+      setPivotCellMap(newCellMap);
+      
+      const currentSorted = [...pivotCols].sort().join(',');
+      const newSorted = [...tempCols].sort().join(',');
+      if (currentSorted !== newSorted) {
+        setPivotCols(getSortedCols(tempCols));
+        setPivotColumnSortMode('asc');
+      }
+    } else if (columnTypes.length === 2) {
+      const tempRows = [], tempCols = [], tempMap = {};
+      const rowIndex = isTransposed ? 1 : 0;
+      const colIndex = isTransposed ? 0 : 1;
+      solutions.forEach(sol => {
+        const r = sol.values[rowIndex], c = sol.values[colIndex], v = snapInt(sol.objectiveValue);
+        if (!tempRows.includes(r)) tempRows.push(r);
+        if (c !== null && c !== undefined && !tempCols.includes(c)) tempCols.push(c);
+        tempMap[`${r}__${c}`] = v;
+      });
+      setPivotRows2D(tempRows);
+      setPivotCellMap2D(tempMap);
+      
+      const currentSorted = [...pivotCols2D].sort().join(',');
+      const newSorted = [...tempCols].sort().join(',');
+      if(currentSorted !== newSorted) {
+          setPivotCols2D(getSortedCols(tempCols));
+          setPivotColumnSortMode('asc');
       }
     }
+  }, [view, solutions, columnTypes, mapping, isTransposed, pivotCols, pivotCols2D]);
 
-    return { rows: newRows, cols: cleanCols, cellMap: newCellMap };
-  }, [view, solutions, columnTypes, mapping]);
+  useEffect(() => {
+    if (pivotColumnSortMode === 'custom' || view !== 'Pivot') return;
 
-  let sortedRows = [...rows];
+    const [colsToProcess, colSetter] = columnTypes.length === 3 ? [pivotCols, setPivotCols] : [pivotCols2D, setPivotCols2D];
+    if (colsToProcess.length === 0) return;
+
+    colSetter(currentCols => {
+        const sorted = [...currentCols];
+        const areColsNumeric = sorted.every(c => !isNaN(Number(c)));
+        sorted.sort((a,b) => {
+            const valA = areColsNumeric ? Number(a) : String(a);
+            const valB = areColsNumeric ? Number(b) : String(b);
+            if (valA < valB) return -1;
+            if (valA > valB) return 1;
+            return 0;
+        });
+        if(pivotColumnSortMode === 'desc') sorted.reverse();
+        return sorted;
+    });
+
+  }, [pivotColumnSortMode, columnTypes.length]);
+
+  let sortedPivotRows = [...pivotRows];
   if (view === 'Pivot' && columnTypes.length === 3 && pivotSort.key !== null) {
-    sortedRows.sort((a, b) => {
-      const valA = cellMap[`${a}__${pivotSort.key}`] || '';
-      const valB = cellMap[`${b}__${pivotSort.key}`] || '';
-      const numA = Number(valA);
-      const numB = Number(valB);
+    sortedPivotRows.sort((a, b) => {
+      const valA = pivotCellMap[`${a}__${pivotSort.key}`] || '';
+      const valB = pivotCellMap[`${b}__${pivotSort.key}`] || '';
+      const numA = Number(valA), numB = Number(valB);
       let comparison = 0;
       if (!isNaN(numA) && !isNaN(numB)) comparison = numA - numB;
       else comparison = String(valA).localeCompare(String(valB));
@@ -294,41 +341,11 @@ export default function SolutionResultsPage() {
     });
   }
   
-  // Memoized calculation for 2-column pivot data
-  const { rows2D, cols2D, cellMap2D } = useMemo(() => {
-      if(view !== 'Pivot' || columnTypes.length !== 2) {
-          return { rows2D: [], cols2D: [], cellMap2D: {} };
-      }
-    const tempRows = [], tempCols = [], tempMap = {};
-    const rowIndex = isTransposed ? 1 : 0;
-    const colIndex = isTransposed ? 0 : 1;
-    solutions.forEach(sol => {
-      const r = sol.values[rowIndex];
-      const c = sol.values[colIndex];
-      const v = snapInt(sol.objectiveValue);
-      if (!tempRows.includes(r)) tempRows.push(r);
-      if (!tempCols.includes(c)) tempCols.push(c);
-      tempMap[`${r}__${c}`] = v;
-    });
-
-    const cleanCols = tempCols.filter(c => c !== null && c !== undefined && c !== '');
-    if (cleanCols.length > 0) {
-        const areColsNumeric = cleanCols.every(c => !isNaN(Number(c)));
-        if(areColsNumeric) {
-            cleanCols.sort((a,b) => Number(a) - Number(b));
-        } else {
-            cleanCols.sort((a,b) => String(a).localeCompare(String(b)));
-        }
-    }
-
-    return { rows2D: tempRows, cols2D: cleanCols, cellMap2D: tempMap };
-  }, [view, solutions, columnTypes, isTransposed]);
-
-  let sortedRows2D = [...rows2D];
+  let sortedPivotRows2D = [...pivotRows2D];
   if (view === 'Pivot' && columnTypes.length === 2 && pivotSort.key !== null) {
-    sortedRows2D.sort((a, b) => {
-      const valA = cellMap2D[`${a}__${pivotSort.key}`] || -Infinity;
-      const valB = cellMap2D[`${b}__${pivotSort.key}`] || -Infinity;
+    sortedPivotRows2D.sort((a, b) => {
+      const valA = pivotCellMap2D[`${a}__${pivotSort.key}`] || -Infinity;
+      const valB = pivotCellMap2D[`${b}__${pivotSort.key}`] || -Infinity;
       const comparison = valA - valB;
       return pivotSort.asc ? comparison : -comparison;
     });
@@ -397,6 +414,7 @@ export default function SolutionResultsPage() {
             setShowConfig(false);
             setIsTransposed(false);
             setPivotSort({ key: null, asc: true }); 
+            setPivotColumnSortMode('asc');
           }}
         >
           <option value="Table">Table</option>
@@ -404,7 +422,17 @@ export default function SolutionResultsPage() {
           {columnTypes.length === 1 && <option value="Graph">Graph</option>}
           {columnTypes.includes('DATE') && <option value="Calendar">Calendar</option>}
         </select>
-        {view === 'Pivot' && columnTypes.length === 3 && (<button className="config-btn" onClick={() => setShowConfig(true)}>Configure Pivot</button>)}
+        {view === 'Pivot' && columnTypes.length === 3 && (
+          <button className="config-btn" onClick={() => setShowConfig(true)}>Configure Pivot</button>
+        )}
+        {view === 'Pivot' && columnTypes.length === 2 && (
+          <button onClick={() => setIsTransposed(t => !t)} className="config-btn">Switch Rows/Columns</button>
+        )}
+        {view === 'Pivot' && (columnTypes.length === 2 || columnTypes.length === 3) && (
+            <button className="config-btn" onClick={handlePivotColumnSortToggle}>
+                Sort Columns {pivotColumnSortMode === 'asc' ? '▲' : pivotColumnSortMode === 'desc' ? '▼' : '⇅'}
+            </button>
+        )}
         {view === 'Graph' && columnTypes.length === 1 && (
           <>
             <label htmlFor="chart-select" className="var-label">Chart:</label>
@@ -427,13 +455,8 @@ export default function SolutionResultsPage() {
                   <SortableContext items={columns.map(c => c.id)} strategy={horizontalListSortingStrategy}>
                     {columns.map(col => (
                       <DraggableHeader
-                        key={col.id}
-                        id={col.id}
-                        sortId={col.id === 'objective' ? 'objective' : col.originalIndex}
-                        label={col.label}
-                        onSort={handleColumnSort}
-                        sortKey={sortKey}
-                        sortAsc={sortAsc}
+                        key={col.id} id={col.id} sortId={col.id === 'objective' ? 'objective' : col.originalIndex}
+                        label={col.label} onSort={handleColumnSort} sortKey={sortKey} sortAsc={sortAsc}
                       />
                     ))}
                   </SortableContext>
@@ -455,9 +478,7 @@ export default function SolutionResultsPage() {
               </thead>
               <SortableContext items={displayedRows.map(r => r.id)} strategy={verticalListSortingStrategy}>
                 <tbody>
-                    {displayedRows.map((row) => (
-                        <DraggableRow key={row.id} row={row} columns={columns} />
-                    ))}
+                    {displayedRows.map((row) => (<DraggableRow key={row.id} row={row} columns={columns} />))}
                 </tbody>
               </SortableContext>
             </table>
@@ -465,76 +486,65 @@ export default function SolutionResultsPage() {
         )}
 
         {view === 'Pivot' && columnTypes.length === 3 && (
-            <table className="pivot-table">
-              <thead>
-                <tr>
-                  <th className="has-tooltip" data-tooltip={columnTypes[mapping.rowIndex]}>
-                    <div className="cell-content">{columnTypes[mapping.rowIndex]}</div>
-                  </th>
-                  {cols.map(c => (
-                    <th key={c} className="has-tooltip" data-tooltip={c}>
-                      <div className="cell-content">
-                        {c}
-                        <button className="sort-btn" onClick={() => handlePivotSort(c)}>
-                          {pivotSort.key === c ? (pivotSort.asc ? '▲' : '▼') : '⇅'}
-                        </button>
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {sortedRows.map(r => (
-                  <tr key={r}>
-                    <td className="has-tooltip" data-tooltip={r}>
-                      <div className="cell-content"><strong>{r}</strong></div>
-                    </td>
-                    {cols.map(c => {
-                      const cellValue = cellMap[`${r}__${c}`] || '';
-                      return (
-                        <td key={c} className="has-tooltip" data-tooltip={cellValue}>
-                          <div className="cell-content">{cellValue}</div>
-                        </td>
-                      )
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <table className="pivot-table">
+                    <thead>
+                        <tr>
+                            <th className="has-tooltip" data-tooltip={columnTypes[mapping.rowIndex]}>
+                                <div className="cell-content">{columnTypes[mapping.rowIndex]}</div>
+                            </th>
+                            <SortableContext items={pivotCols} strategy={horizontalListSortingStrategy}>
+                                {pivotCols.map(c => (
+                                    <DraggableHeader key={c} id={c} sortId={c} label={c} onSort={handlePivotSort} sortKey={pivotSort.key} sortAsc={pivotSort.asc} isPivotHeader={true} />
+                                ))}
+                            </SortableContext>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {sortedPivotRows.map(r => (
+                        <tr key={r}>
+                            <td className="has-tooltip" data-tooltip={r}><div className="cell-content"><strong>{r}</strong></div></td>
+                            {pivotCols.map(c => {
+                                const cellValue = pivotCellMap[`${r}__${c}`] || '';
+                                return (<td key={c} className="has-tooltip" data-tooltip={cellValue}><div className="cell-content">{cellValue}</div></td>)
+                            })}
+                        </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </DndContext>
         )}
         
         {view === 'Pivot' && columnTypes.length === 2 && (
-          <div className="pivot-container">
-            <button onClick={() => setIsTransposed(t => !t)} className="config-btn" style={{marginBottom: '10px'}}>Switch Rows/Columns</button>
-            <table className="pivot-table">
-              <thead>
-                <tr>
-                  <th className="has-tooltip" data-tooltip={`${isTransposed ? columnTypes[1] : columnTypes[0]} / ${isTransposed ? columnTypes[0] : columnTypes[1]}`}>
-                    <div className="cell-content">{isTransposed ? columnTypes[1] : columnTypes[0]} / {isTransposed ? columnTypes[0] : columnTypes[1]}</div>
-                  </th>
-                  {cols2D.map(c => (
-                    <th key={c} className="has-tooltip" data-tooltip={c}>
-                      <div className="cell-content">
-                        {c}
-                        <button className="sort-btn" onClick={() => handlePivotSort(c)}>{pivotSort.key === c ? (pivotSort.asc ? '▲' : '▼') : '⇅'}</button>
-                      </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <div className="pivot-container">
+                <table className="pivot-table">
+                <thead>
+                    <tr>
+                    <th className="has-tooltip" data-tooltip={`${isTransposed ? columnTypes[1] : columnTypes[0]} / ${isTransposed ? columnTypes[0] : columnTypes[1]}`}>
+                        <div className="cell-content">{isTransposed ? columnTypes[1] : columnTypes[0]} / {isTransposed ? columnTypes[0] : columnTypes[1]}</div>
                     </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {sortedRows2D.map(r => (
-                  <tr key={r}>
-                    <td className="has-tooltip" data-tooltip={r}><div className="cell-content"><strong>{r}</strong></div></td>
-                    {cols2D.map(c => {
-                      const cellValue = cellMap2D[`${r}__${c}`] ?? '';
-                      return (<td key={c} className="has-tooltip" data-tooltip={cellValue}><div className="cell-content">{cellValue}</div></td>)
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    <SortableContext items={pivotCols2D} strategy={horizontalListSortingStrategy}>
+                        {pivotCols2D.map(c => (
+                            <DraggableHeader key={c} id={c} sortId={c} label={c} onSort={handlePivotSort} sortKey={pivotSort.key} sortAsc={pivotSort.asc} isPivotHeader={true} />
+                        ))}
+                    </SortableContext>
+                    </tr>
+                </thead>
+                <tbody>
+                    {sortedPivotRows2D.map(r => (
+                        <tr key={r}>
+                            <td className="has-tooltip" data-tooltip={r}><div className="cell-content"><strong>{r}</strong></div></td>
+                            {pivotCols2D.map(c => {
+                                const cellValue = pivotCellMap2D[`${r}__${c}`] ?? '';
+                                return (<td key={c} className="has-tooltip" data-tooltip={cellValue}><div className="cell-content">{cellValue}</div></td>)
+                            })}
+                        </tr>
+                    ))}
+                </tbody>
+                </table>
+            </div>
+          </DndContext>
         )}
         
         {view === 'Graph' && columnTypes.length === 1 && (
@@ -548,12 +558,7 @@ export default function SolutionResultsPage() {
                     const maxY = Math.max(1, ...displayedRows.map(s => snapInt(s.objectiveValue)));
                     const yVal = Math.round((i / 5) * maxY) || 0;
                     const yPos = 500 - 40 - (yVal / maxY * (500 - 60));
-                    return (
-                      <g key={i} transform={`translate(0,${yPos})`}>
-                        <line x1={50} x2={660} stroke="#eee" />
-                        <text x={42} dy="0.32em" textAnchor="end" fontSize="12" fill="#333">{yVal}</text>
-                      </g>
-                    );
+                    return (<g key={i} transform={`translate(0,${yPos})`}><line x1={50} x2={660} stroke="#eee" /><text x={42} dy="0.32em" textAnchor="end" fontSize="12" fill="#333">{yVal}</text></g>);
                   })}
                   {displayedRows.map((s, i) => {
                     const x = 50 + (i / (displayedRows.length - 1 || 1)) * (660 - 50);
