@@ -112,17 +112,31 @@ export default function SolutionResultsPage() {
     a.click();
   };
 
+  // ==================== START: MODIFIED PIVOT LOGIC ====================
   // Logic for 3-column pivot
   const rows = [], cols = [], cellMap = {};
   if (view === 'Pivot' && columnTypes.length === 3) {
     solutions.forEach(sol => {
-      const r = sol.values[mapping.rowIndex], c = sol.values[mapping.colIndex], v = sol.values[mapping.cellIndex];
-      if (!rows.includes(r)) rows.push(r);
-      if (!cols.includes(c)) cols.push(c);
-      cellMap[`${r}__${c}`] = v;
+        const r = sol.values[mapping.rowIndex];
+        const c = sol.values[mapping.colIndex];
+        const v = sol.values[mapping.cellIndex];
+
+        if (!rows.includes(r)) rows.push(r);
+        if (!cols.includes(c)) cols.push(c);
+
+        const key = `${r}__${c}`;
+        
+        // If the cell already has a value, append the new one. Otherwise, set it.
+        if (cellMap[key]) {
+            cellMap[key] += `, ${v}`;
+        } else {
+            cellMap[key] = v;
+        }
     });
+
     if (columnTypes[mapping.colIndex] === 'INT') cols.sort((a, b) => a - b);
   }
+  // ===================== END: MODIFIED PIVOT LOGIC =====================
 
   // Sorting logic for 3-column pivot
   let sortedRows = [...rows];
@@ -491,7 +505,6 @@ export default function SolutionResultsPage() {
           </div>
         )}
         
-        {/* ==================== START: MODIFIED GRAPH VIEW ==================== */}
         {view === 'Graph' && columnTypes.length === 1 && (
           <div
             className="graph-wrapper"
@@ -585,7 +598,6 @@ export default function SolutionResultsPage() {
             </svg>
           </div>
         )}
-        {/* ===================== END: MODIFIED GRAPH VIEW ===================== */}
 
         {view === 'Calendar' && (
           <div style={{ padding: 20, textAlign: 'center', color: '#666' }}>
