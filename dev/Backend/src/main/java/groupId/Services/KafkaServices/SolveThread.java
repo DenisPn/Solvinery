@@ -65,7 +65,7 @@ public class SolveThread extends Thread {
     public void handleSolveRequest(@NonNull SolveRequest request) {
         Path codeFile= null;
         try {
-            log.info("---------------------------Threaded-------------------------------");
+            log.info("---------------------------Solver v3-------------------------------");
             log.info("Received solve request: {}", request.requestId());
             codeFile = createCodeFile(request);
             validateZimplCode(codeFile);
@@ -90,83 +90,57 @@ public class SolveThread extends Thread {
     }
 
 
-
-    @NonNull
     private Solution solveProblem(@NonNull SolveRequest request, @NonNull Path codeFile) {
         Process scipProcess = null;
+        ExecutorService executor = Executors.newSingleThreadExecutor();
         int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
+        
         try {
-            log.info("Got path: {}", codeFile.toAbsolutePath());
             ProcessBuilder processBuilder = new ProcessBuilder("scip", "-c",
                     "read " + codeFile + " optimize display solution quit");
             processBuilder.directory(codeFile.getParent().toFile());
             processBuilder.redirectErrorStream(true);
-            //processBuilder.redirectError(ProcessBuilder.Redirect.DISCARD);
-            log.info("Executing command: {}", processBuilder.command());
             scipProcess = processBuilder.start();
-            //handleProcessOutput(scipProcess);
+            final Process finalScipProcess = scipProcess;
 
-            //StringBuilder output = new StringBuilder();
-            Solution solution= new Solution();
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(scipProcess.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    solution.processLine(line);
+            Solution solution = new Solution();
+            Future<Boolean> readerFuture = executor.submit(() -> {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(finalScipProcess.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (solution.processLine(line)) {
+                            return true; // Solution  read
+                        }
+                    }
+                    return true;
                 }
-            }
+            });
 
-            boolean completed = scipProcess.waitFor(timeout, TimeUnit.SECONDS);
-            //String outputStr = new String(scipProcess.getInputStream().readAllBytes());
-            /*String outputStr = output.toString();
-            outputStr = startFromStatus(outputStr);
-            String prunedOutput = outputStr.lines()
-                    .filter(line -> !line.startsWith("@@"))
-                    .collect(Collectors.joining("\n"));
-            if (!completed) {
-                if(!prunedOutput.contains("SCIP Status")) {
-                    log.info("SCIP process timed out, and no solution was found. Output: \n{}", prunedOutput);
-                    throw new SolverException(prunedOutput);
+            try {
+                boolean solutionFound = readerFuture.get(timeout, TimeUnit.SECONDS);
+                if (!solutionFound) {
+                    throw new SolverException("Complete solution was not found in output");
                 }
-                else
-                    log.info("SCIP process timed out, but solution was found");
-            }*/
-            if(!completed) {
-                if (solution.isSolved())
-                    log.info("SCIP process timed out, but solution was found");
-                else
-                    log.info("SCIP process timed out, and no solution was found.");
+                return solution;
+            } catch (TimeoutException e) {
+                throw new SolverException("Solver timed out after " + timeout + " seconds");
             }
-            else {
-                if (solution.isSolved())
-                    log.info("SCIP process completed successfully, and solution was found");
-                else
-                    log.info("SCIP process completed successfully, but no solution was found.");
-            }
-
-            if (scipProcess.exitValue() != 0) {
-                throw new SolverException("SCIP solver execution failed with exit code: " + scipProcess.exitValue());
-            }
-            log.info("Found solution: {}",solution);
-            return solution;
-
         }
         catch (IOException e) {
             throw new SolverException("IO Error during SCIP execution: " + e.getMessage());
         }
-        catch (InterruptedException e) {
-            throw new SolverException("Solver timed out after " + timeout + " seconds.");
+        catch (InterruptedException | ExecutionException e) {
+            throw new SolverException("Solver execution error: " + e.getMessage());
         }
         finally {
+            executor.shutdownNow();
             if (scipProcess != null) {
-                // Close all streams explicitly
+                scipProcess.destroyForcibly();
                 closeQuietly(scipProcess.getInputStream());
                 closeQuietly(scipProcess.getOutputStream());
                 closeQuietly(scipProcess.getErrorStream());
-
-                scipProcess.destroyForcibly();
             }
-
         }
     }
 
