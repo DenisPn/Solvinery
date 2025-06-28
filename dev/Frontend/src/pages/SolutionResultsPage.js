@@ -18,9 +18,9 @@ export default function SolutionResultsPage() {
   const [showConfig, setShowConfig] = useState(false);
   const [mapping, setMapping] = useState({ rowIndex: 0, colIndex: 1, cellIndex: 2 });
   const [isTransposed, setIsTransposed] = useState(false);
+  const [pivotSort, setPivotSort] = useState({ key: null, asc: true });
 
   const navigate = useNavigate();
-  const order = ['rowIndex', 'colIndex', 'cellIndex'];
 
   const snapInt = (x, tol = 1e-5) => {
     const f = Math.floor(x), c = Math.ceil(x);
@@ -112,20 +112,54 @@ export default function SolutionResultsPage() {
     a.click();
   };
 
+  // ==================== START: MODIFIED PIVOT LOGIC ====================
   // Logic for 3-column pivot
   const rows = [], cols = [], cellMap = {};
   if (view === 'Pivot' && columnTypes.length === 3) {
     solutions.forEach(sol => {
-      const r = sol.values[mapping.rowIndex], c = sol.values[mapping.colIndex], v = sol.values[mapping.cellIndex];
-      if (!rows.includes(r)) rows.push(r);
-      if (!cols.includes(c)) cols.push(c);
-      cellMap[`${r}__${c}`] = v;
+        const r = sol.values[mapping.rowIndex];
+        const c = sol.values[mapping.colIndex];
+        const v = sol.values[mapping.cellIndex];
+
+        if (!rows.includes(r)) rows.push(r);
+        if (!cols.includes(c)) cols.push(c);
+
+        const key = `${r}__${c}`;
+        
+        // If the cell already has a value, append the new one. Otherwise, set it.
+        if (cellMap[key]) {
+            cellMap[key] += `, ${v}`;
+        } else {
+            cellMap[key] = v;
+        }
     });
-    if (columnTypes[mapping.rowIndex] === 'INT') rows.sort((a, b) => a - b);
+
     if (columnTypes[mapping.colIndex] === 'INT') cols.sort((a, b) => a - b);
   }
+  // ===================== END: MODIFIED PIVOT LOGIC =====================
 
-  // Logic for new 2-column pivot
+  // Sorting logic for 3-column pivot
+  let sortedRows = [...rows];
+  if (view === 'Pivot' && columnTypes.length === 3 && pivotSort.key !== null) {
+    sortedRows.sort((a, b) => {
+      const valA = cellMap[`${a}__${pivotSort.key}`] || '';
+      const valB = cellMap[`${b}__${pivotSort.key}`] || '';
+      
+      const numA = Number(valA);
+      const numB = Number(valB);
+
+      let comparison = 0;
+      if (!isNaN(numA) && !isNaN(numB)) {
+        comparison = numA - numB;
+      } else {
+        comparison = String(valA).localeCompare(String(valB));
+      }
+
+      return pivotSort.asc ? comparison : -comparison;
+    });
+  }
+
+  // Logic for 2-column pivot
   const rows2D = [], cols2D = [], cellMap2D = {};
   if (view === 'Pivot' && columnTypes.length === 2) {
     const rowIndex = isTransposed ? 1 : 0;
@@ -140,45 +174,52 @@ export default function SolutionResultsPage() {
       if (!cols2D.includes(c)) cols2D.push(c);
       cellMap2D[`${r}__${c}`] = v;
     });
-
-    if (columnTypes[rowIndex] === 'INT') rows2D.sort((a, b) => Number(a) - Number(b));
-    if (columnTypes[colIndex] === 'INT') cols2D.sort((a, b) => Number(a) - Number(b));
   }
 
-  // ==================== START: NEW CODE ====================
-  /**
-   * Handles the pivot configuration change with intelligent swapping.
-   * @param {'rowIndex' | 'colIndex' | 'cellIndex'} roleToUpdate The role being changed.
-   * @param {number} selectedIndex The new data column index (0, 1, or 2).
-   */
+  // Sorting logic for 2-column pivot
+  let sortedRows2D = [...rows2D];
+  if (view === 'Pivot' && columnTypes.length === 2 && pivotSort.key !== null) {
+    sortedRows2D.sort((a, b) => {
+      const valA = cellMap2D[`${a}__${pivotSort.key}`] || -Infinity;
+      const valB = cellMap2D[`${b}__${pivotSort.key}`] || -Infinity;
+      
+      const comparison = valA - valB;
+      
+      return pivotSort.asc ? comparison : -comparison;
+    });
+  }
+
   const handleMappingChange = (roleToUpdate, selectedIndex) => {
     const newIndex = Number(selectedIndex);
     const currentMapping = { ...mapping };
 
-    // Find which role is currently using the index that we want to assign.
     const roleToSwap = Object.keys(currentMapping).find(
       (key) => currentMapping[key] === newIndex
     );
     
-    // Get the old index from the role we are updating.
     const oldIndexOfRole = currentMapping[roleToUpdate];
 
-    // Perform the swap
     if (roleToSwap) {
       currentMapping[roleToSwap] = oldIndexOfRole;
     }
     currentMapping[roleToUpdate] = newIndex;
 
     setMapping(currentMapping);
+    setPivotSort({ key: null, asc: true });
   };
-  // ===================== END: NEW CODE =====================
+  
+  const handlePivotSort = (colKey) => {
+    setPivotSort(prev => {
+      if (prev.key !== colKey) return { key: colKey, asc: true };
+      if (prev.asc) return { ...prev, asc: false };
+      return { key: null, asc: true };
+    });
+  };
 
   const publicUrl = process.env.PUBLIC_URL;
 
   return (
     <div className="solution-container">
-      {/* ==================== START: NEW CODE ==================== */}
-      {/* Configuration Modal */}
       {showConfig && (
         <div className="modal-overlay" onClick={() => setShowConfig(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -234,8 +275,6 @@ export default function SolutionResultsPage() {
           </div>
         </div>
       )}
-      {/* ===================== END: NEW CODE ===================== */}
-
 
       <div className="top-controls">
         <Link to="/main-page"
@@ -263,7 +302,9 @@ export default function SolutionResultsPage() {
           value={selectedVar}
           onChange={e => {
             setSelectedVar(e.target.value);
+            setView('Table'); // Reset the view to the default
             setIsTransposed(false);
+            setPivotSort({ key: null, asc: true }); 
           }}
         >
           {variableNames.map(n => <option key={n} value={n}>{n}</option>)}
@@ -277,6 +318,7 @@ export default function SolutionResultsPage() {
             setView(e.target.value);
             setShowConfig(false);
             setIsTransposed(false);
+            setPivotSort({ key: null, asc: true }); 
           }}
         >
           <option value="Table">Table</option>
@@ -387,13 +429,18 @@ export default function SolutionResultsPage() {
                 </th>
                 {cols.map(c => (
                   <th key={c} className="has-tooltip" data-tooltip={c}>
-                    <div className="cell-content">{c}</div>
+                    <div className="cell-content">
+                      {c}
+                      <button className="sort-btn" onClick={() => handlePivotSort(c)}>
+                        {pivotSort.key === c ? (pivotSort.asc ? '▲' : '▼') : '⇅'}
+                      </button>
+                    </div>
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {rows.map(r => (
+              {sortedRows.map(r => (
                 <tr key={r}>
                   <td className="has-tooltip" data-tooltip={r}>
                     <div className="cell-content"><strong>{r}</strong></div>
@@ -427,13 +474,18 @@ export default function SolutionResultsPage() {
                   </th>
                   {cols2D.map(c => (
                     <th key={c} className="has-tooltip" data-tooltip={c}>
-                      <div className="cell-content">{c}</div>
+                      <div className="cell-content">
+                        {c}
+                        <button className="sort-btn" onClick={() => handlePivotSort(c)}>
+                          {pivotSort.key === c ? (pivotSort.asc ? '▲' : '▼') : '⇅'}
+                        </button>
+                      </div>
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {rows2D.map(r => (
+                {sortedRows2D.map(r => (
                   <tr key={r}>
                     <td className="has-tooltip" data-tooltip={r}>
                       <div className="cell-content"><strong>{r}</strong></div>
@@ -452,7 +504,7 @@ export default function SolutionResultsPage() {
             </table>
           </div>
         )}
-
+        
         {view === 'Graph' && columnTypes.length === 1 && (
           <div
             className="graph-wrapper"
@@ -462,55 +514,87 @@ export default function SolutionResultsPage() {
               id="myGraph"
               width="100%"
               height="100%"
-              viewBox="0 0 700 500"
+              viewBox="0 0 700 520" // Increased height for the new label
               preserveAspectRatio="xMidYMid meet"
               style={{ display: 'block' }}
             >
-              {Array.from({ length: 6 }, (_, i) => {
-                const maxY = Math.max(...solutions.map(s => snapInt(s.objectiveValue)));
-                const yVal = Math.round((i / 5) * maxY);
-                const yPos = 500 - 40 - (yVal / maxY * (500 - 60));
-                return (
-                  <g key={i} transform={`translate(0,${yPos})`}>
-                    <line x1={40} x2={660} stroke="#eee" />
-                    <text x={32} dy="0.32em" textAnchor="end" fontSize="12" fill="#333">
-                      {yVal}
-                    </text>
-                  </g>
-                );
-              })}
-              {solutions.map((s, i) => {
-                const x = 40 + (i / (solutions.length - 1 || 1)) * (660 - 40);
-                return (
-                  <text key={i} x={x} y={480} textAnchor="middle" fontSize="12" fill="#333">
-                    {s.values[0]}
+              {/* Guard against empty filtered data */}
+              {filteredSolutions.length > 0 && (
+                <>
+                  {/* Y-Axis Label */}
+                  <text
+                    transform="rotate(-90)"
+                    x={-250} // Adjust x and y for vertical centering
+                    y={15}
+                    textAnchor="middle"
+                    fontSize="14"
+                    fill="#333"
+                    fontWeight="bold"
+                  >
+                    {objectiveLabel}
                   </text>
-                );
-              })}
-              {(() => {
-                const pts = solutions.map((s, i) => ({
-                  x: 40 + (i / (solutions.length - 1 || 1)) * (660 - 40),
-                  y: 500 - 40 - (snapInt(s.objectiveValue) / Math.max(...solutions.map(s => snapInt(s.objectiveValue))) * (500 - 60))
-                }));
-                if (graphType === 'bar') {
-                  return pts.map((p, i) => (
-                    <rect key={i} x={p.x - 10} y={p.y} width={20} height={500 - 40 - p.y} fill="#007BFF" />
-                  ));
-                }
-                if (graphType === 'point') {
-                  return pts.map((p, i) => (
-                    <circle key={i} cx={p.x} cy={p.y} r={4} fill="#007BFF" />
-                  ));
-                }
-                return (
-                  <polyline
-                    fill="none"
-                    stroke="#007BFF"
-                    strokeWidth={2}
-                    points={pts.map(p => `${p.x},${p.y}`).join(' ')}
-                  />
-                );
-              })()}
+                  
+                  {/* X-Axis Label */}
+                  <text
+                    x={350} // Center horizontally
+                    y={510} // Position below the tick labels
+                    textAnchor="middle"
+                    fontSize="14"
+                    fill="#333"
+                    fontWeight="bold"
+                  >
+                    {columnTypes[0]}
+                  </text>
+
+                  {Array.from({ length: 6 }, (_, i) => {
+                    const maxY = Math.max(...filteredSolutions.map(s => snapInt(s.objectiveValue)));
+                    const yVal = Math.round((i / 5) * maxY) || 0;
+                    const yPos = 500 - 40 - (yVal / maxY * (500 - 60));
+                    return (
+                      <g key={i} transform={`translate(0,${yPos})`}>
+                        <line x1={50} x2={660} stroke="#eee" /> {/* Adjusted x1 to make space for Y-label */}
+                        <text x={42} dy="0.32em" textAnchor="end" fontSize="12" fill="#333"> {/* Adjusted x */}
+                          {yVal}
+                        </text>
+                      </g>
+                    );
+                  })}
+                  {filteredSolutions.map((s, i) => {
+                    const x = 50 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 50); // Adjusted starting position
+                    return (
+                      <text key={i} x={x} y={480} textAnchor="middle" fontSize="12" fill="#333">
+                        {s.values[0]}
+                      </text>
+                    );
+                  })}
+                  {(() => {
+                    const maxY = Math.max(...filteredSolutions.map(s => snapInt(s.objectiveValue)));
+                    const pts = filteredSolutions.map((s, i) => ({
+                      x: 50 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 50), // Adjusted starting position
+                      y: 500 - 40 - (snapInt(s.objectiveValue) / maxY * (500 - 60))
+                    }));
+
+                    if (graphType === 'bar') {
+                      return pts.map((p, i) => (
+                        <rect key={i} x={p.x - 10} y={p.y} width={20} height={500 - 40 - p.y} fill="#007BFF" />
+                      ));
+                    }
+                    if (graphType === 'point') {
+                      return pts.map((p, i) => (
+                        <circle key={i} cx={p.x} cy={p.y} r={4} fill="#007BFF" />
+                      ));
+                    }
+                    return (
+                      <polyline
+                        fill="none"
+                        stroke="#007BFF"
+                        strokeWidth={2}
+                        points={pts.map(p => `${p.x},${p.y}`).join(' ')}
+                      />
+                    );
+                  })()}
+                </>
+              )}
             </svg>
           </div>
         )}
