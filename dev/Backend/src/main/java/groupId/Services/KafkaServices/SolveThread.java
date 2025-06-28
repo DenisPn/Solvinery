@@ -10,6 +10,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
@@ -157,9 +158,15 @@ public class SolveThread extends Thread {
             throw new SolverException("Solver timed out after " + timeout + " seconds.");
         }
         finally {
-            if (scipProcess != null && scipProcess.isAlive()) {
+            if (scipProcess != null) {
+                // Close all streams explicitly
+                closeQuietly(scipProcess.getInputStream());
+                closeQuietly(scipProcess.getOutputStream());
+                closeQuietly(scipProcess.getErrorStream());
+
                 scipProcess.destroyForcibly();
             }
+
         }
     }
 
@@ -179,8 +186,6 @@ public class SolveThread extends Thread {
                 request.zimplContent(),
                 StandardOpenOption.CREATE_NEW
         );
-
-
     }
     private void validateZimplCode(@NonNull Path codeFile) throws SolverException {
         log.info("Validating code file: {}", codeFile.toAbsolutePath());
@@ -209,8 +214,13 @@ public class SolveThread extends Thread {
             throw new ValidationException(e.getMessage());
         }
         finally {
-            if (zimplProcess != null && zimplProcess.isAlive()) {
+            if (zimplProcess != null) {
+                // Close all streams explicitly
+                closeQuietly(zimplProcess.getInputStream());
+                closeQuietly(zimplProcess.getOutputStream());
+                closeQuietly(zimplProcess.getErrorStream());
                 zimplProcess.destroyForcibly();
+
             }
         }
     }
@@ -239,74 +249,7 @@ public class SolveThread extends Thread {
             return original.substring(original.indexOf(from));
         else return original;
     }
-    @Deprecated(forRemoval = true)
-    private @Nullable Solution solveProblemExecutor(SolveRequest request, Path codeFile) {
-        /*Process scipProcess = null;
-        int timeout = Math.min(request.timeoutSeconds(), MAX_TIMEOUT_SECONDS);
-        try {
-            log.info("Got path: {}", codeFile.toAbsolutePath());
-            ProcessBuilder processBuilder = new ProcessBuilder("scip", "-c",
-                    "read " + codeFile + " optimize display solution quit");
 
-            processBuilder.directory(codeFile.getParent().toFile());
-            processBuilder.redirectErrorStream(true);
-            log.info("Executing command: {}\n timeout set to: {}", processBuilder.command(), timeout);
-            scipProcess = processBuilder.start();
-            //SCIP process doesn't seem to exit on completion, ever. A bad but working solution
-            //is capture the solution during runtime.
-            BufferedReader reader = new BufferedReader(new InputStreamReader(scipProcess.getInputStream()));
-            StringBuilder solution = new StringBuilder();
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            try {
-                Future<?> future = executor.submit(() -> {
-                    try {
-                        boolean foundSolution = false;
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            if (line.contains("SCIP Status")) {
-                                foundSolution = true;
-                            }
-                            if (foundSolution) {
-                                if (!line.startsWith("@@"))
-                                    solution.append(line).append("\n");
-                            }
-                        }
-                    } catch (IOException e) {
-                        log.error("Error reading process output", e);
-                    }
-                });
-
-                // Wait for either completion or timeout
-                try {
-                    future.get(timeout, TimeUnit.SECONDS);
-                } catch (TimeoutException e) {
-                    future.cancel(true);
-                    throw new SolverException("Solver timed out after " + timeout + " seconds");
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new SolverException("Error during solution reading: " + e.getMessage());
-                }
-            } finally {
-                executor.shutdownNow();
-            }
-
-            if (!solution.isEmpty()) {
-                scipProcess.destroyForcibly();
-                log.info("Solution captured, process terminated");
-                String solutionStr = solution.toString();
-                log.info("\n-------------------OUTPUT----------------\n{}\n-------------------END--------------------\n", solutionStr);
-                return new Solution(solutionStr);
-            } else {
-                throw new SolverException("Failed to capture solution");
-            }
-        } catch (IOException e) {
-            throw new SolverException("Error during SCIP execution: " + e.getMessage());
-        } finally {
-            if (scipProcess != null && scipProcess.isAlive()) {
-                scipProcess.destroyForcibly();
-            }
-        }*/
-        return null;
-    }
     //DEBUG METHOD
     private void handleProcessOutput(@NonNull Process process) {
         // Handle stdout
@@ -340,7 +283,15 @@ public class SolveThread extends Thread {
         outputReader.start();
         errorReader.start();
     }
-
+    private void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException e) {
+                log.warn("Failed to close stream", e);
+            }
+        }
+    }
 
 
 }

@@ -5,7 +5,7 @@ This project is licenced under GPL v3, see: https://www.gnu.org/licenses/gpl-3.0
 The project enables anyone to easily access powerful tools to solve planning problems such as scheduling,
 task management, and more.
 Choose a scenario from the shared public library, edit it by enabling or disabling constraints, adjusting priorities,
-and editing the static data, and send it to the server who users a powerful engine to find the optimal solution.
+and editing the static data, and send it to the server who uses a powerful engine to find the optimal solution.
 The project will initially feature a number of select scenarios that will cover many of the most common problems.
 However, anyone willing to learn how can create a new one from scratch and help expand our ecosystem by sharing it.
 ### Technical overview:
@@ -29,7 +29,7 @@ its own profile (name, description, etc.), sets, parameters, constraints, and pr
 
 - #### Sets
 An image set defines data that one can edit in the problem.
-A set is an unordered list of edit test,integer, decimal, or tuple elements.
+A set is an unordered list of text,integer, decimal, or tuple elements.
 A tuple is itself an ordered list of the same element types a set supports,
 which means a set can consist of a collection of lists.
 A set is displayed in the image in a table format, where each column's head holds the name of the component below it.
@@ -56,25 +56,25 @@ An image may also be published and deleted at all times.
 Once an image is solved, a solution is shown on the screen.
 Every solution consistest of a list of topics that were solved, each topic consists of 
 either a list of solutions or a numeric value.
-If there's a list of solutions, and there are exactly three columns, they may be pivoted into a table view,
+If there's a list of solutions, and there are exactly two or three columns, they may be pivoted into a table view,
 where each column in the solution may be assigned
 to a row, column, or cell of the table.
 A three-column solution may also be viewed as a graph.
 
 #### Shared Images
-By default, the first 10 images, sorted by creation date, are displayed.
-The user may filter, according to an image name, description, and author, and view images create before or after a specific date.
+By default, the first 5 images, sorted by creation date, are displayed.
+The user may filter, according to an image name, description, and author, and view images created before or after a specific date.
 An image viewed here may at any point be downloaded, at which point it will be added to the user's image list.
 
 #### Image Creation
 - #### Zimpl code
-In image is initially made from parsed zimpl code. As of now we do not support parsing the full score of zimpl's syntax, thus you must adhere to the following rules:
+An image is initially made from parsed zimpl code. As of now we do not support parsing the full score of zimpl's syntax, thus you must adhere to the following rules:
 Only "primitive" sets and parameters will be parsed and available in the image. Sets that won't be parsed include:
 sets with more the one layer deep recursive tuples, indexed sets, indexed parameters, and any of their derivatives.
 As a general rule of thumb, if you try to break our parser, you'll probably succeed in doing so — so try to keep the syntax simple.
 Most of zimpl's complex data structures may be defined in a simpler way with multiple sets.
 - #### Image definition
-THe most important part of an image is its variables — these are the actual topics displayed in the solution. 
+The most important part of an image is its variables — these are the actual topics displayed in the solution. 
 Each variable may be selected, where unselected variables are not displayed in the solution,
 have an alias, overriding its original name, 
 and a structure alias, overriding the names of the parts making up each section of its solution.
