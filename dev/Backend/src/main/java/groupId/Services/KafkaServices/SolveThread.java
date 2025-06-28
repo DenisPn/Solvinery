@@ -113,7 +113,7 @@ public class SolveThread extends Thread {
                             return true; // Solution  read
                         }
                     }
-                    return false; // Reached end of output without finding a complete solution
+                    return true;
                 }
             });
 
