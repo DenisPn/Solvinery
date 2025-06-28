@@ -3,7 +3,60 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useZPL } from '../context/ZPLContext';
 import * as XLSX from 'xlsx';
 import svgPanZoom from 'svg-pan-zoom';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  horizontalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import './SolutionResultsPage.css';
+
+// ==================== START: Draggable Header Component ====================
+// A new component for the draggable table header cell
+function DraggableHeader({ column, onSort, sortKey, sortAsc }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: column.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.8 : 1,
+    cursor: 'move',
+    zIndex: isDragging ? 10 : 1,
+    position: 'relative',
+  };
+
+  const handleSortClick = () => {
+    const key = column.id === 'objective' ? 'objective' : column.originalIndex;
+    onSort(key);
+  };
+  
+  return (
+    <th ref={setNodeRef} style={style} {...attributes} className="has-tooltip" data-tooltip={column.label}>
+      <div className="cell-content">
+        <span {...listeners} style={{ flexGrow: 1, display: 'inline-block' }}>{column.label}</span>
+        <button className="sort-btn" onClick={handleSortClick}>
+            {sortKey === (column.id === 'objective' ? 'objective' : column.originalIndex) ? (sortAsc ? '▲' : '▼') : '⇅'}
+        </button>
+      </div>
+    </th>
+  );
+}
+// ===================== END: Draggable Header Component =====================
 
 export default function SolutionResultsPage() {
   const { solutionResponse, setSelectedImage, setSelectedImageId } = useZPL();
@@ -21,6 +74,31 @@ export default function SolutionResultsPage() {
   const [pivotSort, setPivotSort] = useState({ key: null, asc: true });
 
   const navigate = useNavigate();
+
+  // ==================== START: DnD State and Handlers ====================
+  const [columns, setColumns] = useState([]);
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      setColumns((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  const handleColumnSort = (key) => {
+    if (sortKey === key) {
+        setSortAsc(a => !a);
+    } else {
+        setSortKey(key);
+        setSortAsc(true);
+    }
+  };
+  // ===================== END: DnD State and Handlers =====================
 
   const snapInt = (x, tol = 1e-5) => {
     const f = Math.floor(x), c = Math.ceil(x);
@@ -41,13 +119,7 @@ export default function SolutionResultsPage() {
   useLayoutEffect(() => {
     if (view === 'Graph') {
       const instance = svgPanZoom('#myGraph', {
-        zoomEnabled: true,
-        controlIconsEnabled: true,
-        fit: true,
-        center: true,
-        minZoom: 0.5,
-        maxZoom: 20,
-        zoomScaleSensitivity: 0.2,
+        zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true, minZoom: 0.5, maxZoom: 20, zoomScaleSensitivity: 0.2,
       });
       return () => instance.destroy();
     }
@@ -58,10 +130,27 @@ export default function SolutionResultsPage() {
   const columnTypes = varData.typeStructure || [];
   const showObjective = solutions.some(s => s.objectiveValue !== 1);
   const objectiveLabel = varData.objectiveValueAlias || 'Objective Value';
+  
+  // Effect to initialize/reset column order
+  useEffect(() => {
+    const initialColumns = columnTypes.map((type, index) => ({
+      id: `col-${index}`,
+      label: type,
+      originalIndex: index,
+    }));
+    if (showObjective) {
+      initialColumns.push({
+        id: 'objective',
+        label: objectiveLabel,
+        originalIndex: -1, // Special index for objective
+      });
+    }
+    setColumns(initialColumns);
+  }, [selectedVar, showObjective, objectiveLabel, columnTypes]);
 
   useEffect(() => {
     const init = {};
-    columnTypes.forEach((_, i) => (init[i] = ''));
+    columnTypes.forEach((_, i) => (init[i.toString()] = ''));
     if (showObjective) init['objective'] = '';
     setFilters(init);
   }, [columnTypes, showObjective]);
@@ -112,31 +201,18 @@ export default function SolutionResultsPage() {
     a.click();
   };
 
-  // ==================== START: MODIFIED PIVOT LOGIC ====================
   // Logic for 3-column pivot
   const rows = [], cols = [], cellMap = {};
   if (view === 'Pivot' && columnTypes.length === 3) {
     solutions.forEach(sol => {
-        const r = sol.values[mapping.rowIndex];
-        const c = sol.values[mapping.colIndex];
-        const v = sol.values[mapping.cellIndex];
-
-        if (!rows.includes(r)) rows.push(r);
-        if (!cols.includes(c)) cols.push(c);
-
-        const key = `${r}__${c}`;
-        
-        // If the cell already has a value, append the new one. Otherwise, set it.
-        if (cellMap[key]) {
-            cellMap[key] += `, ${v}`;
-        } else {
-            cellMap[key] = v;
-        }
+      const r = sol.values[mapping.rowIndex], c = sol.values[mapping.colIndex], v = sol.values[mapping.cellIndex];
+      if (!rows.includes(r)) rows.push(r);
+      if (!cols.includes(c)) cols.push(c);
+      const key = `${r}__${c}`;
+      if (cellMap[key]) { cellMap[key] += `, ${v}`; } else { cellMap[key] = v; }
     });
-
     if (columnTypes[mapping.colIndex] === 'INT') cols.sort((a, b) => a - b);
   }
-  // ===================== END: MODIFIED PIVOT LOGIC =====================
 
   // Sorting logic for 3-column pivot
   let sortedRows = [...rows];
@@ -302,7 +378,7 @@ export default function SolutionResultsPage() {
           value={selectedVar}
           onChange={e => {
             setSelectedVar(e.target.value);
-            setView('Table'); // Reset the view to the default
+            setView('Table');
             setIsTransposed(false);
             setPivotSort({ key: null, asc: true }); 
           }}
@@ -349,76 +425,60 @@ export default function SolutionResultsPage() {
       </div>
 
       <div className={`table-wrapper ${view.toLowerCase()}-view`}>
+        {/* ==================== START: CORRECTED TABLE VIEW FOR DnD ==================== */}
         {view === 'Table' && (
-          <table className="solutions-table">
-            <thead>
-              <tr>
-                {columnTypes.map((t, i) => (
-                  <th key={i} className="has-tooltip" data-tooltip={t}>
-                    <div className="cell-content">
-                      {t}{' '}
-                      <button className="sort-btn" onClick={() => {
-                        if (sortKey === i) setSortAsc(a => !a);
-                        else { setSortKey(i); setSortAsc(true); }
-                      }}>⇅</button>
-                    </div>
-                  </th>
-                ))}
-                {showObjective && (
-                  <th className="has-tooltip" data-tooltip={objectiveLabel}>
-                    <div className="cell-content">
-                      {objectiveLabel}{' '}
-                      <button className="sort-btn" onClick={() => {
-                        if (sortKey === 'objective') setSortAsc(a => !a);
-                        else { setSortKey('objective'); setSortAsc(true); }
-                      }}>⇅</button>
-                    </div>
-                  </th>
-                )}
-              </tr>
-              <tr>
-                {columnTypes.map((_, i) => (
-                  <th key={`filter-${i}`}>
-                    <input
-                      type="text"
-                      className="filter-input"
-                      placeholder="Search..."
-                      value={filters[i] || ''}
-                      onChange={e => handleFilterChange(i.toString(), e.target.value)}
-                    />
-                  </th>
-                ))}
-                {showObjective && (
-                  <th>
-                    <input
-                      type="text"
-                      className="filter-input"
-                      placeholder="Search..."
-                      value={filters['objective'] || ''}
-                      onChange={e => handleFilterChange('objective', e.target.value)}
-                    />
-                  </th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSolutions.map(sol => (
-                <tr key={sol.values.join('-')}>
-                  {sol.values.map((v, idx) => (
-                    <td key={idx} className="has-tooltip" data-tooltip={v}>
-                      <div className="cell-content">{v}</div>
-                    </td>
-                  ))}
-                  {showObjective && (
-                    <td className="has-tooltip" data-tooltip={sol.snappedObjective}>
-                      <div className="cell-content">{sol.snappedObjective}</div>
-                    </td>
-                  )}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <table className="solutions-table">
+              <thead>
+                <tr>
+                  {/* The SortableContext now correctly wraps the items being sorted */}
+                  <SortableContext items={columns.map(c => c.id)} strategy={horizontalListSortingStrategy}>
+                    {columns.map(col => (
+                      <DraggableHeader 
+                        key={col.id} 
+                        column={col} 
+                        onSort={handleColumnSort}
+                        sortKey={sortKey}
+                        sortAsc={sortAsc}
+                      />
+                    ))}
+                  </SortableContext>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+                <tr>
+                  {columns.map(col => {
+                    const filterKey = col.id === 'objective' ? 'objective' : col.originalIndex.toString();
+                    return (
+                      <th key={`filter-${col.id}`}>
+                        <input
+                          type="text"
+                          className="filter-input"
+                          placeholder="Search..."
+                          value={filters[filterKey] || ''}
+                          onChange={e => handleFilterChange(filterKey, e.target.value)}
+                        />
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSolutions.map((sol, rowIndex) => (
+                  <tr key={`${sol.values.join('-')}-${rowIndex}`}>
+                    {columns.map(col => {
+                      const cellValue = col.id === 'objective' ? sol.snappedObjective : sol.values[col.originalIndex];
+                      return (
+                        <td key={`${col.id}-${rowIndex}`} className="has-tooltip" data-tooltip={cellValue}>
+                          <div className="cell-content">{cellValue}</div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </DndContext>
         )}
+        {/* ===================== END: CORRECTED TABLE VIEW FOR DnD ===================== */}
 
         {view === 'Pivot' && columnTypes.length === 3 && (
           <table className="pivot-table">
@@ -514,17 +574,15 @@ export default function SolutionResultsPage() {
               id="myGraph"
               width="100%"
               height="100%"
-              viewBox="0 0 700 520" // Increased height for the new label
+              viewBox="0 0 700 520"
               preserveAspectRatio="xMidYMid meet"
               style={{ display: 'block' }}
             >
-              {/* Guard against empty filtered data */}
               {filteredSolutions.length > 0 && (
                 <>
-                  {/* Y-Axis Label */}
                   <text
                     transform="rotate(-90)"
-                    x={-250} // Adjust x and y for vertical centering
+                    x={-250}
                     y={15}
                     textAnchor="middle"
                     fontSize="14"
@@ -533,11 +591,9 @@ export default function SolutionResultsPage() {
                   >
                     {objectiveLabel}
                   </text>
-                  
-                  {/* X-Axis Label */}
                   <text
-                    x={350} // Center horizontally
-                    y={510} // Position below the tick labels
+                    x={350}
+                    y={510}
                     textAnchor="middle"
                     fontSize="14"
                     fill="#333"
@@ -545,22 +601,21 @@ export default function SolutionResultsPage() {
                   >
                     {columnTypes[0]}
                   </text>
-
                   {Array.from({ length: 6 }, (_, i) => {
                     const maxY = Math.max(...filteredSolutions.map(s => snapInt(s.objectiveValue)));
                     const yVal = Math.round((i / 5) * maxY) || 0;
                     const yPos = 500 - 40 - (yVal / maxY * (500 - 60));
                     return (
                       <g key={i} transform={`translate(0,${yPos})`}>
-                        <line x1={50} x2={660} stroke="#eee" /> {/* Adjusted x1 to make space for Y-label */}
-                        <text x={42} dy="0.32em" textAnchor="end" fontSize="12" fill="#333"> {/* Adjusted x */}
+                        <line x1={50} x2={660} stroke="#eee" />
+                        <text x={42} dy="0.32em" textAnchor="end" fontSize="12" fill="#333">
                           {yVal}
                         </text>
                       </g>
                     );
                   })}
                   {filteredSolutions.map((s, i) => {
-                    const x = 50 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 50); // Adjusted starting position
+                    const x = 50 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 50);
                     return (
                       <text key={i} x={x} y={480} textAnchor="middle" fontSize="12" fill="#333">
                         {s.values[0]}
@@ -570,10 +625,9 @@ export default function SolutionResultsPage() {
                   {(() => {
                     const maxY = Math.max(...filteredSolutions.map(s => snapInt(s.objectiveValue)));
                     const pts = filteredSolutions.map((s, i) => ({
-                      x: 50 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 50), // Adjusted starting position
+                      x: 50 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 50),
                       y: 500 - 40 - (snapInt(s.objectiveValue) / maxY * (500 - 60))
                     }));
-
                     if (graphType === 'bar') {
                       return pts.map((p, i) => (
                         <rect key={i} x={p.x - 10} y={p.y} width={20} height={500 - 40 - p.y} fill="#007BFF" />
