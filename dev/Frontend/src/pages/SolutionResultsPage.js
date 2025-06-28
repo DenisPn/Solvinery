@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useZPL } from '../context/ZPLContext';
 import * as XLSX from 'xlsx';
@@ -15,13 +15,13 @@ import {
   SortableContext,
   useSortable,
   horizontalListSortingStrategy,
+  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import './SolutionResultsPage.css';
 
-// ==================== START: Draggable Header Component ====================
-// A new component for the draggable table header cell
-function DraggableHeader({ column, onSort, sortKey, sortAsc }) {
+// Draggable Header Component
+function DraggableHeader({ id, sortId, label, onSort, sortKey, sortAsc }) {
   const {
     attributes,
     listeners,
@@ -29,7 +29,7 @@ function DraggableHeader({ column, onSort, sortKey, sortAsc }) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: column.id });
+  } = useSortable({ id, data: { type: 'column' } });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -40,23 +40,54 @@ function DraggableHeader({ column, onSort, sortKey, sortAsc }) {
     position: 'relative',
   };
 
-  const handleSortClick = () => {
-    const key = column.id === 'objective' ? 'objective' : column.originalIndex;
-    onSort(key);
-  };
-  
   return (
-    <th ref={setNodeRef} style={style} {...attributes} className="has-tooltip" data-tooltip={column.label}>
+    <th ref={setNodeRef} style={style} {...attributes} className="has-tooltip" data-tooltip={label}>
       <div className="cell-content">
-        <span {...listeners} style={{ flexGrow: 1, display: 'inline-block' }}>{column.label}</span>
-        <button className="sort-btn" onClick={handleSortClick}>
-            {sortKey === (column.id === 'objective' ? 'objective' : column.originalIndex) ? (sortAsc ? '▲' : '▼') : '⇅'}
+        <span {...listeners} style={{ flexGrow: 1, display: 'inline-block' }}>{label}</span>
+        <button className="sort-btn" onClick={() => onSort(sortId)}>
+          {sortKey === sortId ? (sortAsc ? '▲' : '▼') : '⇅'}
         </button>
       </div>
     </th>
   );
 }
-// ===================== END: Draggable Header Component =====================
+
+// Draggable Row Component
+function DraggableRow({ row, columns }) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: row.id, data: { type: 'row' } });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.8 : 1,
+        zIndex: isDragging ? 10 : 0,
+        position: 'relative',
+        backgroundColor: isDragging ? '#f0f8ff' : 'transparent',
+    };
+    
+    return (
+        <tr ref={setNodeRef} style={style} {...attributes}>
+            <td className="drag-handle" {...listeners}>
+                <span style={{cursor: 'grab'}}>⠿</span>
+            </td>
+            {columns.map(col => {
+                const cellValue = col.id === 'objective' ? row.snappedObjective : row.values[col.originalIndex];
+                return (
+                    <td key={col.id} className="has-tooltip" data-tooltip={cellValue}>
+                        <div className="cell-content">{cellValue}</div>
+                    </td>
+                );
+            })}
+        </tr>
+    );
+}
 
 export default function SolutionResultsPage() {
   const { solutionResponse, setSelectedImage, setSelectedImageId } = useZPL();
@@ -72,33 +103,44 @@ export default function SolutionResultsPage() {
   const [mapping, setMapping] = useState({ rowIndex: 0, colIndex: 1, cellIndex: 2 });
   const [isTransposed, setIsTransposed] = useState(false);
   const [pivotSort, setPivotSort] = useState({ key: null, asc: true });
-
+  
   const navigate = useNavigate();
 
-  // ==================== START: DnD State and Handlers ====================
   const [columns, setColumns] = useState([]);
+  const [displayedRows, setDisplayedRows] = useState([]);
+  const [pivotRows, setPivotRows] = useState([]);
+  const [pivotCols, setPivotCols] = useState([]);
+  const [pivotCellMap, setPivotCellMap] = useState({});
   const sensors = useSensors(useSensor(PointerSensor));
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    if (active.id !== over.id) {
+    if (!over || active.id === over.id) return;
+
+    const activeType = active.data.current?.type;
+    const overType = over.data.current?.type;
+
+    if (activeType === 'column' && overType === 'column') {
       setColumns((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
         return arrayMove(items, oldIndex, newIndex);
       });
     }
+
+    if (activeType === 'row' && overType === 'row') {
+      setDisplayedRows((items) => {
+          const oldIndex = items.findIndex((item) => item.id === active.id);
+          const newIndex = items.findIndex((item) => item.id === over.id);
+          return arrayMove(items, oldIndex, newIndex);
+      });
+    }
   };
 
   const handleColumnSort = (key) => {
-    if (sortKey === key) {
-        setSortAsc(a => !a);
-    } else {
-        setSortKey(key);
-        setSortAsc(true);
-    }
+    if (sortKey === key) setSortAsc(a => !a);
+    else { setSortKey(key); setSortAsc(true); }
   };
-  // ===================== END: DnD State and Handlers =====================
 
   const snapInt = (x, tol = 1e-5) => {
     const f = Math.floor(x), c = Math.ceil(x);
@@ -118,33 +160,56 @@ export default function SolutionResultsPage() {
 
   useLayoutEffect(() => {
     if (view === 'Graph') {
-      const instance = svgPanZoom('#myGraph', {
-        zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true, minZoom: 0.5, maxZoom: 20, zoomScaleSensitivity: 0.2,
-      });
+      const instance = svgPanZoom('#myGraph', { zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true, minZoom: 0.5, maxZoom: 20, zoomScaleSensitivity: 0.2 });
       return () => instance.destroy();
     }
-  }, [view, selectedVar,graphType]);
+  }, [view, selectedVar, graphType]);
 
   const varData = solutionMap[selectedVar] || {};
-  const solutions = Array.from(varData.solutions || []);
-  const columnTypes = varData.typeStructure || [];
-  const showObjective = solutions.some(s => s.objectiveValue !== 1);
-  const objectiveLabel = varData.objectiveValueAlias || 'Objective Value';
   
-  // Effect to initialize/reset column order
-  useEffect(() => {
-    const initialColumns = columnTypes.map((type, index) => ({
-      id: `col-${index}`,
-      label: type,
-      originalIndex: index,
-    }));
-    if (showObjective) {
-      initialColumns.push({
-        id: 'objective',
-        label: objectiveLabel,
-        originalIndex: -1, // Special index for objective
+  const solutions = useMemo(() => Array.from(varData.solutions || []), [varData.solutions]);
+  const columnTypes = useMemo(() => varData.typeStructure || [], [varData.typeStructure]);
+  
+  const showObjective = useMemo(() => solutions.some(s => s.objectiveValue !== 1), [solutions]);
+  const objectiveLabel = varData.objectiveValueAlias || 'Objective Value';
+
+  const withSnapped = useMemo(() => solutions.map((s, index) => ({ 
+    ...s, 
+    id: `row-${index}-${s.values.join('-')}`,
+    snappedObjective: snapInt(s.objectiveValue) 
+  })), [solutions]);
+
+  const sortedSolutions = useMemo(() => {
+    let tempSolutions = [...withSnapped];
+    if (sortKey !== null) {
+      tempSolutions.sort((a, b) => {
+        const va = sortKey === 'objective' ? a.snappedObjective : a.values[sortKey];
+        const vb = sortKey === 'objective' ? b.snappedObjective : b.values[sortKey];
+        const na = Number(va), nb = Number(vb);
+        if (!isNaN(na) && !isNaN(nb)) return sortAsc ? na - nb : nb - na;
+        const da = Date.parse(va), db = Date.parse(vb);
+        if (!isNaN(da) && !isNaN(db)) return sortAsc ? da - db : db - da;
+        return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
       });
     }
+    return tempSolutions;
+  }, [withSnapped, sortKey, sortAsc]);
+  
+  const filteredSolutions = useMemo(() => sortedSolutions.filter(sol =>
+    Object.entries(filters).every(([key, filter]) => {
+      if (!filter) return true;
+      const cell = key === 'objective' ? sol.snappedObjective : sol.values[Number(key)];
+      return String(cell).toLowerCase().includes(filter.toLowerCase());
+    })
+  ), [sortedSolutions, filters]);
+
+  useEffect(() => {
+    setDisplayedRows(filteredSolutions);
+  }, [filteredSolutions]);
+
+  useEffect(() => {
+    const initialColumns = columnTypes.map((type, index) => ({ id: `col-${index}`, label: type, originalIndex: index }));
+    if (showObjective) initialColumns.push({ id: 'objective', label: objectiveLabel, originalIndex: -1 });
     setColumns(initialColumns);
   }, [selectedVar, showObjective, objectiveLabel, columnTypes]);
 
@@ -156,29 +221,6 @@ export default function SolutionResultsPage() {
   }, [columnTypes, showObjective]);
 
   const handleFilterChange = (key, value) => setFilters(f => ({ ...f, [key]: value }));
-
-  const withSnapped = solutions.map(s => ({ ...s, snappedObjective: snapInt(s.objectiveValue) }));
-
-  let sortedSolutions = [...withSnapped];
-  if (sortKey !== null) {
-    sortedSolutions.sort((a, b) => {
-      const va = sortKey === 'objective' ? a.snappedObjective : a.values[sortKey];
-      const vb = sortKey === 'objective' ? b.snappedObjective : b.values[sortKey];
-      const na = Number(va), nb = Number(vb);
-      if (!isNaN(na) && !isNaN(nb)) return sortAsc ? na - nb : nb - na;
-      const da = Date.parse(va), db = Date.parse(vb);
-      if (!isNaN(da) && !isNaN(db)) return sortAsc ? da - db : db - da;
-      return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
-    });
-  }
-
-  const filteredSolutions = sortedSolutions.filter(sol =>
-    Object.entries(filters).every(([key, filter]) => {
-      if (!filter) return true;
-      const cell = key === 'objective' ? sol.snappedObjective : sol.values[Number(key)];
-      return String(cell).toLowerCase().includes(filter.toLowerCase());
-    })
-  );
 
   const handleExport = () => {
     const wb = XLSX.utils.book_new();
@@ -201,89 +243,6 @@ export default function SolutionResultsPage() {
     a.click();
   };
 
-  // Logic for 3-column pivot
-  const rows = [], cols = [], cellMap = {};
-  if (view === 'Pivot' && columnTypes.length === 3) {
-    solutions.forEach(sol => {
-      const r = sol.values[mapping.rowIndex], c = sol.values[mapping.colIndex], v = sol.values[mapping.cellIndex];
-      if (!rows.includes(r)) rows.push(r);
-      if (!cols.includes(c)) cols.push(c);
-      const key = `${r}__${c}`;
-      if (cellMap[key]) { cellMap[key] += `, ${v}`; } else { cellMap[key] = v; }
-    });
-    if (columnTypes[mapping.colIndex] === 'INT') cols.sort((a, b) => a - b);
-  }
-
-  // Sorting logic for 3-column pivot
-  let sortedRows = [...rows];
-  if (view === 'Pivot' && columnTypes.length === 3 && pivotSort.key !== null) {
-    sortedRows.sort((a, b) => {
-      const valA = cellMap[`${a}__${pivotSort.key}`] || '';
-      const valB = cellMap[`${b}__${pivotSort.key}`] || '';
-      
-      const numA = Number(valA);
-      const numB = Number(valB);
-
-      let comparison = 0;
-      if (!isNaN(numA) && !isNaN(numB)) {
-        comparison = numA - numB;
-      } else {
-        comparison = String(valA).localeCompare(String(valB));
-      }
-
-      return pivotSort.asc ? comparison : -comparison;
-    });
-  }
-
-  // Logic for 2-column pivot
-  const rows2D = [], cols2D = [], cellMap2D = {};
-  if (view === 'Pivot' && columnTypes.length === 2) {
-    const rowIndex = isTransposed ? 1 : 0;
-    const colIndex = isTransposed ? 0 : 1;
-
-    solutions.forEach(sol => {
-      const r = sol.values[rowIndex];
-      const c = sol.values[colIndex];
-      const v = snapInt(sol.objectiveValue);
-
-      if (!rows2D.includes(r)) rows2D.push(r);
-      if (!cols2D.includes(c)) cols2D.push(c);
-      cellMap2D[`${r}__${c}`] = v;
-    });
-  }
-
-  // Sorting logic for 2-column pivot
-  let sortedRows2D = [...rows2D];
-  if (view === 'Pivot' && columnTypes.length === 2 && pivotSort.key !== null) {
-    sortedRows2D.sort((a, b) => {
-      const valA = cellMap2D[`${a}__${pivotSort.key}`] || -Infinity;
-      const valB = cellMap2D[`${b}__${pivotSort.key}`] || -Infinity;
-      
-      const comparison = valA - valB;
-      
-      return pivotSort.asc ? comparison : -comparison;
-    });
-  }
-
-  const handleMappingChange = (roleToUpdate, selectedIndex) => {
-    const newIndex = Number(selectedIndex);
-    const currentMapping = { ...mapping };
-
-    const roleToSwap = Object.keys(currentMapping).find(
-      (key) => currentMapping[key] === newIndex
-    );
-    
-    const oldIndexOfRole = currentMapping[roleToUpdate];
-
-    if (roleToSwap) {
-      currentMapping[roleToSwap] = oldIndexOfRole;
-    }
-    currentMapping[roleToUpdate] = newIndex;
-
-    setMapping(currentMapping);
-    setPivotSort({ key: null, asc: true });
-  };
-  
   const handlePivotSort = (colKey) => {
     setPivotSort(prev => {
       if (prev.key !== colKey) return { key: colKey, asc: true };
@@ -291,7 +250,81 @@ export default function SolutionResultsPage() {
       return { key: null, asc: true };
     });
   };
+  
+  useEffect(() => {
+    if (view === 'Pivot' && columnTypes.length === 3) {
+      const newRows = [];
+      const tempCols = [];
+      const newCellMap = {};
+      solutions.forEach(sol => {
+        const r = sol.values[mapping.rowIndex];
+        const c = sol.values[mapping.colIndex];
+        const v = sol.values[mapping.cellIndex];
+        if (!newRows.includes(r)) newRows.push(r);
+        if (!tempCols.includes(c)) tempCols.push(c);
+        const key = `${r}__${c}`;
+        if (newCellMap[key]) { newCellMap[key] += `, ${v}`; } else { newCellMap[key] = v; }
+      });
+      
+      if (tempCols.length > 0) {
+        const areColsNumeric = tempCols.every(c => !isNaN(Number(c)));
+        if (areColsNumeric) tempCols.sort((a, b) => Number(a) - Number(b));
+        else tempCols.sort((a, b) => String(a).localeCompare(String(b)));
+      }
+      setPivotRows(newRows);
+      setPivotCols(tempCols);
+      setPivotCellMap(newCellMap);
+    }
+  }, [view, selectedVar, mapping, solutions, columnTypes]);
 
+  let sortedPivotRows = [...pivotRows];
+  if (view === 'Pivot' && columnTypes.length === 3 && pivotSort.key !== null) {
+    sortedPivotRows.sort((a, b) => {
+      const valA = pivotCellMap[`${a}__${pivotSort.key}`] || '';
+      const valB = pivotCellMap[`${b}__${pivotSort.key}`] || '';
+      const numA = Number(valA);
+      const numB = Number(valB);
+      let comparison = 0;
+      if (!isNaN(numA) && !isNaN(numB)) comparison = numA - numB;
+      else comparison = String(valA).localeCompare(String(valB));
+      return pivotSort.asc ? comparison : -comparison;
+    });
+  }
+  
+  const rows2D = [], cols2D = [], cellMap2D = {};
+  if (view === 'Pivot' && columnTypes.length === 2) {
+    const rowIndex = isTransposed ? 1 : 0;
+    const colIndex = isTransposed ? 0 : 1;
+    solutions.forEach(sol => {
+      const r = sol.values[rowIndex];
+      const c = sol.values[colIndex];
+      const v = snapInt(sol.objectiveValue);
+      if (!rows2D.includes(r)) rows2D.push(r);
+      if (!cols2D.includes(c)) cols2D.push(c);
+      cellMap2D[`${r}__${c}`] = v;
+    });
+  }
+  let sortedRows2D = [...rows2D];
+  if (view === 'Pivot' && columnTypes.length === 2 && pivotSort.key !== null) {
+    sortedRows2D.sort((a, b) => {
+      const valA = cellMap2D[`${a}__${pivotSort.key}`] || -Infinity;
+      const valB = cellMap2D[`${b}__${pivotSort.key}`] || -Infinity;
+      const comparison = valA - valB;
+      return pivotSort.asc ? comparison : -comparison;
+    });
+  }
+
+  const handleMappingChange = (roleToUpdate, selectedIndex) => {
+    const newIndex = Number(selectedIndex);
+    const currentMapping = { ...mapping };
+    const roleToSwap = Object.keys(currentMapping).find((key) => currentMapping[key] === newIndex);
+    const oldIndexOfRole = currentMapping[roleToUpdate];
+    if (roleToSwap) currentMapping[roleToSwap] = oldIndexOfRole;
+    currentMapping[roleToUpdate] = newIndex;
+    setMapping(currentMapping);
+    setPivotSort({ key: null, asc: true });
+  };
+  
   const publicUrl = process.env.PUBLIC_URL;
 
   return (
@@ -305,45 +338,15 @@ export default function SolutionResultsPage() {
               <tbody>
                 <tr>
                   <td><strong>Rows</strong></td>
-                  <td>
-                    <select
-                      className="var-select"
-                      value={mapping.rowIndex}
-                      onChange={(e) => handleMappingChange('rowIndex', e.target.value)}
-                    >
-                      {columnTypes.map((type, i) => (
-                        <option key={`row-${i}`} value={i}>{type} (Column {i+1})</option>
-                      ))}
-                    </select>
-                  </td>
+                  <td><select className="var-select" value={mapping.rowIndex} onChange={(e) => handleMappingChange('rowIndex', e.target.value)}>{columnTypes.map((type, i) => (<option key={`row-${i}`} value={i}>{type} (Column {i+1})</option>))}</select></td>
                 </tr>
                 <tr>
                   <td><strong>Columns</strong></td>
-                  <td>
-                    <select
-                      className="var-select"
-                      value={mapping.colIndex}
-                      onChange={(e) => handleMappingChange('colIndex', e.target.value)}
-                    >
-                      {columnTypes.map((type, i) => (
-                        <option key={`col-${i}`} value={i}>{type} (Column {i+1})</option>
-                      ))}
-                    </select>
-                  </td>
+                  <td><select className="var-select" value={mapping.colIndex} onChange={(e) => handleMappingChange('colIndex', e.target.value)}>{columnTypes.map((type, i) => (<option key={`col-${i}`} value={i}>{type} (Column {i+1})</option>))}</select></td>
                 </tr>
                 <tr>
                   <td><strong>Cell Value</strong></td>
-                  <td>
-                    <select
-                      className="var-select"
-                      value={mapping.cellIndex}
-                      onChange={(e) => handleMappingChange('cellIndex', e.target.value)}
-                    >
-                      {columnTypes.map((type, i) => (
-                        <option key={`cell-${i}`} value={i}>{type} (Column {i+1})</option>
-                      ))}
-                    </select>
-                  </td>
+                  <td><select className="var-select" value={mapping.cellIndex} onChange={(e) => handleMappingChange('cellIndex', e.target.value)}>{columnTypes.map((type, i) => (<option key={`cell-${i}`} value={i}>{type} (Column {i+1})</option>))}</select></td>
                 </tr>
               </tbody>
             </table>
@@ -353,29 +356,11 @@ export default function SolutionResultsPage() {
       )}
 
       <div className="top-controls">
-        <Link to="/main-page"
-          onClick={e => { e.preventDefault(); setSelectedImage(null); setSelectedImageId(null); navigate('/main-page'); }}
-          className="nav-btn home-btn"
-          style={{ backgroundImage: `url(${publicUrl}/images/HomeButton.png)` }}
-          title="Home"
-        />
-        <Link to="/my-images"
-          className="nav-btn images-btn"
-          style={{ backgroundImage: `url(${publicUrl}/images/ExitButton2.png)` }}
-          title="My Images"
-        />
-        <img
-          src={`${publicUrl}/images/excel.png`}
-          alt="Export to Excel"
-          className="export-btn"
-          onClick={handleExport}
-          title="Export to Excel"
-        />
+        <Link to="/main-page" onClick={e => { e.preventDefault(); setSelectedImage(null); setSelectedImageId(null); navigate('/main-page'); }} className="nav-btn home-btn" style={{ backgroundImage: `url(${publicUrl}/images/HomeButton.png)` }} title="Home" />
+        <Link to="/my-images" className="nav-btn images-btn" style={{ backgroundImage: `url(${publicUrl}/images/ExitButton2.png)` }} title="My Images" />
+        <img src={`${publicUrl}/images/excel.png`} alt="Export to Excel" className="export-btn" onClick={handleExport} title="Export to Excel" />
         <label htmlFor="var-select" className="var-label">Variable:</label>
-        <select
-          id="var-select"
-          className="var-select"
-          value={selectedVar}
+        <select id="var-select" className="var-select" value={selectedVar}
           onChange={e => {
             setSelectedVar(e.target.value);
             setView('Table');
@@ -386,10 +371,7 @@ export default function SolutionResultsPage() {
           {variableNames.map(n => <option key={n} value={n}>{n}</option>)}
         </select>
         <label htmlFor="view-select" className="var-label">View:</label>
-        <select
-          id="view-select"
-          className="var-select"
-          value={view}
+        <select id="view-select" className="var-select" value={view}
           onChange={e => {
             setView(e.target.value);
             setShowConfig(false);
@@ -402,20 +384,11 @@ export default function SolutionResultsPage() {
           {columnTypes.length === 1 && <option value="Graph">Graph</option>}
           {columnTypes.includes('DATE') && <option value="Calendar">Calendar</option>}
         </select>
-        {view === 'Pivot' && columnTypes.length === 3 && (
-          <button className="config-btn" onClick={() => setShowConfig(true)}>
-            Configure Pivot
-          </button>
-        )}
+        {view === 'Pivot' && columnTypes.length === 3 && (<button className="config-btn" onClick={() => setShowConfig(true)}>Configure Pivot</button>)}
         {view === 'Graph' && columnTypes.length === 1 && (
           <>
             <label htmlFor="chart-select" className="var-label">Chart:</label>
-            <select
-              id="chart-select"
-              className="var-select"
-              value={graphType}
-              onChange={e => setGraphType(e.target.value)}
-            >
+            <select id="chart-select" className="var-select" value={graphType} onChange={e => setGraphType(e.target.value)}>
               <option value="bar">Columns</option>
               <option value="point">Points</option>
               <option value="line">Line</option>
@@ -425,18 +398,19 @@ export default function SolutionResultsPage() {
       </div>
 
       <div className={`table-wrapper ${view.toLowerCase()}-view`}>
-        {/* ==================== START: CORRECTED TABLE VIEW FOR DnD ==================== */}
         {view === 'Table' && (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <table className="solutions-table">
               <thead>
                 <tr>
-                  {/* The SortableContext now correctly wraps the items being sorted */}
+                  <th className="drag-handle-header"></th>
                   <SortableContext items={columns.map(c => c.id)} strategy={horizontalListSortingStrategy}>
                     {columns.map(col => (
-                      <DraggableHeader 
-                        key={col.id} 
-                        column={col} 
+                      <DraggableHeader
+                        key={col.id}
+                        id={col.id}
+                        sortId={col.id === 'objective' ? 'objective' : col.originalIndex}
+                        label={col.label}
                         onSort={handleColumnSort}
                         sortKey={sortKey}
                         sortAsc={sortAsc}
@@ -445,94 +419,39 @@ export default function SolutionResultsPage() {
                   </SortableContext>
                 </tr>
                 <tr>
-                  {columns.map(col => {
-                    const filterKey = col.id === 'objective' ? 'objective' : col.originalIndex.toString();
-                    return (
-                      <th key={`filter-${col.id}`}>
-                        <input
-                          type="text"
-                          className="filter-input"
-                          placeholder="Search..."
-                          value={filters[filterKey] || ''}
-                          onChange={e => handleFilterChange(filterKey, e.target.value)}
-                        />
-                      </th>
-                    );
-                  })}
+                    <th className="drag-handle-header"></th>
+                    {columns.map(col => {
+                        const filterKey = col.id === 'objective' ? 'objective' : col.originalIndex.toString();
+                        return (
+                        <th key={`filter-${col.id}`}>
+                            <input type="text" className="filter-input" placeholder="Search..."
+                            value={filters[filterKey] || ''}
+                            onChange={e => handleFilterChange(filterKey, e.target.value)}
+                            />
+                        </th>
+                        );
+                    })}
                 </tr>
               </thead>
-              <tbody>
-                {filteredSolutions.map((sol, rowIndex) => (
-                  <tr key={`${sol.values.join('-')}-${rowIndex}`}>
-                    {columns.map(col => {
-                      const cellValue = col.id === 'objective' ? sol.snappedObjective : sol.values[col.originalIndex];
-                      return (
-                        <td key={`${col.id}-${rowIndex}`} className="has-tooltip" data-tooltip={cellValue}>
-                          <div className="cell-content">{cellValue}</div>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
+              <SortableContext items={displayedRows.map(r => r.id)} strategy={verticalListSortingStrategy}>
+                <tbody>
+                    {displayedRows.map((row) => (
+                        <DraggableRow key={row.id} row={row} columns={columns} />
+                    ))}
+                </tbody>
+              </SortableContext>
             </table>
           </DndContext>
         )}
-        {/* ===================== END: CORRECTED TABLE VIEW FOR DnD ===================== */}
 
         {view === 'Pivot' && columnTypes.length === 3 && (
-          <table className="pivot-table">
-            <thead>
-              <tr>
-                <th className="has-tooltip" data-tooltip={columnTypes[mapping.rowIndex]}>
-                  <div className="cell-content">{columnTypes[mapping.rowIndex]}</div>
-                </th>
-                {cols.map(c => (
-                  <th key={c} className="has-tooltip" data-tooltip={c}>
-                    <div className="cell-content">
-                      {c}
-                      <button className="sort-btn" onClick={() => handlePivotSort(c)}>
-                        {pivotSort.key === c ? (pivotSort.asc ? '▲' : '▼') : '⇅'}
-                      </button>
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sortedRows.map(r => (
-                <tr key={r}>
-                  <td className="has-tooltip" data-tooltip={r}>
-                    <div className="cell-content"><strong>{r}</strong></div>
-                  </td>
-                  {cols.map(c => {
-                    const cellValue = cellMap[`${r}__${c}`] || '';
-                    return (
-                      <td key={c} className="has-tooltip" data-tooltip={cellValue}>
-                        <div className="cell-content">{cellValue}</div>
-                      </td>
-                    )
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-
-        {view === 'Pivot' && columnTypes.length === 2 && (
-          <div className="pivot-container">
-            <button onClick={() => setIsTransposed(t => !t)} className="config-btn" style={{marginBottom: '10px'}}>
-              Switch Rows/Columns
-            </button>
             <table className="pivot-table">
               <thead>
                 <tr>
-                  <th className="has-tooltip" data-tooltip={`${isTransposed ? columnTypes[1] : columnTypes[0]} / ${isTransposed ? columnTypes[0] : columnTypes[1]}`}>
-                    <div className="cell-content">
-                      {isTransposed ? columnTypes[1] : columnTypes[0]} / {isTransposed ? columnTypes[0] : columnTypes[1]}
-                    </div>
+                  <th className="has-tooltip" data-tooltip={columnTypes[mapping.rowIndex]}>
+                    <div className="cell-content">{columnTypes[mapping.rowIndex]}</div>
                   </th>
-                  {cols2D.map(c => (
+                  {pivotCols.map(c => (
                     <th key={c} className="has-tooltip" data-tooltip={c}>
                       <div className="cell-content">
                         {c}
@@ -545,13 +464,13 @@ export default function SolutionResultsPage() {
                 </tr>
               </thead>
               <tbody>
-                {sortedRows2D.map(r => (
+                {sortedPivotRows.map(r => (
                   <tr key={r}>
                     <td className="has-tooltip" data-tooltip={r}>
                       <div className="cell-content"><strong>{r}</strong></div>
                     </td>
-                    {cols2D.map(c => {
-                      const cellValue = cellMap2D[`${r}__${c}`] ?? '';
+                    {pivotCols.map(c => {
+                      const cellValue = pivotCellMap[`${r}__${c}`] || '';
                       return (
                         <td key={c} className="has-tooltip" data-tooltip={cellValue}>
                           <div className="cell-content">{cellValue}</div>
@@ -562,96 +481,81 @@ export default function SolutionResultsPage() {
                 ))}
               </tbody>
             </table>
+        )}
+        
+        {view === 'Pivot' && columnTypes.length === 2 && (
+          <div className="pivot-container">
+            <button onClick={() => setIsTransposed(t => !t)} className="config-btn" style={{marginBottom: '10px'}}>Switch Rows/Columns</button>
+            <table className="pivot-table">
+              <thead>
+                <tr>
+                  <th className="has-tooltip" data-tooltip={`${isTransposed ? columnTypes[1] : columnTypes[0]} / ${isTransposed ? columnTypes[0] : columnTypes[1]}`}>
+                    <div className="cell-content">{isTransposed ? columnTypes[1] : columnTypes[0]} / {isTransposed ? columnTypes[0] : columnTypes[1]}</div>
+                  </th>
+                  {cols2D.map(c => (
+                    <th key={c} className="has-tooltip" data-tooltip={c}>
+                      <div className="cell-content">
+                        {c}
+                        <button className="sort-btn" onClick={() => handlePivotSort(c)}>{pivotSort.key === c ? (pivotSort.asc ? '▲' : '▼') : '⇅'}</button>
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {sortedRows2D.map(r => (
+                  <tr key={r}>
+                    <td className="has-tooltip" data-tooltip={r}><div className="cell-content"><strong>{r}</strong></div></td>
+                    {cols2D.map(c => {
+                      const cellValue = cellMap2D[`${r}__${c}`] ?? '';
+                      return (<td key={c} className="has-tooltip" data-tooltip={cellValue}><div className="cell-content">{cellValue}</div></td>)
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
         
+        {/* ==================== START: MODIFIED GRAPH VIEW ==================== */}
         {view === 'Graph' && columnTypes.length === 1 && (
-          <div
-            className="graph-wrapper"
-            key={`${selectedVar}-${graphType}`}
-          >
-            <svg
-              id="myGraph"
-              width="100%"
-              height="100%"
-              viewBox="0 0 700 520"
-              preserveAspectRatio="xMidYMid meet"
-              style={{ display: 'block' }}
-            >
-              {filteredSolutions.length > 0 && (
+          <div className="graph-wrapper" key={`${selectedVar}-${graphType}`}>
+            <svg id="myGraph" width="100%" height="100%" viewBox="0 0 700 520" preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
+              {displayedRows.length > 0 && (
                 <>
-                  <text
-                    transform="rotate(-90)"
-                    x={-250}
-                    y={15}
-                    textAnchor="middle"
-                    fontSize="14"
-                    fill="#333"
-                    fontWeight="bold"
-                  >
-                    {objectiveLabel}
-                  </text>
-                  <text
-                    x={350}
-                    y={510}
-                    textAnchor="middle"
-                    fontSize="14"
-                    fill="#333"
-                    fontWeight="bold"
-                  >
-                    {columnTypes[0]}
-                  </text>
+                  <text transform="rotate(-90)" x={-250} y={15} textAnchor="middle" fontSize="14" fill="#333" fontWeight="bold">{objectiveLabel}</text>
+                  <text x={350} y={510} textAnchor="middle" fontSize="14" fill="#333" fontWeight="bold">{columnTypes[0]}</text>
                   {Array.from({ length: 6 }, (_, i) => {
-                    const maxY = Math.max(...filteredSolutions.map(s => snapInt(s.objectiveValue)));
+                    const maxY = Math.max(...displayedRows.map(s => snapInt(s.objectiveValue)));
                     const yVal = Math.round((i / 5) * maxY) || 0;
                     const yPos = 500 - 40 - (yVal / maxY * (500 - 60));
                     return (
                       <g key={i} transform={`translate(0,${yPos})`}>
                         <line x1={50} x2={660} stroke="#eee" />
-                        <text x={42} dy="0.32em" textAnchor="end" fontSize="12" fill="#333">
-                          {yVal}
-                        </text>
+                        <text x={42} dy="0.32em" textAnchor="end" fontSize="12" fill="#333">{yVal}</text>
                       </g>
                     );
                   })}
-                  {filteredSolutions.map((s, i) => {
-                    const x = 50 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 50);
-                    return (
-                      <text key={i} x={x} y={480} textAnchor="middle" fontSize="12" fill="#333">
-                        {s.values[0]}
-                      </text>
-                    );
+                  {displayedRows.map((s, i) => {
+                    const x = 50 + (i / (displayedRows.length - 1 || 1)) * (660 - 50);
+                    return (<text key={i} x={x} y={480} textAnchor="middle" fontSize="12" fill="#333">{s.values[0]}</text>);
                   })}
                   {(() => {
-                    const maxY = Math.max(...filteredSolutions.map(s => snapInt(s.objectiveValue)));
-                    const pts = filteredSolutions.map((s, i) => ({
-                      x: 50 + (i / (filteredSolutions.length - 1 || 1)) * (660 - 50),
+                    const maxY = Math.max(...displayedRows.map(s => snapInt(s.objectiveValue)));
+                    const pts = displayedRows.map((s, i) => ({
+                      x: 50 + (i / (displayedRows.length - 1 || 1)) * (660 - 50),
                       y: 500 - 40 - (snapInt(s.objectiveValue) / maxY * (500 - 60))
                     }));
-                    if (graphType === 'bar') {
-                      return pts.map((p, i) => (
-                        <rect key={i} x={p.x - 10} y={p.y} width={20} height={500 - 40 - p.y} fill="#007BFF" />
-                      ));
-                    }
-                    if (graphType === 'point') {
-                      return pts.map((p, i) => (
-                        <circle key={i} cx={p.x} cy={p.y} r={4} fill="#007BFF" />
-                      ));
-                    }
-                    return (
-                      <polyline
-                        fill="none"
-                        stroke="#007BFF"
-                        strokeWidth={2}
-                        points={pts.map(p => `${p.x},${p.y}`).join(' ')}
-                      />
-                    );
+                    if (graphType === 'bar') return pts.map((p, i) => <rect key={i} x={p.x - 10} y={p.y} width={20} height={500 - 40 - p.y} fill="#007BFF" />);
+                    if (graphType === 'point') return pts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r={4} fill="#007BFF" />);
+                    return <polyline fill="none" stroke="#007BFF" strokeWidth={2} points={pts.map(p => `${p.x},${p.y}`).join(' ')} />;
                   })()}
                 </>
               )}
             </svg>
           </div>
         )}
+        {/* ===================== END: MODIFIED GRAPH VIEW ===================== */}
 
         {view === 'Calendar' && (
           <div style={{ padding: 20, textAlign: 'center', color: '#666' }}>

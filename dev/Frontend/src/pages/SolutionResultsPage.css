@@ -349,3 +349,27 @@ body {
 .has-tooltip[data-tooltip=""]::before {
   display: none;
 }
+
+
+/* Target the header of the drag handle column */
+.solutions-table th.drag-handle-header {
+  width: 40px;         /* Set a small, fixed width */
+  min-width: 40px;       /* Prevent it from getting smaller */
+  padding: 0;            /* Remove padding */
+}
+
+/* Target the body cells of the drag handle column */
+.solutions-table td.drag-handle {
+  width: 40px;         /* Match the header's width */
+  min-width: 40px;       /* Match the header's width */
+  text-align: center;    /* Center the drag icon nicely */
+}
+
+/* Optional: Improve the cursor feedback for the handle */
+.solutions-table td.drag-handle span {
+    cursor: grab;
+}
+
+.solutions-table td.drag-handle span:active {
+    cursor: grabbing;
+}
