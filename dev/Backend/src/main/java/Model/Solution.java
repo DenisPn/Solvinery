@@ -57,9 +57,9 @@ public class Solution {
         solved = false;
     }
 
-    public void processLine(@NonNull String line){
+    public boolean processLine(@NonNull String line){
         if(reachedVariables) {
-            processVariable(line);
+            return processVariable(line);
         }
         else if(!reachedSolution) {
             if (statusPattern.matcher(line).find()) {
@@ -82,8 +82,9 @@ public class Solution {
                 }
             }
         }
+        return false;
     }
-    private void processVariable(@NonNull String line){
+    private boolean processVariable(@NonNull String line){
         if(!line.isBlank() && !line.startsWith("@@")) {
             Matcher variableMatcher = variablePattern.matcher(line);
             if (variableMatcher.find()) {
@@ -91,6 +92,10 @@ public class Solution {
                 int objectiveValue = Integer.parseInt(variableMatcher.group(2));
                 List<String> splitSolution = new LinkedList<>(Arrays.asList(solution.split("[#$]"))); //need a new array to remove dependence
                 String variableIdentifier = splitSolution.getFirst();
+                if(variableIdentifier.equals("objvar")) {
+                    log.info("reached end of solution.");
+                    return true;
+                }
                 splitSolution.removeFirst();
                 if(/*objectiveValue != 0 &&*/ !variableIdentifier.isBlank()) {
                     if (!rawVariableSolution.containsKey(variableIdentifier))
@@ -101,6 +106,7 @@ public class Solution {
                 log.error("Malformed variable structure detected in solution: {}", line);
             }
         }
+        return false;
     }
     public void postProcessSolution(@NonNull Image image){
         if(solvingTime == -1F || !solved)
