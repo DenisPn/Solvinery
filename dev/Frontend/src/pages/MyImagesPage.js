@@ -165,7 +165,7 @@ const MyImagesPage = () => {
 
     const preferenceModulesScalars = {};
     selectedImage.preferenceModules.forEach((m) => {
-      const raw = Number(m.value ?? 50);
+      const raw = Number(m.value ?? 100);
       preferenceModulesScalars[m.moduleName] = Math.min(Math.max(raw / 100, 0), 1);
     });
     const enabledConstraintModules = selectedImage.constraintModules

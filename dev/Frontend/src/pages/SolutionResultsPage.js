@@ -18,9 +18,9 @@ export default function SolutionResultsPage() {
   const [showConfig, setShowConfig] = useState(false);
   const [mapping, setMapping] = useState({ rowIndex: 0, colIndex: 1, cellIndex: 2 });
   const [isTransposed, setIsTransposed] = useState(false);
+  const [pivotSort, setPivotSort] = useState({ key: null, asc: true });
 
   const navigate = useNavigate();
-  const order = ['rowIndex', 'colIndex', 'cellIndex'];
 
   const snapInt = (x, tol = 1e-5) => {
     const f = Math.floor(x), c = Math.ceil(x);
@@ -121,11 +121,31 @@ export default function SolutionResultsPage() {
       if (!cols.includes(c)) cols.push(c);
       cellMap[`${r}__${c}`] = v;
     });
-    if (columnTypes[mapping.rowIndex] === 'INT') rows.sort((a, b) => a - b);
     if (columnTypes[mapping.colIndex] === 'INT') cols.sort((a, b) => a - b);
   }
 
-  // Logic for new 2-column pivot
+  // Sorting logic for 3-column pivot
+  let sortedRows = [...rows];
+  if (view === 'Pivot' && columnTypes.length === 3 && pivotSort.key !== null) {
+    sortedRows.sort((a, b) => {
+      const valA = cellMap[`${a}__${pivotSort.key}`] || '';
+      const valB = cellMap[`${b}__${pivotSort.key}`] || '';
+      
+      const numA = Number(valA);
+      const numB = Number(valB);
+
+      let comparison = 0;
+      if (!isNaN(numA) && !isNaN(numB)) {
+        comparison = numA - numB;
+      } else {
+        comparison = String(valA).localeCompare(String(valB));
+      }
+
+      return pivotSort.asc ? comparison : -comparison;
+    });
+  }
+
+  // Logic for 2-column pivot
   const rows2D = [], cols2D = [], cellMap2D = {};
   if (view === 'Pivot' && columnTypes.length === 2) {
     const rowIndex = isTransposed ? 1 : 0;
@@ -140,45 +160,52 @@ export default function SolutionResultsPage() {
       if (!cols2D.includes(c)) cols2D.push(c);
       cellMap2D[`${r}__${c}`] = v;
     });
-
-    if (columnTypes[rowIndex] === 'INT') rows2D.sort((a, b) => Number(a) - Number(b));
-    if (columnTypes[colIndex] === 'INT') cols2D.sort((a, b) => Number(a) - Number(b));
   }
 
-  // ==================== START: NEW CODE ====================
-  /**
-   * Handles the pivot configuration change with intelligent swapping.
-   * @param {'rowIndex' | 'colIndex' | 'cellIndex'} roleToUpdate The role being changed.
-   * @param {number} selectedIndex The new data column index (0, 1, or 2).
-   */
+  // Sorting logic for 2-column pivot
+  let sortedRows2D = [...rows2D];
+  if (view === 'Pivot' && columnTypes.length === 2 && pivotSort.key !== null) {
+    sortedRows2D.sort((a, b) => {
+      const valA = cellMap2D[`${a}__${pivotSort.key}`] || -Infinity;
+      const valB = cellMap2D[`${b}__${pivotSort.key}`] || -Infinity;
+      
+      const comparison = valA - valB;
+      
+      return pivotSort.asc ? comparison : -comparison;
+    });
+  }
+
   const handleMappingChange = (roleToUpdate, selectedIndex) => {
     const newIndex = Number(selectedIndex);
     const currentMapping = { ...mapping };
 
-    // Find which role is currently using the index that we want to assign.
     const roleToSwap = Object.keys(currentMapping).find(
       (key) => currentMapping[key] === newIndex
     );
     
-    // Get the old index from the role we are updating.
     const oldIndexOfRole = currentMapping[roleToUpdate];
 
-    // Perform the swap
     if (roleToSwap) {
       currentMapping[roleToSwap] = oldIndexOfRole;
     }
     currentMapping[roleToUpdate] = newIndex;
 
     setMapping(currentMapping);
+    setPivotSort({ key: null, asc: true });
   };
-  // ===================== END: NEW CODE =====================
+  
+  const handlePivotSort = (colKey) => {
+    setPivotSort(prev => {
+      if (prev.key !== colKey) return { key: colKey, asc: true };
+      if (prev.asc) return { ...prev, asc: false };
+      return { key: null, asc: true };
+    });
+  };
 
   const publicUrl = process.env.PUBLIC_URL;
 
   return (
     <div className="solution-container">
-      {/* ==================== START: NEW CODE ==================== */}
-      {/* Configuration Modal */}
       {showConfig && (
         <div className="modal-overlay" onClick={() => setShowConfig(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -234,8 +261,6 @@ export default function SolutionResultsPage() {
           </div>
         </div>
       )}
-      {/* ===================== END: NEW CODE ===================== */}
-
 
       <div className="top-controls">
         <Link to="/main-page"
@@ -261,10 +286,14 @@ export default function SolutionResultsPage() {
           id="var-select"
           className="var-select"
           value={selectedVar}
+          // ==================== START: MODIFIED CODE ====================
           onChange={e => {
             setSelectedVar(e.target.value);
+            setView('Table'); // Reset the view to the default
             setIsTransposed(false);
+            setPivotSort({ key: null, asc: true }); 
           }}
+          // ===================== END: MODIFIED CODE =====================
         >
           {variableNames.map(n => <option key={n} value={n}>{n}</option>)}
         </select>
@@ -277,6 +306,7 @@ export default function SolutionResultsPage() {
             setView(e.target.value);
             setShowConfig(false);
             setIsTransposed(false);
+            setPivotSort({ key: null, asc: true }); 
           }}
         >
           <option value="Table">Table</option>
@@ -387,13 +417,18 @@ export default function SolutionResultsPage() {
                 </th>
                 {cols.map(c => (
                   <th key={c} className="has-tooltip" data-tooltip={c}>
-                    <div className="cell-content">{c}</div>
+                    <div className="cell-content">
+                      {c}
+                      <button className="sort-btn" onClick={() => handlePivotSort(c)}>
+                        {pivotSort.key === c ? (pivotSort.asc ? '▲' : '▼') : '⇅'}
+                      </button>
+                    </div>
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {rows.map(r => (
+              {sortedRows.map(r => (
                 <tr key={r}>
                   <td className="has-tooltip" data-tooltip={r}>
                     <div className="cell-content"><strong>{r}</strong></div>
@@ -427,13 +462,18 @@ export default function SolutionResultsPage() {
                   </th>
                   {cols2D.map(c => (
                     <th key={c} className="has-tooltip" data-tooltip={c}>
-                      <div className="cell-content">{c}</div>
+                      <div className="cell-content">
+                        {c}
+                        <button className="sort-btn" onClick={() => handlePivotSort(c)}>
+                          {pivotSort.key === c ? (pivotSort.asc ? '▲' : '▼') : '⇅'}
+                        </button>
+                      </div>
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {rows2D.map(r => (
+                {sortedRows2D.map(r => (
                   <tr key={r}>
                     <td className="has-tooltip" data-tooltip={r}>
                       <div className="cell-content"><strong>{r}</strong></div>
