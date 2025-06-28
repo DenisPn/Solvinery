@@ -349,3 +349,51 @@ body {
 .has-tooltip[data-tooltip=""]::before {
   display: none;
 }
+
+
+/* Target the header of the drag handle column */
+.solutions-table th.drag-handle-header {
+  width: 40px;         /* Set a small, fixed width */
+  min-width: 40px;       /* Prevent it from getting smaller */
+  padding: 0;            /* Remove padding */
+}
+
+/* Target the body cells of the drag handle column */
+.solutions-table td.drag-handle {
+  width: 40px;         /* Match the header's width */
+  min-width: 40px;       /* Match the header's width */
+  text-align: center;    /* Center the drag icon nicely */
+}
+
+/* Optional: Improve the cursor feedback for the handle */
+.solutions-table td.drag-handle span {
+    cursor: grab;
+}
+
+.solutions-table td.drag-handle span:active {
+    cursor: grabbing;
+}
+
+/*
+ * A more robust fix for the Pivot Table corner sort button
+ */
+
+/* Target the container in the corner cell of both pivot tables */
+.pivot-table > thead > tr > th:first-child .cell-content {
+  /* Ensure it's a block container to manage children */
+  display: block;
+  padding-top: 4px;    /* Add a little padding for looks */
+  padding-bottom: 4px;
+}
+
+/* Force the text label to be a block, taking up the full width */
+.pivot-table > thead > tr > th:first-child .cell-content span {
+  display: block;
+  width: 100%;
+}
+
+/* The button will now naturally appear on the next line */
+.pivot-table > thead > tr > th:first-child .cell-content .sort-btn {
+  margin-top: 6px;  /* Add space between the text and the button */
+  margin-left: 0;   /* Ensure it's aligned to the left */
+}
