@@ -20,7 +20,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import './SolutionResultsPage.css';
 
-// Draggable Header Component
+// Draggable Header Component (for Table View)
 function DraggableHeader({ id, sortId, label, onSort, sortKey, sortAsc }) {
   const {
     attributes,
@@ -52,7 +52,7 @@ function DraggableHeader({ id, sortId, label, onSort, sortKey, sortAsc }) {
   );
 }
 
-// Draggable Row Component
+// Draggable Row Component (for Table View)
 function DraggableRow({ row, columns }) {
     const {
         attributes,
@@ -108,9 +108,7 @@ export default function SolutionResultsPage() {
 
   const [columns, setColumns] = useState([]);
   const [displayedRows, setDisplayedRows] = useState([]);
-  const [pivotRows, setPivotRows] = useState([]);
-  const [pivotCols, setPivotCols] = useState([]);
-  const [pivotCellMap, setPivotCellMap] = useState({});
+  
   const sensors = useSensors(useSensor(PointerSensor));
 
   const handleDragEnd = (event) => {
@@ -251,37 +249,42 @@ export default function SolutionResultsPage() {
     });
   };
   
-  useEffect(() => {
-    if (view === 'Pivot' && columnTypes.length === 3) {
-      const newRows = [];
-      const tempCols = [];
-      const newCellMap = {};
-      solutions.forEach(sol => {
-        const r = sol.values[mapping.rowIndex];
-        const c = sol.values[mapping.colIndex];
-        const v = sol.values[mapping.cellIndex];
-        if (!newRows.includes(r)) newRows.push(r);
-        if (!tempCols.includes(c)) tempCols.push(c);
-        const key = `${r}__${c}`;
-        if (newCellMap[key]) { newCellMap[key] += `, ${v}`; } else { newCellMap[key] = v; }
-      });
-      
-      if (tempCols.length > 0) {
-        const areColsNumeric = tempCols.every(c => !isNaN(Number(c)));
-        if (areColsNumeric) tempCols.sort((a, b) => Number(a) - Number(b));
-        else tempCols.sort((a, b) => String(a).localeCompare(String(b)));
-      }
-      setPivotRows(newRows);
-      setPivotCols(tempCols);
-      setPivotCellMap(newCellMap);
+  // Memoized calculation for 3-column pivot data
+  const { rows, cols, cellMap } = useMemo(() => {
+    if (view !== 'Pivot' || columnTypes.length !== 3) {
+      return { rows: [], cols: [], cellMap: {} };
     }
-  }, [view, selectedVar, mapping, solutions, columnTypes]);
+    const newRows = [];
+    const tempCols = [];
+    const newCellMap = {};
+    solutions.forEach(sol => {
+      const r = sol.values[mapping.rowIndex];
+      const c = sol.values[mapping.colIndex];
+      const v = sol.values[mapping.cellIndex];
+      if (!newRows.includes(r)) newRows.push(r);
+      if (!tempCols.includes(c)) tempCols.push(c);
+      const key = `${r}__${c}`;
+      if (newCellMap[key]) { newCellMap[key] += `, ${v}`; } else { newCellMap[key] = v; }
+    });
+    
+    const cleanCols = tempCols.filter(c => c !== null && c !== undefined && c !== '');
+    if (cleanCols.length > 0) {
+      const areColsNumeric = cleanCols.every(c => !isNaN(Number(c)));
+      if (areColsNumeric) {
+        cleanCols.sort((a, b) => Number(a) - Number(b));
+      } else {
+        cleanCols.sort((a, b) => String(a).localeCompare(String(b)));
+      }
+    }
 
-  let sortedPivotRows = [...pivotRows];
+    return { rows: newRows, cols: cleanCols, cellMap: newCellMap };
+  }, [view, solutions, columnTypes, mapping]);
+
+  let sortedRows = [...rows];
   if (view === 'Pivot' && columnTypes.length === 3 && pivotSort.key !== null) {
-    sortedPivotRows.sort((a, b) => {
-      const valA = pivotCellMap[`${a}__${pivotSort.key}`] || '';
-      const valB = pivotCellMap[`${b}__${pivotSort.key}`] || '';
+    sortedRows.sort((a, b) => {
+      const valA = cellMap[`${a}__${pivotSort.key}`] || '';
+      const valB = cellMap[`${b}__${pivotSort.key}`] || '';
       const numA = Number(valA);
       const numB = Number(valB);
       let comparison = 0;
@@ -291,19 +294,36 @@ export default function SolutionResultsPage() {
     });
   }
   
-  const rows2D = [], cols2D = [], cellMap2D = {};
-  if (view === 'Pivot' && columnTypes.length === 2) {
+  // Memoized calculation for 2-column pivot data
+  const { rows2D, cols2D, cellMap2D } = useMemo(() => {
+      if(view !== 'Pivot' || columnTypes.length !== 2) {
+          return { rows2D: [], cols2D: [], cellMap2D: {} };
+      }
+    const tempRows = [], tempCols = [], tempMap = {};
     const rowIndex = isTransposed ? 1 : 0;
     const colIndex = isTransposed ? 0 : 1;
     solutions.forEach(sol => {
       const r = sol.values[rowIndex];
       const c = sol.values[colIndex];
       const v = snapInt(sol.objectiveValue);
-      if (!rows2D.includes(r)) rows2D.push(r);
-      if (!cols2D.includes(c)) cols2D.push(c);
-      cellMap2D[`${r}__${c}`] = v;
+      if (!tempRows.includes(r)) tempRows.push(r);
+      if (!tempCols.includes(c)) tempCols.push(c);
+      tempMap[`${r}__${c}`] = v;
     });
-  }
+
+    const cleanCols = tempCols.filter(c => c !== null && c !== undefined && c !== '');
+    if (cleanCols.length > 0) {
+        const areColsNumeric = cleanCols.every(c => !isNaN(Number(c)));
+        if(areColsNumeric) {
+            cleanCols.sort((a,b) => Number(a) - Number(b));
+        } else {
+            cleanCols.sort((a,b) => String(a).localeCompare(String(b)));
+        }
+    }
+
+    return { rows2D: tempRows, cols2D: cleanCols, cellMap2D: tempMap };
+  }, [view, solutions, columnTypes, isTransposed]);
+
   let sortedRows2D = [...rows2D];
   if (view === 'Pivot' && columnTypes.length === 2 && pivotSort.key !== null) {
     sortedRows2D.sort((a, b) => {
@@ -451,7 +471,7 @@ export default function SolutionResultsPage() {
                   <th className="has-tooltip" data-tooltip={columnTypes[mapping.rowIndex]}>
                     <div className="cell-content">{columnTypes[mapping.rowIndex]}</div>
                   </th>
-                  {pivotCols.map(c => (
+                  {cols.map(c => (
                     <th key={c} className="has-tooltip" data-tooltip={c}>
                       <div className="cell-content">
                         {c}
@@ -464,13 +484,13 @@ export default function SolutionResultsPage() {
                 </tr>
               </thead>
               <tbody>
-                {sortedPivotRows.map(r => (
+                {sortedRows.map(r => (
                   <tr key={r}>
                     <td className="has-tooltip" data-tooltip={r}>
                       <div className="cell-content"><strong>{r}</strong></div>
                     </td>
-                    {pivotCols.map(c => {
-                      const cellValue = pivotCellMap[`${r}__${c}`] || '';
+                    {cols.map(c => {
+                      const cellValue = cellMap[`${r}__${c}`] || '';
                       return (
                         <td key={c} className="has-tooltip" data-tooltip={cellValue}>
                           <div className="cell-content">{cellValue}</div>
@@ -517,7 +537,6 @@ export default function SolutionResultsPage() {
           </div>
         )}
         
-        {/* ==================== START: MODIFIED GRAPH VIEW ==================== */}
         {view === 'Graph' && columnTypes.length === 1 && (
           <div className="graph-wrapper" key={`${selectedVar}-${graphType}`}>
             <svg id="myGraph" width="100%" height="100%" viewBox="0 0 700 520" preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
@@ -526,7 +545,7 @@ export default function SolutionResultsPage() {
                   <text transform="rotate(-90)" x={-250} y={15} textAnchor="middle" fontSize="14" fill="#333" fontWeight="bold">{objectiveLabel}</text>
                   <text x={350} y={510} textAnchor="middle" fontSize="14" fill="#333" fontWeight="bold">{columnTypes[0]}</text>
                   {Array.from({ length: 6 }, (_, i) => {
-                    const maxY = Math.max(...displayedRows.map(s => snapInt(s.objectiveValue)));
+                    const maxY = Math.max(1, ...displayedRows.map(s => snapInt(s.objectiveValue)));
                     const yVal = Math.round((i / 5) * maxY) || 0;
                     const yPos = 500 - 40 - (yVal / maxY * (500 - 60));
                     return (
@@ -541,7 +560,7 @@ export default function SolutionResultsPage() {
                     return (<text key={i} x={x} y={480} textAnchor="middle" fontSize="12" fill="#333">{s.values[0]}</text>);
                   })}
                   {(() => {
-                    const maxY = Math.max(...displayedRows.map(s => snapInt(s.objectiveValue)));
+                    const maxY = Math.max(1, ...displayedRows.map(s => snapInt(s.objectiveValue)));
                     const pts = displayedRows.map((s, i) => ({
                       x: 50 + (i / (displayedRows.length - 1 || 1)) * (660 - 50),
                       y: 500 - 40 - (snapInt(s.objectiveValue) / maxY * (500 - 60))
@@ -555,7 +574,6 @@ export default function SolutionResultsPage() {
             </svg>
           </div>
         )}
-        {/* ===================== END: MODIFIED GRAPH VIEW ===================== */}
 
         {view === 'Calendar' && (
           <div style={{ padding: 20, textAlign: 'center', color: '#666' }}>
