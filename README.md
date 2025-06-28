@@ -5,7 +5,7 @@ This project is licenced under GPL v3, see: https://www.gnu.org/licenses/gpl-3.0
 The project enables anyone to easily access powerful tools to solve planning problems such as scheduling,
 task management, and more.
 Choose a scenario from the shared public library, edit it by enabling or disabling constraints, adjusting priorities,
-and editing the static data, and send it to the server who users a powerful engine to find the optimal solution.
+and editing the static data, and send it to the server who uses a powerful engine to find the optimal solution.
 The project will initially feature a number of select scenarios that will cover many of the most common problems.
 However, anyone willing to learn how can create a new one from scratch and help expand our ecosystem by sharing it.
 ### Technical overview:
