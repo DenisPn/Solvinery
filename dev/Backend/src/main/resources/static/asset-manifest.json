@@ -1,22 +1,21 @@
 {
   "files": {
-    "main.css": "/Solvinery/static/css/main.1ad23873.css",
-    "main.js": "/Solvinery/static/js/main.c8d027c7.js",
+    "main.css": "/Solvinery/static/css/main.a36dfbc9.css",
+    "main.js": "/Solvinery/static/js/main.4e73eca9.js",
     "static/media/fa-solid-900.ttf": "/Solvinery/static/media/fa-solid-900.2582b0e4bcf85eceead0.ttf",
     "static/media/fa-brands-400.ttf": "/Solvinery/static/media/fa-brands-400.1815e00441357e01619e.ttf",
     "static/media/fa-solid-900.woff2": "/Solvinery/static/media/fa-solid-900.2463b90d9a316e4e5294.woff2",
     "static/media/fa-brands-400.woff2": "/Solvinery/static/media/fa-brands-400.c210719e60948b211a12.woff2",
     "static/media/fa-regular-400.ttf": "/Solvinery/static/media/fa-regular-400.914997e1bdfc990d0897.ttf",
     "static/media/fa-regular-400.woff2": "/Solvinery/static/media/fa-regular-400.89999bdf5d835c012025.woff2",
-    "static/media/ExitButton2.png": "/Solvinery/static/media/ExitButton2.bc2d2b103fb5c08bc7cd.png",
     "static/media/fa-v4compatibility.ttf": "/Solvinery/static/media/fa-v4compatibility.da94ef451f4969af06e6.ttf",
     "static/media/fa-v4compatibility.woff2": "/Solvinery/static/media/fa-v4compatibility.ea8f94e1d22e0d35ccd4.woff2",
     "index.html": "/Solvinery/index.html",
-    "main.1ad23873.css.map": "/Solvinery/static/css/main.1ad23873.css.map",
-    "main.c8d027c7.js.map": "/Solvinery/static/js/main.c8d027c7.js.map"
+    "main.a36dfbc9.css.map": "/Solvinery/static/css/main.a36dfbc9.css.map",
+    "main.4e73eca9.js.map": "/Solvinery/static/js/main.4e73eca9.js.map"
   },
   "entrypoints": [
-    "static/css/main.1ad23873.css",
-    "static/js/main.c8d027c7.js"
+    "static/css/main.a36dfbc9.css",
+    "static/js/main.4e73eca9.js"
   ]
 }
