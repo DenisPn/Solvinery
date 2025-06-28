@@ -286,11 +286,14 @@ export default function SolutionResultsPage() {
           id="var-select"
           className="var-select"
           value={selectedVar}
+          // ==================== START: MODIFIED CODE ====================
           onChange={e => {
             setSelectedVar(e.target.value);
+            setView('Table'); // Reset the view to the default
             setIsTransposed(false);
             setPivotSort({ key: null, asc: true }); 
           }}
+          // ===================== END: MODIFIED CODE =====================
         >
           {variableNames.map(n => <option key={n} value={n}>{n}</option>)}
         </select>
