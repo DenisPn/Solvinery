@@ -27,6 +27,11 @@ const MyImagesPage = () => {
   const [viewSection, setViewSection] = useState(null);
   const [selectedSetIndex, setSelectedSetIndex] = useState(0);
 
+  // --- NEW STATE FOR MEMBERS MODAL ---
+  const [showMembersModal, setShowMembersModal] = useState(false);
+  const dummyMembers = ["Alice Johnson", "Bob Smith", "Charlie Brown"];
+  // -----------------------------------
+
   const [sortConfig, setSortConfig] = useState({ colIndex: null, direction: "asc" });
   const [editingRow, setEditingRow] = useState(null);
   const [editTupleValues, setEditTupleValues] = useState([]);
@@ -364,6 +369,15 @@ const MyImagesPage = () => {
                 <span className="tooltip tooltip-down mi-action-wrapper"><img src={`${process.env.PUBLIC_URL}/images/Solve.png`} alt="Solve" className="mi-icon-button" onClick={handleSolveImage} /><div className="tooltip-bubble">Solve</div></span>
                 <span className="tooltip tooltip-down mi-action-wrapper"><img src={`${process.env.PUBLIC_URL}/images/EditButton.png`} alt="Edit" className="mi-icon-button" onClick={handleEditImage} /><div className="tooltip-bubble">Edit</div></span>
                 <span className="tooltip tooltip-down mi-action-wrapper"><img src={`${process.env.PUBLIC_URL}/images/CopyZPLButton.png`} alt="Copy code" className="mi-icon-button" onClick={handleCopyCode} /><div className="tooltip-bubble">Copy code</div></span>
+                
+                {/* ───────────────── NEW MEMBERS BUTTON ───────────────── */}
+                <span className="tooltip tooltip-down mi-action-wrapper">
+                    {/* Replace the src below with your desired Members icon */}
+                    <img src={`${process.env.PUBLIC_URL}/images/EditButton.png`} style={{filter: 'hue-rotate(90deg)'}} alt="Members" className="mi-icon-button" onClick={() => setShowMembersModal(true)} />
+                    <div className="tooltip-bubble">Members</div>
+                </span>
+                {/* ────────────────────────────────────────────────────── */}
+
                 <span className="tooltip tooltip-down mi-action-wrapper"><img src={`${process.env.PUBLIC_URL}/images/delete.png`} alt="Delete" className="mi-icon-button" onClick={handleDeleteImage} /><div className="tooltip-bubble">Delete</div></span>
               </div>
 
@@ -646,6 +660,36 @@ const MyImagesPage = () => {
             </div>
           </div>
         )}
+
+      {/* ───────────────── NEW MEMBERS MODAL OVERLAY ───────────────── */}
+      {showMembersModal && (
+        <div className="mi-modal-overlay" style={{ zIndex: 10000 }} onClick={() => setShowMembersModal(false)}>
+          <div className="mi-modal" onClick={(e) => e.stopPropagation()} style={{ minHeight: '300px' }}>
+            {/* Close Button */}
+            <span className="mi-action-wrapper">
+              <img 
+                src={`${process.env.PUBLIC_URL}/images/ExitButton2.png`} 
+                alt="Close" 
+                className="mi-modal-close-btn" 
+                onClick={() => setShowMembersModal(false)} 
+              />
+            </span>
+            
+            <h2 className="mi-modal-title">Members</h2>
+            <div className="mi-modal-desc" style={{ marginTop: '20px' }}>
+              <ul>
+                {dummyMembers.map((member, index) => (
+                  <li key={index} style={{ marginBottom: '10px', fontSize: '16px' }}>
+                    {member}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ───────────────────────────────────────────────────────────── */}
+
       </div>
     </div>
   );
