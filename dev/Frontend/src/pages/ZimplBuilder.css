@@ -1,0 +1,128 @@
+/* ZimplBuilder.css */
+
+.zb-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8fafc;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.zb-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-bottom: 80px;
+}
+
+/* Headers */
+.zb-header { font-size: 26px; font-weight: 800; margin-bottom: 10px; color: #0f172a; }
+.zb-desc { font-size: 14px; color: #64748b; margin-bottom: 30px; }
+.zb-section-title { font-size: 18px; font-weight: 700; color: #334155; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+
+/* Cards */
+.zb-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  position: relative;
+  overflow: hidden;
+}
+
+.zb-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 6px;
+}
+
+.zb-card-blue::before { background-color: #3b82f6; }   /* Tables */
+.zb-card-indigo::before { background-color: #6366f1; } /* Variables */
+.zb-card-purple::before { background-color: #a855f7; } /* Constraints */
+.zb-card-orange::before { background-color: #f97316; } /* Constants */
+.zb-card-yellow::before { background-color: #eab308; } /* Objective */
+
+/* Inputs */
+.zb-input, .zb-select, .zb-textarea {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.zb-input:focus, .zb-select:focus, .zb-textarea:focus { outline: none; border-color: #3b82f6; ring: 2px solid #bfdbfe; }
+
+/* Grid Layouts */
+.zb-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+/* Dynamic Row */
+.zb-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px;
+  background-color: #f1f5f9;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.zb-logic-text { font-weight: 600; color: #475569; font-size: 14px; }
+
+/* Buttons */
+.zb-btn-add { background: none; border: none; color: #2563eb; font-weight: 600; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+.zb-btn-add:hover { text-decoration: underline; }
+
+.zb-btn-edit { background: none; border: none; color: #64748b; font-size: 13px; cursor: pointer; text-decoration: underline; display: inline-block; font-weight: 600; }
+.zb-btn-edit:hover { color: #3b82f6; }
+
+.zb-btn-remove { background: #fee2e2; color: #ef4444; border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: background 0.2s; margin-left: auto; }
+.zb-btn-remove:hover { background: #fecaca; }
+
+.zb-btn-generate {
+  position: fixed; bottom: 20px; right: 20px;
+  background: #0f172a; color: white;
+  padding: 16px 32px; border-radius: 50px;
+  font-weight: bold; font-size: 16px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border: none; cursor: pointer; z-index: 100;
+  transition: transform 0.2s;
+}
+.zb-btn-generate:hover { transform: translateY(-2px); background: #1e293b; }
+
+.zb-btn-primary { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.zb-btn-secondary { background: #e2e8f0; color: #475569; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px; }
+
+/* Schema Styles (New) */
+.zb-schema-container { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #cbd5e1; }
+.zb-schema-row { display: flex; gap: 5px; margin-bottom: 5px; align-items: center; }
+.zb-badge { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #e2e8f0; color: #64748b; font-weight: bold; text-transform: uppercase; }
+
+/* Modal & Overlay */
+.zb-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 200; backdrop-filter: blur(2px); }
+.zb-modal { background: #1e1e1e; width: 90%; max-width: 900px; height: 85vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+.zb-modal-light { background: white; color: #333; height: 80vh; max-width: 800px; } /* Updated for grid */
+
+.zb-modal-header { padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; color: white; }
+.zb-modal-header-light { border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: bold; font-size: 18px; }
+
+.zb-modal-body { flex: 1; padding: 20px; overflow: auto; }
+.zb-modal-body-code { font-family: 'Consolas', monospace; color: #4ade80; font-size: 13px; line-height: 1.5; background: #111827; }
+
+.zb-modal-close { background: #333; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+
+/* Set Editor Specifics */
+.zb-set-editor-textarea { width: 100%; height: 300px; font-family: monospace; white-space: pre; resize: vertical; margin-bottom: 15px; }
+.zb-helper-text { font-size: 12px; color: #64748b; margin-bottom: 10px; display: block; }
+
+/* Data Grid Table (New) */
+.zb-grid-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.zb-grid-table th { background: #f1f5f9; padding: 8px; text-align: left; border-bottom: 2px solid #e2e8f0; color: #475569; }
+.zb-grid-table td { border-bottom: 1px solid #e2e8f0; padding: 5px; }
+.zb-grid-input { width: 100%; border: none; background: transparent; padding: 5px; }
+.zb-grid-input:focus { outline: 2px solid #3b82f6; background: white; border-radius: 4px; }

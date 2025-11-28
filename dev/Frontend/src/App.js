@@ -18,6 +18,7 @@ import ImageSettingSetAndParams from "./pages/ImageSettingSetAndParams";
 import ImageSettingReview from "./pages/ImageSettingReview";
 import RequireAuth from "./components/RequireAuth";
 import EntrancePage from "./pages/EntrancePage";
+import ZimplBuilder from './pages/ZimplBuilder';
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
                     <Route path="/log-in" element={<LogInPage />} />
                     <Route path="/register" element={<RegisterPage />} />
                     <Route path="/" element={<EntrancePage />} />
+                    <Route path="/ZimplBuilder" element={<ZimplBuilder />} />
 
                     {/* Protected routes */}
                     <Route path="/main-page" element={<RequireAuth><MainPage /></RequireAuth>} />
