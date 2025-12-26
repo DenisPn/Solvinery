@@ -98,7 +98,7 @@ public class ParameterEntityTest {
             ImageComponentKey keyPair = new ImageComponentKey(imageId, "myParam");
             ParameterEntity paramEntity = new ParameterEntity(keyPair, null, "data");
             paramRepository.save(paramEntity);
-            fail();
+            fail("");
         } catch (Exception ignored) {
         }
     }

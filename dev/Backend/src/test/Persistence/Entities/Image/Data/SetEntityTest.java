@@ -116,7 +116,7 @@ class SetEntityTest {
             ImageComponentKey keyPair = new ImageComponentKey(imageId, "mySet");
             SetEntity setEntity = new SetEntity(keyPair, null, List.of("data1", "data2"));
             setRepository.save(setEntity);
-            fail();
+            fail("");
         }
         catch (Exception ignored) {
         }
