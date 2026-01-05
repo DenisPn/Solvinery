@@ -1,232 +1,152 @@
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 
-// הגדרת סוג הנתונים (כדי ש-TypeScript יהיה שמח)
-interface Problem {
-  id: number;
-  title: string;
-  status: 'Solved' | 'Conflicts Found' | 'Processing' | 'Draft';
-  description: string;
-  date: string;
-  icon: string;
-  colorTheme: 'blue' | 'orange' | 'purple' | 'gray' | 'teal' | 'green';
-}
+// ייבוא הקומפוננטות הנפרדות
+import MaterialIcon from '../components/ui/MaterialIcon';
+import VariablesTab from '../components/tabs/VariablesTab';
+import PreferencesTab from '../components/tabs/PreferencesTab';
+import ConstraintsTab from '../components/tabs/ConstraintsTab';
+import SetsTab from '../components/tabs/SetsTab'; // <-- ייבוא החדש
 
-// נתונים דמה (במציאות זה יגיע מהשרת)
-const problems: Problem[] = [
-  {
-    id: 1,
-    title: "Q3 Logistics Optimization",
-    status: "Solved",
-    description: "Optimizing delivery routes and staff allocation for the third quarter peak season. Includes 50 drivers and 200 delivery points.",
-    date: "Oct 24, 2023",
-    icon: "event_note",
-    colorTheme: "blue"
-  },
-  {
-    id: 2,
-    title: "University Course Timetable",
-    status: "Conflicts Found",
-    description: "Scheduling for the Science department, Fall 2024 semester. Constraints include professor availability and lab room capacity.",
-    date: "Oct 22, 2023",
-    icon: "warning",
-    colorTheme: "orange"
-  },
-  {
-    id: 3,
-    title: "Nurse Shift Rotation - Nov",
-    status: "Processing",
-    description: "Monthly shift planning for the ICU ward. Balancing night shifts and weekend leaves for 30 staff members.",
-    date: "Oct 20, 2023",
-    icon: "schedule",
-    colorTheme: "purple"
-  },
-  {
-    id: 4,
-    title: "Factory Line A Maintenance",
-    status: "Draft",
-    description: "Scheduling preventive maintenance downtime without disrupting the main production quotas for Week 45.",
-    date: "Oct 18, 2023",
-    icon: "factory",
-    colorTheme: "gray"
-  },
-  {
-    id: 5,
-    title: "Regional Soccer Tournament",
-    status: "Solved",
-    description: "Match scheduling for 16 teams across 4 venues over a single weekend. Constraints: minimal travel time between venues.",
-    date: "Oct 15, 2023",
-    icon: "sports_soccer",
-    colorTheme: "teal"
-  }
-];
+export default function NewImagePage() {
+  // ניהול הטאב הפעיל
+  const [activeTab, setActiveTab] = useState('sets'); // שיניתי את ברירת המחדל כדי שתראה את הטאב החדש מיד
 
-// פונקציות עזר לצבעים
-const getStatusStyles = (status: string) => {
-  switch (status) {
-    case 'Solved': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-    case 'Conflicts Found': return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
-    case 'Processing': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
-    default: return 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
-  }
-};
+  // רשימת הטאבים - הוחלף 'Resources' ב-'Sets'
+  const tabs = [
+    { id: 'general', label: 'General Information' },
+    { id: 'sets', label: 'Sets' }, // <-- שינוי שם ומזהה
+    { id: 'variables', label: 'Variables' },
+    { id: 'constraints', label: 'Constraint Modules' },
+    { id: 'preferences', label: 'Preference Modules' },
+    { id: 'objectives', label: 'Objectives' },
+    { id: 'summary', label: 'Review' }, // עדכנתי ל-Review לפי ה-HTML שלך, או שאפשר להשאיר Summary
+  ];
 
-const getIconStyles = (theme: string) => {
-  const styles:Record<string, string> = {
-    blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
-    orange: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
-    purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
-    gray: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400',
-    teal: 'bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400',
+  // פונקציה לקבלת התיאור המתאים לכל טאב
+  const getPageDescription = () => {
+    switch (activeTab) {
+      case 'sets': // <-- תיאור חדש
+        return "Create groups of entities to be used in your scheduling constraints.";
+      case 'variables':
+        return "Define the decision variables for your optimization model.";
+      case 'preferences':
+        return "Define preference modules to optimize schedule quality and satisfaction.";
+      case 'constraints':
+        return "Define the rules and limitations for your scheduling model.";
+      default:
+        return "Configure the settings for your new scheduling problem.";
+    }
   };
-  return styles[theme] || styles.blue;
-};
 
-export default function MyImagesPage() {
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark text-text-main-light dark:text-white font-display">
+    <div className="font-display bg-[#f6f7f8] dark:bg-[#101c22] text-[#111618] dark:text-white min-h-screen flex flex-col transition-colors duration-200">
       
-      {/* Header - בתוך העמוד כרגע */}
-      <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-10 py-3 shadow-sm">
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-3">
-            <div className="size-8 text-primary flex items-center justify-center rounded-lg bg-primary/10">
-              <span className="material-symbols-outlined text-3xl">calendar_month</span>
-            </div>
-            <h2 className="text-text-main-light dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">SchedulerPro</h2>
+      {/* --- HEADER --- */}
+      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f0f3f4] dark:border-b-[#2a3840] bg-white dark:bg-[#101c22] px-10 py-3 sticky top-0 z-50">
+        <div className="flex items-center gap-4 text-[#111618] dark:text-white">
+          <div className="size-6 text-[#13a4ec]">
+            <MaterialIcon icon="calendar_month" className="text-2xl" />
           </div>
-          
-          <label className="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
-            <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-[#f0f3f4] dark:bg-[#2c3b47] overflow-hidden">
-              <div className="text-text-secondary-light dark:text-gray-400 flex items-center justify-center px-4">
-                <span className="material-symbols-outlined text-[20px]">search</span>
-              </div>
-              <input 
-                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden border-none bg-transparent focus:outline-0 focus:ring-0 h-full placeholder:text-text-secondary-light dark:placeholder:text-gray-500 px-0 text-base font-normal leading-normal text-text-main-light dark:text-white" 
-                placeholder="Search problems..." 
-              />
-            </div>
-          </label>
+          <h2 className="text-[#111618] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Scheduling Pro</h2>
         </div>
-
-        <div className="flex items-center gap-8">
-          <nav className="hidden lg:flex items-center gap-6">
-            <a className="text-text-main-light dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Dashboard</a>
-            <a className="text-primary text-sm font-bold leading-normal" href="#">My Problems</a>
-            <a className="text-text-main-light dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Solvers</a>
-            <a className="text-text-main-light dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Settings</a>
-          </nav>
-          <div className="flex items-center gap-4">
-            <button className="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-text-main-light dark:text-white transition-colors">
-              <span className="material-symbols-outlined">notifications</span>
-            </button>
-            <div 
-              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 ring-2 ring-transparent hover:ring-primary cursor-pointer transition-all" 
-              style={{ backgroundImage: 'url("https://i.pravatar.cc/150?img=12")' }}
-            ></div>
+        <div className="flex flex-1 justify-end gap-8">
+          <div className="hidden md:flex items-center gap-9">
+            <a className="text-[#111618] dark:text-gray-200 text-sm font-medium hover:text-[#13a4ec] transition-colors" href="#">Dashboard</a>
+            <a className="text-[#111618] dark:text-gray-200 text-sm font-medium hover:text-[#13a4ec] transition-colors" href="#">Problems</a>
+            <a className="text-[#111618] dark:text-gray-200 text-sm font-medium hover:text-[#13a4ec] transition-colors" href="#">Schedules</a>
+            <a className="text-[#111618] dark:text-gray-200 text-sm font-medium hover:text-[#13a4ec] transition-colors" href="#">Settings</a>
           </div>
+          <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-gray-200 dark:border-gray-700 bg-gray-100" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/a/default-user=s96-c")' }}></div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex justify-center py-8 px-4 sm:px-8 lg:px-20">
-        <div className="w-full max-w-[1200px] flex flex-col gap-6">
-          
-          {/* Top Section */}
-          <div className="flex flex-col md:flex-row flex-wrap justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-text-main-light dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">My Scheduling Problems</h1>
-              <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">Manage and solve your scheduling challenges in one place</p>
-            </div>
+      {/* --- MAIN LAYOUT --- */}
+      <div className="layout-container flex h-full grow flex-col">
+        <div className="md:px-10 lg:px-40 flex flex-1 justify-center py-5">
+          <div className="layout-content-container flex flex-col w-full max-w-[1024px] flex-1 gap-6">
             
-            {/* כפתור יצירה חדשה - מקושר לראוטר */}
-            <Link to="/new">
-              <button className="flex items-center gap-2 bg-primary hover:bg-blue-700 text-white rounded-lg h-10 px-5 text-sm font-bold leading-normal tracking-[0.015em] transition-all shadow-md hover:shadow-lg">
-                <span className="material-symbols-outlined text-[20px]">add_circle</span>
-                <span className="truncate">Create New Problem</span>
-              </button>
-            </Link>
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-wrap items-center gap-3">
-            <button className="flex h-9 items-center justify-center gap-x-2 rounded-full bg-primary text-white px-5 transition-colors shadow-sm">
-              <span className="text-sm font-medium leading-normal">All</span>
-            </button>
-            <button className="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-text-main-light dark:text-gray-200 px-5 transition-colors">
-              <span className="text-sm font-medium leading-normal">Solved</span>
-            </button>
-            <button className="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-text-main-light dark:text-gray-200 px-5 transition-colors">
-              <span className="text-sm font-medium leading-normal">In Progress</span>
-            </button>
-            <div className="mr-auto ml-0 md:ml-auto md:mr-0 w-full md:w-auto mt-2 md:mt-0">
-              <button className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary">
-                <span className="material-symbols-outlined text-[20px]">sort</span>
-                Sort by Date
-              </button>
-            </div>
-          </div>
-
-          {/* Problems List */}
-          <div className="flex flex-col gap-4">
-            {problems.map((problem) => (
-              <div key={problem.id} className="group flex flex-col md:flex-row bg-surface-light dark:bg-surface-dark rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-transparent hover:border-primary/20 p-5 gap-4 md:gap-6 items-start md:items-center">
-                <div className="flex-shrink-0">
-                  <div className={`size-12 md:size-14 rounded-full flex items-center justify-center ${getIconStyles(problem.colorTheme)}`}>
-                    <span className="material-symbols-outlined text-2xl md:text-3xl">{problem.icon}</span>
-                  </div>
+            {/* Breadcrumbs & Title */}
+            <div className="flex flex-col gap-2 px-4">
+              <div className="flex flex-wrap gap-2 items-center">
+                <a className="text-[#617c89] dark:text-gray-400 text-sm font-medium hover:underline" href="#">Home</a>
+                <span className="text-[#617c89] dark:text-gray-400 text-sm font-medium">/</span>
+                <a className="text-[#617c89] dark:text-gray-400 text-sm font-medium hover:underline" href="#">Problems</a>
+                <span className="text-[#617c89] dark:text-gray-400 text-sm font-medium">/</span>
+                <span className="text-[#111618] dark:text-white text-sm font-medium">Create New</span>
+              </div>
+              
+              <div className="flex flex-wrap justify-between gap-3 mt-2">
+                <div className="flex min-w-72 flex-col gap-2">
+                  <h1 className="text-[#111618] dark:text-white text-3xl font-black leading-tight tracking-[-0.033em]">Create New Scheduling Problem</h1>
+                  <p className="text-[#617c89] dark:text-gray-400 text-base font-normal">
+                    {getPageDescription()}
+                  </p>
                 </div>
-                
-                <div className="flex-1 flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-text-main-light dark:text-white text-lg font-bold leading-tight">{problem.title}</h3>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getStatusStyles(problem.status)}`}>
-                      {problem.status}
-                    </span>
-                  </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm font-normal line-clamp-2">{problem.description}</p>
-                  <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">Last edited: {problem.date}</p>
-                </div>
-
-                <div className="flex items-center gap-3 w-full md:w-auto mt-2 md:mt-0 border-t md:border-t-0 pt-4 md:pt-0 border-gray-100 dark:border-gray-700">
-                  {/* כפתור View Details */}
-                  <Link to={`/image/${problem.id}`} className="flex-1 md:flex-none">
-                    <button className="w-full flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-text-main-light dark:text-white text-sm font-medium transition-colors border border-gray-200 dark:border-gray-600">
-                      <span className="material-symbols-outlined text-[18px]">visibility</span>
-                      <span className="whitespace-nowrap">View Details</span>
-                    </button>
-                  </Link>
-                  
-                  {/* כפתור Edit */}
-                  <Link to={`/image/${problem.id}/edit`} className="flex-1 md:flex-none">
-                    <button className="w-full flex items-center justify-center gap-2 h-10 px-4 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white text-sm font-medium transition-colors">
-                      <span className="material-symbols-outlined text-[18px]">edit</span>
-                      <span className="whitespace-nowrap">Edit Problem</span>
-                    </button>
-                  </Link>
+                {/* Save Draft Button */}
+                <div className="flex items-center gap-3">
+                   <button className="flex items-center gap-2 rounded-lg border border-[#dbe2e6] dark:border-gray-600 px-4 py-2 text-sm font-medium text-[#111618] dark:text-gray-200 bg-white dark:bg-[#182830] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                      <MaterialIcon icon="save" className="text-[20px]" />
+                      Save Draft
+                   </button>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Pagination */}
-          <div className="flex items-center justify-center py-6 mt-4">
-            <div className="flex items-center gap-1">
-              <a className="flex size-9 items-center justify-center text-text-main-light dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors" href="#">
-                <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-              </a>
-              <a className="text-sm font-bold leading-normal flex size-9 items-center justify-center text-white rounded-lg bg-primary shadow-md" href="#">1</a>
-              <a className="text-sm font-normal leading-normal flex size-9 items-center justify-center text-text-main-light dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors" href="#">2</a>
-              <a className="text-sm font-normal leading-normal flex size-9 items-center justify-center text-text-main-light dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors" href="#">3</a>
-              <span className="flex items-center justify-center w-8 text-gray-400">...</span>
-              <a className="text-sm font-normal leading-normal flex size-9 items-center justify-center text-text-main-light dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors" href="#">5</a>
-              <a className="flex size-9 items-center justify-center text-text-main-light dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors" href="#">
-                <span className="material-symbols-outlined text-[20px]">chevron_right</span>
-              </a>
             </div>
-          </div>
 
+            {/* Tabs Navigation */}
+            <div className="px-4">
+              <div className="flex border-b border-[#dbe2e6] dark:border-gray-700 gap-8 overflow-x-auto no-scrollbar">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-4 min-w-max transition-colors cursor-pointer
+                      ${activeTab === tab.id 
+                        ? 'border-b-[#13a4ec] text-[#13a4ec] dark:text-[#13a4ec]' 
+                        : 'border-b-transparent hover:border-b-gray-300 text-[#617c89] dark:text-gray-400 hover:text-[#13a4ec] dark:hover:text-white'
+                      }`}
+                  >
+                    <p className={`text-sm leading-normal tracking-[0.015em] ${activeTab === tab.id ? 'font-bold' : 'font-bold'}`}>{tab.label}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* --- DYNAMIC CONTENT AREA --- */}
+            <div className="px-4">
+              {activeTab === 'sets' && <SetsTab />} {/* <-- הצגת הטאב החדש */}
+              {activeTab === 'variables' && <VariablesTab />}
+              {activeTab === 'preferences' && <PreferencesTab />}
+              {activeTab === 'constraints' && <ConstraintsTab />}
+              
+              {/* Placeholders for other tabs */}
+              {['general', 'objectives', 'summary'].includes(activeTab) && (
+                <div className="flex flex-col items-center justify-center min-h-[400px] bg-white dark:bg-[#1A2C38] rounded-xl border border-[#dbe2e6] dark:border-gray-700 p-8 text-center">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 text-gray-400">
+                    <MaterialIcon icon="construction" className="text-3xl" />
+                  </div>
+                  <h3 className="text-lg font-bold text-[#111618] dark:text-white mb-2">Work in Progress</h3>
+                  <p className="text-[#617c89] dark:text-gray-400">The <strong>{tabs.find(t=>t.id===activeTab)?.label}</strong> module is currently under development.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Navigation */}
+            <div className="flex items-center justify-between px-4 mt-4 pb-12">
+                <button className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-lg h-10 px-6 border border-[#dbe2e6] dark:border-gray-600 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-[#111618] dark:text-white text-sm font-bold transition-colors">
+                    <MaterialIcon icon="arrow_back" className="text-lg mr-2" />
+                    Back
+                </button>
+                <div className="flex gap-4">
+                  <button className="flex min-w-[120px] cursor-pointer items-center justify-center rounded-lg h-10 px-6 bg-[#13a4ec] hover:bg-[#0f8ecb] text-white text-sm font-bold shadow-lg shadow-blue-500/20 transition-all">
+                      Next: Parameters
+                      <MaterialIcon icon="arrow_forward" className="text-lg ml-2" />
+                  </button>
+                </div>
+            </div>
+
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

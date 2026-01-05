@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar.tsx';
 
 // ייבוא הדפים
 import AuthPage from './pages/AuthPage';
@@ -11,6 +12,8 @@ import SolutionViewPage from './pages/SolutionViewPage';
 function App() {
   return (
     <BrowserRouter>
+      {/* ה-Navbar מופיע בכל הדפים */}
+      <Navbar />
       
       <Routes>
         {/* דף הבית - מציג את רשימת התמונות שלי */}
