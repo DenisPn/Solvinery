@@ -1,47 +1,164 @@
-import React, { useState } from 'react';
+import { useState, useMemo } from 'react';
 
-// ייבוא הקומפוננטות הנפרדות
+// Component Imports
 import MaterialIcon from '../components/ui/MaterialIcon';
 import VariablesTab from '../components/tabs/VariablesTab';
 import PreferencesTab from '../components/tabs/PreferencesTab';
 import ConstraintsTab from '../components/tabs/ConstraintsTab';
-import SetsTab from '../components/tabs/SetsTab'; // <-- ייבוא החדש
+import SetsTab from '../components/tabs/SetsTab';
+import ParametersTab, { type ParameterData } from '../components/tabs/ParametersTab';
+import UploadZplModal from '../components/modals/UploadZplModal';
+
+// Service & Context Imports
+import { NewImageService, type ParseModelResponse } from '../services/NewImageService';
+import { useAuth } from '../context/AuthContext';
+
+// Type Imports
+import type { SetData } from '../components/sets/SetTableRow';
+import type { VariableData } from '../components/variables/VariableTableRow';
+import type { ConstraintModuleData } from '../components/constraints/ConstraintModuleCard';
+import type { PreferenceModuleData } from '../components/preferences/PreferenceModuleCard';
 
 export default function NewImagePage() {
-  // ניהול הטאב הפעיל
-  const [activeTab, setActiveTab] = useState('sets'); // שיניתי את ברירת המחדל כדי שתראה את הטאב החדש מיד
+  const { userId } = useAuth();
 
-  // רשימת הטאבים - הוחלף 'Resources' ב-'Sets'
+  // UI State
+  const [showUploadModal, setShowUploadModal] = useState(true);
+  const [activeTab, setActiveTab] = useState('sets');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Data State
+  const [modelData, setModelData] = useState<ParseModelResponse | null>(null);
+
+  // --- Upload Logic ---
+  const handleUploadComplete = (file: File) => {
+    if (!userId) {
+        alert("Session error: Please log in again.");
+        return;
+    }
+
+    setIsLoading(true);
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      const text = e.target?.result;
+      if (typeof text === 'string') {
+        try {
+          console.log(`Sending ZPL to server for user: ${userId}...`);
+          const data = await NewImageService.parseImageModel(userId, text);
+          console.log("🟢 SERVER RESPONSE:", data);
+          
+          setModelData(data);
+          setShowUploadModal(false); 
+
+        } catch (error) {
+          console.error("Failed to parse model:", error);
+          alert("Error parsing ZPL file. Please try again.");
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    reader.readAsText(file);
+  };
+
+  // --- Data Mappers (Transforming Server Data to UI Props) ---
+  
+  // 1. Sets
+  const setsData: SetData[] = useMemo(() => {
+    if (!modelData?.setTypes) return [];
+    return Object.entries(modelData.setTypes).map(([setName, members]) => ({
+        name: setName,
+        desc: `Defined set with ${members.length} elements`,
+        members: members.slice(0, 3), // Show first 3
+        extraCount: Math.max(0, members.length - 3),
+        totalCount: members.length
+    }));
+  }, [modelData]);
+
+  // 2. Variables
+  const variablesData: VariableData[] = useMemo(() => {
+    if (!modelData?.variables) return [];
+    return modelData.variables.map((v) => ({
+        name: v.identifier,
+        type: 'Integer', 
+        values: '0 - ∞',
+        desc: v.alias || v.objectiveValueAlias || 'Optimizable variable',
+        color: 'blue'
+    }));
+  }, [modelData]);
+
+  // 3. Parameters
+  const parametersData: ParameterData[] = useMemo(() => {
+    if (!modelData?.paramTypes) return [];
+    return Object.entries(modelData.paramTypes).map(([name, type]) => ({
+        name: name,
+        type: type
+    }));
+  }, [modelData]);
+
+  // 4. Constraints
+  const constraintsData: ConstraintModuleData[] = useMemo(() => {
+    if (!modelData?.constraints) return [];
+    return modelData.constraints.map((c) => ({
+        title: c.identifier,
+        date: 'Imported',
+        desc: 'Constraint defined in the ZPL model',
+        count: 1, 
+        icon: 'rule',
+        colorClasses: 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400'
+    }));
+  }, [modelData]);
+
+  // 5. Preferences
+  const preferencesData: PreferenceModuleData[] = useMemo(() => {
+    if (!modelData?.preferences) return [];
+    return modelData.preferences.map((p) => ({
+        title: p.identifier,
+        date: 'Imported',
+        desc: 'Preference objective defined in the ZPL model',
+        count: 1,
+        icon: 'favorite',
+        color: 'pink'
+    }));
+  }, [modelData]);
+
+
+  // --- Tabs Configuration ---
   const tabs = [
     { id: 'general', label: 'General Information' },
-    { id: 'sets', label: 'Sets' }, // <-- שינוי שם ומזהה
+    { id: 'sets', label: 'Sets' },
+    { id: 'parameters', label: 'Parameters' },
     { id: 'variables', label: 'Variables' },
     { id: 'constraints', label: 'Constraint Modules' },
     { id: 'preferences', label: 'Preference Modules' },
-    { id: 'objectives', label: 'Objectives' },
-    { id: 'summary', label: 'Review' }, // עדכנתי ל-Review לפי ה-HTML שלך, או שאפשר להשאיר Summary
+    { id: 'summary', label: 'Review' },
   ];
 
-  // פונקציה לקבלת התיאור המתאים לכל טאב
   const getPageDescription = () => {
     switch (activeTab) {
-      case 'sets': // <-- תיאור חדש
-        return "Create groups of entities to be used in your scheduling constraints.";
-      case 'variables':
-        return "Define the decision variables for your optimization model.";
-      case 'preferences':
-        return "Define preference modules to optimize schedule quality and satisfaction.";
-      case 'constraints':
-        return "Define the rules and limitations for your scheduling model.";
-      default:
-        return "Configure the settings for your new scheduling problem.";
+      case 'sets': return "Groups of entities extracted from your ZPL model.";
+      case 'parameters': return "Global constants and parameters defined in the system.";
+      case 'variables': return "Decision variables that the optimizer will solve for.";
+      case 'constraints': return "Rules and limitations extracted from the model.";
+      case 'preferences': return "Optimization objectives and soft constraints.";
+      default: return "Configure the settings for your new scheduling problem.";
     }
   };
 
   return (
     <div className="font-display bg-[#f6f7f8] dark:bg-[#101c22] text-[#111618] dark:text-white min-h-screen flex flex-col transition-colors duration-200">
       
-      {/* --- HEADER --- */}
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <UploadZplModal 
+          onUpload={handleUploadComplete} 
+          onBack={() => console.log("Back clicked")} 
+        />
+      )}
+
+      {/* Header */}
       <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f0f3f4] dark:border-b-[#2a3840] bg-white dark:bg-[#101c22] px-10 py-3 sticky top-0 z-50">
         <div className="flex items-center gap-4 text-[#111618] dark:text-white">
           <div className="size-6 text-[#13a4ec]">
@@ -60,7 +177,7 @@ export default function NewImagePage() {
         </div>
       </header>
 
-      {/* --- MAIN LAYOUT --- */}
+      {/* Main Layout */}
       <div className="layout-container flex h-full grow flex-col">
         <div className="md:px-10 lg:px-40 flex flex-1 justify-center py-5">
           <div className="layout-content-container flex flex-col w-full max-w-[1024px] flex-1 gap-6">
@@ -82,7 +199,6 @@ export default function NewImagePage() {
                     {getPageDescription()}
                   </p>
                 </div>
-                {/* Save Draft Button */}
                 <div className="flex items-center gap-3">
                    <button className="flex items-center gap-2 rounded-lg border border-[#dbe2e6] dark:border-gray-600 px-4 py-2 text-sm font-medium text-[#111618] dark:text-gray-200 bg-white dark:bg-[#182830] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                       <MaterialIcon icon="save" className="text-[20px]" />
@@ -111,15 +227,15 @@ export default function NewImagePage() {
               </div>
             </div>
 
-            {/* --- DYNAMIC CONTENT AREA --- */}
+            {/* Dynamic Content Area */}
             <div className="px-4">
-              {activeTab === 'sets' && <SetsTab />} {/* <-- הצגת הטאב החדש */}
-              {activeTab === 'variables' && <VariablesTab />}
-              {activeTab === 'preferences' && <PreferencesTab />}
-              {activeTab === 'constraints' && <ConstraintsTab />}
+              {activeTab === 'sets' && <SetsTab data={setsData} />} 
+              {activeTab === 'variables' && <VariablesTab data={variablesData} />}
+              {activeTab === 'parameters' && <ParametersTab data={parametersData} />} 
+              {activeTab === 'constraints' && <ConstraintsTab libraryData={modelData?.constraints || []} />}
+              {activeTab === 'preferences' && <PreferencesTab libraryData={modelData?.preferences || []} />}
               
-              {/* Placeholders for other tabs */}
-              {['general', 'objectives', 'summary'].includes(activeTab) && (
+              {['general', 'summary'].includes(activeTab) && (
                 <div className="flex flex-col items-center justify-center min-h-[400px] bg-white dark:bg-[#1A2C38] rounded-xl border border-[#dbe2e6] dark:border-gray-700 p-8 text-center">
                   <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 text-gray-400">
                     <MaterialIcon icon="construction" className="text-3xl" />
@@ -130,7 +246,7 @@ export default function NewImagePage() {
               )}
             </div>
 
-            {/* Footer Navigation */}
+            {/* Footer Buttons */}
             <div className="flex items-center justify-between px-4 mt-4 pb-12">
                 <button className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-lg h-10 px-6 border border-[#dbe2e6] dark:border-gray-600 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-[#111618] dark:text-white text-sm font-bold transition-colors">
                     <MaterialIcon icon="arrow_back" className="text-lg mr-2" />
@@ -138,7 +254,7 @@ export default function NewImagePage() {
                 </button>
                 <div className="flex gap-4">
                   <button className="flex min-w-[120px] cursor-pointer items-center justify-center rounded-lg h-10 px-6 bg-[#13a4ec] hover:bg-[#0f8ecb] text-white text-sm font-bold shadow-lg shadow-blue-500/20 transition-all">
-                      Next: Parameters
+                      Next Step
                       <MaterialIcon icon="arrow_forward" className="text-lg ml-2" />
                   </button>
                 </div>

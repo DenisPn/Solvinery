@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar.tsx';
+import { AuthProvider } from './context/AuthContext';
 
-// ייבוא הדפים
+// Page Imports
 import AuthPage from './pages/AuthPage';
 import MyImagesPage from './pages/MyImagesPage';
 import NewImagePage from './pages/NewImagePage';
@@ -12,26 +13,27 @@ import SolutionViewPage from './pages/SolutionViewPage';
 function App() {
   return (
     <BrowserRouter>
-      {/* ה-Navbar מופיע בכל הדפים */}
-      <Navbar />
-      
-      <Routes>
-        {/* דף הבית - מציג את רשימת התמונות שלי */}
-        <Route path="/" element={<MyImagesPage />} />
-
-        {/* דף התחברות/הרשמה */}
-        <Route path="/auth" element={<AuthPage />} />
-
-        {/* יצירת תמונה חדשה */}
-        <Route path="/new" element={<NewImagePage />} />
-
-        {/* נתיבים דינמיים (עם מזהה ייחודי) */}
-        <Route path="/image/:id" element={<ViewImagePage />} />
-        <Route path="/image/:id/edit" element={<EditImagePage />} />
+      <AuthProvider>
+        <Navbar />
         
-        {/* צפייה בפתרון */}
-        <Route path="/solution/:id" element={<SolutionViewPage />} />
-      </Routes>
+        <Routes>
+          {/* Home Page */}
+          <Route path="/" element={<MyImagesPage />} />
+
+          {/* Authentication */}
+          <Route path="/auth" element={<AuthPage />} />
+
+          {/* Create New Image */}
+          <Route path="/new" element={<NewImagePage />} />
+
+          {/* Dynamic Routes */}
+          <Route path="/image/:id" element={<ViewImagePage />} />
+          <Route path="/image/:id/edit" element={<EditImagePage />} />
+          
+          {/* Solution View */}
+          <Route path="/solution/:id" element={<SolutionViewPage />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
