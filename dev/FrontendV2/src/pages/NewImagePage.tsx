@@ -5,25 +5,28 @@ import MaterialIcon from '../components/ui/MaterialIcon';
 import VariablesTab from '../components/tabs/VariablesTab';
 import PreferencesTab from '../components/tabs/PreferencesTab';
 import ConstraintsTab from '../components/tabs/ConstraintsTab';
+import SetsTab from '../components/tabs/SetsTab'; // <-- ייבוא החדש
 
 export default function NewImagePage() {
-  // ניהול הטאב הפעיל.
-  const [activeTab, setActiveTab] = useState('constraints');
+  // ניהול הטאב הפעיל
+  const [activeTab, setActiveTab] = useState('sets'); // שיניתי את ברירת המחדל כדי שתראה את הטאב החדש מיד
 
-  // רשימת הטאבים
+  // רשימת הטאבים - הוחלף 'Resources' ב-'Sets'
   const tabs = [
     { id: 'general', label: 'General Information' },
-    { id: 'resources', label: 'Resources' },
+    { id: 'sets', label: 'Sets' }, // <-- שינוי שם ומזהה
+    { id: 'variables', label: 'Variables' },
     { id: 'constraints', label: 'Constraint Modules' },
     { id: 'preferences', label: 'Preference Modules' },
-    { id: 'variables', label: 'Variables' },
     { id: 'objectives', label: 'Objectives' },
-    { id: 'summary', label: 'Summary' },
+    { id: 'summary', label: 'Review' }, // עדכנתי ל-Review לפי ה-HTML שלך, או שאפשר להשאיר Summary
   ];
 
   // פונקציה לקבלת התיאור המתאים לכל טאב
   const getPageDescription = () => {
     switch (activeTab) {
+      case 'sets': // <-- תיאור חדש
+        return "Create groups of entities to be used in your scheduling constraints.";
       case 'variables':
         return "Define the decision variables for your optimization model.";
       case 'preferences':
@@ -79,7 +82,7 @@ export default function NewImagePage() {
                     {getPageDescription()}
                   </p>
                 </div>
-                {/* Save Draft Button (Global) */}
+                {/* Save Draft Button */}
                 <div className="flex items-center gap-3">
                    <button className="flex items-center gap-2 rounded-lg border border-[#dbe2e6] dark:border-gray-600 px-4 py-2 text-sm font-medium text-[#111618] dark:text-gray-200 bg-white dark:bg-[#182830] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                       <MaterialIcon icon="save" className="text-[20px]" />
@@ -110,13 +113,13 @@ export default function NewImagePage() {
 
             {/* --- DYNAMIC CONTENT AREA --- */}
             <div className="px-4">
-              {/* כאן מתבצעת ההחלפה הנקייה בין הקומפוננטות */}
+              {activeTab === 'sets' && <SetsTab />} {/* <-- הצגת הטאב החדש */}
               {activeTab === 'variables' && <VariablesTab />}
               {activeTab === 'preferences' && <PreferencesTab />}
               {activeTab === 'constraints' && <ConstraintsTab />}
               
               {/* Placeholders for other tabs */}
-              {['general', 'resources', 'objectives', 'summary'].includes(activeTab) && (
+              {['general', 'objectives', 'summary'].includes(activeTab) && (
                 <div className="flex flex-col items-center justify-center min-h-[400px] bg-white dark:bg-[#1A2C38] rounded-xl border border-[#dbe2e6] dark:border-gray-700 p-8 text-center">
                   <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 text-gray-400">
                     <MaterialIcon icon="construction" className="text-3xl" />
@@ -135,7 +138,7 @@ export default function NewImagePage() {
                 </button>
                 <div className="flex gap-4">
                   <button className="flex min-w-[120px] cursor-pointer items-center justify-center rounded-lg h-10 px-6 bg-[#13a4ec] hover:bg-[#0f8ecb] text-white text-sm font-bold shadow-lg shadow-blue-500/20 transition-all">
-                      Next Step
+                      Next: Parameters
                       <MaterialIcon icon="arrow_forward" className="text-lg ml-2" />
                   </button>
                 </div>

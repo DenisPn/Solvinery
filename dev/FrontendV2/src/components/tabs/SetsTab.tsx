@@ -1,9 +1,11 @@
-import React from 'react';
+import { useState } from 'react'; // שומרים רק את מה שצריך, או מוחקים לגמרי אם לא משתמשים ב-hooks
 import MaterialIcon from '../ui/MaterialIcon';
+import SetTableRow, { type SetData } from '../sets/SetTableRow'; // <-- הוספנו את המילה type
 
 export default function SetsTab() {
-  // נתונים לדוגמה שמחקים את ה-HTML ששלחת
-  const sets = [
+  
+  // נתונים לדוגמה
+  const sets: SetData[] = [
     { 
       name: 'Doctors', 
       desc: 'Core Medical Staff', 
@@ -33,6 +35,10 @@ export default function SetsTab() {
       totalCount: 5 
     },
   ];
+
+  // פונקציות דמי
+  const handleEdit = (name: string) => console.log('Edit', name);
+  const handleDelete = (name: string) => console.log('Delete', name);
 
   return (
     <div className="bg-white dark:bg-[#15232d] rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 sm:p-8 flex flex-col gap-6 min-h-[600px]">
@@ -88,42 +94,12 @@ export default function SetsTab() {
             </thead>
             <tbody className="bg-white dark:bg-[#15232d] divide-y divide-slate-200 dark:divide-slate-700">
               {sets.map((set, index) => (
-                <tr key={index} className="group hover:bg-slate-50 dark:hover:bg-[#1e2d3b] transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <input className="h-4 w-4 text-[#13a4ec] border-slate-300 rounded focus:ring-[#13a4ec] bg-white dark:bg-[#15232d] dark:border-slate-600" type="checkbox"/>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-slate-900 dark:text-white">{set.name}</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">{set.desc}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-2">
-                      {set.members.map((member, i) => (
-                        <span key={i} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#13a4ec]/10 text-[#13a4ec] border border-[#13a4ec]/20">
-                          {member}
-                        </span>
-                      ))}
-                      {set.extraCount > 0 && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
-                          +{set.extraCount} others
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
-                    {set.totalCount}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button className="text-slate-400 hover:text-[#13a4ec] transition-colors p-1">
-                      <MaterialIcon icon="edit" className="text-[20px]" />
-                    </button>
-                    <button className="text-slate-400 hover:text-red-500 transition-colors p-1 ml-2">
-                      <MaterialIcon icon="delete" className="text-[20px]" />
-                    </button>
-                  </td>
-                </tr>
+                <SetTableRow 
+                  key={index} 
+                  set={set} 
+                  onEdit={() => handleEdit(set.name)}
+                  onDelete={() => handleDelete(set.name)}
+                />
               ))}
             </tbody>
           </table>

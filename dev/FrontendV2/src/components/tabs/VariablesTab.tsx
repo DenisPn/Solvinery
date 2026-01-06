@@ -1,14 +1,21 @@
-import React from 'react';
+import { useState } from 'react';
 import MaterialIcon from '../ui/MaterialIcon';
+import VariableTableRow, { type VariableData } from '../variables/VariableTableRow'; // <-- ייבוא הקומפוננטה החדשה
 
 export default function VariablesTab() {
-  const variables = [
+  
+  // נתונים (State)
+  const [variables, setVariables] = useState<VariableData[]>([
     { name: 'nurse_shift_A', type: 'Boolean', values: 'True / False', desc: 'Availability for morning shift block', color: 'purple' },
     { name: 'start_time_block', type: 'Integer', values: '0 - 24', desc: 'Starting hour for the primary task', color: 'blue' },
     { name: 'resource_allocation', type: 'Float', values: '0.0 - 1.0', desc: 'Percentage of total resources used', color: 'green' },
     { name: 'max_capacity_limit', type: 'Integer', values: '100 - 5000', desc: 'Hard limit on production units per day', color: 'blue' },
     { name: 'weekend_penalty_multiplier', type: 'Float', values: '1.0 - 2.5', desc: 'Cost multiplier for overtime on Sat/Sun', color: 'green' },
-  ];
+  ]);
+
+  // פונקציות דמי (Placeholder) לפעולות עתידיות
+  const handleEdit = (name: string) => console.log('Edit variable:', name);
+  const handleDelete = (name: string) => console.log('Delete variable:', name);
 
   return (
     <div className="flex flex-col bg-white dark:bg-[#1A2C38] rounded-xl shadow-sm border border-[#dbe2e6] dark:border-gray-700 overflow-hidden min-h-[600px]">
@@ -47,36 +54,12 @@ export default function VariablesTab() {
                 </thead>
                 <tbody className="divide-y divide-[#dbe2e6] dark:divide-gray-700 bg-white dark:bg-[#1A2C38]">
                     {variables.map((v, i) => (
-                      <tr key={i} className="group hover:bg-gray-50 dark:hover:bg-[#233340] transition-colors">
-                          <td className="py-4 px-6">
-                              <div className="font-mono text-sm font-medium text-[#111618] dark:text-white">{v.name}</div>
-                          </td>
-                          <td className="py-4 px-6">
-                              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium 
-                                ${v.color === 'purple' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' : ''}
-                                ${v.color === 'blue' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' : ''}
-                                ${v.color === 'green' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : ''}
-                              `}>
-                                  {v.type}
-                              </span>
-                          </td>
-                          <td className="py-4 px-6">
-                              <span className="text-sm text-[#111618] dark:text-white">{v.values}</span>
-                          </td>
-                          <td className="py-4 px-6">
-                              <span className="text-sm text-[#617c89] dark:text-gray-400 line-clamp-1">{v.desc}</span>
-                          </td>
-                          <td className="py-4 px-6 text-right">
-                              <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <button className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-[#617c89] dark:text-gray-400 hover:text-[#13a4ec] transition-colors">
-                                      <MaterialIcon icon="edit" className="text-[20px]" />
-                                  </button>
-                                  <button className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-[#617c89] dark:text-gray-400 hover:text-red-500 transition-colors">
-                                      <MaterialIcon icon="delete" className="text-[20px]" />
-                                  </button>
-                              </div>
-                          </td>
-                      </tr>
+                      <VariableTableRow 
+                        key={i} 
+                        variable={v}
+                        onEdit={() => handleEdit(v.name)}
+                        onDelete={() => handleDelete(v.name)}
+                      />
                     ))}
                 </tbody>
             </table>
@@ -86,7 +69,7 @@ export default function VariablesTab() {
         <div className="mt-auto">
             <div className="px-6 py-4 border-t border-[#dbe2e6] dark:border-gray-700 bg-white dark:bg-[#1A2C38] flex items-center justify-between">
                 <div className="text-sm text-[#617c89] dark:text-gray-400">
-                    Showing <span className="font-medium text-[#111618] dark:text-white">1</span> to <span className="font-medium text-[#111618] dark:text-white">5</span> of <span className="font-medium text-[#111618] dark:text-white">12</span> results
+                    Showing <span className="font-medium text-[#111618] dark:text-white">1</span> to <span className="font-medium text-[#111618] dark:text-white">{variables.length}</span> of <span className="font-medium text-[#111618] dark:text-white">12</span> results
                 </div>
                 <div className="flex items-center gap-2">
                     <button className="p-2 rounded-lg border border-[#dbe2e6] dark:border-gray-600 text-[#617c89] dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50">
