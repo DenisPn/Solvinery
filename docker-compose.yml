@@ -49,7 +49,7 @@ services:
     build: .
     environment:
       - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-      - MOCKITO_MOCK_MAKER=mock-maker-inline
+      - MOCKITO_MOCK_MAKER=inline
     networks:
       - app-network
     ports:

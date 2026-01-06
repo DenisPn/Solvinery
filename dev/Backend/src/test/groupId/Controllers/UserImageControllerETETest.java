@@ -29,6 +29,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ContextConfiguration;
@@ -82,6 +83,8 @@ public class UserImageControllerETETest {
         String userId = setUpUser();
         baseUri = "http://localhost:" + port + "/user/" + userId + "/image";
         baseImageControllerURI = "http://localhost:" + port + "/image";
+        restTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
     }
     @AfterEach
     void cleanUp() {
