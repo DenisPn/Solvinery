@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 // Component Imports
 import MaterialIcon from '../components/ui/MaterialIcon';
@@ -16,8 +16,6 @@ import { useAuth } from '../context/AuthContext';
 // Type Imports
 import type { SetData } from '../components/sets/SetTableRow';
 import type { VariableData } from '../components/variables/VariableTableRow';
-import type { ConstraintModuleData } from '../components/constraints/ConstraintModuleCard';
-import type { PreferenceModuleData } from '../components/preferences/PreferenceModuleCard';
 
 export default function NewImagePage() {
   const { userId } = useAuth();
@@ -25,10 +23,12 @@ export default function NewImagePage() {
   // UI State
   const [showUploadModal, setShowUploadModal] = useState(true);
   const [activeTab, setActiveTab] = useState('sets');
-  const [isLoading, setIsLoading] = useState(false);
-
+  
   // Data State
   const [modelData, setModelData] = useState<ParseModelResponse | null>(null);
+  
+  // State נפרד למשתנים כדי שנוכל לערוך אותם באופן מקומי
+  const [variables, setVariables] = useState<VariableData[]>([]);
 
   // --- Upload Logic ---
   const handleUploadComplete = (file: File) => {
@@ -37,7 +37,6 @@ export default function NewImagePage() {
         return;
     }
 
-    setIsLoading(true);
     const reader = new FileReader();
 
     reader.onload = async (e) => {
@@ -45,6 +44,7 @@ export default function NewImagePage() {
       if (typeof text === 'string') {
         try {
           console.log(`Sending ZPL to server for user: ${userId}...`);
+          
           const data = await NewImageService.parseImageModel(userId, text);
           console.log("🟢 SERVER RESPONSE:", data);
           
@@ -54,8 +54,6 @@ export default function NewImagePage() {
         } catch (error) {
           console.error("Failed to parse model:", error);
           alert("Error parsing ZPL file. Please try again.");
-        } finally {
-          setIsLoading(false);
         }
       }
     };
@@ -63,33 +61,43 @@ export default function NewImagePage() {
     reader.readAsText(file);
   };
 
-  // --- Data Mappers (Transforming Server Data to UI Props) ---
+  // --- Data Initialization (Once modelData loads) ---
+  useEffect(() => {
+    if (modelData?.variables) {
+      const mappedVariables: VariableData[] = modelData.variables.map((v) => {
+        // המרת מערך המבנה למחרוזת תצוגה ראשונית
+        // דוגמה: ['INT', 'TEXT'] -> "[INT, TEXT]"
+        let structureDisplay = "Integer"; 
+        if (Array.isArray(v.structure) && v.structure.length > 0) {
+            structureDisplay = `[${v.structure.join(', ')}]`;
+        }
+
+        return {
+            name: v.identifier,
+            type: structureDisplay, 
+            alias: v.alias || '-',
+            objectiveValueAlias: v.objectiveValueAlias || '-',
+            // values: '', // הוסר כדי למנוע שגיאות טייפ
+            desc: v.alias ? `Alias: ${v.alias}` : 'Decision Variable'
+        };
+      });
+      setVariables(mappedVariables);
+    }
+  }, [modelData]);
+
+  // --- Mappers for Read-Only Tabs ---
   
-  // 1. Sets
   const setsData: SetData[] = useMemo(() => {
     if (!modelData?.setTypes) return [];
     return Object.entries(modelData.setTypes).map(([setName, members]) => ({
         name: setName,
         desc: `Defined set with ${members.length} elements`,
-        members: members.slice(0, 3), // Show first 3
+        members: members.slice(0, 3), 
         extraCount: Math.max(0, members.length - 3),
         totalCount: members.length
     }));
   }, [modelData]);
 
-  // 2. Variables
-  const variablesData: VariableData[] = useMemo(() => {
-    if (!modelData?.variables) return [];
-    return modelData.variables.map((v) => ({
-        name: v.identifier,
-        type: 'Integer', 
-        values: '0 - ∞',
-        desc: v.alias || v.objectiveValueAlias || 'Optimizable variable',
-        color: 'blue'
-    }));
-  }, [modelData]);
-
-  // 3. Parameters
   const parametersData: ParameterData[] = useMemo(() => {
     if (!modelData?.paramTypes) return [];
     return Object.entries(modelData.paramTypes).map(([name, type]) => ({
@@ -97,33 +105,6 @@ export default function NewImagePage() {
         type: type
     }));
   }, [modelData]);
-
-  // 4. Constraints
-  const constraintsData: ConstraintModuleData[] = useMemo(() => {
-    if (!modelData?.constraints) return [];
-    return modelData.constraints.map((c) => ({
-        title: c.identifier,
-        date: 'Imported',
-        desc: 'Constraint defined in the ZPL model',
-        count: 1, 
-        icon: 'rule',
-        colorClasses: 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400'
-    }));
-  }, [modelData]);
-
-  // 5. Preferences
-  const preferencesData: PreferenceModuleData[] = useMemo(() => {
-    if (!modelData?.preferences) return [];
-    return modelData.preferences.map((p) => ({
-        title: p.identifier,
-        date: 'Imported',
-        desc: 'Preference objective defined in the ZPL model',
-        count: 1,
-        icon: 'favorite',
-        color: 'pink'
-    }));
-  }, [modelData]);
-
 
   // --- Tabs Configuration ---
   const tabs = [
@@ -147,10 +128,20 @@ export default function NewImagePage() {
     }
   };
 
+  // --- Save Function Placeholder ---
+  const handleFinalSubmit = () => {
+      const finalPayload = {
+          userId,
+          variables: variables, // המשתנים המעודכנים!
+          // ... שאר הנתונים
+      };
+      console.log("Ready to send to server:", finalPayload);
+      alert("Draft saved! Check console for data.");
+  };
+
   return (
     <div className="font-display bg-[#f6f7f8] dark:bg-[#101c22] text-[#111618] dark:text-white min-h-screen flex flex-col transition-colors duration-200">
       
-      {/* Upload Modal */}
       {showUploadModal && (
         <UploadZplModal 
           onUpload={handleUploadComplete} 
@@ -200,7 +191,10 @@ export default function NewImagePage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                   <button className="flex items-center gap-2 rounded-lg border border-[#dbe2e6] dark:border-gray-600 px-4 py-2 text-sm font-medium text-[#111618] dark:text-gray-200 bg-white dark:bg-[#182830] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                   <button 
+                      onClick={handleFinalSubmit}
+                      className="flex items-center gap-2 rounded-lg border border-[#dbe2e6] dark:border-gray-600 px-4 py-2 text-sm font-medium text-[#111618] dark:text-gray-200 bg-white dark:bg-[#182830] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                   >
                       <MaterialIcon icon="save" className="text-[20px]" />
                       Save Draft
                    </button>
@@ -230,7 +224,15 @@ export default function NewImagePage() {
             {/* Dynamic Content Area */}
             <div className="px-4">
               {activeTab === 'sets' && <SetsTab data={setsData} />} 
-              {activeTab === 'variables' && <VariablesTab data={variablesData} />}
+              
+              {/* הטאב החכם: מקבל את המידע ואת פונקציית העדכון */}
+              {activeTab === 'variables' && (
+                  <VariablesTab 
+                    data={variables} 
+                    onUpdate={(updatedVars) => setVariables(updatedVars)} 
+                  />
+              )}
+              
               {activeTab === 'parameters' && <ParametersTab data={parametersData} />} 
               {activeTab === 'constraints' && <ConstraintsTab libraryData={modelData?.constraints || []} />}
               {activeTab === 'preferences' && <PreferencesTab libraryData={modelData?.preferences || []} />}

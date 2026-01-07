@@ -1,4 +1,4 @@
-import { useState, useRef, type DragEvent, type ChangeEvent } from 'react'; // <-- שינוי משמעותי כאן
+import { useState, useRef, type DragEvent, type ChangeEvent } from 'react';
 import MaterialIcon from '../ui/MaterialIcon';
 
 interface UploadZplModalProps {
@@ -11,7 +11,6 @@ export default function UploadZplModal({ onUpload, onBack }: UploadZplModalProps
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // טיפול בגרירה (כניסה ויציאה מהאזור)
   const handleDrag = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -22,7 +21,6 @@ export default function UploadZplModal({ onUpload, onBack }: UploadZplModalProps
     }
   };
 
-  // טיפול בשחרור הקובץ
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -32,7 +30,6 @@ export default function UploadZplModal({ onUpload, onBack }: UploadZplModalProps
     }
   };
 
-  // טיפול בבחירה דרך הקליק
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
@@ -40,9 +37,7 @@ export default function UploadZplModal({ onUpload, onBack }: UploadZplModalProps
     }
   };
 
-  // לוגיקה מרכזית לבדיקת הקובץ
   const handleFile = (file: File) => {
-    // כאן אפשר להוסיף בדיקות ולידציה (סוג קובץ, גודל וכו')
     setSelectedFile(file);
   };
 
@@ -61,13 +56,8 @@ export default function UploadZplModal({ onUpload, onBack }: UploadZplModalProps
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Dimmed Overlay */}
       <div className="absolute inset-0 bg-[#111618]/60 backdrop-blur-sm transition-opacity"></div>
-
-      {/* Modal */}
       <div className="relative z-20 w-full max-w-[560px] bg-white dark:bg-[#15232b] rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-gray-200 dark:border-gray-700">
-        
-        {/* Modal Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-2">
           <div>
             <h2 className="text-[#111618] dark:text-white text-2xl font-bold leading-tight tracking-tight">Upload ZPL Problem</h2>
@@ -77,11 +67,8 @@ export default function UploadZplModal({ onUpload, onBack }: UploadZplModalProps
             <MaterialIcon icon="close" />
           </button>
         </div>
-
-        {/* Modal Body */}
         <div className="p-6">
           {!selectedFile ? (
-            // State: No File Selected (Drop Zone)
             <div 
               className={`group relative flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-xl transition-all duration-200 cursor-pointer
                 ${dragActive 
@@ -101,7 +88,6 @@ export default function UploadZplModal({ onUpload, onBack }: UploadZplModalProps
                 onChange={handleChange}
               />
               <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center space-y-4 pointer-events-none">
-                {/* Icon Circle */}
                 <div className="w-16 h-16 rounded-full bg-[#13a4ec]/10 dark:bg-[#13a4ec]/20 flex items-center justify-center mb-1 group-hover:scale-110 transition-transform duration-200">
                   <MaterialIcon icon="cloud_upload" className="text-4xl text-[#13a4ec]" />
                 </div>
@@ -115,7 +101,6 @@ export default function UploadZplModal({ onUpload, onBack }: UploadZplModalProps
               </div>
             </div>
           ) : (
-            // State: File Selected
             <div className="mt-4 flex items-center justify-between p-4 bg-blue-50 dark:bg-[#13a4ec]/10 border border-blue-100 dark:border-[#13a4ec]/20 rounded-lg animate-in fade-in slide-in-from-bottom-2">
                 <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-lg bg-white dark:bg-[#15232b] flex items-center justify-center text-[#13a4ec] shadow-sm">
@@ -132,8 +117,6 @@ export default function UploadZplModal({ onUpload, onBack }: UploadZplModalProps
             </div>
           )}
         </div>
-
-        {/* Modal Footer */}
         <div className="px-6 pb-6 pt-2">
           <div className="flex gap-3 justify-end items-center border-t border-gray-100 dark:border-gray-800 pt-5">
             <button 
@@ -155,7 +138,6 @@ export default function UploadZplModal({ onUpload, onBack }: UploadZplModalProps
             </button>
           </div>
         </div>
-
       </div>
     </div>
   );

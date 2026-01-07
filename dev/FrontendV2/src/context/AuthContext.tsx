@@ -1,6 +1,5 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'; // <-- התיקון כאן (type ReactNode)
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
-// 1. הגדרת הטיפוסים למידע שנשמר ב-Context
 interface AuthContextType {
   userId: string | null;
   isAuthenticated: boolean;
@@ -8,14 +7,11 @@ interface AuthContextType {
   logout: () => void;
 }
 
-// 2. יצירת ה-Context עם ערך ברירת מחדל
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// 3. ה-Provider: הרכיב שעוטף את האפליקציה ומספק את המידע
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [userId, setUserId] = useState<string | null>(null);
 
-  // בעת טעינת האפליקציה, נבדוק אם יש מזהה שמור ב-localStorage
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId');
     if (storedUserId) {
@@ -23,18 +19,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // פונקציית התחברות
   const login = (newUserId: string, token?: string) => {
     setUserId(newUserId);
     localStorage.setItem('userId', newUserId);
-    
-    // אם השרת מחזיר טוקן, נשמור גם אותו
     if (token) {
       localStorage.setItem('token', token);
     }
   };
 
-  // פונקציית התנתקות
   const logout = () => {
     setUserId(null);
     localStorage.removeItem('userId');
@@ -48,7 +40,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// 4. Hook מותאם אישית לשימוש קל בקומפוננטות
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
