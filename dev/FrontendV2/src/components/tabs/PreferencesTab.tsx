@@ -1,35 +1,63 @@
 import { useState } from 'react';
 import MaterialIcon from '../ui/MaterialIcon';
 import PreferenceModuleModal from '../modals/PreferenceModuleModal';
-import PreferenceModuleCard, { type PreferenceModuleData } from '../preferences/PreferenceModuleCard';
+import PreferenceModuleCard from '../preferences/PreferenceModuleCard';
 
-interface RawPreferenceData {
-  identifier: string;
+// הגדרת הצבעים המותרים בדיוק כפי שהכרטיסייה מצפה להם
+type ModuleColor = 'emerald' | 'pink' | 'violet' | 'amber' | 'blue';
+
+export interface CombinedPreferenceModuleData {
+  // שדות ל-UI
+  title: string;
+  date: string;
+  desc: string;
+  count: number;
+  icon: string;
+  color: ModuleColor; // 👇 תיקון: שימוש בטיפוס הספציפי במקום string
+  
+  // שדות ל-API
+  name: string;
+  preferences: string[]; 
+  description: string;
 }
 
 interface PreferencesTabProps {
-  libraryData: RawPreferenceData[];
+  data: CombinedPreferenceModuleData[];
+  onUpdate: (data: CombinedPreferenceModuleData[]) => void;
+  libraryData: any[];
 }
 
-export default function PreferencesTab({ libraryData }: PreferencesTabProps) {
+export default function PreferencesTab({ data, onUpdate, libraryData }: PreferencesTabProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [createdModules, setCreatedModules] = useState<PreferenceModuleData[]>([]);
 
   const handleCreateModule = (name: string, items: any[]) => {
-    const newModule: PreferenceModuleData = {
+    const newModule: CombinedPreferenceModuleData = {
+        // --- UI Fields ---
         title: name,
         date: 'Just now',
         desc: `Optimization module with ${items.length} preferences.`,
         count: items.length,
         icon: 'tune',
-        color: 'emerald'
+        color: 'emerald', // זה תקין כי 'emerald' נמצא ברשימת הצבעים המותרים
+
+        // --- API Fields ---
+        name: name,
+        description: `Optimization module with ${items.length} preferences.`,
+        preferences: items.map(item => typeof item === 'string' ? item : item.identifier || item.name)
     };
-    setCreatedModules([...createdModules, newModule]);
+
+    onUpdate([...data, newModule]);
+    setIsModalOpen(false);
+  };
+
+  const handleDeleteModule = (titleToDelete: string) => {
+      const updatedList = data.filter(m => m.title !== titleToDelete);
+      onUpdate(updatedList);
   };
 
   const modalLibrary = libraryData.map(p => ({
-      id: p.identifier,
-      name: p.identifier,
+      id: p.identifier || p.name,
+      name: p.identifier || p.name,
       type: 'Preference',
       desc: 'ZPL Objective'
   }));
@@ -53,7 +81,7 @@ export default function PreferencesTab({ libraryData }: PreferencesTabProps) {
   
           {/* Cards Grid */}
           <div className="p-6">
-              {createdModules.length === 0 ? (
+              {data.length === 0 ? (
                    <div className="flex flex-col items-center justify-center py-20 text-gray-500 dark:text-gray-400">
                       <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
                         <MaterialIcon icon="tune" className="text-3xl text-gray-400" />
@@ -66,12 +94,14 @@ export default function PreferencesTab({ libraryData }: PreferencesTabProps) {
                    </div>
               ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                      {createdModules.map((p, i) => (
+                      {data.map((p, i) => (
                          <PreferenceModuleCard 
                             key={i} 
-                            module={p}
+                            // אנו עושים כאן casting קטן (as any) אם הטיפוסים עדיין מתנגשים בגלל הגדרות פנימיות של הכרטיסייה,
+                            // אבל התיקון למעלה ב-interface אמור לפתור את זה באופן נקי.
+                            module={p as any} 
                             onEdit={() => console.log('Edit', p.title)}
-                            onDelete={() => console.log('Delete', p.title)}
+                            onDelete={() => handleDeleteModule(p.title)}
                          />
                       ))}
                   </div>

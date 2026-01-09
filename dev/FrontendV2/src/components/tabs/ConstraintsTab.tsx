@@ -1,40 +1,67 @@
 import { useState } from 'react';
 import MaterialIcon from '../ui/MaterialIcon';
 import ConstraintModuleModal from '../modals/ConstraintModuleModal';
-import ConstraintModuleCard, { type ConstraintModuleData } from '../constraints/ConstraintModuleCard';
+import ConstraintModuleCard from '../constraints/ConstraintModuleCard';
 
-// הטיפוס של המידע הגולמי (ZPL)
-interface RawConstraintData {
-  identifier: string;
+// Define the shape of data for both UI and API
+export interface CombinedConstraintModuleData {
+  // UI Fields
+  title: string;
+  date: string;
+  desc: string;
+  count: number;
+  icon: string;
+  colorClasses: string;
+
+  // API Fields
+  name: string;      // The module name for the API
+  constraints: string[]; // The actual list of constraints
+  description: string;
 }
 
 interface ConstraintsTabProps {
-  libraryData: RawConstraintData[]; // <-- הספרייה הגולמית
+  data: CombinedConstraintModuleData[]; // Data passed from parent (NewImagePage)
+  onUpdate: (data: CombinedConstraintModuleData[]) => void; // Callback to update parent state
+  libraryData: any[]; // Raw ZPL data for the modal to select from
 }
 
-export default function ConstraintsTab({ libraryData }: ConstraintsTabProps) {
+export default function ConstraintsTab({ data, onUpdate, libraryData }: ConstraintsTabProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // כאן אנחנו מנהלים את המודולים שהמשתמש *יצר*
-  const [createdModules, setCreatedModules] = useState<ConstraintModuleData[]>([]);
+  // Note: We removed the local 'createdModules' state. 
+  // We now use the 'data' prop directly.
 
-  // פונקציה שנקראת כשהמודאל עושה "Save"
   const handleCreateModule = (name: string, items: any[]) => {
-    const newModule: ConstraintModuleData = {
+    const newModule: CombinedConstraintModuleData = {
+        // --- UI Fields ---
         title: name,
         date: 'Just now',
         desc: `Custom module containing ${items.length} constraints from ZPL.`,
         count: items.length,
         icon: 'extension',
-        colorClasses: 'bg-blue-50 text-[#13a4ec] dark:bg-blue-900/20'
+        colorClasses: 'bg-blue-50 text-[#13a4ec] dark:bg-blue-900/20',
+
+        // --- API Fields ---
+        name: name,
+        description: `Custom module containing ${items.length} constraints.`,
+        // Ensure we store strings (constraint identifiers or text)
+        constraints: items.map(item => typeof item === 'string' ? item : item.identifier || item.name)
     };
-    setCreatedModules([...createdModules, newModule]);
+    
+    // Update the parent state
+    onUpdate([...data, newModule]);
+    setIsModalOpen(false);
   };
 
-  // המרה של המידע הגולמי לפורמט שהמודאל צריך
+  const handleDeleteModule = (titleToDelete: string) => {
+      const updatedList = data.filter(m => m.title !== titleToDelete);
+      onUpdate(updatedList);
+  };
+
+  // Convert raw ZPL data for the modal
   const modalLibrary = libraryData.map(c => ({
-      id: c.identifier,
-      name: c.identifier,
+      id: c.identifier || c.name,
+      name: c.identifier || c.name,
       type: 'Constraint',
       desc: 'ZPL Constraint'
   }));
@@ -51,14 +78,14 @@ export default function ConstraintsTab({ libraryData }: ConstraintsTabProps) {
                  </div>
              </div>
              <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 rounded-lg h-10 px-5 bg-[#13a4ec] text-white text-sm font-bold shadow-sm hover:bg-[#0f8ecb] transition-colors">
-                  <MaterialIcon icon="add" className="text-[20px]" />
-                  <span>Create New Module</span>
-              </button>
+                 <MaterialIcon icon="add" className="text-[20px]" />
+                 <span>Create New Module</span>
+             </button>
           </div>
   
           {/* Cards Grid */}
           <div className="p-6">
-              {createdModules.length === 0 ? (
+              {data.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 text-gray-500 dark:text-gray-400">
                       <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
                         <MaterialIcon icon="dashboard_customize" className="text-3xl text-gray-400" />
@@ -71,12 +98,13 @@ export default function ConstraintsTab({ libraryData }: ConstraintsTabProps) {
                   </div>
               ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                      {createdModules.map((c, i) => (
+                      {data.map((c, i) => (
                          <ConstraintModuleCard 
                             key={i} 
-                            module={c}
+                            // Cast as any if there are minor type mismatches with the card component
+                            module={c as any} 
                             onEdit={() => console.log('Edit', c.title)}
-                            onDelete={() => console.log('Delete', c.title)}
+                            onDelete={() => handleDeleteModule(c.title)}
                          />
                       ))}
                   </div>
@@ -87,8 +115,8 @@ export default function ConstraintsTab({ libraryData }: ConstraintsTabProps) {
       <ConstraintModuleModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
-        availableLibrary={modalLibrary} // העברת הספרייה למודאל
-        onSave={handleCreateModule}     // קבלת המודול החדש
+        availableLibrary={modalLibrary} 
+        onSave={handleCreateModule}     
       />
     </>
   );

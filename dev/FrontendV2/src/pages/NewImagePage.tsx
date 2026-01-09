@@ -8,6 +8,7 @@ import ConstraintsTab from '../components/tabs/ConstraintsTab';
 import SetsTab from '../components/tabs/SetsTab';
 import ParametersTab, { type ParameterData } from '../components/tabs/ParametersTab';
 import UploadZplModal from '../components/modals/UploadZplModal';
+import ReviewTab from '../components/tabs/ReviewTab';
 
 // Service & Context Imports
 import { NewImageService, type ParseModelResponse } from '../services/NewImageService';
@@ -16,19 +17,23 @@ import { useAuth } from '../context/AuthContext';
 // Type Imports
 import type { SetData } from '../components/sets/SetTableRow';
 import type { VariableData } from '../components/variables/VariableTableRow';
+import type { ModelPayload } from '../types/apiTypes';
 
 export default function NewImagePage() {
   const { userId } = useAuth();
 
-  // UI State
+  // --- UI State ---
   const [showUploadModal, setShowUploadModal] = useState(true);
   const [activeTab, setActiveTab] = useState('sets');
   
-  // Data State
+  // --- Data State ---
   const [modelData, setModelData] = useState<ParseModelResponse | null>(null);
+  const [zplCode, setZplCode] = useState<string>(""); // State לשמירת קוד ה-ZPL המקורי
   
-  // State נפרד למשתנים כדי שנוכל לערוך אותם באופן מקומי
+  // Local State for Tabs (Editable Data)
   const [variables, setVariables] = useState<VariableData[]>([]);
+  const [preferences, setPreferences] = useState<any[]>([]); 
+  const [constraints, setConstraints] = useState<any[]>([]); 
 
   // --- Upload Logic ---
   const handleUploadComplete = (file: File) => {
@@ -43,14 +48,12 @@ export default function NewImagePage() {
       const text = e.target?.result;
       if (typeof text === 'string') {
         try {
-          console.log(`Sending ZPL to server for user: ${userId}...`);
-          
+          // שמירת הקוד המקורי ב-State לשימוש מאוחר יותר
+          setZplCode(text);
+
           const data = await NewImageService.parseImageModel(userId, text);
-          console.log("🟢 SERVER RESPONSE:", data);
-          
           setModelData(data);
           setShowUploadModal(false); 
-
         } catch (error) {
           console.error("Failed to parse model:", error);
           alert("Error parsing ZPL file. Please try again.");
@@ -61,32 +64,39 @@ export default function NewImagePage() {
     reader.readAsText(file);
   };
 
-  // --- Data Initialization (Once modelData loads) ---
+  // --- Data Initialization (When file is uploaded) ---
   useEffect(() => {
-    if (modelData?.variables) {
-      const mappedVariables: VariableData[] = modelData.variables.map((v) => {
-        // המרת מערך המבנה למחרוזת תצוגה ראשונית
-        // דוגמה: ['INT', 'TEXT'] -> "[INT, TEXT]"
-        let structureDisplay = "Integer"; 
-        if (Array.isArray(v.structure) && v.structure.length > 0) {
-            structureDisplay = `[${v.structure.join(', ')}]`;
+    if (modelData) {
+        // 1. אתחול משתנים
+        if (modelData.variables) {
+            const mappedVariables: VariableData[] = modelData.variables.map((v) => {
+                let structureDisplay = "Integer"; 
+                if (Array.isArray(v.structure) && v.structure.length > 0) {
+                    structureDisplay = `[${v.structure.join(', ')}]`;
+                }
+
+                return {
+                    name: v.identifier,
+                    type: structureDisplay, 
+                    alias: v.alias || '-',
+                    objectiveValueAlias: v.objectiveValueAlias || '-',
+                    desc: v.alias ? `Alias: ${v.alias}` : 'Decision Variable'
+                };
+            });
+            setVariables(mappedVariables);
         }
 
-        return {
-            name: v.identifier,
-            type: structureDisplay, 
-            alias: v.alias || '-',
-            objectiveValueAlias: v.objectiveValueAlias || '-',
-            // values: '', // הוסר כדי למנוע שגיאות טייפ
-            desc: v.alias ? `Alias: ${v.alias}` : 'Decision Variable'
-        };
-      });
-      setVariables(mappedVariables);
+        // 2. אתחול רשימות למודולים
+        if (modelData.preferences) {
+            setPreferences([]); 
+        }
+        if (modelData.constraints) {
+            setConstraints([]);
+        }
     }
   }, [modelData]);
 
   // --- Mappers for Read-Only Tabs ---
-  
   const setsData: SetData[] = useMemo(() => {
     if (!modelData?.setTypes) return [];
     return Object.entries(modelData.setTypes).map(([setName, members]) => ({
@@ -106,6 +116,62 @@ export default function NewImagePage() {
     }));
   }, [modelData]);
 
+  // --- Helper to Collect All Data for Review Tab & API ---
+  const collectAllData = (): ModelPayload => {
+    return {
+      name: "New Optimization Model", 
+      description: "Generated from ZPL Upload", 
+      
+      // 👇 כאן אנחנו שולחים את תוכן הקובץ המקורי שנשמר ב-State
+      code: zplCode, 
+      
+      variables: variables.map(v => ({
+        identifier: v.name,
+        structure: v.type.startsWith('[') 
+            ? v.type.replace(/[\[\]]/g, '').split(', ') 
+            : ["scalar"], 
+        alias: (v.alias === '-' || !v.alias) ? "" : v.alias,
+        objectiveValueAlias: (v.objectiveValueAlias === '-' || !v.objectiveValueAlias) ? "" : v.objectiveValueAlias
+      })),
+
+      constraintModules: constraints
+        .filter((c: any) => c.constraints && c.constraints.length > 0)
+        .map((c: any) => ({
+          moduleName: c.name || c.title || "Unnamed Constraint Module",
+          description: c.description || c.desc || "",
+          constraints: c.constraints,
+          active: true 
+        })),
+
+      preferenceModules: preferences
+        .filter((p: any) => p.preferences && p.preferences.length > 0)
+        .map((p: any) => ({
+          moduleName: p.name || p.title || "Unnamed Preference Module",
+          description: p.description || p.desc || "",
+          preferences: p.preferences,
+          scalar: 1 
+        })),
+
+      sets: Object.entries(modelData?.setTypes || {}).map(([setName, members]) => ({
+        setDefinition: {
+          name: setName,
+          structure: ["string"],
+          alias: ""
+        },
+        values: members
+      })),
+
+      parameters: Object.entries(modelData?.paramTypes || {}).map(([name, type]) => ({
+        parameterDefinition: {
+          name: name,
+          structure: type,
+          alias: ""
+        },
+        value: "0" 
+      }))
+    };
+  };
+
   // --- Tabs Configuration ---
   const tabs = [
     { id: 'general', label: 'General Information' },
@@ -124,19 +190,15 @@ export default function NewImagePage() {
       case 'variables': return "Decision variables that the optimizer will solve for.";
       case 'constraints': return "Rules and limitations extracted from the model.";
       case 'preferences': return "Optimization objectives and soft constraints.";
+      case 'summary': return "Review all configuration details before submitting.";
       default: return "Configure the settings for your new scheduling problem.";
     }
   };
 
-  // --- Save Function Placeholder ---
-  const handleFinalSubmit = () => {
-      const finalPayload = {
-          userId,
-          variables: variables, // המשתנים המעודכנים!
-          // ... שאר הנתונים
-      };
-      console.log("Ready to send to server:", finalPayload);
-      alert("Draft saved! Check console for data.");
+  const handleDraftSave = () => {
+      const payload = collectAllData();
+      console.log("Draft Payload:", payload);
+      alert("Draft saved locally! (Check console)");
   };
 
   return (
@@ -192,7 +254,7 @@ export default function NewImagePage() {
                 </div>
                 <div className="flex items-center gap-3">
                    <button 
-                      onClick={handleFinalSubmit}
+                      onClick={handleDraftSave}
                       className="flex items-center gap-2 rounded-lg border border-[#dbe2e6] dark:border-gray-600 px-4 py-2 text-sm font-medium text-[#111618] dark:text-gray-200 bg-white dark:bg-[#182830] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                    >
                       <MaterialIcon icon="save" className="text-[20px]" />
@@ -225,7 +287,6 @@ export default function NewImagePage() {
             <div className="px-4">
               {activeTab === 'sets' && <SetsTab data={setsData} />} 
               
-              {/* הטאב החכם: מקבל את המידע ואת פונקציית העדכון */}
               {activeTab === 'variables' && (
                   <VariablesTab 
                     data={variables} 
@@ -234,16 +295,37 @@ export default function NewImagePage() {
               )}
               
               {activeTab === 'parameters' && <ParametersTab data={parametersData} />} 
-              {activeTab === 'constraints' && <ConstraintsTab libraryData={modelData?.constraints || []} />}
-              {activeTab === 'preferences' && <PreferencesTab libraryData={modelData?.preferences || []} />}
               
-              {['general', 'summary'].includes(activeTab) && (
+              {activeTab === 'constraints' && (
+                <ConstraintsTab 
+                    data={constraints} 
+                    onUpdate={(newConstraints) => setConstraints(newConstraints)} 
+                    libraryData={modelData?.constraints || []} 
+                />
+              )}
+              
+              {activeTab === 'preferences' && (
+                <PreferencesTab 
+                    data={preferences} 
+                    onUpdate={(newPrefs) => setPreferences(newPrefs)} 
+                    libraryData={modelData?.preferences || []} 
+                />
+              )}
+              
+              {activeTab === 'summary' && (
+                <ReviewTab 
+                  userId={userId || ""} 
+                  data={collectAllData()} 
+                />
+              )}
+              
+              {activeTab === 'general' && (
                 <div className="flex flex-col items-center justify-center min-h-[400px] bg-white dark:bg-[#1A2C38] rounded-xl border border-[#dbe2e6] dark:border-gray-700 p-8 text-center">
                   <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 text-gray-400">
                     <MaterialIcon icon="construction" className="text-3xl" />
                   </div>
-                  <h3 className="text-lg font-bold text-[#111618] dark:text-white mb-2">Work in Progress</h3>
-                  <p className="text-[#617c89] dark:text-gray-400">The <strong>{tabs.find(t=>t.id===activeTab)?.label}</strong> module is currently under development.</p>
+                  <h3 className="text-lg font-bold text-[#111618] dark:text-white mb-2">General Information</h3>
+                  <p className="text-[#617c89] dark:text-gray-400">Configure basic model details here.</p>
                 </div>
               )}
             </div>
@@ -255,7 +337,10 @@ export default function NewImagePage() {
                     Back
                 </button>
                 <div className="flex gap-4">
-                  <button className="flex min-w-[120px] cursor-pointer items-center justify-center rounded-lg h-10 px-6 bg-[#13a4ec] hover:bg-[#0f8ecb] text-white text-sm font-bold shadow-lg shadow-blue-500/20 transition-all">
+                  <button 
+                    onClick={() => setActiveTab('summary')}
+                    className="flex min-w-[120px] cursor-pointer items-center justify-center rounded-lg h-10 px-6 bg-[#13a4ec] hover:bg-[#0f8ecb] text-white text-sm font-bold shadow-lg shadow-blue-500/20 transition-all"
+                  >
                       Next Step
                       <MaterialIcon icon="arrow_forward" className="text-lg ml-2" />
                   </button>
