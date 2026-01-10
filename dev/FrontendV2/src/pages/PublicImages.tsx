@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import PublicImageCard from '../components/PublicImageCard'; // Make sure path is correct
 
 const PublicImages: React.FC = () => {
   const navigate = useNavigate();
@@ -49,6 +50,11 @@ const PublicImages: React.FC = () => {
       downloads: "2.4k"
     }
   ];
+
+  const handleViewDetails = (id: number) => {
+    console.log(`Navigating to details for project ${id}`);
+    // navigate(`/public-images/${id}`); // Example navigation
+  };
 
   return (
     <div className="bg-[#f6f7f8] dark:bg-[#101c22] text-[#111618] dark:text-white min-h-screen font-sans flex flex-col">
@@ -171,52 +177,11 @@ const PublicImages: React.FC = () => {
           {/* List View Container */}
           <div className="space-y-4">
             {projects.map((project) => (
-              <div key={project.id} className="group bg-white dark:bg-gray-900 rounded-xl p-6 border border-[#f0f3f4] dark:border-gray-800 shadow-sm hover:shadow-md hover:border-[#13a4ec]/30 transition-all flex flex-col lg:flex-row items-start lg:items-center gap-6">
-                <div className="flex-1 space-y-3">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <h3 className="text-xl font-bold group-hover:text-[#13a4ec] transition-colors cursor-pointer">{project.title}</h3>
-                    
-                    {/* Industry Badge */}
-                    <span className={`px-2 py-0.5 rounded bg-${project.industryColor}-50 text-${project.industryColor}-600 text-[10px] font-bold uppercase tracking-wider dark:bg-${project.industryColor}-900/30 dark:text-${project.industryColor}-400`}>
-                      {project.industry}
-                    </span>
-                    
-                    {/* Type Badge */}
-                    <span className={`px-2 py-0.5 rounded bg-${project.typeColor}-50 text-${project.typeColor}-600 text-[10px] font-bold uppercase tracking-wider dark:bg-${project.typeColor}-900/30 dark:text-${project.typeColor}-400`}>
-                      {project.type}
-                    </span>
-                  </div>
-                  
-                  <p className="text-sm text-[#617c89] line-clamp-2 max-w-3xl">
-                    {project.description}
-                  </p>
-                  
-                  <div className="flex flex-wrap items-center gap-6 text-xs text-[#617c89]">
-                    <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-lg">person</span>
-                      <span>{project.author}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-lg">calendar_today</span>
-                      <span>{project.date}</span>
-                    </div>
-                    <div className={`flex items-center gap-1.5 ${project.complexityColor}`}>
-                      <span className="material-symbols-outlined text-lg">bar_chart</span>
-                      <span className="font-bold">{project.complexity}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4 w-full lg:w-auto pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-100 dark:border-gray-800">
-                  <div className="flex flex-col items-center px-4 border-r border-gray-100 dark:border-gray-800">
-                    <span className="text-xs text-[#617c89] uppercase font-bold tracking-tighter">Downloads</span>
-                    <span className="text-lg font-bold">{project.downloads}</span>
-                  </div>
-                  <button className="flex-1 lg:flex-none bg-[#13a4ec] text-white text-sm font-bold px-6 py-2.5 rounded-lg hover:bg-[#13a4ec]/90 transition-all shadow-sm shadow-[#13a4ec]/20 whitespace-nowrap">
-                    View Details
-                  </button>
-                </div>
-              </div>
+              <PublicImageCard 
+                key={project.id}
+                {...project}
+                onViewDetails={handleViewDetails}
+              />
             ))}
           </div>
 
