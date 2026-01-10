@@ -1,5 +1,6 @@
 import { useState, useRef, type DragEvent, type ChangeEvent } from 'react';
 import MaterialIcon from '../ui/MaterialIcon';
+import { useNavigate } from 'react-router-dom';
 
 interface UploadZplModalProps {
   onUpload: (file: File) => void;
@@ -53,6 +54,8 @@ export default function UploadZplModal({ onUpload, onBack }: UploadZplModalProps
       inputRef.current.value = "";
     }
   };
+
+const navigate = useNavigate();
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -120,7 +123,7 @@ export default function UploadZplModal({ onUpload, onBack }: UploadZplModalProps
         <div className="px-6 pb-6 pt-2">
           <div className="flex gap-3 justify-end items-center border-t border-gray-100 dark:border-gray-800 pt-5">
             <button 
-              onClick={onBack}
+              onClick={() => navigate('/')}
               className="flex min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-transparent border border-gray-300 dark:border-gray-600 text-[#111618] dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-semibold leading-normal transition-colors"
             >
               Back to Home

@@ -9,6 +9,7 @@ import NewImagePage from './pages/NewImagePage';
 import ViewImagePage from './pages/ViewImagePage';
 import EditImagePage from './pages/EditImagePage';
 import SolutionViewPage from './pages/SolutionViewPage';
+import PublicImages from './pages/PublicImages.tsx';
 
 function App() {
   return (
@@ -18,10 +19,13 @@ function App() {
         
         <Routes>
           {/* Home Page */}
-          <Route path="/" element={<MyImagesPage />} />
+          <Route path="/" element={<PublicImages />} />
 
           {/* Authentication */}
           <Route path="/auth" element={<AuthPage />} />
+
+          {/* My Images */}
+          <Route path="/myimages" element={<MyImagesPage />} />
 
           {/* Create New Image */}
           <Route path="/new" element={<NewImagePage />} />

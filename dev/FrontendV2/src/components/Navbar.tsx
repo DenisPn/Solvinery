@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
+
 export default function Navbar() {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,7 +36,7 @@ export default function Navbar() {
         <nav className="hidden lg:flex items-center gap-6">
           <Link 
             to="/" 
-            className={`transition-colors text-sm leading-normal ${isActive('/')}`}
+            className={`transition-colors text-sm leading-normal ${isActive('/myimages')}`}
           >
             My Problems
           </Link>
