@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth.service';
+import { useAuth } from '../context/AuthContext'; // <-- תוספת 1: ייבוא ה-Hook
 
 export default function AuthPage() {
   const navigate = useNavigate();
+  const { login } = useAuth(); // <-- תוספת 2: שליפת פונקציית ה-login מה-Context
   
   // UI State
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register');
@@ -42,7 +44,14 @@ export default function AuthPage() {
         userName: formData.userName,
         password: formData.password
       });
+      
       console.log('Login success, UserId:', response.userId);
+
+      // --- תוספת 3: עדכון ה-Context ---
+      // השורה הזו שומרת את המשתמש בזיכרון הגלובלי, כך ש-NewImagePage יוכל לגשת אליו
+      login(response.userId); 
+      // --------------------------------
+
       navigate('/'); 
     } catch (err: any) {
       console.error("Login Error:", err);

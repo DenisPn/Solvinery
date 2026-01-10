@@ -1,301 +1,355 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
 
-// --- טיפוסים ---
-interface ConstraintToggle {
-  id: string;
-  label: string;
-  subtext: string;
-  isActive: boolean;
-}
+// Component Imports
+import MaterialIcon from '../components/ui/MaterialIcon';
+import VariablesTab from '../components/tabs/VariablesTab';
+import PreferencesTab from '../components/tabs/PreferencesTab';
+import ConstraintsTab from '../components/tabs/ConstraintsTab';
+import SetsTab from '../components/tabs/SetsTab';
+import ParametersTab, { type ParameterData } from '../components/tabs/ParametersTab';
+import UploadZplModal from '../components/modals/UploadZplModal';
+import ReviewTab from '../components/tabs/ReviewTab';
 
-interface PreferenceSlider {
-  id: string;
-  label: string;
-  value: number;
-  tagLabel: string;
-  tagColor: string; // Tailwind classes
-}
+// Service & Context Imports
+import { NewImageService, type ParseModelResponse } from '../services/NewImageService';
+import { useAuth } from '../context/AuthContext';
 
-// --- קומפוננטה ראשית ---
+// Type Imports
+import type { SetData } from '../components/sets/SetTableRow';
+import type { VariableData } from '../components/variables/VariableTableRow';
+import type { ModelPayload } from '../types/apiTypes';
+
 export default function NewImagePage() {
-  // State עבור הטופס הראשי
-  const [problemName, setProblemName] = useState('');
-  const [description, setDescription] = useState('');
+  const { userId } = useAuth();
 
-  // State עבור האילוצים (Constraints)
-  const [constraints, setConstraints] = useState<ConstraintToggle[]>([
-    { id: '1', label: 'Max Hours Per Week', subtext: 'Limit to 40h per employee', isActive: true },
-    { id: '2', label: 'No Overlapping Shifts', subtext: 'Prevent double booking', isActive: true },
-    { id: '3', label: 'Min Rest Period', subtext: '12h between shifts', isActive: false },
-  ]);
+  // --- UI State ---
+  const [showUploadModal, setShowUploadModal] = useState(true);
+  const [activeTab, setActiveTab] = useState('sets');
+  
+  // --- Data State ---
+  const [modelData, setModelData] = useState<ParseModelResponse | null>(null);
+  const [zplCode, setZplCode] = useState<string>(""); // State לשמירת קוד ה-ZPL המקורי
+  
+  // Local State for Tabs (Editable Data)
+  const [variables, setVariables] = useState<VariableData[]>([]);
+  const [preferences, setPreferences] = useState<any[]>([]); 
+  const [constraints, setConstraints] = useState<any[]>([]); 
 
-  // State עבור ההעדפות (Preferences)
-  const [preferences, setPreferences] = useState<PreferenceSlider[]>([
-    { id: 'p1', label: 'Minimize Cost', value: 80, tagLabel: 'High', tagColor: 'bg-primary/10 text-primary' },
-    { id: 'p2', label: 'Employee Fairness', value: 50, tagLabel: 'Med', tagColor: 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300' },
-    { id: 'p3', label: 'Shift Consistency', value: 20, tagLabel: 'Low', tagColor: 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300' },
-  ]);
+  // --- Upload Logic ---
+  const handleUploadComplete = (file: File) => {
+    if (!userId) {
+        alert("Session error: Please log in again.");
+        return;
+    }
 
-  // פונקציה לשינוי מצב אילוץ
-  const toggleConstraint = (id: string) => {
-    setConstraints(prev => prev.map(c => c.id === id ? { ...c, isActive: !c.isActive } : c));
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      const text = e.target?.result;
+      if (typeof text === 'string') {
+        try {
+          // שמירת הקוד המקורי ב-State לשימוש מאוחר יותר
+          setZplCode(text);
+
+          const data = await NewImageService.parseImageModel(userId, text);
+          setModelData(data);
+          setShowUploadModal(false); 
+        } catch (error) {
+          console.error("Failed to parse model:", error);
+          alert("Error parsing ZPL file. Please try again.");
+        }
+      }
+    };
+
+    reader.readAsText(file);
   };
 
-  // פונקציה לשינוי ערך סליידר
-  const updatePreference = (id: string, newValue: number) => {
-    setPreferences(prev => prev.map(p => p.id === id ? { ...p, value: newValue } : p));
+  // --- Data Initialization (When file is uploaded) ---
+  useEffect(() => {
+    if (modelData) {
+        // 1. אתחול משתנים
+        if (modelData.variables) {
+            const mappedVariables: VariableData[] = modelData.variables.map((v) => {
+                let structureDisplay = "Integer"; 
+                if (Array.isArray(v.structure) && v.structure.length > 0) {
+                    structureDisplay = `[${v.structure.join(', ')}]`;
+                }
+
+                return {
+                    name: v.identifier,
+                    type: structureDisplay, 
+                    alias: v.alias || '-',
+                    objectiveValueAlias: v.objectiveValueAlias || '-',
+                    desc: v.alias ? `Alias: ${v.alias}` : 'Decision Variable'
+                };
+            });
+            setVariables(mappedVariables);
+        }
+
+        // 2. אתחול רשימות למודולים
+        if (modelData.preferences) {
+            setPreferences([]); 
+        }
+        if (modelData.constraints) {
+            setConstraints([]);
+        }
+    }
+  }, [modelData]);
+
+  // --- Mappers for Read-Only Tabs ---
+  const setsData: SetData[] = useMemo(() => {
+    if (!modelData?.setTypes) return [];
+    return Object.entries(modelData.setTypes).map(([setName, members]) => ({
+        name: setName,
+        desc: `Defined set with ${members.length} elements`,
+        members: members.slice(0, 3), 
+        extraCount: Math.max(0, members.length - 3),
+        totalCount: members.length
+    }));
+  }, [modelData]);
+
+  const parametersData: ParameterData[] = useMemo(() => {
+    if (!modelData?.paramTypes) return [];
+    return Object.entries(modelData.paramTypes).map(([name, type]) => ({
+        name: name,
+        type: type
+    }));
+  }, [modelData]);
+
+  // --- Helper to Collect All Data for Review Tab & API ---
+  const collectAllData = (): ModelPayload => {
+    return {
+      name: "New Optimization Model", 
+      description: "Generated from ZPL Upload", 
+      
+      // 👇 כאן אנחנו שולחים את תוכן הקובץ המקורי שנשמר ב-State
+      code: zplCode, 
+      
+      variables: variables.map(v => ({
+        identifier: v.name,
+        structure: v.type.startsWith('[') 
+            ? v.type.replace(/[\[\]]/g, '').split(', ') 
+            : ["scalar"], 
+        alias: (v.alias === '-' || !v.alias) ? "" : v.alias,
+        objectiveValueAlias: (v.objectiveValueAlias === '-' || !v.objectiveValueAlias) ? "" : v.objectiveValueAlias
+      })),
+
+      constraintModules: constraints
+        .filter((c: any) => c.constraints && c.constraints.length > 0)
+        .map((c: any) => ({
+          moduleName: c.name || c.title || "Unnamed Constraint Module",
+          description: c.description || c.desc || "",
+          constraints: c.constraints,
+          active: true 
+        })),
+
+      preferenceModules: preferences
+        .filter((p: any) => p.preferences && p.preferences.length > 0)
+        .map((p: any) => ({
+          moduleName: p.name || p.title || "Unnamed Preference Module",
+          description: p.description || p.desc || "",
+          preferences: p.preferences,
+          scalar: 1 
+        })),
+
+      sets: Object.entries(modelData?.setTypes || {}).map(([setName, members]) => ({
+        setDefinition: {
+          name: setName,
+          structure: ["string"],
+          alias: ""
+        },
+        values: members
+      })),
+
+      parameters: Object.entries(modelData?.paramTypes || {}).map(([name, type]) => ({
+        parameterDefinition: {
+          name: name,
+          structure: type,
+          alias: ""
+        },
+        value: "0" 
+      }))
+    };
+  };
+
+  // --- Tabs Configuration ---
+  const tabs = [
+    { id: 'general', label: 'General Information' },
+    { id: 'sets', label: 'Sets' },
+    { id: 'parameters', label: 'Parameters' },
+    { id: 'variables', label: 'Variables' },
+    { id: 'constraints', label: 'Constraint Modules' },
+    { id: 'preferences', label: 'Preference Modules' },
+    { id: 'summary', label: 'Review' },
+  ];
+
+  const getPageDescription = () => {
+    switch (activeTab) {
+      case 'sets': return "Groups of entities extracted from your ZPL model.";
+      case 'parameters': return "Global constants and parameters defined in the system.";
+      case 'variables': return "Decision variables that the optimizer will solve for.";
+      case 'constraints': return "Rules and limitations extracted from the model.";
+      case 'preferences': return "Optimization objectives and soft constraints.";
+      case 'summary': return "Review all configuration details before submitting.";
+      default: return "Configure the settings for your new scheduling problem.";
+    }
+  };
+
+  const handleDraftSave = () => {
+      const payload = collectAllData();
+      console.log("Draft Payload:", payload);
+      alert("Draft saved locally! (Check console)");
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark text-text-main-light dark:text-white font-display overflow-x-hidden">
+    <div className="font-display bg-[#f6f7f8] dark:bg-[#101c22] text-[#111618] dark:text-white min-h-screen flex flex-col transition-colors duration-200">
       
-      {/* Top Navigation - Header ספציפי לדף זה כפי שהופיע בעיצוב */}
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#f0f3f4] dark:border-border-dark bg-white dark:bg-surface-dark px-10 py-3 sticky top-0 z-50">
-        <div className="flex items-center gap-4 text-text-main-light dark:text-white">
-          <div className="size-8 flex items-center justify-center bg-primary/10 rounded-lg text-primary">
-            <span className="material-symbols-outlined text-2xl">calendar_month</span>
+      {showUploadModal && (
+        <UploadZplModal 
+          onUpload={handleUploadComplete} 
+          onBack={() => console.log("Back clicked")} 
+        />
+      )}
+
+      {/* Header */}
+      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f0f3f4] dark:border-b-[#2a3840] bg-white dark:bg-[#101c22] px-10 py-3 sticky top-0 z-50">
+        <div className="flex items-center gap-4 text-[#111618] dark:text-white">
+          <div className="size-6 text-[#13a4ec]">
+            <MaterialIcon icon="calendar_month" className="text-2xl" />
           </div>
-          <h2 className="text-text-main-light dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Scheduling Solver</h2>
+          <h2 className="text-[#111618] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Scheduling Pro</h2>
         </div>
         <div className="flex flex-1 justify-end gap-8">
           <div className="hidden md:flex items-center gap-9">
-            <Link to="/" className="text-text-main-light dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors">Dashboard</Link>
-            <Link to="/" className="text-text-main-light dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors">Problems</Link>
-            <a className="text-text-main-light dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Solvers</a>
-            <a className="text-text-main-light dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Settings</a>
+            <a className="text-[#111618] dark:text-gray-200 text-sm font-medium hover:text-[#13a4ec] transition-colors" href="#">Dashboard</a>
+            <a className="text-[#111618] dark:text-gray-200 text-sm font-medium hover:text-[#13a4ec] transition-colors" href="#">Problems</a>
+            <a className="text-[#111618] dark:text-gray-200 text-sm font-medium hover:text-[#13a4ec] transition-colors" href="#">Schedules</a>
+            <a className="text-[#111618] dark:text-gray-200 text-sm font-medium hover:text-[#13a4ec] transition-colors" href="#">Settings</a>
           </div>
-          <div className="flex items-center gap-4">
-            <button className="flex items-center justify-center rounded-full size-10 bg-background-light dark:bg-background-dark text-text-main-light dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-              <span className="material-symbols-outlined">notifications</span>
-            </button>
-            <div 
-              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-white dark:border-surface-dark shadow-sm" 
-              style={{ backgroundImage: 'url("https://i.pravatar.cc/150?img=10")' }}
-            ></div>
-          </div>
+          <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-gray-200 dark:border-gray-700 bg-gray-100" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/a/default-user=s96-c")' }}></div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center py-10 px-4 md:px-10 lg:px-40">
-        <div className="w-full max-w-[1024px] flex flex-col gap-8">
-          
-          {/* Breadcrumbs */}
-          <nav className="flex flex-wrap gap-2 items-center">
-            <Link to="/" className="text-text-secondary-light dark:text-gray-400 text-sm font-medium leading-normal hover:text-primary transition-colors">Home</Link>
-            <span className="material-symbols-outlined text-text-secondary-light dark:text-gray-400 text-sm">chevron_right</span>
-            <Link to="/" className="text-text-secondary-light dark:text-gray-400 text-sm font-medium leading-normal hover:text-primary transition-colors">Problems</Link>
-            <span className="material-symbols-outlined text-text-secondary-light dark:text-gray-400 text-sm">chevron_right</span>
-            <span className="text-text-main-light dark:text-white text-sm font-medium leading-normal">New</span>
-          </nav>
-
-          {/* Page Heading */}
-          <div className="flex flex-col gap-3">
-            <h1 className="text-text-main-light dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Create New Scheduling Problem</h1>
-            <p className="text-text-secondary-light dark:text-gray-400 text-lg font-normal leading-normal max-w-2xl">Define the scope, constraints, and objectives for your new scheduling task. Use this tool to set up the initial parameters before running the solver.</p>
-          </div>
-
-          {/* Main Form Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Main Layout */}
+      <div className="layout-container flex h-full grow flex-col">
+        <div className="md:px-10 lg:px-40 flex flex-1 justify-center py-5">
+          <div className="layout-content-container flex flex-col w-full max-w-[1024px] flex-1 gap-6">
             
-            {/* Left Column: General Info & Sets */}
-            <div className="lg:col-span-8 flex flex-col gap-6">
-              
-              {/* General Information Card */}
-              <div className="bg-white dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark p-6 shadow-sm">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                    <span className="material-symbols-outlined">description</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-text-main-light dark:text-white">General Information</h3>
-                </div>
-                <div className="flex flex-col gap-6">
-                  <label className="flex flex-col w-full">
-                    <p className="text-text-main-light dark:text-gray-200 text-base font-medium leading-normal pb-2">Problem Name <span className="text-red-500">*</span></p>
-                    <input 
-                      value={problemName}
-                      onChange={(e) => setProblemName(e.target.value)}
-                      className="form-input flex w-full rounded-lg text-text-main-light dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-white dark:bg-background-dark h-12 px-4 text-base placeholder:text-text-secondary-light dark:placeholder:text-gray-500 transition-all" 
-                      placeholder="e.g., Q4 Nurse Shifts 2023"
-                    />
-                  </label>
-                  <label className="flex flex-col w-full">
-                    <p className="text-text-main-light dark:text-gray-200 text-base font-medium leading-normal pb-2">Description <span className="text-text-secondary-light dark:text-gray-500 text-sm font-normal">(Optional)</span></p>
-                    <textarea 
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      className="form-input flex w-full rounded-lg text-text-main-light dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-white dark:bg-background-dark min-h-[120px] p-4 text-base placeholder:text-text-secondary-light dark:placeholder:text-gray-500 resize-y transition-all" 
-                      placeholder="Enter a brief description of the scheduling context, goals, and any specific notes..."
-                    ></textarea>
-                  </label>
-                </div>
+            {/* Breadcrumbs & Title */}
+            <div className="flex flex-col gap-2 px-4">
+              <div className="flex flex-wrap gap-2 items-center">
+                <a className="text-[#617c89] dark:text-gray-400 text-sm font-medium hover:underline" href="#">Home</a>
+                <span className="text-[#617c89] dark:text-gray-400 text-sm font-medium">/</span>
+                <a className="text-[#617c89] dark:text-gray-400 text-sm font-medium hover:underline" href="#">Problems</a>
+                <span className="text-[#617c89] dark:text-gray-400 text-sm font-medium">/</span>
+                <span className="text-[#111618] dark:text-white text-sm font-medium">Create New</span>
               </div>
-
-              {/* Sets & Variables Card */}
-              <div className="bg-white dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400">
-                      <span className="material-symbols-outlined">dataset</span>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-text-main-light dark:text-white">Sets & Variables</h3>
-                      <p className="text-sm text-text-secondary-light dark:text-gray-400">Define the resources and items involved.</p>
-                    </div>
-                  </div>
-                  <button className="text-primary text-sm font-medium hover:underline flex items-center gap-1">
-                    <span className="material-symbols-outlined text-lg">add</span> Add Set
-                  </button>
+              
+              <div className="flex flex-wrap justify-between gap-3 mt-2">
+                <div className="flex min-w-72 flex-col gap-2">
+                  <h1 className="text-[#111618] dark:text-white text-3xl font-black leading-tight tracking-[-0.033em]">Create New Scheduling Problem</h1>
+                  <p className="text-[#617c89] dark:text-gray-400 text-base font-normal">
+                    {getPageDescription()}
+                  </p>
                 </div>
-                
-                <div className="flex flex-col gap-4">
-                  {/* Set Item 1 */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-lg border border-[#f0f3f4] dark:border-border-dark bg-background-light dark:bg-background-dark/50">
-                    <div className="flex items-center gap-4">
-                      <div className="size-10 rounded-full bg-white dark:bg-surface-dark flex items-center justify-center text-text-secondary-light border border-gray-100 dark:border-border-dark shadow-sm">
-                        <span className="material-symbols-outlined">group</span>
-                      </div>
-                      <div>
-                        <p className="font-bold text-text-main-light dark:text-white">Employees</p>
-                        <p className="text-sm text-text-secondary-light dark:text-gray-400">14 items defined</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 w-full sm:w-auto">
-                      <button className="flex-1 sm:flex-none px-4 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg text-sm font-medium text-text-main-light dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Edit List</button>
-                      <button className="p-2 text-text-secondary-light hover:text-red-500 transition-colors">
-                        <span className="material-symbols-outlined">delete</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Set Item 2 */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-lg border border-[#f0f3f4] dark:border-border-dark bg-background-light dark:bg-background-dark/50">
-                    <div className="flex items-center gap-4">
-                      <div className="size-10 rounded-full bg-white dark:bg-surface-dark flex items-center justify-center text-text-secondary-light border border-gray-100 dark:border-border-dark shadow-sm">
-                        <span className="material-symbols-outlined">schedule</span>
-                      </div>
-                      <div>
-                        <p className="font-bold text-text-main-light dark:text-white">Shift Types</p>
-                        <p className="text-sm text-text-secondary-light dark:text-gray-400">3 items (Morning, Evening, Night)</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 w-full sm:w-auto">
-                      <button className="flex-1 sm:flex-none px-4 py-2 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg text-sm font-medium text-text-main-light dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Edit List</button>
-                      <button className="p-2 text-text-secondary-light hover:text-red-500 transition-colors">
-                        <span className="material-symbols-outlined">delete</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Add Placeholder */}
-                  <button className="flex items-center justify-center gap-2 p-4 rounded-lg border border-dashed border-border-light dark:border-gray-600 bg-transparent hover:bg-background-light dark:hover:bg-white/5 transition-colors group">
-                    <span className="material-symbols-outlined text-text-secondary-light group-hover:text-primary transition-colors">add_circle</span>
-                    <span className="text-text-secondary-light group-hover:text-primary font-medium transition-colors">Define new variable set</span>
-                  </button>
+                <div className="flex items-center gap-3">
+                   <button 
+                      onClick={handleDraftSave}
+                      className="flex items-center gap-2 rounded-lg border border-[#dbe2e6] dark:border-gray-600 px-4 py-2 text-sm font-medium text-[#111618] dark:text-gray-200 bg-white dark:bg-[#182830] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                   >
+                      <MaterialIcon icon="save" className="text-[20px]" />
+                      Save Draft
+                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Constraints & Preferences */}
-            <div className="lg:col-span-4 flex flex-col gap-6">
-              
-              {/* Constraints Card */}
-              <div className="bg-white dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark p-6 shadow-sm">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg text-orange-600 dark:text-orange-400">
-                    <span className="material-symbols-outlined">lock</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-text-main-light dark:text-white">Constraints</h3>
-                </div>
-                
-                <div className="flex flex-col gap-5">
-                  {constraints.map((constraint, idx) => (
-                    <div key={constraint.id}>
-                      <label className="flex items-start justify-between gap-4 cursor-pointer group">
-                        <div className="flex flex-col">
-                          <span className="text-text-main-light dark:text-gray-200 font-medium text-sm">{constraint.label}</span>
-                          <span className="text-text-secondary-light dark:text-gray-400 text-xs">{constraint.subtext}</span>
-                        </div>
-                        <div className="relative flex items-center">
-                          <input 
-                            checked={constraint.isActive}
-                            onChange={() => toggleConstraint(constraint.id)}
-                            className="peer sr-only" 
-                            type="checkbox"
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                        </div>
-                      </label>
-                      {idx < constraints.length - 1 && <hr className="border-[#f0f3f4] dark:border-border-dark mt-5" />}
-                    </div>
-                  ))}
-                  
-                  <button className="mt-2 w-full py-2 flex items-center justify-center gap-2 text-primary font-medium text-sm border border-transparent hover:bg-primary/5 rounded-lg transition-colors">
-                    <span className="material-symbols-outlined text-lg">add</span> Add Constraint
+            {/* Tabs Navigation */}
+            <div className="px-4">
+              <div className="flex border-b border-[#dbe2e6] dark:border-gray-700 gap-8 overflow-x-auto no-scrollbar">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-4 min-w-max transition-colors cursor-pointer
+                      ${activeTab === tab.id 
+                        ? 'border-b-[#13a4ec] text-[#13a4ec] dark:text-[#13a4ec]' 
+                        : 'border-b-transparent hover:border-b-gray-300 text-[#617c89] dark:text-gray-400 hover:text-[#13a4ec] dark:hover:text-white'
+                      }`}
+                  >
+                    <p className={`text-sm leading-normal tracking-[0.015em] ${activeTab === tab.id ? 'font-bold' : 'font-bold'}`}>{tab.label}</p>
                   </button>
-                </div>
+                ))}
               </div>
-
-              {/* Preferences Card */}
-              <div className="bg-white dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark p-6 shadow-sm">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400">
-                    <span className="material-symbols-outlined">tune</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-text-main-light dark:text-white">Preferences</h3>
-                </div>
-                
-                <div className="flex flex-col gap-6">
-                  {preferences.map((pref) => (
-                    <div key={pref.id} className="flex flex-col gap-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-text-main-light dark:text-gray-200">{pref.label}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-400">{pref.value}%</span>
-                          <span className={`text-xs font-bold px-2 py-0.5 rounded ${pref.tagColor}`}>
-                            {pref.tagLabel}
-                          </span>
-                        </div>
-                      </div>
-                      <input 
-                        type="range" 
-                        min="0" 
-                        max="100" 
-                        value={pref.value}
-                        onChange={(e) => updatePreference(pref.id, parseInt(e.target.value))}
-                        className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
             </div>
-          </div>
 
-          {/* Action Bar (Sticky Footer) */}
-          <div className="sticky bottom-4 z-40 mt-4">
-            <div className="bg-white/80 dark:bg-surface-dark/90 backdrop-blur-md border border-border-light dark:border-border-dark rounded-2xl p-4 shadow-lg flex items-center justify-between">
-              <div className="hidden sm:block pl-2">
-                <span className="text-sm text-text-secondary-light dark:text-gray-400">Ready to solve? Save your configuration first.</span>
-              </div>
-              <div className="flex gap-3 w-full sm:w-auto justify-end">
-                <Link to="/" className="flex-1 sm:flex-none">
-                  <button className="w-full h-12 px-6 rounded-lg bg-transparent border border-border-light dark:border-gray-600 text-text-main-light dark:text-white font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    Cancel
-                  </button>
-                </Link>
-                <button className="flex-1 sm:flex-none h-12 px-8 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold shadow-md shadow-primary/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                  <span>Create Problem</span>
-                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
+            {/* Dynamic Content Area */}
+            <div className="px-4">
+              {activeTab === 'sets' && <SetsTab data={setsData} />} 
+              
+              {activeTab === 'variables' && (
+                  <VariablesTab 
+                    data={variables} 
+                    onUpdate={(updatedVars) => setVariables(updatedVars)} 
+                  />
+              )}
+              
+              {activeTab === 'parameters' && <ParametersTab data={parametersData} />} 
+              
+              {activeTab === 'constraints' && (
+                <ConstraintsTab 
+                    data={constraints} 
+                    onUpdate={(newConstraints) => setConstraints(newConstraints)} 
+                    libraryData={modelData?.constraints || []} 
+                />
+              )}
+              
+              {activeTab === 'preferences' && (
+                <PreferencesTab 
+                    data={preferences} 
+                    onUpdate={(newPrefs) => setPreferences(newPrefs)} 
+                    libraryData={modelData?.preferences || []} 
+                />
+              )}
+              
+              {activeTab === 'summary' && (
+                <ReviewTab 
+                  userId={userId || ""} 
+                  data={collectAllData()} 
+                />
+              )}
+              
+              {activeTab === 'general' && (
+                <div className="flex flex-col items-center justify-center min-h-[400px] bg-white dark:bg-[#1A2C38] rounded-xl border border-[#dbe2e6] dark:border-gray-700 p-8 text-center">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 text-gray-400">
+                    <MaterialIcon icon="construction" className="text-3xl" />
+                  </div>
+                  <h3 className="text-lg font-bold text-[#111618] dark:text-white mb-2">General Information</h3>
+                  <p className="text-[#617c89] dark:text-gray-400">Configure basic model details here.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="flex items-center justify-between px-4 mt-4 pb-12">
+                <button className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-lg h-10 px-6 border border-[#dbe2e6] dark:border-gray-600 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-[#111618] dark:text-white text-sm font-bold transition-colors">
+                    <MaterialIcon icon="arrow_back" className="text-lg mr-2" />
+                    Back
                 </button>
-              </div>
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => setActiveTab('summary')}
+                    className="flex min-w-[120px] cursor-pointer items-center justify-center rounded-lg h-10 px-6 bg-[#13a4ec] hover:bg-[#0f8ecb] text-white text-sm font-bold shadow-lg shadow-blue-500/20 transition-all"
+                  >
+                      Next Step
+                      <MaterialIcon icon="arrow_forward" className="text-lg ml-2" />
+                  </button>
+                </div>
             </div>
-          </div>
 
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

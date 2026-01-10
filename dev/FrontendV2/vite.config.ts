@@ -6,11 +6,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // כל בקשה שמתחילה ב /api תופנה לשרת שלך
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'http://localhost:4000', // השרת האמיתי
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path) => path.replace(/^\/api/, ''), // מוריד את ה /api לפני השליחה לשרת
       },
     },
   },
