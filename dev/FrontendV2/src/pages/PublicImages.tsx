@@ -1,62 +1,94 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PublicImageCard from '../components/PublicImageCard';
+import { ImageService } from '../services/ImageService';
+import type { ImageDto } from '../types/apiTypes';
+
+interface UIProjectData extends ImageDto {
+  id: string;
+  title: string;
+  industry: string;
+  industryColor: string;
+  type: string;
+  typeColor: string;
+  author: string;
+  date: string;
+  complexity: string;
+  complexityColor: string;
+  downloads: string;
+}
 
 const PublicImages: React.FC = () => {
   const navigate = useNavigate();
+  
+  const [projects, setProjects] = useState<UIProjectData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
-  // Mock data
-  const projects = [
-    {
-      id: 1,
-      title: "Multi-Shift Nurse Rostering - City Hospital",
-      description: "A complex 24/7 staffing problem involving 50+ employees with varying certifications, seniority levels, and union constraints. Includes vacation requests and overtime balancing rules.",
-      industry: "Healthcare",
-      industryColor: "blue",
-      type: "Staffing",
-      typeColor: "purple",
-      author: "Dr. Elena Vance",
-      date: "Oct 24, 2023",
-      complexity: "High Complexity",
-      complexityColor: "text-[#13a4ec]",
-      downloads: "1.2k"
-    },
-    {
-      id: 2,
-      title: "Regional Logistics Hub Routing Optimization",
-      description: "Vehicle routing problem with time windows (VRPTW) for a mid-sized delivery fleet. Focuses on minimizing fuel consumption while meeting tight delivery SLAs in metropolitan areas.",
-      industry: "Logistics",
-      industryColor: "green",
-      type: "Optimization",
-      typeColor: "orange",
-      author: "LogisticsPro Team",
-      date: "Sep 12, 2023",
-      complexity: "Intermediate",
-      complexityColor: "text-orange-500",
-      downloads: "856"
-    },
-    {
-      id: 3,
-      title: "Automated Assembly Line Job Sequencing",
-      description: "Job-shop scheduling for an automotive components manufacturer. Objectives include minimizing makespan and idle time while handling machine breakdown probabilities.",
-      industry: "Manufacturing",
-      industryColor: "gray",
-      type: "Production",
-      typeColor: "purple",
-      author: "Marcus Chen",
-      date: "Aug 30, 2023",
-      complexity: "High Complexity",
-      complexityColor: "text-[#13a4ec]",
-      downloads: "2.4k"
+  const fetchImages = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await ImageService.getPublishedImages({
+        page: currentPage,
+        size: 10
+      });
+
+      const mappedProjects: UIProjectData[] = Object.entries(data.images).map(([id, dto]) => {
+        return {
+          ...dto,
+          id: id,
+          title: dto.name,
+          author: dto.authorName,
+          date: dto.creationDate, 
+          
+          // Hardcoded UI fields
+          industry: "General", 
+          industryColor: "blue",
+          type: "Optimization",
+          typeColor: "purple",
+          complexity: "Intermediate",
+          complexityColor: "text-orange-500",
+          downloads: "N/A"
+        };
+      });
+
+      setProjects(mappedProjects);
+      setTotalPages(data.totalPages);
+      
+    } catch (err) {
+      setError("Failed to load images.");
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchImages();
+  }, [currentPage]);
+
+  const handleViewDetails = (id: string | number) => {
+    console.log(`Navigating to details for project ${id}`);
+    // navigate(`/public-images/${id}`);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) setCurrentPage(prev => prev + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 0) setCurrentPage(prev => prev - 1);
+  };
 
   return (
     <div className="bg-[#f6f7f8] dark:bg-[#101c22] text-[#111618] dark:text-white min-h-screen font-sans flex flex-col">
       
-      {/* Main Content Wrapper */}
       <div className="flex flex-col md:flex-row max-w-[1440px] mx-auto w-full px-4 md:px-10 lg:px-20 py-8 gap-8 flex-1">
         
-        {/* SideNavBar / Filters */}
+        {/* Filters Sidebar */}
         <aside className="w-full md:w-64 shrink-0">
           <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-[#f0f3f4] dark:border-gray-800 shadow-sm sticky top-8">
             <div className="mb-6 flex items-center justify-between">
@@ -65,7 +97,6 @@ const PublicImages: React.FC = () => {
             </div>
             
             <div className="space-y-6">
-              {/* Filter Group: Problem Type */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-[#617c89] dark:text-gray-400">
                   <span className="material-symbols-outlined text-sm">tag</span>
@@ -81,38 +112,6 @@ const PublicImages: React.FC = () => {
                 </div>
               </div>
 
-              {/* Filter Group: Industry */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-[#617c89] dark:text-gray-400">
-                  <span className="material-symbols-outlined text-sm">corporate_fare</span>
-                  <span className="text-xs font-bold uppercase tracking-wider">Industry</span>
-                </div>
-                <div className="space-y-2">
-                  {['Healthcare', 'Manufacturing', 'Education'].map((item) => (
-                    <label key={item} className="flex items-center gap-3 cursor-pointer group">
-                      <input type="checkbox" defaultChecked={item === 'Healthcare'} className="rounded border-gray-300 text-[#13a4ec] focus:ring-[#13a4ec] w-4 h-4" />
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-[#13a4ec] transition-colors">{item}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Filter Group: Complexity */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-[#617c89] dark:text-gray-400">
-                  <span className="material-symbols-outlined text-sm">signal_cellular_alt</span>
-                  <span className="text-xs font-bold uppercase tracking-wider">Complexity</span>
-                </div>
-                <div className="space-y-2">
-                  {['Basic', 'Intermediate', 'High Complexity'].map((item) => (
-                    <label key={item} className="flex items-center gap-3 cursor-pointer group">
-                      <input type="radio" name="complexity" defaultChecked={item === 'High Complexity'} className="border-gray-300 text-[#13a4ec] focus:ring-[#13a4ec] w-4 h-4" />
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
               <div className="pt-4 border-t border-[#f0f3f4] dark:border-gray-800">
                 <button className="w-full bg-[#f0f3f4] dark:bg-gray-800 text-sm font-bold py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
                   <span className="material-symbols-outlined text-lg">star</span>
@@ -123,10 +122,9 @@ const PublicImages: React.FC = () => {
           </div>
         </aside>
 
-        {/* Main Content Area */}
+        {/* Main Content */}
         <main className="flex-1 flex flex-col gap-6">
           
-          {/* Breadcrumbs & Heading */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-sm">
               <span onClick={() => navigate('/')} className="text-[#617c89] hover:text-[#13a4ec] cursor-pointer">Home</span>
@@ -138,21 +136,19 @@ const PublicImages: React.FC = () => {
                 <h1 className="text-3xl font-black tracking-tight">Public Scheduling Problems</h1>
                 <p className="text-[#617c89] text-base">Browse and contribute to our open-source scheduling database.</p>
               </div>
-              <button className="bg-[#f0f3f4] dark:bg-gray-800 text-sm font-bold px-4 py-2.5 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 self-start sm:self-center">
+              <button 
+                onClick={fetchImages}
+                className="bg-[#f0f3f4] dark:bg-gray-800 text-sm font-bold px-4 py-2.5 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 self-start sm:self-center">
                 <span className="material-symbols-outlined text-lg">refresh</span>
                 Refresh List
               </button>
             </div>
           </div>
 
-          {/* Chips/Quick Filters & Sorting */}
           <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-[#f0f3f4] dark:border-gray-800 shadow-sm">
             <div className="flex flex-wrap gap-2">
               <button className="h-8 px-3 rounded-full bg-[#13a4ec]/10 text-[#13a4ec] text-xs font-bold border border-[#13a4ec]/20 flex items-center gap-1">
                 Staffing <span className="material-symbols-outlined text-sm">close</span>
-              </button>
-              <button className="h-8 px-3 rounded-full bg-[#13a4ec]/10 text-[#13a4ec] text-xs font-bold border border-[#13a4ec]/20 flex items-center gap-1">
-                High Complexity <span className="material-symbols-outlined text-sm">close</span>
               </button>
               <button className="h-8 px-3 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs font-bold flex items-center gap-1">
                 + Add Filter
@@ -162,85 +158,56 @@ const PublicImages: React.FC = () => {
               <span className="text-sm text-[#617c89]">Sort by:</span>
               <select className="bg-transparent border-none text-sm font-bold focus:ring-0 p-0 pr-6 cursor-pointer">
                 <option>Newest First</option>
-                <option>Highest Complexity</option>
                 <option>Most Downloaded</option>
               </select>
             </div>
           </div>
 
-          {/* List View Container */}
           <div className="space-y-4">
-            {projects.map((project) => (
-              <div key={project.id} className="group bg-white dark:bg-gray-900 rounded-xl p-6 border border-[#f0f3f4] dark:border-gray-800 shadow-sm hover:shadow-md hover:border-[#13a4ec]/30 transition-all flex flex-col lg:flex-row items-start lg:items-center gap-6">
-                <div className="flex-1 space-y-3">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <h3 className="text-xl font-bold group-hover:text-[#13a4ec] transition-colors cursor-pointer">{project.title}</h3>
-                    
-                    {/* Industry Badge */}
-                    <span className={`px-2 py-0.5 rounded bg-${project.industryColor}-50 text-${project.industryColor}-600 text-[10px] font-bold uppercase tracking-wider dark:bg-${project.industryColor}-900/30 dark:text-${project.industryColor}-400`}>
-                      {project.industry}
-                    </span>
-                    
-                    {/* Type Badge */}
-                    <span className={`px-2 py-0.5 rounded bg-${project.typeColor}-50 text-${project.typeColor}-600 text-[10px] font-bold uppercase tracking-wider dark:bg-${project.typeColor}-900/30 dark:text-${project.typeColor}-400`}>
-                      {project.type}
-                    </span>
-                  </div>
-                  
-                  <p className="text-sm text-[#617c89] line-clamp-2 max-w-3xl">
-                    {project.description}
-                  </p>
-                  
-                  <div className="flex flex-wrap items-center gap-6 text-xs text-[#617c89]">
-                    <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-lg">person</span>
-                      <span>{project.author}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-lg">calendar_today</span>
-                      <span>{project.date}</span>
-                    </div>
-                    <div className={`flex items-center gap-1.5 ${project.complexityColor}`}>
-                      <span className="material-symbols-outlined text-lg">bar_chart</span>
-                      <span className="font-bold">{project.complexity}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4 w-full lg:w-auto pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-100 dark:border-gray-800">
-                  <div className="flex flex-col items-center px-4 border-r border-gray-100 dark:border-gray-800">
-                    <span className="text-xs text-[#617c89] uppercase font-bold tracking-tighter">Downloads</span>
-                    <span className="text-lg font-bold">{project.downloads}</span>
-                  </div>
-                  <button className="flex-1 lg:flex-none bg-[#13a4ec] text-white text-sm font-bold px-6 py-2.5 rounded-lg hover:bg-[#13a4ec]/90 transition-all shadow-sm shadow-[#13a4ec]/20 whitespace-nowrap">
-                    View Details
-                  </button>
-                </div>
-              </div>
+            {loading && <div className="text-center py-10">Loading projects...</div>}
+            
+            {error && <div className="text-red-500 text-center py-10">{error}</div>}
+
+            {!loading && !error && projects.length === 0 && (
+              <div className="text-center py-10 text-gray-500">No public images found.</div>
+            )}
+
+            {!loading && !error && projects.map((project) => (
+              <PublicImageCard 
+                key={project.id}
+                {...project}
+                // @ts-ignore - handling string vs number ID mismatch if Component expects number
+                id={project.id} 
+                onViewDetails={() => handleViewDetails(project.id)}
+              />
             ))}
           </div>
 
-          {/* Pagination */}
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <button className="w-10 h-10 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-white dark:hover:bg-gray-800 transition-colors disabled:opacity-50" disabled>
-              <span className="material-symbols-outlined">chevron_left</span>
-            </button>
-            <div className="flex items-center gap-2">
-              <button className="w-10 h-10 rounded-lg bg-[#13a4ec] text-white font-bold text-sm">1</button>
-              <button className="w-10 h-10 rounded-lg hover:bg-white dark:hover:bg-gray-800 font-medium text-sm transition-colors border border-transparent hover:border-gray-200">2</button>
-              <button className="w-10 h-10 rounded-lg hover:bg-white dark:hover:bg-gray-800 font-medium text-sm transition-colors border border-transparent hover:border-gray-200">3</button>
-              <span className="text-gray-400">...</span>
-              <button className="w-10 h-10 rounded-lg hover:bg-white dark:hover:bg-gray-800 font-medium text-sm transition-colors border border-transparent hover:border-gray-200">12</button>
+          {!loading && projects.length > 0 && (
+            <div className="flex items-center justify-center gap-4 mt-4">
+              <button 
+                onClick={handlePrevPage}
+                disabled={currentPage === 0}
+                className="w-10 h-10 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-white dark:hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <span className="material-symbols-outlined">chevron_left</span>
+              </button>
+              
+              <div className="flex items-center gap-2 font-medium">
+                 Page {currentPage + 1} of {totalPages}
+              </div>
+
+              <button 
+                 onClick={handleNextPage}
+                 disabled={currentPage >= totalPages - 1}
+                 className="w-10 h-10 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-white dark:hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <span className="material-symbols-outlined">chevron_right</span>
+              </button>
             </div>
-            <button className="w-10 h-10 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-white dark:hover:bg-gray-800 transition-colors">
-              <span className="material-symbols-outlined">chevron_right</span>
-            </button>
-          </div>
+          )}
           
         </main>
       </div>
 
-      {/* Footer */}
       <footer className="bg-white dark:bg-[#101c22] border-t border-[#f0f3f4] dark:border-gray-800 py-8 px-4 md:px-10 lg:px-20 mt-auto">
         <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
