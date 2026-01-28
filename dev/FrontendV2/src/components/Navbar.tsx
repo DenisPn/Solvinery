@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-
 export default function Navbar() {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // בדיקה האם הנתיב הנוכחי תואם לקישור
+  // בדיקה האם הנתיב הנוכחי תואם לקישור לקביעת ה-Style
   const isActive = (path: string) => {
     return location.pathname === path 
       ? 'text-primary font-bold' 
@@ -22,7 +21,6 @@ export default function Navbar() {
           <div className="size-8 flex items-center justify-center bg-primary/10 rounded-lg text-primary">
             <span className="material-symbols-outlined text-2xl">calendar_month</span>
           </div>
-          {/* שינוי 1: השם שונה ל-Solvinery */}
           <h2 className="text-text-main-light dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">
             Solvinery
           </h2>
@@ -32,10 +30,10 @@ export default function Navbar() {
       {/* צד ימין - ניווט ומשתמש */}
       <div className="flex items-center gap-8">
         
-        {/* תפריט ניווט (מוסתר במובייל) */}
+        {/* תפריט ניווט */}
         <nav className="hidden lg:flex items-center gap-6">
           <Link 
-            to="/" 
+            to="/myimages" // ✅ תוקן: מפנה כעת לנתיב של MyImagesPage
             className={`transition-colors text-sm leading-normal ${isActive('/myimages')}`}
           >
             My Problems
@@ -48,17 +46,16 @@ export default function Navbar() {
             New Problem
           </Link>
 
-          {/* שינוי 3: הוספת Public Problems (במקום Solvers שנמחק) */}
           <Link 
-            to="#" 
-            className="text-text-main-light dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal"
+            to="/" // ✅ תוקן: מפנה לנתיב הציבורי (אופציונלי)
+            className={`transition-colors text-sm leading-normal ${isActive('/public-images')}`}
           >
             Public Problems
           </Link>
 
           <Link 
-            to="#" 
-            className="text-text-main-light dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal"
+            to="/settings" 
+            className={`transition-colors text-sm leading-normal ${isActive('/settings')}`}
           >
             Settings
           </Link>
