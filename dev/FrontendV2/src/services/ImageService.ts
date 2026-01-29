@@ -3,7 +3,7 @@ import { API_BASE_URL } from '../config';
 import type { ModelPayload, PaginatedImagesResponse, ImageSearchParams } from '../types/apiTypes';
 
 export const ImageService = {
-  // --- Create Image (Existing) ---
+  // --- Create Image ---
   createImage: async (userId: string, payload: ModelPayload) => {
     try {
       const url = `${API_BASE_URL}/user/${userId}/image`;
@@ -32,7 +32,7 @@ export const ImageService = {
     }
   },
 
-  // --- Get Published Images (New) ---
+  // --- Get Published Images ---
   getPublishedImages: async (params: ImageSearchParams = {}): Promise<PaginatedImagesResponse> => {
     try {
       const url = `${API_BASE_URL}/image/view`;
@@ -51,6 +51,57 @@ export const ImageService = {
       if (axios.isAxiosError(error) && error.response) {
         console.error("Status:", error.response.status);
         console.error("Data:", error.response.data);
+      } else {
+        console.error("Error Message:", error.message);
+      }
+      console.groupEnd();
+      throw error;
+    }
+  },
+
+  // --- Get User Images (NEW) ---
+  getUserImages: async (userId: string, params: ImageSearchParams = {}): Promise<PaginatedImagesResponse> => {
+    try {
+      // Endpoint: GET /user/{userId}/image/view
+      const url = `${API_BASE_URL}/user/${userId}/image/view`;
+      
+      const response = await axios.get<PaginatedImagesResponse>(url, {
+        params: {
+          page: 0,
+          size: 10,
+          ...params
+        }
+      });
+
+      return response.data;
+    } catch (error: any) {
+      console.group("❌ Service Error Details (Fetch User Images)");
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Status:", error.response.status);
+        console.error("Data:", error.response.data);
+      } else {
+        console.error("Error Message:", error.message);
+      }
+      console.groupEnd();
+      throw error;
+    }
+  },
+
+  // --- Clone Image ---
+  cloneImage: async (userId: string, imageId: string) => {
+    try {
+      const url = `${API_BASE_URL}/user/${userId}/image/${imageId}/get`;
+      
+      console.log("🚀 Service cloning from:", url);
+
+      const response = await axios.patch(url, {});
+
+      return response.data;
+    } catch (error: any) {
+      console.group("❌ Service Error Details (Clone)");
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Status:", error.response.status);
+        console.error("Server Message:", error.response.data);
       } else {
         console.error("Error Message:", error.message);
       }

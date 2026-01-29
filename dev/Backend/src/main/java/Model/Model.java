@@ -86,7 +86,7 @@ public class Model implements ModelInterface {
             parseSource();
     }
     
-    private void parseSource() {
+    private void parseSource() { ה
         //originalSource = new String(Files.readAllBytes(Paths.get(sourceFilePath)));
         CharStream charStream = CharStreams.fromString(originalSource);
         FormulationLexer lexer = new FormulationLexer(charStream);
