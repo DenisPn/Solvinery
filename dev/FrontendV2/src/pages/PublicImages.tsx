@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PublicImageCard from '../components/PublicImageCard';
+import PublicImageDetailsModal from '../components/modals/PublicImageDetailsModal';
 import { ImageService } from '../services/ImageService';
 import type { ImageDto } from '../types/apiTypes';
+// 1. ייבוא הקונטקסט (וודא שהנתיב תואם למיקום ששמרת את הקובץ)
+import { useAuth } from '../context/AuthContext';
 
 interface UIProjectData extends ImageDto {
   id: string;
@@ -21,10 +24,20 @@ interface UIProjectData extends ImageDto {
 const PublicImages: React.FC = () => {
   const navigate = useNavigate();
   
+  // 2. שימוש ב-AuthContext לקבלת המשתמש המחובר
+  const { userId, isAuthenticated } = useAuth();
+
+  // Modal & Selection State
+  const [selectedProject, setSelectedProject] = useState<UIProjectData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCloning, setIsCloning] = useState(false);
+
+  // Data State
   const [projects, setProjects] = useState<UIProjectData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
+  // Pagination State
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
@@ -71,8 +84,47 @@ const PublicImages: React.FC = () => {
   }, [currentPage]);
 
   const handleViewDetails = (id: string | number) => {
-    console.log(`Navigating to details for project ${id}`);
-    // navigate(`/public-images/${id}`);
+    const project = projects.find(p => p.id === String(id));
+    
+    if (project) {
+      // הדפסת המידע לקונסול כפי שביקשת
+      console.group(`🔍 Opening Details for: ${project.title}`);
+      console.log("🆔 Image ID:", project.id);
+      console.log("📦 Full Data Object:", project);
+      console.groupEnd();
+
+      setSelectedProject(project);
+      setIsModalOpen(true);
+    } else {
+      console.warn(`Project with id ${id} not found in current list`);
+    }
+  };
+
+  const handleCloneProject = async (imageId: string) => {
+    // 3. בדיקה מול ה-Context האם המשתמש מחובר
+    if (!isAuthenticated || !userId) {
+        alert("You must be logged in to clone problems.");
+        // אופציונלי: הפניה לעמוד התחברות
+        // navigate('/login');
+        return;
+    }
+
+    setIsCloning(true);
+    try {
+        // שימוש ב-userId האמיתי מה-AuthContext
+        await ImageService.cloneImage(userId, imageId);
+        
+        // Success actions
+        alert("Problem cloned successfully to your collection!");
+        setIsModalOpen(false);
+        // Optional: navigate('/myimages');
+        
+    } catch (err) {
+        console.error("Clone failed", err);
+        alert("Failed to clone the problem. Please try again.");
+    } finally {
+        setIsCloning(false);
+    }
   };
 
   const handleNextPage = () => {
@@ -86,6 +138,7 @@ const PublicImages: React.FC = () => {
   return (
     <div className="bg-[#f6f7f8] dark:bg-[#101c22] text-[#111618] dark:text-white min-h-screen font-sans flex flex-col">
       
+      {/* Main Container */}
       <div className="flex flex-col md:flex-row max-w-[1440px] mx-auto w-full px-4 md:px-10 lg:px-20 py-8 gap-8 flex-1">
         
         {/* Filters Sidebar */}
@@ -122,9 +175,10 @@ const PublicImages: React.FC = () => {
           </div>
         </aside>
 
-        {/* Main Content */}
+        {/* Main Content Area */}
         <main className="flex-1 flex flex-col gap-6">
           
+          {/* Header */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-sm">
               <span onClick={() => navigate('/')} className="text-[#617c89] hover:text-[#13a4ec] cursor-pointer">Home</span>
@@ -145,6 +199,7 @@ const PublicImages: React.FC = () => {
             </div>
           </div>
 
+          {/* Sort/Filter Bar */}
           <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-[#f0f3f4] dark:border-gray-800 shadow-sm">
             <div className="flex flex-wrap gap-2">
               <button className="h-8 px-3 rounded-full bg-[#13a4ec]/10 text-[#13a4ec] text-xs font-bold border border-[#13a4ec]/20 flex items-center gap-1">
@@ -163,6 +218,7 @@ const PublicImages: React.FC = () => {
             </div>
           </div>
 
+          {/* Cards List */}
           <div className="space-y-4">
             {loading && <div className="text-center py-10">Loading projects...</div>}
             
@@ -176,13 +232,14 @@ const PublicImages: React.FC = () => {
               <PublicImageCard 
                 key={project.id}
                 {...project}
-                // @ts-ignore - handling string vs number ID mismatch if Component expects number
+                // @ts-ignore
                 id={project.id} 
                 onViewDetails={() => handleViewDetails(project.id)}
               />
             ))}
           </div>
 
+          {/* Pagination */}
           {!loading && projects.length > 0 && (
             <div className="flex items-center justify-center gap-4 mt-4">
               <button 
@@ -224,6 +281,15 @@ const PublicImages: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {/* Modal Component */}
+      <PublicImageDetailsModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        data={selectedProject}
+        onClone={handleCloneProject}
+        isCloning={isCloning}
+      />
 
     </div>
   );

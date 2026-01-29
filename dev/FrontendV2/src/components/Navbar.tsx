@@ -53,12 +53,6 @@ export default function Navbar() {
             Public Problems
           </Link>
 
-          <Link 
-            to="/settings" 
-            className={`transition-colors text-sm leading-normal ${isActive('/settings')}`}
-          >
-            Settings
-          </Link>
         </nav>
 
         {/* אזור אישי - התראות ופרופיל */}
