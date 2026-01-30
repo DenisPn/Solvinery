@@ -62,3 +62,24 @@ export interface ImageSearchParams {
   description?: string;
   author?: string;
 }
+
+// --- New Solver Types (Added below) ---
+
+export interface SolverConfig {
+  preferenceModulesScalars: Record<string, number>;
+  enabledConstraintModules: string[];
+  timeout: number;
+}
+
+export interface SolverSolutionValue {
+  values: string[];
+  objectiveValue: number;
+}
+
+export interface SolverResponse {
+  solved: boolean;
+  solvingTime: number;
+  objectiveValue: number;
+  solution: Record<string, any>; 
+  [key: string]: any; 
+}
