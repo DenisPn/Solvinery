@@ -38,9 +38,8 @@ export interface ModelPayload {
   code: string;
 }
 
-export interface ImageDto {
-  name: string;
-  description: string;
+// ✅ השינוי החשוב: ImageDto יורש עכשיו את כל השדות של ModelPayload
+export interface ImageDto extends ModelPayload {
   creationDate: string;
   authorName: string;
 }
@@ -62,8 +61,6 @@ export interface ImageSearchParams {
   description?: string;
   author?: string;
 }
-
-// --- New Solver Types (Added below) ---
 
 export interface SolverConfig {
   preferenceModulesScalars: Record<string, number>;

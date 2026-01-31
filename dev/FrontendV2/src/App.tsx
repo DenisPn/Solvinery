@@ -10,8 +10,10 @@ import ViewImagePage from './pages/ViewImagePage';
 import EditImagePage from './pages/EditImagePage';
 import SolutionViewPage from './pages/SolutionViewPage';
 import PublicImages from './pages/PublicImages.tsx';
-// ✅ הייבוא החדש
 import SolutionPage from './pages/SolutionPage';
+import CommunityWorkspacePage from './pages/CommunityWorkspacePage';
+// ✅ ייבוא העמוד החדש
+import CommunityImagesPage from './pages/CommunityImagesPage'; 
 
 function App() {
   return (
@@ -20,27 +22,21 @@ function App() {
         <Navbar />
         
         <Routes>
-          {/* Home Page */}
           <Route path="/" element={<PublicImages />} />
-
-          {/* Authentication */}
           <Route path="/auth" element={<AuthPage />} />
-
-          {/* My Images */}
           <Route path="/myimages" element={<MyImagesPage />} />
-
-          {/* Create New Image */}
           <Route path="/new" element={<NewImagePage />} />
 
-          {/* Dynamic Routes */}
-          {/* שים לב: הנתיבים כאן צריכים להתאים למה שכתבנו ב-navigate ב-MyImagesPage */}
           <Route path="/problems/:id" element={<ViewImagePage />} /> 
           <Route path="/problems/:id/edit" element={<EditImagePage />} />
-          
-          {/* ✅ הנתיב החדש לדף הפתרון */}
           <Route path="/problems/:id/solution" element={<SolutionPage />} />
 
-          {/* Legacy/Other Routes */}
+          {/* ✅ הוספת הנתיב לרשימת הקהילה */}
+          <Route path="/community" element={<CommunityImagesPage />} />
+          
+          {/* הנתיב הקיים ל-Workspace ספציפי */}
+          <Route path="/community/:id" element={<CommunityWorkspacePage />} />
+
           <Route path="/image/:id" element={<ViewImagePage />} />
           <Route path="/image/:id/edit" element={<EditImagePage />} />
           <Route path="/solution/:id" element={<SolutionViewPage />} />
