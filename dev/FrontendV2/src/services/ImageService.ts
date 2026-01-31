@@ -23,7 +23,6 @@ export const ImageService = {
       if (axios.isAxiosError(error) && error.response) {
         console.error("Status:", error.response.status);
         console.error("Server Message:", JSON.stringify(error.response.data, null, 2));
-        console.error("Validation Errors:", error.response.data?.errors || "No specific validation errors found");
       } else {
         console.error("Error Message:", error.message);
       }
@@ -59,10 +58,9 @@ export const ImageService = {
     }
   },
 
-  // --- Get User Images (NEW) ---
+  // --- Get User Images ---
   getUserImages: async (userId: string, params: ImageSearchParams = {}): Promise<PaginatedImagesResponse> => {
     try {
-      // Endpoint: GET /user/{userId}/image/view
       const url = `${API_BASE_URL}/user/${userId}/image/view`;
       
       const response = await axios.get<PaginatedImagesResponse>(url, {
