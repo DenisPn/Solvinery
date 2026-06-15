@@ -7,7 +7,7 @@ export const ImageService = {
   createImage: async (userId: string, payload: ModelPayload) => {
     try {
       const url = `${API_BASE_URL}/user/${userId}/image`;
-      
+
       console.log("🚀 Service sending to:", url);
       console.log("📦 Payload Sent:", JSON.stringify(payload, null, 2));
 
@@ -35,7 +35,7 @@ export const ImageService = {
   getPublishedImages: async (params: ImageSearchParams = {}): Promise<PaginatedImagesResponse> => {
     try {
       const url = `${API_BASE_URL}/image/view`;
-      
+
       const response = await axios.get<PaginatedImagesResponse>(url, {
         params: {
           page: 0,
@@ -62,7 +62,7 @@ export const ImageService = {
   getUserImages: async (userId: string, params: ImageSearchParams = {}): Promise<PaginatedImagesResponse> => {
     try {
       const url = `${API_BASE_URL}/user/${userId}/image/view`;
-      
+
       const response = await axios.get<PaginatedImagesResponse>(url, {
         params: {
           page: 0,
@@ -89,7 +89,7 @@ export const ImageService = {
   cloneImage: async (userId: string, imageId: string) => {
     try {
       const url = `${API_BASE_URL}/user/${userId}/image/${imageId}/get`;
-      
+
       console.log("🚀 Service cloning from:", url);
 
       const response = await axios.patch(url, {});
@@ -106,5 +106,42 @@ export const ImageService = {
       console.groupEnd();
       throw error;
     }
-  }
+  },
+
+  // --- Delete Image ---
+  deleteImage: async (userId: string, imageId: string): Promise<void> => {
+    try {
+      const url = `${API_BASE_URL}/user/${userId}/image/${imageId}`;
+      await axios.delete(url);
+    } catch (error: any) {
+      console.group("❌ Service Error Details (Delete)");
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Status:", error.response.status);
+        console.error("Server Message:", error.response.data);
+      } else {
+        console.error("Error Message:", error.message);
+      }
+      console.groupEnd();
+      throw error;
+    }
+  },
+
+  // --- Publish Image ---
+  publishImage: async (userId: string, imageId: string): Promise<void> => {
+    try {
+      const url = `${API_BASE_URL}/user/${userId}/image/${imageId}/publish`;
+      await axios.patch(url);
+    } catch (error: any) {
+      console.group("❌ Service Error Details (Publish)");
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Status:", error.response.status);
+        console.error("Server Message:", error.response.data);
+      } else {
+        console.error("Error Message:", error.message);
+      }
+      console.groupEnd();
+      throw error;
+    }
+  },
+
 };

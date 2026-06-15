@@ -1,22 +1,213 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import type { SolverResponse } from '../types/apiTypes';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface LocationState {
   solutionData: SolverResponse;
   problemTitle: string;
 }
 
+// --- Sortable Column Header ---
+const SortableHeader = ({
+  id,
+  label,
+  sortKey,
+  sortConfig,
+  onSort,
+}: {
+  id: string;
+  label: string;
+  sortKey: string;
+  sortConfig: { key: string; dir: 'asc' | 'desc' } | null;
+  onSort: (key: string) => void;
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const isActive = sortConfig?.key === sortKey;
+
+  return (
+    <th
+      ref={setNodeRef}
+      style={style}
+      className="px-6 py-3 font-semibold uppercase tracking-wider text-[11px] bg-slate-50 dark:bg-gray-900 text-slate-500 dark:text-slate-400"
+    >
+      <div className="flex items-center gap-1">
+        {/* אייקון גרירה */}
+        <span
+          {...attributes}
+          {...listeners}
+          className="material-symbols-outlined text-[16px] text-slate-300 cursor-grab mr-1"
+        >
+          drag_indicator
+        </span>
+
+        {/* כותרת + sort */}
+        <div
+          className="flex items-center gap-1 cursor-pointer select-none"
+          onClick={() => onSort(sortKey)}
+        >
+          {label}
+          <span className="material-symbols-outlined text-[14px]">
+            {isActive ? (sortConfig?.dir === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more'}
+          </span>
+        </div>
+      </div>
+    </th>
+  );
+};
+
+// --- Single Variable Table ---
+const VariableTable = ({ varName, varData }: { varName: string; varData: any }) => {
+  const allObjValuesAreOne = varData.solutions.every((sol: any) => sol.objectiveValue === 1);
+
+  const initialCols = [
+    { id: 'idx', label: '#' },
+    ...varData.typeStructure.map((type: string, i: number) => ({
+      id: `col_${i}`,
+      label: type,
+    })),
+    ...(!allObjValuesAreOne
+      ? [{ id: 'obj', label: varData.objectiveValueAlias || 'Objective Value' }]
+      : []),
+  ];
+
+  const [columns, setColumns] = useState(initialCols);
+  const [sortConfig, setSortConfig] = useState<{ key: string; dir: 'asc' | 'desc' } | null>(null);
+
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setColumns((cols) => {
+        const oldIndex = cols.findIndex((c) => c.id === active.id);
+        const newIndex = cols.findIndex((c) => c.id === over.id);
+        return arrayMove(cols, oldIndex, newIndex);
+      });
+    }
+  };
+
+  const handleSort = (key: string) => {
+    setSortConfig((prev) =>
+      prev?.key === key
+        ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
+        : { key, dir: 'asc' }
+    );
+  };
+
+  const getSortedSolutions = () => {
+    if (!sortConfig) return varData.solutions;
+    return [...varData.solutions].sort((a: any, b: any) => {
+      let aVal: any, bVal: any;
+      if (sortConfig.key === 'obj') {
+        aVal = a.objectiveValue;
+        bVal = b.objectiveValue;
+      } else {
+        const idx = parseInt(sortConfig.key.replace('col_', ''));
+        aVal = a.values[idx];
+        bVal = b.values[idx];
+      }
+      if (aVal < bVal) return sortConfig.dir === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortConfig.dir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  };
+
+  const sortedSolutions = getSortedSolutions();
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-[#dbe2e6] dark:border-gray-700 shadow-sm overflow-hidden mb-6">
+      <div className="px-6 py-4 border-b border-[#dbe2e6] dark:border-gray-700 flex items-center justify-between">
+        <h3 className="text-lg font-bold text-[#111618] dark:text-white">{varName}</h3>
+        <span className="text-xs text-gray-400">{varData.solutions.length} rows</span>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={columns.map((c) => c.id)} strategy={horizontalListSortingStrategy}>
+                <tr>
+                  {columns.map((col) =>
+                    col.id === 'idx' ? (
+                      <th
+                        key="idx"
+                        className="px-6 py-3 font-semibold uppercase tracking-wider text-[11px] bg-slate-50 dark:bg-gray-900 text-slate-500 dark:text-slate-400"
+                      >
+                        #
+                      </th>
+                    ) : (
+                      <SortableHeader
+                        key={col.id}
+                        id={col.id}
+                        label={col.label}
+                        sortKey={col.id}
+                        sortConfig={sortConfig}
+                        onSort={handleSort}
+                      />
+                    )
+                  )}
+                </tr>
+              </SortableContext>
+            </DndContext>
+          </thead>
+          <tbody className="divide-y divide-slate-100 dark:divide-gray-700">
+            {sortedSolutions.map((sol: any, i: number) => (
+              <tr key={i} className="hover:bg-slate-50 dark:hover:bg-gray-700/30">
+                {columns.map((col) => {
+                  if (col.id === 'idx') {
+                    return <td key="idx" className="px-6 py-3 text-slate-400 text-xs">{i + 1}</td>;
+                  }
+                  if (col.id === 'obj') {
+                    return <td key="obj" className="px-6 py-3 text-[#111618] dark:text-slate-300">{sol.objectiveValue}</td>;
+                  }
+                  const idx = parseInt(col.id.replace('col_', ''));
+                  return (
+                    <td key={col.id} className="px-6 py-3 text-[#111618] dark:text-slate-300">
+                      {sol.values[idx]}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+// --- Main Page ---
 const SolutionPage: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // שליפת המידע שהועבר מהדף הקודם
+
   const state = location.state as LocationState;
   const { solutionData, problemTitle } = state || {};
 
-  // אם הגענו לדף בטעות בלי מידע (למשל רענון הדף), נחזור אחורה או נציג שגיאה
   if (!solutionData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -27,7 +218,7 @@ const SolutionPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-background-light dark:bg-background-dark font-sans text-[#111618] dark:text-white min-h-screen flex flex-col">
+    <div className="bg-[#f6f7f8] dark:bg-background-dark font-sans text-[#111618] dark:text-white min-h-screen flex flex-col">
       <style>{`
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -38,7 +229,7 @@ const SolutionPage: React.FC = () => {
       `}</style>
 
       <main className="flex-1 px-4 sm:px-10 py-8 max-w-[1440px] mx-auto w-full">
-        
+
         {/* Breadcrumbs */}
         <div className="flex flex-wrap gap-2 mb-4">
           <button onClick={() => navigate('/myimages')} className="text-[#617c89] text-sm font-medium leading-normal hover:text-primary">My Problems</button>
@@ -46,7 +237,7 @@ const SolutionPage: React.FC = () => {
           <span className="text-[#111618] dark:text-white text-sm font-medium leading-normal">Solution Results</span>
         </div>
 
-        {/* Page Heading - Dynamic Data */}
+        {/* Page Heading */}
         <div className="flex flex-wrap justify-between items-end gap-3 mb-8">
           <div className="flex min-w-72 flex-col gap-2">
             <div className="flex items-center gap-3">
@@ -60,7 +251,7 @@ const SolutionPage: React.FC = () => {
               )}
             </div>
             <p className="text-[#617c89] text-base font-normal leading-normal">
-              Problem ID: {id} • Time taken: {solutionData.solvingTime}ms
+              Problem ID: {id} • Time taken: {solutionData.solvingTime}ms • Objective Value: {solutionData.objectiveValue.toFixed(2)}
             </p>
           </div>
           <div className="flex gap-3">
@@ -70,46 +261,10 @@ const SolutionPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Stats Cards - Dynamic Data */}
-        <div className="flex flex-wrap gap-4 mb-8">
-          {/* Optimization Score (Objective Value) */}
-          <div className="flex min-w-[200px] flex-1 flex-col gap-2 rounded-xl p-6 bg-white dark:bg-gray-800 border border-[#dbe2e6] dark:border-gray-700 shadow-sm">
-            <div className="flex justify-between items-start">
-              <p className="text-[#617c89] text-sm font-medium uppercase tracking-wider">Objective Value</p>
-              <span className="material-symbols-outlined text-primary">analytics</span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <p className="text-[#111618] dark:text-white tracking-tight text-3xl font-bold">
-                {solutionData.objectiveValue.toFixed(2)}
-              </p>
-            </div>
-            <div className="w-full bg-[#f0f3f4] dark:bg-gray-700 h-1.5 rounded-full mt-2">
-              <div className="bg-primary h-1.5 rounded-full" style={{ width: '100%' }}></div>
-            </div>
-          </div>
-          
-          {/* Status Card */}
-          <div className="flex min-w-[200px] flex-1 flex-col gap-2 rounded-xl p-6 bg-white dark:bg-gray-800 border border-[#dbe2e6] dark:border-gray-700 shadow-sm">
-            <div className="flex justify-between items-start">
-              <p className="text-[#617c89] text-sm font-medium uppercase tracking-wider">Solver Status</p>
-              <span className="material-symbols-outlined text-primary">task_alt</span>
-            </div>
-            <p className="text-[#111618] dark:text-white tracking-tight text-3xl font-bold">
-              {solutionData.solved ? "Optimal" : "Failed"}
-            </p>
-            <p className="text-[#617c89] text-sm font-medium">Solver execution complete</p>
-          </div>
-        </div>
-
-        {/* JSON View (Temporary until we have a real table mapping) */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-[#dbe2e6] dark:border-gray-700 shadow-md overflow-hidden flex flex-col p-6">
-            <h3 className="text-lg font-bold mb-4">Raw Solution Data</h3>
-            <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg overflow-auto max-h-[500px] custom-scrollbar">
-                <pre className="text-sm font-mono text-gray-700 dark:text-gray-300">
-                    {JSON.stringify(solutionData, null, 2)}
-                </pre>
-            </div>
-        </div>
+        {/* Tables */}
+        {Object.entries(solutionData.solution).map(([varName, varData]: [string, any]) => (
+          <VariableTable key={varName} varName={varName} varData={varData} />
+        ))}
 
       </main>
     </div>
